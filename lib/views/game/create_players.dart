@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final int minPlayers = 2;
+final int minPlayers = 8;
 
 class CreatePlayersScreen extends StatefulWidget {
   final Function(List<String>) onSubmit;
@@ -77,13 +77,16 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
 
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ReorderableDragStartListener(
-                      index: index,
-                      child: const Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: Icon(Icons.drag_handle),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12.0, right: 8.0),
+                        child: ReorderableDragStartListener(
+                          index: index,
+                          child: const Icon(Icons.drag_handle),
+                        ),
                       ),
                     ),
                     Expanded(

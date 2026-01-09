@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/role.dart';
 
 class GameState extends ChangeNotifier {
+  final List<String> _players;
 
-  
-  final List<Role> _roles = [];
-  List<Role> get roles => _roles;
+  final Map<Role, int> _roles;
 
-  void addRole(Role role) {
-    _roles.add(role);
-    notifyListeners();
-  }
+  GameState({required List<String> players, required Map<Role, int> roles})
+    : _players = players,
+      _roles = roles;
 
-  void removeRole(int index) {
-    _roles.removeAt(index);
-    notifyListeners();
-  }
+  List<String> get players => _players;
+  Map<Role, int> get roles => _roles;
+
+  bool get isNight => false;
 }

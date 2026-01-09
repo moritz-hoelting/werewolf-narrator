@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/views/game/create_players.dart';
 import 'package:werewolf_narrator/views/game/select_roles.dart';
 
 class GameSetupView extends StatefulWidget {
-  final VoidCallback onFinished;
+  final Function(GameSetupResult) onFinished;
 
   const GameSetupView({super.key, required this.onFinished});
 
@@ -12,21 +13,21 @@ class GameSetupView extends StatefulWidget {
 }
 
 class _GameSetupViewState extends State<GameSetupView> {
-  GameStep step = GameStep.createPlayers;
+  GameSetupStep step = GameSetupStep.createPlayers;
   List<String> players = [];
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: step == GameStep.createPlayers,
+      canPop: step == GameSetupStep.createPlayers,
       onPopInvokedWithResult: (didPop, result) {
         switch (step) {
-          case GameStep.createPlayers:
+          case GameSetupStep.createPlayers:
             // Allow pop
             break;
-          case GameStep.selectRoles:
+          case GameSetupStep.selectRoles:
             setState(() {
-              step = GameStep.createPlayers;
+              step = GameSetupStep.createPlayers;
             });
             break;
         }
@@ -34,13 +35,15 @@ class _GameSetupViewState extends State<GameSetupView> {
       child: Scaffold(
         appBar: AppBar(title: Text(step.title)),
         body: switch (step) {
-          GameStep.createPlayers => CreatePlayersScreen(
+          GameSetupStep.createPlayers => CreatePlayersScreen(
             onSubmit: submitCreatePlayers,
             initialPlayers: players,
           ),
-          GameStep.selectRoles => SelectRolesView(
+          GameSetupStep.selectRoles => SelectRolesView(
             playerCount: players.length,
-            onSubmit: widget.onFinished,
+            onSubmit: (selectedRoles) => widget.onFinished(
+              GameSetupResult(players: players, selectedRoles: selectedRoles),
+            ),
           ),
         },
       ),
@@ -49,22 +52,29 @@ class _GameSetupViewState extends State<GameSetupView> {
 
   void submitCreatePlayers(List<String> createdPlayers) {
     setState(() {
-      step = GameStep.selectRoles;
+      step = GameSetupStep.selectRoles;
       players = createdPlayers;
     });
   }
 }
 
-enum GameStep {
+enum GameSetupStep {
   createPlayers,
   selectRoles;
 
   String get title {
     switch (this) {
-      case GameStep.createPlayers:
+      case GameSetupStep.createPlayers:
         return 'Create Players';
-      case GameStep.selectRoles:
+      case GameSetupStep.selectRoles:
         return 'Select Roles';
     }
   }
+}
+
+class GameSetupResult {
+  final List<String> players;
+  final Map<Role, int> selectedRoles;
+
+  GameSetupResult({required this.players, required this.selectedRoles});
 }

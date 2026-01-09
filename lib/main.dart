@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game.dart';
 
 void main() {
@@ -13,12 +14,7 @@ class WerewolfNarratorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Werewolf Narrator',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: Themes.lightTheme,
       home: const MyHomePage(title: 'Werewolf Narrator'),
     );
   }

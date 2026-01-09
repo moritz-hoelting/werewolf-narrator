@@ -11,24 +11,38 @@ class GameView extends StatefulWidget {
 }
 
 class _GameViewState extends State<GameView> {
-  bool setupFinished = false;
+  GameSetupResult? setupResult;
 
   @override
   Widget build(BuildContext context) {
-    if (setupFinished) {
+    if (setupResult != null) {
       return ChangeNotifierProvider(
-        create: (context) => GameState(),
-        child: Scaffold(
-          appBar: AppBar(title: Text('Game')),
-          body: const Placeholder(),
+        create: (context) => GameState(
+          players: setupResult!.players,
+          roles: setupResult!.selectedRoles,
+        ),
+        child: Consumer<GameState>(
+          builder: (context, gameState, child) {
+            return Theme(
+              data: gameState.isNight ? ThemeData.dark() : ThemeData.light(),
+              child: Scaffold(
+                appBar: AppBar(title: Text('Game')),
+                body: const Placeholder(),
+              ),
+            );
+          },
         ),
       );
     } else {
-      return GameSetupView(onFinished: () {
-        setState(() {
-          setupFinished = true;
-        });
-      });
+      return GameSetupView(
+        onFinished: (result) {
+          print('Players: ${result.players}');
+          print('Selected Roles: ${result.selectedRoles}');
+          setState(() {
+            setupResult = result;
+          });
+        },
+      );
     }
   }
 }
