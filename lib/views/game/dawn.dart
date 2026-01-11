@@ -9,39 +9,65 @@ class DawnScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         title: const Text('The village wakes as dawn breaks...'),
         automaticallyImplyLeading: false,
       ),
-      body: Consumer<GameState>(
-        builder: (context, gameState, child) => ListView.builder(
-          itemBuilder: (context, index) {
-            final player = gameState.players[index];
-            final deathReasons = gameState.nightDeaths[index];
-            if (deathReasons == null || deathReasons.isEmpty) {
-              return const SizedBox.shrink();
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [theme.colorScheme.surface, Colors.orange.shade300],
+            stops: const [0.65, 1.0],
+          ),
+        ),
+        height: double.infinity,
+        child: Consumer<GameState>(
+          builder: (context, gameState, child) {
+            if (gameState.nightDeaths.isEmpty) {
+              return Center(
+                child: Text(
+                  'No one died last night.',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              );
             }
-            return ListTile(
-              title: Text(
-                'Player ${player.name} has died.',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: deathReasons
-                    .map(
-                      (reason) => Text(
-                        '- ${reason.name(context)}',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    )
-                    .toList(),
-              ),
+
+            return ListView.builder(
+              itemBuilder: (context, index) {
+                final playerIndex = gameState.nightDeaths.keys.elementAt(index);
+                final player = gameState.players[playerIndex];
+                final deathReasons = gameState.nightDeaths[playerIndex];
+                if (deathReasons == null || deathReasons.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ListTile(
+                  title: Text(
+                    'Player ${player.name} has died.',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: deathReasons
+                        .map(
+                          (reason) => Text(
+                            '- ${reason.name(context)}',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                );
+              },
+              itemCount: gameState.nightDeaths.length,
+              shrinkWrap: true,
             );
           },
-          itemCount: gameState.playerCount,
-          shrinkWrap: true,
         ),
       ),
       bottomNavigationBar: Padding(

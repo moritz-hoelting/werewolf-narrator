@@ -23,6 +23,7 @@ class GameState extends ChangeNotifier {
 
   bool get isNight => phase.isNight;
   int get playerCount => players.length;
+  int get alivePlayerCount => players.where((player) => player.isAlive).length;
 
   bool hasRole(Role role) => roles.containsKey(role) && roles[role]! > 0;
 
@@ -147,7 +148,7 @@ class GameState extends ChangeNotifier {
         if (dayCounter > 0 || !hasAliveRole(Role.cupid)) return false;
         break;
       case GamePhase.lovers:
-        if (dayCounter > 0) return false;
+        if (dayCounter > 0 || !hasRole(Role.cupid)) return false;
         break;
       case GamePhase.seer:
         if (!hasAliveRole(Role.seer)) return false;

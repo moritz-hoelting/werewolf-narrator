@@ -38,6 +38,7 @@ enum Role {
       case Role.cupid:
         return RoleNightAction(
           maxSelection: 2,
+          allowSelfSelect: true,
           onConfirm: (selectedIndices, gameState) {
             assert(
               selectedIndices.length == 2,
@@ -66,6 +67,7 @@ enum Role {
 
 class RoleNightAction {
   final int maxSelection;
+  final bool allowSelfSelect;
   final PlayerSelectAction Function(int playerId, GameState gameState)?
   onPlayerSelected;
   final Function(List<int> playerIds, GameState gameState)? onConfirm;
@@ -74,6 +76,7 @@ class RoleNightAction {
     required this.maxSelection,
     this.onPlayerSelected,
     this.onConfirm,
+    this.allowSelfSelect = false,
   });
 }
 

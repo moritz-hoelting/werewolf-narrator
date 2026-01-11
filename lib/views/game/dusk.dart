@@ -7,12 +7,24 @@ class DuskScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The Village sleeps as night falls...
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Center(
-        child: Text(
-          'The village sleeps as night falls...',
-          style: Theme.of(context).textTheme.headlineLarge,
+      extendBody: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [theme.colorScheme.surface, Colors.purple.shade700],
+            stops: const [0.65, 1.0],
+          ),
+        ),
+        child: Center(
+          child: Text(
+            'The village sleeps as night falls...',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
         ),
       ),
       bottomNavigationBar: Padding(

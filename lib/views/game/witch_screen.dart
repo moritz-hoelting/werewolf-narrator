@@ -145,9 +145,10 @@ class _WitchScreenState extends State<WitchScreen> {
   }
 
   bool playerTapEnabled(int index, GameState gameState) =>
-      gameState.players[index].role != Role.witch &&
+      gameState.players[index].isAlive &&
       (_killModeActive
-          ? gameState.players[index].isAlive
+          ? (gameState.players[index].role != Role.witch &&
+                gameState.players[index].isAlive)
           : (gameState.nightDeaths.containsKey(index) &&
                 gameState.nightDeaths[index]!.contains(DeathReason.werewolf)));
 }

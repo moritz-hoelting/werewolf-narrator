@@ -48,7 +48,10 @@ class _ActionScreenState extends State<ActionScreen> {
                 title: Text(gameState.players[index].name),
                 onTap: getOnTapPlayer(index, gameState),
                 selected: _selectedPlayers[index],
-                enabled: gameState.players[index].role != widget.role,
+                enabled:
+                    gameState.players[index].isAlive &&
+                    ((widget.role.nightAction?.allowSelfSelect ?? false) ||
+                        gameState.players[index].role != widget.role),
               );
             },
           ),
@@ -86,7 +89,12 @@ class _ActionScreenState extends State<ActionScreen> {
   }
 
   VoidCallback? getOnTapPlayer(int index, GameState gameState) {
-    if (gameState.players[index].role == widget.role) {
+    if (!gameState.players[index].isAlive) {
+      return null;
+    }
+
+    if (!(widget.role.nightAction?.allowSelfSelect ?? false) &&
+        gameState.players[index].role == widget.role) {
       return null;
     }
 

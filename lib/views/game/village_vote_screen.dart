@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/death_reason.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
-class SeerScreen extends StatefulWidget {
+class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
-  const SeerScreen({super.key, required this.onPhaseComplete});
+  const VillageVoteScreen({super.key, required this.onPhaseComplete});
 
   @override
-  State<SeerScreen> createState() => _SeerScreenState();
+  State<VillageVoteScreen> createState() => _VillageVoteScreenState();
 }
 
-class _SeerScreenState extends State<SeerScreen> {
+class _VillageVoteScreenState extends State<VillageVoteScreen> {
   int? _selectedPlayer;
+  bool _voteConfirmed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ class _SeerScreenState extends State<SeerScreen> {
       builder: (context, gameState, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Select action for ${Role.seer.name(context)}'),
+            title: Text('Select player to vote out'),
             automaticallyImplyLeading: false,
           ),
           body: ListView.builder(
@@ -29,21 +30,23 @@ class _SeerScreenState extends State<SeerScreen> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(gameState.players[index].name),
-                subtitle: _selectedPlayer == index
+                subtitle: _voteConfirmed && _selectedPlayer == index
                     ? Text(
                         'Role: ${gameState.players[index].role?.name(context) ?? "Unknown"}',
                         style: Theme.of(context).textTheme.bodyLarge,
                       )
                     : null,
-                onTap: () {
-                  setState(() {
-                    _selectedPlayer = index;
-                  });
-                },
+                onTap: !_voteConfirmed && gameState.players[index].isAlive
+                    ? () {
+                        setState(() {
+                          _selectedPlayer = index;
+                        });
+                      }
+                    : null,
                 selected: _selectedPlayer == index,
                 enabled:
-                    gameState.players[index].isAlive &&
-                    gameState.players[index].role != Role.seer,
+                    (!_voteConfirmed && gameState.players[index].isAlive) ||
+                    _selectedPlayer == index,
               );
             },
           ),
@@ -53,9 +56,21 @@ class _SeerScreenState extends State<SeerScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: _selectedPlayer != null
-                  ? widget.onPhaseComplete
-                  : null,
+              onPressed: _voteConfirmed
+                  ? () {
+                      gameState.markPlayerDead(
+                        _selectedPlayer!,
+                        DeathReason.vote,
+                      );
+                      widget.onPhaseComplete();
+                    }
+                  : (_selectedPlayer != null
+                        ? () {
+                            setState(() {
+                              _voteConfirmed = true;
+                            });
+                          }
+                        : null),
               label: const Text('Continue'),
               icon: const Icon(Icons.arrow_forward),
             ),
