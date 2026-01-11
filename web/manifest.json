@@ -1,11 +1,11 @@
 {
-    "name": "werewolf_narrator",
-    "short_name": "werewolf_narrator",
+    "name": "Werewolf Narrator",
+    "short_name": "WW Helper",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Support app for the werewolf narrator.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,12 +1,18 @@
-enum Role {
-  villager,
-  seer,
-  witch,
-  hunter,
-  cupid,
-  werewolf;
+import 'package:flutter/material.dart';
 
-  String get name {
+enum Role {
+  villager(isUnique: false),
+  seer(isUnique: true),
+  witch(isUnique: true),
+  hunter(isUnique: true),
+  cupid(isUnique: true),
+  werewolf(isUnique: false);
+
+  const Role({required this.isUnique});
+
+  final bool isUnique;
+
+  String name(BuildContext _) {
     switch (this) {
       case Role.villager:
         return 'Villager';
@@ -20,19 +26,6 @@ enum Role {
         return 'Cupid';
       case Role.werewolf:
         return 'Werewolf';
-    }
-  }
-
-  bool get isUnique {
-    switch (this) {
-      case Role.villager:
-      case Role.werewolf:
-        return false;
-      case Role.seer:
-      case Role.witch:
-      case Role.hunter:
-      case Role.cupid:
-        return true;
     }
   }
 }

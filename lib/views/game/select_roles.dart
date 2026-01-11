@@ -113,7 +113,7 @@ class RoleSelectorCard extends StatelessWidget {
             // Role name
             Expanded(
               child: Text(
-                role.name,
+                role.name(context),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
