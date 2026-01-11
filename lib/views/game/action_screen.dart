@@ -3,21 +3,21 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
-class CheckRoleScreen extends StatefulWidget {
+class ActionScreen extends StatefulWidget {
   final Role role;
   final VoidCallback onPhaseComplete;
 
-  const CheckRoleScreen({
+  const ActionScreen({
     super.key,
     required this.role,
     required this.onPhaseComplete,
   });
 
   @override
-  State<CheckRoleScreen> createState() => _CheckRoleScreenState();
+  State<ActionScreen> createState() => _ActionScreenState();
 }
 
-class _CheckRoleScreenState extends State<CheckRoleScreen> {
+class _ActionScreenState extends State<ActionScreen> {
   late final List<bool> _selectedPlayers;
 
   int get selectedCount =>
@@ -38,9 +38,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
       builder: (context, gameState, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(
-              'Select ${(gameState.roles[widget.role] ?? 0) > 1 ? 'all' : 'the'} ${widget.role.name(context)}',
-            ),
+            title: Text('Select action for ${widget.role.name(context)}'),
             automaticallyImplyLeading: false,
           ),
           body: ListView.builder(
@@ -50,7 +48,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                 title: Text(gameState.players[index].name),
                 onTap: getOnTapPlayer(index, gameState),
                 selected: _selectedPlayers[index],
-                enabled: gameState.players[index].role == null,
+                enabled: gameState.players[index].role != widget.role,
               );
             },
           ),
@@ -60,8 +58,23 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: selectedCount == gameState.roles[widget.role]
-                  ? () => onPhaseComplete(gameState)
+              onPressed: selectedCount == widget.role.nightAction?.maxSelection
+                  ? () {
+                      final onNightActionConfirm =
+                          widget.role.nightAction?.onConfirm;
+                      if (onNightActionConfirm != null) {
+                        onNightActionConfirm(
+                          _selectedPlayers
+                              .asMap()
+                              .entries
+                              .where((entry) => entry.value)
+                              .map((entry) => entry.key)
+                              .toList(),
+                          gameState,
+                        );
+                      }
+                      widget.onPhaseComplete();
+                    }
                   : null,
               label: const Text('Continue'),
               icon: const Icon(Icons.arrow_forward),
@@ -73,11 +86,11 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   }
 
   VoidCallback? getOnTapPlayer(int index, GameState gameState) {
-    if (gameState.players[index].role != null) {
+    if (gameState.players[index].role == widget.role) {
       return null;
     }
 
-    if ((gameState.roles[widget.role] ?? 0) == 1) {
+    if ((widget.role.nightAction?.maxSelection ?? 0) == 1) {
       return () {
         setState(() {
           for (int i = 0; i < _selectedPlayers.length; i++) {
@@ -90,24 +103,12 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
     return (_selectedPlayers[index] ||
             (!_selectedPlayers[index] &&
-                selectedCount < (gameState.roles[widget.role] ?? 0)))
+                selectedCount < (widget.role.nightAction?.maxSelection ?? 0)))
         ? () {
             setState(() {
               _selectedPlayers[index] = !_selectedPlayers[index];
             });
           }
         : null;
-  }
-
-  void onPhaseComplete(GameState gameState) {
-    final selectedIndices = _selectedPlayers
-        .asMap()
-        .entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key)
-        .toList();
-    gameState.setPlayersRole(widget.role, selectedIndices);
-
-    widget.onPhaseComplete();
   }
 }

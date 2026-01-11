@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/model/death_reason.dart';
 import 'package:werewolf_narrator/model/role.dart';
 
 class GameState extends ChangeNotifier {
@@ -7,6 +8,10 @@ class GameState extends ChangeNotifier {
 
   int dayCounter = 0;
   GamePhase phase = GamePhase.dusk;
+  (int, int)? lovers;
+  Map<int, List<DeathReason>> nightDeaths = {};
+  bool witchHasHealPotion = true;
+  bool witchHasKillPotion = true;
 
   GameState({required List<String> players, required this.roles})
     : players = players.map((name) => Player(name: name)).toList() {
@@ -42,8 +47,48 @@ class GameState extends ChangeNotifier {
     setPlayersRole(Role.villager, unassignedPlayers);
   }
 
-  void markPlayerDead(int playerIndex) {
-    players[playerIndex].isAlive = false;
+  void setLovers(int playerAidx, int playerBidx) {
+    lovers = (playerAidx, playerBidx);
+    notifyListeners();
+  }
+
+  void markPlayerDead(int playerIndex, DeathReason reason) {
+    if (isNight) {
+      nightDeaths.putIfAbsent(playerIndex, () => []).add(reason);
+    } else {
+      players[playerIndex].deathReason = reason;
+    }
+    notifyListeners();
+  }
+
+  void witchHealPlayer(int playerIndex) {
+    if (nightDeaths.containsKey(playerIndex)) {
+      if (nightDeaths[playerIndex]!.contains(DeathReason.werewolf)) {
+        nightDeaths[playerIndex]!.removeWhere(
+          (reason) => reason == DeathReason.werewolf,
+        );
+        if (nightDeaths[playerIndex]!.isEmpty) {
+          nightDeaths.remove(playerIndex);
+        }
+        notifyListeners();
+      }
+    }
+  }
+
+  void witchUseUpPotion({bool heal = false, bool kill = false}) {
+    if (heal) {
+      witchHasHealPotion = false;
+    }
+    if (kill) {
+      witchHasKillPotion = false;
+    }
+    if (heal || kill) {
+      notifyListeners();
+    }
+  }
+
+  void clearNightDeaths() {
+    nightDeaths.clear();
     notifyListeners();
   }
 
@@ -52,12 +97,21 @@ class GameState extends ChangeNotifier {
     if (next != null) {
       phase = next;
       if (next == GamePhase.dawn) {
-        dayCounter += 1;
+        _processDawn();
       }
       notifyListeners();
       return true;
     }
     return false;
+  }
+
+  void _processDawn() {
+    for (final entry in nightDeaths.entries) {
+      if (entry.value.isNotEmpty) {
+        players[entry.key].deathReason = entry.value.first;
+      }
+    }
+    dayCounter += 1;
   }
 
   GamePhase? get nextPhase {
@@ -114,9 +168,11 @@ class GameState extends ChangeNotifier {
 class Player {
   final String name;
   Role? role;
-  bool isAlive;
+  DeathReason? deathReason;
 
-  Player({required this.name, this.role, this.isAlive = true});
+  Player({required this.name, this.role, this.deathReason});
+
+  bool get isAlive => deathReason == null;
 
   @override
   String toString() {

@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/views/game/action_screen.dart';
+import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_role_screen.dart';
+import 'package:werewolf_narrator/views/game/seer_screen.dart';
+import 'package:werewolf_narrator/views/game/wake_lovers_screen.dart';
+import 'package:werewolf_narrator/views/game/witch_screen.dart';
 
 class GamePhaseScreen extends StatelessWidget {
   final GamePhase phase;
@@ -60,6 +65,26 @@ class GamePhaseScreen extends StatelessWidget {
             gameState.fillVillagerRoles();
           },
         );
+      case GamePhase.cupid:
+        return ActionScreen(
+          key: ValueKey(phase),
+          role: Role.cupid,
+          onPhaseComplete: onPhaseComplete,
+        );
+      case GamePhase.lovers:
+        return WakeLoversScreen(onPhaseComplete: onPhaseComplete);
+      case GamePhase.seer:
+        return SeerScreen(onPhaseComplete: onPhaseComplete);
+      case GamePhase.werewolves:
+        return ActionScreen(
+          key: ValueKey(phase),
+          role: Role.werewolf,
+          onPhaseComplete: onPhaseComplete,
+        );
+      case GamePhase.witch:
+        return WitchScreen(onPhaseComplete: onPhaseComplete);
+      case GamePhase.dawn:
+        return DawnScreen(onPhaseComplete: onPhaseComplete);
       // Add other phases here
       default:
         return Scaffold(

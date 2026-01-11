@@ -34,6 +34,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
   @override
   Widget build(BuildContext context) {
+    final int missingRoles = widget.playerCount - totalSelected;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -46,10 +47,11 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                     (role) => RoleSelectorCard(
                       role: role,
                       count: selectedRoles[role] ?? 0,
-                      canIncrement:
-                          canAdd(1) &&
-                          (!role.isUnique || (selectedRoles[role] ?? 0) == 0),
-                      canDecrement: (selectedRoles[role] ?? 0) > 0,
+                      maxCount: role.isUnique
+                          ? (role.isUnique && (selectedRoles[role] ?? 0) == 0
+                                ? 1
+                                : 0)
+                          : missingRoles + (selectedRoles[role] ?? 0),
                       onChanged: (count) => setCount(role, count),
                     ),
                   )
@@ -80,16 +82,14 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 class RoleSelectorCard extends StatelessWidget {
   final Role role;
   final int count;
-  final bool canIncrement;
-  final bool canDecrement;
+  final int maxCount;
   final ValueChanged<int> onChanged;
 
   const RoleSelectorCard({
     super.key,
     required this.role,
     required this.count,
-    required this.canIncrement,
-    required this.canDecrement,
+    required this.maxCount,
     required this.onChanged,
   });
 
@@ -121,13 +121,7 @@ class RoleSelectorCard extends StatelessWidget {
             ),
 
             // Counter
-            _Counter(
-              value: count,
-              canIncrement: canIncrement,
-              canDecrement: canDecrement,
-              onIncrement: () => onChanged(count + 1),
-              onDecrement: () => onChanged(count - 1),
-            ),
+            _Counter(value: count, maxValue: maxCount, setValue: onChanged),
           ],
         ),
       ),
@@ -137,17 +131,13 @@ class RoleSelectorCard extends StatelessWidget {
 
 class _Counter extends StatelessWidget {
   final int value;
-  final bool canIncrement;
-  final bool canDecrement;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
+  final int maxValue;
+  final Function(int) setValue;
 
   const _Counter({
     required this.value,
-    required this.canIncrement,
-    required this.canDecrement,
-    required this.onIncrement,
-    required this.onDecrement,
+    required this.maxValue,
+    required this.setValue,
   });
 
   @override
@@ -157,7 +147,12 @@ class _Counter extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.remove),
-          onPressed: canDecrement ? onDecrement : null,
+          onPressed: value > 0 ? () => setValue(value - 1) : null,
+          onLongPress: value > 0
+              ? () {
+                  setValue(0);
+                }
+              : null,
         ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -171,7 +166,12 @@ class _Counter extends StatelessWidget {
         ),
         IconButton(
           icon: const Icon(Icons.add),
-          onPressed: canIncrement ? onIncrement : null,
+          onPressed: value < maxValue ? () => setValue(value + 1) : null,
+          onLongPress: value < maxValue
+              ? () {
+                  setValue(maxValue);
+                }
+              : null,
         ),
       ],
     );
