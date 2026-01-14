@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_role_screen.dart';
+import 'package:werewolf_narrator/views/game/game_over_screen.dart';
 import 'package:werewolf_narrator/views/game/roles/seer_screen.dart';
 import 'package:werewolf_narrator/views/game/village_vote_screen.dart';
 import 'package:werewolf_narrator/views/game/wake_lovers_screen.dart';
@@ -80,6 +81,8 @@ class GamePhaseScreen extends StatelessWidget {
         return DawnScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.voting:
         return VillageVoteScreen(onPhaseComplete: onPhaseComplete);
+      case GamePhase.gameOver:
+        return GameOverScreen();
     }
   }
 }

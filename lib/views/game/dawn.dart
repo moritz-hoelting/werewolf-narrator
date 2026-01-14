@@ -62,7 +62,7 @@ class _DawnScreenState extends State<DawnScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   subtitle: Text(
-                    '- ${deathInformation.reason.name(context)}',
+                    '${player.role?.name(context) ?? 'Unknown Role'} - ${deathInformation.reason.name(context)}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 );

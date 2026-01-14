@@ -28,7 +28,11 @@ class _GameViewState extends State<GameView> {
               data: gameState.isNight ? ThemeData.dark() : ThemeData.light(),
               child: GamePhaseScreen(
                 phase: gameState.phase,
-                onPhaseComplete: gameState.transitionToNextPhase,
+                onPhaseComplete: () {
+                  if (gameState.phase != GamePhase.gameOver) {
+                    gameState.transitionToNextPhase();
+                  }
+                },
               ),
             );
           },

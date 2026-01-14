@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/model/winner.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
@@ -112,6 +114,9 @@ class GameState extends ChangeNotifier {
         );
       }
     }
+    if (checkWinConditions() != null) {
+      _phase = GamePhase.gameOver;
+    }
     notifyListeners();
   }
 
@@ -168,7 +173,9 @@ class GameState extends ChangeNotifier {
             final deathInfo = entry.value;
             return ListTile(
               title: Text(players[playerIndex].name),
-              subtitle: Text(deathInfo.reason.name(context)),
+              subtitle: Text(
+                "${players[playerIndex].role?.name(context) ?? 'Unknown Role'} - ${deathInfo.reason.name(context)}",
+              ),
             );
           }).toList(),
         ),
@@ -187,6 +194,19 @@ class GameState extends ChangeNotifier {
     );
   }
 
+  Winner? checkWinConditions() {
+    final alivePlayers = players.where((player) => player.isAlive).toList();
+    final aliveTeams = alivePlayers.map((player) => player.role!.team).toSet();
+    if (aliveTeams.length == 1) {
+      return aliveTeams.first.toWinner;
+    }
+    if (alivePlayers.length == 2 &&
+        aliveTeams.containsAll({Team.werewolves, Team.village})) {
+      return Winner.lovers;
+    }
+    return null;
+  }
+
   bool transitionToNextPhase() {
     final next = nextPhase;
     if (next != null) {
@@ -194,6 +214,15 @@ class GameState extends ChangeNotifier {
           phase.index < GamePhase.cupid.index &&
           next.index >= GamePhase.cupid.index) {
         fillVillagerRoles();
+      }
+      if ((phase.index < GamePhase.dawn.index && next == GamePhase.dawn) ||
+          (phase == GamePhase.dusk && next == GamePhase.voting)) {
+        final winningTeam = checkWinConditions();
+        if (winningTeam != null) {
+          _phase = GamePhase.gameOver;
+          notifyListeners();
+          return true;
+        }
       }
       _phase = next;
       if (next == GamePhase.dawn) {
@@ -218,6 +247,9 @@ class GameState extends ChangeNotifier {
   }
 
   bool isValidNextPhase(GamePhase next) {
+    if (phase == GamePhase.gameOver) {
+      return false;
+    }
     switch (next) {
       case GamePhase.checkRoleSeer:
         if (dayCounter > 0 || !hasRole(Role.seer)) return false;
@@ -269,7 +301,8 @@ enum GamePhase {
   werewolves,
   witch,
   dawn,
-  voting;
+  voting,
+  gameOver;
 
   bool get isNight => this != dawn && this != voting;
 }

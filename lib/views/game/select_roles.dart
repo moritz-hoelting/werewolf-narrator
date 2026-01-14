@@ -1,5 +1,8 @@
+import 'dart:math' show min;
+
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
 
 class SelectRolesView extends StatefulWidget {
   final int playerCount;
@@ -35,6 +38,14 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   @override
   Widget build(BuildContext context) {
     final int missingRoles = widget.playerCount - totalSelected;
+    final Set<Role> selectedRoleSet = selectedRoles.entries
+        .where((entry) => entry.value > 0)
+        .map((entry) => entry.key)
+        .toSet();
+    final Set<Team> selectedTeams = selectedRoleSet
+        .map((role) => role.team)
+        .toSet();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -49,7 +60,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                       count: selectedRoles[role] ?? 0,
                       maxCount: role.isUnique
                           ? (role.isUnique && (selectedRoles[role] ?? 0) == 0
-                                ? 1
+                                ? min(1, missingRoles)
                                 : 0)
                           : missingRoles + (selectedRoles[role] ?? 0),
                       onChanged: (count) => setCount(role, count),
@@ -65,7 +76,9 @@ class _SelectRolesViewState extends State<SelectRolesView> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: totalSelected == widget.playerCount
+              onPressed:
+                  totalSelected == widget.playerCount &&
+                      selectedTeams.length >= 2
                   ? () => widget.onSubmit(selectedRoles)
                   : null,
               label: const Text('Start Game!'),
