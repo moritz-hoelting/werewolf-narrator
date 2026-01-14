@@ -3,7 +3,7 @@ import 'package:werewolf_narrator/model/role.dart';
 
 class SelectRolesView extends StatefulWidget {
   final int playerCount;
-  final Function(Map<Role, int>) onSubmit;
+  final void Function(Map<Role, int>) onSubmit;
 
   const SelectRolesView({
     super.key,
@@ -132,7 +132,7 @@ class RoleSelectorCard extends StatelessWidget {
 class _Counter extends StatelessWidget {
   final int value;
   final int maxValue;
-  final Function(int) setValue;
+  final void Function(int) setValue;
 
   const _Counter({
     required this.value,

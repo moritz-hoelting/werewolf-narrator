@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/views/game/roles/hunter_screen.dart';
 
 enum Role {
   villager(isUnique: false),
@@ -77,18 +78,38 @@ enum Role {
         return Team.village;
     }
   }
+
+  bool get hasDeathScreen {
+    switch (this) {
+      case Role.hunter:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  Widget Function(VoidCallback onPhaseComplete)? getDeathScreen(
+    int playerIndex,
+  ) {
+    switch (this) {
+      case Role.hunter:
+        return (onPhaseComplete) => HunterScreen(
+          playerIndex: playerIndex,
+          onPhaseComplete: onPhaseComplete,
+        );
+      default:
+        return null;
+    }
+  }
 }
 
 class RoleNightAction {
   final int maxSelection;
   final bool allowSelfSelect;
-  final PlayerSelectAction Function(int playerId, GameState gameState)?
-  onPlayerSelected;
-  final Function(List<int> playerIds, GameState gameState)? onConfirm;
+  final void Function(List<int> playerIds, GameState gameState)? onConfirm;
 
   const RoleNightAction({
     required this.maxSelection,
-    this.onPlayerSelected,
     this.onConfirm,
     this.allowSelfSelect = false,
   });

@@ -46,6 +46,18 @@ class GameState extends ChangeNotifier {
   Map<int, DeathReason> get previousCycleDeaths =>
       deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
+  Map<int, DeathInformation> get unannouncedDeaths => Map.unmodifiable(
+    players.asMap().entries.fold({}, (acc, entry) {
+      final playerIndex = entry.key;
+      final player = entry.value;
+      final deathInfo = player.deathInformation;
+      if (deathInfo != null && !player.deathAnnounced) {
+        acc[playerIndex] = deathInfo;
+      }
+      return acc;
+    }),
+  );
+
   bool hasRole(Role role) => roles.containsKey(role) && roles[role]! > 0;
 
   bool hasAliveRole(Role role) =>
@@ -74,18 +86,28 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void markPlayerDead(int playerIndex, DeathReason deathReason) {
+  void markPlayerDead(
+    int playerIndex,
+    DeathReason deathReason, {
+    bool? atNight,
+    int? day,
+  }) {
     players[playerIndex].markDead(
-      DeathInformation(reason: deathReason, day: dayCounter, atNight: isNight),
+      DeathInformation(
+        reason: deathReason,
+        day: day ?? dayCounter,
+        atNight: atNight ?? isNight,
+      ),
     );
-    if (lovers != null) {
+    if (lovers != null &&
+        (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
       final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
       if (players[otherLover].isAlive) {
         players[otherLover].markDead(
           DeathInformation(
             reason: DeathReason.lover,
-            day: dayCounter,
-            atNight: isNight,
+            day: day ?? dayCounter,
+            atNight: atNight ?? isNight,
           ),
         );
       }
@@ -100,7 +122,8 @@ class GameState extends ChangeNotifier {
 
   void revivePlayer(int playerIndex) {
     players[playerIndex].revive();
-    if (lovers != null) {
+    if (lovers != null &&
+        (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
       final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
       final otherDeathInformation = players[otherLover].deathInformation;
       if (otherDeathInformation != null &&
@@ -131,6 +154,37 @@ class GameState extends ChangeNotifier {
     if (heal || kill) {
       notifyListeners();
     }
+  }
+
+  void announceDeaths(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Deaths'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: unannouncedDeaths.entries.map((entry) {
+            final playerIndex = entry.key;
+            final deathInfo = entry.value;
+            return ListTile(
+              title: Text(players[playerIndex].name),
+              subtitle: Text(deathInfo.reason.name(context)),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              for (var playerIndex in unannouncedDeaths.keys) {
+                players[playerIndex].deathAnnounced = true;
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   bool transitionToNextPhase() {

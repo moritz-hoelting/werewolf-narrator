@@ -2,14 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
+import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
 
-class DawnScreen extends StatelessWidget {
+class DawnScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
   const DawnScreen({super.key, required this.onPhaseComplete});
 
   @override
+  State<DawnScreen> createState() => _DawnScreenState();
+}
+
+class _DawnScreenState extends State<DawnScreen> {
+  bool showDeathActions = false;
+
+  @override
   Widget build(BuildContext context) {
+    if (showDeathActions) {
+      return DeathActionsScreen(onPhaseComplete: widget.onPhaseComplete);
+    }
+
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -29,8 +41,8 @@ class DawnScreen extends StatelessWidget {
         height: double.infinity,
         child: Consumer<GameState>(
           builder: (context, gameState, child) {
-            final previousCycleDeaths = gameState.previousCycleDeaths;
-            if (previousCycleDeaths.isEmpty) {
+            final unannouncedDeaths = gameState.unannouncedDeaths;
+            if (unannouncedDeaths.isEmpty) {
               return Center(
                 child: Text(
                   'No one died last night.',
@@ -41,24 +53,21 @@ class DawnScreen extends StatelessWidget {
 
             return ListView.builder(
               itemBuilder: (context, index) {
-                final playerIndex = previousCycleDeaths.keys.elementAt(index);
+                final playerIndex = unannouncedDeaths.keys.elementAt(index);
                 final player = gameState.players[playerIndex];
-                final deathReason = previousCycleDeaths[playerIndex];
-                if (deathReason == null) {
-                  return const SizedBox.shrink();
-                }
+                final deathInformation = unannouncedDeaths[playerIndex]!;
                 return ListTile(
                   title: Text(
                     'Player ${player.name} has died.',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   subtitle: Text(
-                    '- ${deathReason.name(context)}',
+                    '- ${deathInformation.reason.name(context)}',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 );
               },
-              itemCount: previousCycleDeaths.length,
+              itemCount: unannouncedDeaths.length,
               shrinkWrap: true,
             );
           },
@@ -70,7 +79,23 @@ class DawnScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(60),
           ),
-          onPressed: onPhaseComplete,
+          onPressed: () {
+            GameState gameState = Provider.of<GameState>(
+              context,
+              listen: false,
+            );
+            for (var playerIndex in gameState.unannouncedDeaths.keys) {
+              gameState.players[playerIndex].deathAnnounced = true;
+            }
+
+            if (gameState.players.any((player) => player.waitForDeathAction)) {
+              setState(() {
+                showDeathActions = true;
+              });
+            } else {
+              widget.onPhaseComplete();
+            }
+          },
           label: const Text('Continue'),
           icon: const Icon(Icons.arrow_forward),
         ),

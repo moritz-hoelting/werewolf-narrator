@@ -5,10 +5,10 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_role_screen.dart';
-import 'package:werewolf_narrator/views/game/seer_screen.dart';
+import 'package:werewolf_narrator/views/game/roles/seer_screen.dart';
 import 'package:werewolf_narrator/views/game/village_vote_screen.dart';
 import 'package:werewolf_narrator/views/game/wake_lovers_screen.dart';
-import 'package:werewolf_narrator/views/game/witch_screen.dart';
+import 'package:werewolf_narrator/views/game/roles/witch_screen.dart';
 
 class GamePhaseScreen extends StatelessWidget {
   final GamePhase phase;
@@ -59,7 +59,7 @@ class GamePhaseScreen extends StatelessWidget {
           onPhaseComplete: onPhaseComplete,
         );
       case GamePhase.cupid:
-        return ActionScreen(
+        return RoleActionScreen(
           key: ValueKey(phase),
           role: Role.cupid,
           onPhaseComplete: onPhaseComplete,
@@ -69,7 +69,7 @@ class GamePhaseScreen extends StatelessWidget {
       case GamePhase.seer:
         return SeerScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.werewolves:
-        return ActionScreen(
+        return RoleActionScreen(
           key: ValueKey(phase),
           role: Role.werewolf,
           onPhaseComplete: onPhaseComplete,

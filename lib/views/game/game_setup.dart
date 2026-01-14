@@ -5,7 +5,7 @@ import 'package:werewolf_narrator/views/game/create_players.dart';
 import 'package:werewolf_narrator/views/game/select_roles.dart';
 
 class GameSetupView extends StatefulWidget {
-  final Function(GameSetupResult) onFinished;
+  final void Function(GameSetupResult) onFinished;
 
   const GameSetupView({super.key, required this.onFinished});
 

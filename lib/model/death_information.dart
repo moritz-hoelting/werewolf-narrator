@@ -16,6 +16,7 @@ enum DeathReason {
   werewolf,
   witch,
   lover,
+  hunter,
   vote;
 
   String name(BuildContext context) {
@@ -26,6 +27,8 @@ enum DeathReason {
         return 'Poisoned by Witch';
       case DeathReason.lover:
         return 'Died for Lover';
+      case DeathReason.hunter:
+        return 'Shot by Hunter';
       case DeathReason.vote:
         return 'Voted Out';
     }

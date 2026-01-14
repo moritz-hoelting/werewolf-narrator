@@ -4,13 +4,24 @@ import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 class ActionScreen extends StatefulWidget {
-  final Role role;
+  final Widget appBarTitle;
   final VoidCallback onPhaseComplete;
+
+  final List<int> disabledPlayerIndices;
+
+  final int maxSelection;
+  final bool allowSelfSelect;
+
+  final void Function(List<int> playerIds, GameState gameState) onConfirm;
 
   const ActionScreen({
     super.key,
-    required this.role,
+    required this.appBarTitle,
     required this.onPhaseComplete,
+    required this.disabledPlayerIndices,
+    required this.maxSelection,
+    this.allowSelfSelect = false,
+    required this.onConfirm,
   });
 
   @override
@@ -38,7 +49,7 @@ class _ActionScreenState extends State<ActionScreen> {
       builder: (context, gameState, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Select action for ${widget.role.name(context)}'),
+            title: widget.appBarTitle,
             automaticallyImplyLeading: false,
           ),
           body: ListView.builder(
@@ -50,8 +61,8 @@ class _ActionScreenState extends State<ActionScreen> {
                 selected: _selectedPlayers[index],
                 enabled:
                     gameState.players[index].isAlive &&
-                    ((widget.role.nightAction?.allowSelfSelect ?? false) ||
-                        gameState.players[index].role != widget.role),
+                    (widget.allowSelfSelect ||
+                        !widget.disabledPlayerIndices.contains(index)),
               );
             },
           ),
@@ -61,21 +72,17 @@ class _ActionScreenState extends State<ActionScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: selectedCount == widget.role.nightAction?.maxSelection
+              onPressed: selectedCount == widget.maxSelection
                   ? () {
-                      final onNightActionConfirm =
-                          widget.role.nightAction?.onConfirm;
-                      if (onNightActionConfirm != null) {
-                        onNightActionConfirm(
-                          _selectedPlayers
-                              .asMap()
-                              .entries
-                              .where((entry) => entry.value)
-                              .map((entry) => entry.key)
-                              .toList(),
-                          gameState,
-                        );
-                      }
+                      widget.onConfirm(
+                        _selectedPlayers
+                            .asMap()
+                            .entries
+                            .where((entry) => entry.value)
+                            .map((entry) => entry.key)
+                            .toList(),
+                        gameState,
+                      );
                       widget.onPhaseComplete();
                     }
                   : null,
@@ -93,12 +100,12 @@ class _ActionScreenState extends State<ActionScreen> {
       return null;
     }
 
-    if (!(widget.role.nightAction?.allowSelfSelect ?? false) &&
-        gameState.players[index].role == widget.role) {
+    if (!widget.allowSelfSelect &&
+        widget.disabledPlayerIndices.contains(index)) {
       return null;
     }
 
-    if ((widget.role.nightAction?.maxSelection ?? 0) == 1) {
+    if (widget.maxSelection == 1) {
       return () {
         setState(() {
           for (int i = 0; i < _selectedPlayers.length; i++) {
@@ -110,13 +117,61 @@ class _ActionScreenState extends State<ActionScreen> {
     }
 
     return (_selectedPlayers[index] ||
-            (!_selectedPlayers[index] &&
-                selectedCount < (widget.role.nightAction?.maxSelection ?? 0)))
+            (!_selectedPlayers[index] && selectedCount < widget.maxSelection))
         ? () {
             setState(() {
               _selectedPlayers[index] = !_selectedPlayers[index];
             });
           }
         : null;
+  }
+}
+
+class RoleActionScreen extends StatelessWidget {
+  final Role role;
+  final VoidCallback onPhaseComplete;
+
+  const RoleActionScreen({
+    super.key,
+    required this.role,
+    required this.onPhaseComplete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (role.nightAction == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('No action for ${role.name(context)}'),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(60),
+            ),
+            onPressed: onPhaseComplete,
+            label: const Text('Continue'),
+            icon: const Icon(Icons.arrow_forward),
+          ),
+        ),
+      );
+    }
+
+    return Consumer<GameState>(
+      builder: (context, gameState, _) => ActionScreen(
+        appBarTitle: Text('Select action for ${role.name(context)}'),
+        onPhaseComplete: onPhaseComplete,
+        disabledPlayerIndices: gameState.players
+            .asMap()
+            .entries
+            .where((entry) => entry.value.role == role)
+            .map((entry) => entry.key)
+            .toList(),
+        maxSelection: role.nightAction!.maxSelection,
+        allowSelfSelect: role.nightAction!.allowSelfSelect,
+        onConfirm: role.nightAction!.onConfirm ?? (_, __) {},
+      ),
+    );
   }
 }

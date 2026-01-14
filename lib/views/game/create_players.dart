@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 final int minPlayers = 8;
 
 class CreatePlayersScreen extends StatefulWidget {
-  final Function(List<String>) onSubmit;
+  final void Function(List<String>) onSubmit;
   final List<String>? initialPlayers;
 
   const CreatePlayersScreen({
@@ -178,7 +178,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
 class PlayerNameInput extends StatefulWidget {
   final String initialText;
   final int idx;
-  final Function(String) onNameChanged;
+  final void Function(String) onNameChanged;
   final VoidCallback? onDelete;
   final bool isInvalid;
 
