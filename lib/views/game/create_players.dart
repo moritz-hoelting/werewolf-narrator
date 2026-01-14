@@ -209,9 +209,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
     super.initState();
 
     _focusNode.addListener(() {
-      if (!_focusNode.hasFocus) {
-        widget.onNameChanged(_controller.text);
-      } else if (!_touched) {
+      if (_focusNode.hasFocus && !_touched) {
         setState(() {
           _touched = true;
         });
@@ -248,6 +246,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
           (_, {required currentLength, required isFocused, maxLength}) => null,
       controller: _controller,
       focusNode: _focusNode,
+      onChanged: widget.onNameChanged,
     );
   }
 }

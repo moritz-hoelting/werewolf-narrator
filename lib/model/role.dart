@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/model/death_reason.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 enum Role {
@@ -61,6 +62,19 @@ enum Role {
         );
       default:
         return null;
+    }
+  }
+
+  Team get team {
+    switch (this) {
+      case Role.werewolf:
+        return Team.werewolves;
+      case Role.villager:
+      case Role.seer:
+      case Role.witch:
+      case Role.hunter:
+      case Role.cupid:
+        return Team.village;
     }
   }
 }

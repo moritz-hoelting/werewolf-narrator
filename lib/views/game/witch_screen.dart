@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/model/death_reason.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
@@ -145,10 +145,10 @@ class _WitchScreenState extends State<WitchScreen> {
   }
 
   bool playerTapEnabled(int index, GameState gameState) =>
-      gameState.players[index].isAlive &&
+      gameState.playerAliveOrKilledThisCycle(index) &&
       (_killModeActive
           ? (gameState.players[index].role != Role.witch &&
-                gameState.players[index].isAlive)
-          : (gameState.nightDeaths.containsKey(index) &&
-                gameState.nightDeaths[index]!.contains(DeathReason.werewolf)));
+                gameState.playerAliveOrKilledThisCycle(index))
+          : (gameState.currentCycleDeaths.containsKey(index) &&
+                gameState.currentCycleDeaths[index] == DeathReason.werewolf));
 }

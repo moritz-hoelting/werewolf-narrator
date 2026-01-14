@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/views/game/create_players.dart';
 import 'package:werewolf_narrator/views/game/select_roles.dart';
@@ -14,7 +15,9 @@ class GameSetupView extends StatefulWidget {
 
 class _GameSetupViewState extends State<GameSetupView> {
   GameSetupStep step = GameSetupStep.createPlayers;
-  List<String> players = [];
+  List<String> players = kDebugMode
+      ? List.generate(8, (i) => "Player ${i + 1}")
+      : [];
 
   @override
   Widget build(BuildContext context) {

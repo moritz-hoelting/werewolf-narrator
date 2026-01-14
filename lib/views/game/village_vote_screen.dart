@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/model/death_reason.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 class VillageVoteScreen extends StatefulWidget {

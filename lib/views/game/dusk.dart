@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/util/gradient.dart';
 
 class DuskScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
@@ -7,17 +8,16 @@ class DuskScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       extendBody: true,
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [theme.colorScheme.surface, Colors.purple.shade700],
-            stops: const [0.65, 1.0],
+          gradient: RadialGradient(
+            center: Alignment.bottomCenter,
+            radius: 2,
+            colors: [Colors.purple.shade700, Colors.transparent],
+            stops: const [0.0, 0.7],
+            transform: ScaleGradient(scaleX: 1.25, scaleY: 0.75),
           ),
         ),
         child: Center(

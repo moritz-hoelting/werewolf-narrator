@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/util/gradient.dart';
 
 class DawnScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
@@ -9,8 +10,6 @@ class DawnScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -19,17 +18,19 @@ class DawnScreen extends StatelessWidget {
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [theme.colorScheme.surface, Colors.orange.shade300],
-            stops: const [0.65, 1.0],
+          gradient: RadialGradient(
+            center: Alignment.bottomCenter,
+            radius: 2,
+            colors: [Colors.orange.shade300, Colors.transparent],
+            stops: const [0.0, 0.7],
+            transform: ScaleGradient(scaleX: 1.25, scaleY: 0.75),
           ),
         ),
         height: double.infinity,
         child: Consumer<GameState>(
           builder: (context, gameState, child) {
-            if (gameState.nightDeaths.isEmpty) {
+            final previousCycleDeaths = gameState.previousCycleDeaths;
+            if (previousCycleDeaths.isEmpty) {
               return Center(
                 child: Text(
                   'No one died last night.',
@@ -40,10 +41,10 @@ class DawnScreen extends StatelessWidget {
 
             return ListView.builder(
               itemBuilder: (context, index) {
-                final playerIndex = gameState.nightDeaths.keys.elementAt(index);
+                final playerIndex = previousCycleDeaths.keys.elementAt(index);
                 final player = gameState.players[playerIndex];
-                final deathReasons = gameState.nightDeaths[playerIndex];
-                if (deathReasons == null || deathReasons.isEmpty) {
+                final deathReason = previousCycleDeaths[playerIndex];
+                if (deathReason == null) {
                   return const SizedBox.shrink();
                 }
                 return ListTile(
@@ -51,20 +52,13 @@ class DawnScreen extends StatelessWidget {
                     'Player ${player.name} has died.',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: deathReasons
-                        .map(
-                          (reason) => Text(
-                            '- ${reason.name(context)}',
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        )
-                        .toList(),
+                  subtitle: Text(
+                    '- ${deathReason.name(context)}',
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 );
               },
-              itemCount: gameState.nightDeaths.length,
+              itemCount: previousCycleDeaths.length,
               shrinkWrap: true,
             );
           },
@@ -76,10 +70,7 @@ class DawnScreen extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(60),
           ),
-          onPressed: () {
-            Provider.of<GameState>(context, listen: false).clearNightDeaths();
-            onPhaseComplete();
-          },
+          onPressed: onPhaseComplete,
           label: const Text('Continue'),
           icon: const Icon(Icons.arrow_forward),
         ),

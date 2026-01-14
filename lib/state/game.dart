@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/model/death_reason.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 
 class GameState extends ChangeNotifier {
@@ -10,7 +11,6 @@ class GameState extends ChangeNotifier {
   GamePhase _phase = GamePhase.dusk;
   GamePhase get phase => _phase;
   (int, int)? lovers;
-  Map<int, List<DeathReason>> nightDeaths = {};
   bool witchHasHealPotion = true;
   bool witchHasKillPotion = true;
 
@@ -25,6 +25,26 @@ class GameState extends ChangeNotifier {
   bool get isNight => phase.isNight;
   int get playerCount => players.length;
   int get alivePlayerCount => players.where((player) => player.isAlive).length;
+
+  Map<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
+      Map.unmodifiable(
+        players.asMap().entries.fold({}, (acc, entry) {
+          final playerIndex = entry.key;
+          final deathInfo = entry.value.deathInformation;
+          if (deathInfo != null &&
+              deathInfo.atNight == atNight &&
+              deathInfo.day == dayCounter) {
+            acc[playerIndex] = deathInfo.reason;
+          }
+          return acc;
+        }),
+      );
+
+  Map<int, DeathReason> get currentCycleDeaths =>
+      deathsInCycle(dayCounter, isNight);
+
+  Map<int, DeathReason> get previousCycleDeaths =>
+      deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
   bool hasRole(Role role) => roles.containsKey(role) && roles[role]! > 0;
 
@@ -54,24 +74,48 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void markPlayerDead(int playerIndex, DeathReason reason) {
-    if (isNight) {
-      nightDeaths.putIfAbsent(playerIndex, () => []).add(reason);
-    } else {
-      players[playerIndex].deathReason = reason;
+  void markPlayerDead(int playerIndex, DeathReason deathReason) {
+    players[playerIndex].markDead(
+      DeathInformation(reason: deathReason, day: dayCounter, atNight: isNight),
+    );
+    if (lovers != null) {
+      final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
+      if (players[otherLover].isAlive) {
+        players[otherLover].markDead(
+          DeathInformation(
+            reason: DeathReason.lover,
+            day: dayCounter,
+            atNight: isNight,
+          ),
+        );
+      }
+    }
+    notifyListeners();
+  }
+
+  bool playerAliveOrKilledThisCycle(int playerIndex) {
+    return players[playerIndex].isAlive ||
+        currentCycleDeaths.containsKey(playerIndex);
+  }
+
+  void revivePlayer(int playerIndex) {
+    players[playerIndex].revive();
+    if (lovers != null) {
+      final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
+      final otherDeathInformation = players[otherLover].deathInformation;
+      if (otherDeathInformation != null &&
+          otherDeathInformation.reason == DeathReason.lover) {
+        players[otherLover].revive();
+      }
     }
     notifyListeners();
   }
 
   void witchHealPlayer(int playerIndex) {
-    if (nightDeaths.containsKey(playerIndex)) {
-      if (nightDeaths[playerIndex]!.contains(DeathReason.werewolf)) {
-        nightDeaths[playerIndex]!.removeWhere(
-          (reason) => reason == DeathReason.werewolf,
-        );
-        if (nightDeaths[playerIndex]!.isEmpty) {
-          nightDeaths.remove(playerIndex);
-        }
+    final currentCycleDeaths = this.currentCycleDeaths;
+    if (currentCycleDeaths.containsKey(playerIndex)) {
+      if (currentCycleDeaths[playerIndex] == DeathReason.werewolf) {
+        revivePlayer(playerIndex);
         notifyListeners();
       }
     }
@@ -89,11 +133,6 @@ class GameState extends ChangeNotifier {
     }
   }
 
-  void clearNightDeaths() {
-    nightDeaths.clear();
-    notifyListeners();
-  }
-
   bool transitionToNextPhase() {
     final next = nextPhase;
     if (next != null) {
@@ -104,21 +143,12 @@ class GameState extends ChangeNotifier {
       }
       _phase = next;
       if (next == GamePhase.dawn) {
-        _processDawn();
+        dayCounter += 1;
       }
       notifyListeners();
       return true;
     }
     return false;
-  }
-
-  void _processDawn() {
-    for (final entry in nightDeaths.entries) {
-      if (entry.value.isNotEmpty) {
-        players[entry.key].deathReason = entry.value.first;
-      }
-    }
-    dayCounter += 1;
   }
 
   GamePhase? get nextPhase {
@@ -169,21 +199,6 @@ class GameState extends ChangeNotifier {
         break;
     }
     return true;
-  }
-}
-
-class Player {
-  final String name;
-  Role? role;
-  DeathReason? deathReason;
-
-  Player({required this.name, this.role, this.deathReason});
-
-  bool get isAlive => deathReason == null;
-
-  @override
-  String toString() {
-    return 'Player(name: $name, role: $role, isAlive: $isAlive)';
   }
 }
 

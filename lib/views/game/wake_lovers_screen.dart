@@ -18,7 +18,7 @@ class WakeLoversScreen extends StatelessWidget {
           ),
           body: gameState.lovers != null
               ? Text(
-                  'Player ${gameState.players[gameState.lovers!.$1].name} and Player ${gameState.players[gameState.lovers!.$2].name}, wake up and look at each other.',
+                  '${gameState.players[gameState.lovers!.$1].name} and ${gameState.players[gameState.lovers!.$2].name}, wake up and look at each other.',
                   style: Theme.of(context).textTheme.headlineLarge,
                 )
               : const SizedBox.shrink(),
