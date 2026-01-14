@@ -7,7 +7,8 @@ class GameState extends ChangeNotifier {
   final Map<Role, int> roles;
 
   int dayCounter = 0;
-  GamePhase phase = GamePhase.dusk;
+  GamePhase _phase = GamePhase.dusk;
+  GamePhase get phase => _phase;
   (int, int)? lovers;
   Map<int, List<DeathReason>> nightDeaths = {};
   bool witchHasHealPotion = true;
@@ -96,7 +97,12 @@ class GameState extends ChangeNotifier {
   bool transitionToNextPhase() {
     final next = nextPhase;
     if (next != null) {
-      phase = next;
+      if (dayCounter == 0 &&
+          phase.index < GamePhase.cupid.index &&
+          next.index >= GamePhase.cupid.index) {
+        fillVillagerRoles();
+      }
+      _phase = next;
       if (next == GamePhase.dawn) {
         _processDawn();
       }
