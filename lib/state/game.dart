@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/model/winner.dart';
+import 'package:werewolf_narrator/views/game/death_screen.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
@@ -162,34 +164,12 @@ class GameState extends ChangeNotifier {
   }
 
   void announceDeaths(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Deaths'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: unannouncedDeaths.entries.map((entry) {
-            final playerIndex = entry.key;
-            final deathInfo = entry.value;
-            return ListTile(
-              title: Text(players[playerIndex].name),
-              subtitle: Text(
-                "${players[playerIndex].role?.name(context) ?? 'Unknown Role'} - ${deathInfo.reason.name(context)}",
-              ),
-            );
-          }).toList(),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (routeContext) => ChangeNotifierProvider.value(
+          value: context.read<GameState>(),
+          child: DeathsScreen(onPhaseComplete: Navigator.of(routeContext).pop),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              for (var playerIndex in unannouncedDeaths.keys) {
-                players[playerIndex].deathAnnounced = true;
-              }
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
