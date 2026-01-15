@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/model/winner.dart';
-import 'package:werewolf_narrator/views/game/death_screen.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
@@ -116,6 +114,18 @@ class GameState extends ChangeNotifier {
         );
       }
     }
+    notifyListeners();
+  }
+
+  void markPlayerUsedDeathAction(int playerIndex) {
+    players[playerIndex].usedDeathAction = true;
+    notifyListeners();
+  }
+
+  void markDeathsAnnounced() {
+    for (var playerIndex in unannouncedDeaths.keys) {
+      players[playerIndex].deathAnnounced = true;
+    }
     if (checkWinConditions() != null) {
       _phase = GamePhase.gameOver;
     }
@@ -163,16 +173,11 @@ class GameState extends ChangeNotifier {
     }
   }
 
-  void announceDeaths(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (routeContext) => ChangeNotifierProvider.value(
-          value: context.read<GameState>(),
-          child: DeathsScreen(onPhaseComplete: Navigator.of(routeContext).pop),
-        ),
-      ),
-    );
-  }
+  bool get pendingDeathActions =>
+      players.any((player) => player.waitForDeathAction);
+
+  bool get pendingDeathAnnouncements =>
+      players.any((player) => !player.isAlive && !player.deathAnnounced);
 
   Winner? checkWinConditions() {
     final alivePlayers = players.where((player) => player.isAlive).toList();
@@ -261,6 +266,9 @@ class GameState extends ChangeNotifier {
       case GamePhase.witch:
         if (!hasAliveRole(Role.witch)) return false;
         break;
+      case GamePhase.gameOver:
+        if (checkWinConditions() == null) return false;
+        break;
       default:
         break;
     }
@@ -282,6 +290,7 @@ enum GamePhase {
   witch,
   dawn,
   voting,
+
   gameOver;
 
   bool get isNight => this != dawn && this != voting;

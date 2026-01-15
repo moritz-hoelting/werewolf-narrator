@@ -6,8 +6,15 @@ import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
 
 class DeathsScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
+  final Widget? title;
+  final Color? beamColor;
 
-  const DeathsScreen({super.key, required this.onPhaseComplete});
+  const DeathsScreen({
+    super.key,
+    required this.onPhaseComplete,
+    this.title,
+    this.beamColor,
+  });
 
   @override
   State<DeathsScreen> createState() => _DeathsScreenState();
@@ -24,16 +31,21 @@ class _DeathsScreenState extends State<DeathsScreen> {
 
     return Scaffold(
       extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Death Announcements'),
+        title: widget.title ?? const Text('Death Announcements'),
         automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.bottomCenter,
             radius: 2,
-            colors: [Colors.grey.shade700, Colors.transparent],
+            colors: [
+              widget.beamColor ?? Colors.grey.shade700,
+              Colors.transparent,
+            ],
             stops: const [0.0, 0.7],
             transform: ScaleGradient(scaleX: 1.25, scaleY: 0.75),
           ),
@@ -84,11 +96,9 @@ class _DeathsScreenState extends State<DeathsScreen> {
               context,
               listen: false,
             );
-            for (var playerIndex in gameState.unannouncedDeaths.keys) {
-              gameState.players[playerIndex].deathAnnounced = true;
-            }
+            gameState.markDeathsAnnounced();
 
-            if (gameState.players.any((player) => player.waitForDeathAction)) {
+            if (gameState.pendingDeathActions) {
               setState(() {
                 showDeathActions = true;
               });

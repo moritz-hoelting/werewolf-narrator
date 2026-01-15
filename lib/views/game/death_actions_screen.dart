@@ -62,12 +62,7 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
 
     return deathAction(() {
       GameState gameState = Provider.of<GameState>(context, listen: false);
-      gameState.players[playerIndex].usedDeathAction = true;
-      if (gameState.players.any(
-        (player) => !player.isAlive && !player.deathAnnounced,
-      )) {
-        gameState.announceDeaths(context);
-      }
+      gameState.markPlayerUsedDeathAction(playerIndex);
       reloadDeathActions();
       if (deathActions.isEmpty) {
         widget.onPhaseComplete();

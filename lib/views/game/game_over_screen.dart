@@ -16,10 +16,7 @@ class GameOverScreen extends StatelessWidget {
         if (winningTeam == null) {
           // This should not happen; game over screen should only be shown when there's a winner.
           return Scaffold(
-            appBar: AppBar(
-              title: const Text("Game Over"),
-              automaticallyImplyLeading: false,
-            ),
+            appBar: AppBar(title: const Text("Game Over")),
             body: const Center(
               child: Text(
                 'Game Over! No winners determined.',
@@ -73,10 +70,7 @@ class GameOverScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text("Game Over"),
-            automaticallyImplyLeading: false,
-          ),
+          appBar: AppBar(title: const Text("Game Over")),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
