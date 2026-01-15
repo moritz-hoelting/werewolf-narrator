@@ -9,28 +9,25 @@ void main() {
 class WerewolfNarratorApp extends StatelessWidget {
   const WerewolfNarratorApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Werewolf Narrator',
       theme: Themes.lightTheme,
-      home: const MyHomePage(title: 'Werewolf Narrator'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: const Text('Werewolf Narrator'),
       ),
       body: Center(
         child: ElevatedButton(
