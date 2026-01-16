@@ -14,7 +14,6 @@ class VillageVoteScreen extends StatefulWidget {
 
 class _VillageVoteScreenState extends State<VillageVoteScreen> {
   int? _selectedPlayer;
-  bool _voteConfirmed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +29,19 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(gameState.players[index].name),
-                subtitle: _voteConfirmed && _selectedPlayer == index
-                    ? Text(
-                        'Role: ${gameState.players[index].role?.name(context) ?? "Unknown"}',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      )
-                    : null,
-                onTap: !_voteConfirmed && gameState.players[index].isAlive
+                onTap: gameState.players[index].isAlive
                     ? () {
                         setState(() {
-                          _selectedPlayer = index;
+                          if (_selectedPlayer == index) {
+                            _selectedPlayer = null;
+                          } else {
+                            _selectedPlayer = index;
+                          }
                         });
                       }
                     : null,
                 selected: _selectedPlayer == index,
-                enabled:
-                    (!_voteConfirmed && gameState.players[index].isAlive) ||
-                    _selectedPlayer == index,
+                enabled: gameState.players[index].isAlive,
               );
             },
           ),
@@ -56,21 +51,37 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: _voteConfirmed
-                  ? () {
-                      gameState.markPlayerDead(
-                        _selectedPlayer!,
-                        DeathReason.vote,
-                      );
+              onPressed: () {
+                if (_selectedPlayer == null) {
+                  final answer = showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('No player selected'),
+                      content: const Text(
+                        'Do you really want to continue without voting anybody out?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('No'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    ),
+                  );
+                  answer.then((continueWithoutVote) {
+                    if (continueWithoutVote == true) {
                       widget.onPhaseComplete();
                     }
-                  : (_selectedPlayer != null
-                        ? () {
-                            setState(() {
-                              _voteConfirmed = true;
-                            });
-                          }
-                        : null),
+                  });
+                } else {
+                  gameState.markPlayerDead(_selectedPlayer!, DeathReason.vote);
+                  widget.onPhaseComplete();
+                }
+              },
               label: const Text('Continue'),
               icon: const Icon(Icons.arrow_forward),
             ),
