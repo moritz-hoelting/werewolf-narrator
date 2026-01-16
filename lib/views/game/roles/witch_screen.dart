@@ -31,8 +31,10 @@ class _WitchScreenState extends State<WitchScreen> {
   @override
   Widget build(BuildContext context) {
     final modeButtonStyle = TextButton.styleFrom(
-      disabledForegroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.onSurface,
+    );
+    final selectedModeButtonStyle = TextButton.styleFrom(
+      disabledForegroundColor: Theme.of(context).colorScheme.primary,
     );
 
     return Consumer<GameState>(
@@ -46,7 +48,9 @@ class _WitchScreenState extends State<WitchScreen> {
               ? Column(
                   children: [
                     TextButton.icon(
-                      style: modeButtonStyle,
+                      style: !_killModeActive
+                          ? selectedModeButtonStyle
+                          : modeButtonStyle,
                       onPressed: _killModeActive && gameState.witchHasHealPotion
                           ? () {
                               setState(() {
@@ -58,7 +62,9 @@ class _WitchScreenState extends State<WitchScreen> {
                       icon: const Icon(Icons.healing),
                     ),
                     TextButton.icon(
-                      style: modeButtonStyle,
+                      style: _killModeActive
+                          ? selectedModeButtonStyle
+                          : modeButtonStyle,
                       onPressed:
                           !_killModeActive && gameState.witchHasKillPotion
                           ? () {
@@ -76,6 +82,11 @@ class _WitchScreenState extends State<WitchScreen> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             title: Text(gameState.players[index].name),
+                            leading: _selectedHealPlayer == index
+                                ? const Icon(Icons.healing)
+                                : (_selectedKillPlayer == index
+                                      ? const Icon(Icons.close)
+                                      : null),
                             onTap: playerTapEnabled(index, gameState)
                                 ? () {
                                     setState(() {
@@ -114,7 +125,7 @@ class _WitchScreenState extends State<WitchScreen> {
                   ),
                 ),
           bottomNavigationBar: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
@@ -144,11 +155,15 @@ class _WitchScreenState extends State<WitchScreen> {
     );
   }
 
-  bool playerTapEnabled(int index, GameState gameState) =>
-      gameState.playerAliveOrKilledThisCycle(index) &&
-      (_killModeActive
-          ? (gameState.players[index].role != Role.witch &&
-                gameState.playerAliveOrKilledThisCycle(index))
-          : (gameState.currentCycleDeaths.containsKey(index) &&
-                gameState.currentCycleDeaths[index] == DeathReason.werewolf));
+  bool playerTapEnabled(int index, GameState gameState) {
+    final killedByWerewolves =
+        gameState.currentCycleDeaths.containsKey(index) &&
+        gameState.currentCycleDeaths[index] == DeathReason.werewolf;
+    return gameState.playerAliveOrKilledThisCycle(index) &&
+        (_killModeActive
+            ? (gameState.players[index].role != Role.witch &&
+                  gameState.playerAliveOrKilledThisCycle(index) &&
+                  !killedByWerewolves)
+            : (killedByWerewolves));
+  }
 }

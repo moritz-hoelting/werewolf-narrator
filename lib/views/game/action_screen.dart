@@ -64,7 +64,7 @@ class _ActionScreenState extends State<ActionScreen> {
             },
           ),
           bottomNavigationBar: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),

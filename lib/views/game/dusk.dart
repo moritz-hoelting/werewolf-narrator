@@ -21,14 +21,18 @@ class DuskScreen extends StatelessWidget {
           ),
         ),
         child: Center(
-          child: Text(
-            'The village sleeps as night falls...',
-            style: Theme.of(context).textTheme.headlineLarge,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'The village sleeps as night falls...',
+              style: Theme.of(context).textTheme.headlineLarge,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
+        padding: const EdgeInsets.all(8.0),
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(60),

@@ -69,7 +69,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 16),
+          const Divider(height: 32),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
