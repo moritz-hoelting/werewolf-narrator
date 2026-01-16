@@ -12,9 +12,11 @@ enum GamePhase {
   werewolves,
   witch,
   dawn,
+  sheriffElection,
   voting,
 
   gameOver;
 
-  bool get isNight => this != dawn && this != voting;
+  bool get isNight =>
+      index >= GamePhase.dusk.index && index < GamePhase.dawn.index;
 }

@@ -5,22 +5,20 @@ import 'package:werewolf_narrator/state/game.dart';
 
 class ActionScreen extends StatefulWidget {
   final Widget appBarTitle;
-  final VoidCallback onPhaseComplete;
 
   final List<int> disabledPlayerIndices;
 
-  final int maxSelection;
-  final bool allowSelfSelect;
+  final int selectionCount;
+  final bool allowSelectLess;
 
   final void Function(List<int> playerIds, GameState gameState) onConfirm;
 
   const ActionScreen({
     super.key,
     required this.appBarTitle,
-    required this.onPhaseComplete,
     required this.disabledPlayerIndices,
-    required this.maxSelection,
-    this.allowSelfSelect = false,
+    required this.selectionCount,
+    this.allowSelectLess = false,
     required this.onConfirm,
   });
 
@@ -61,8 +59,7 @@ class _ActionScreenState extends State<ActionScreen> {
                 selected: _selectedPlayers[index],
                 enabled:
                     gameState.players[index].isAlive &&
-                    (widget.allowSelfSelect ||
-                        !widget.disabledPlayerIndices.contains(index)),
+                    !widget.disabledPlayerIndices.contains(index),
               );
             },
           ),
@@ -72,18 +69,50 @@ class _ActionScreenState extends State<ActionScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: selectedCount == widget.maxSelection
+              onPressed:
+                  (selectedCount == widget.selectionCount ||
+                      (widget.allowSelectLess &&
+                          selectedCount < widget.selectionCount))
                   ? () {
-                      widget.onConfirm(
-                        _selectedPlayers
-                            .asMap()
-                            .entries
-                            .where((entry) => entry.value)
-                            .map((entry) => entry.key)
-                            .toList(),
-                        gameState,
-                      );
-                      widget.onPhaseComplete();
+                      final selectedPlayers = _selectedPlayers
+                          .asMap()
+                          .entries
+                          .where((entry) => entry.value)
+                          .map((entry) => entry.key)
+                          .toList();
+                      if (selectedCount < widget.selectionCount) {
+                        final answer = showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Fewer selections made'),
+                            content: Text(
+                              'You have selected $selectedCount player(s), '
+                              'but the action allows selecting '
+                              '${widget.selectionCount} player(s). '
+                              'Do you want to continue?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('No'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text('Yes'),
+                              ),
+                            ],
+                          ),
+                        );
+                        answer.then((continueWithLess) {
+                          if (continueWithLess == true) {
+                            widget.onConfirm(selectedPlayers, gameState);
+                          }
+                        });
+                      } else {
+                        widget.onConfirm(selectedPlayers, gameState);
+                      }
                     }
                   : null,
               label: const Text('Continue'),
@@ -100,12 +129,11 @@ class _ActionScreenState extends State<ActionScreen> {
       return null;
     }
 
-    if (!widget.allowSelfSelect &&
-        widget.disabledPlayerIndices.contains(index)) {
+    if (widget.disabledPlayerIndices.contains(index)) {
       return null;
     }
 
-    if (widget.maxSelection == 1) {
+    if (widget.selectionCount == 1) {
       return () {
         setState(() {
           for (int i = 0; i < _selectedPlayers.length; i++) {
@@ -117,7 +145,7 @@ class _ActionScreenState extends State<ActionScreen> {
     }
 
     return (_selectedPlayers[index] ||
-            (!_selectedPlayers[index] && selectedCount < widget.maxSelection))
+            (!_selectedPlayers[index] && selectedCount < widget.selectionCount))
         ? () {
             setState(() {
               _selectedPlayers[index] = !_selectedPlayers[index];
@@ -161,16 +189,21 @@ class RoleActionScreen extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, _) => ActionScreen(
         appBarTitle: Text('Select action for ${role.name(context)}'),
-        onPhaseComplete: onPhaseComplete,
-        disabledPlayerIndices: gameState.players
-            .asMap()
-            .entries
-            .where((entry) => entry.value.role == role)
-            .map((entry) => entry.key)
-            .toList(),
-        maxSelection: role.nightAction!.maxSelection,
-        allowSelfSelect: role.nightAction!.allowSelfSelect,
-        onConfirm: role.nightAction!.onConfirm ?? (_, __) {},
+        disabledPlayerIndices: role.nightAction!.allowSelfSelect
+            ? []
+            : gameState.players
+                  .asMap()
+                  .entries
+                  .where((entry) => entry.value.role == role)
+                  .map((entry) => entry.key)
+                  .toList(),
+        selectionCount: role.nightAction!.selectionCount,
+        onConfirm: (selectedPlayers, gameState) {
+          if (role.nightAction!.onConfirm != null) {
+            role.nightAction!.onConfirm!(selectedPlayers, gameState);
+          }
+          onPhaseComplete();
+        },
       ),
     );
   }

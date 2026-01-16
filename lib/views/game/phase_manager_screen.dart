@@ -85,6 +85,19 @@ class GamePhaseScreen extends StatelessWidget {
         return WitchScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.dawn:
         return DawnScreen(onPhaseComplete: onPhaseComplete);
+      case GamePhase.sheriffElection:
+        return ActionScreen(
+          appBarTitle: const Text("Sheriff election"),
+          disabledPlayerIndices: [],
+          selectionCount: 1,
+          allowSelectLess: true,
+          onConfirm: (selectedPlayers, gameState) {
+            if (selectedPlayers.length == 1) {
+              gameState.sheriff = selectedPlayers[0];
+            }
+            onPhaseComplete();
+          },
+        );
       case GamePhase.voting:
         return VillageVoteScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.gameOver:

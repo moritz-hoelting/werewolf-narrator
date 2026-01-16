@@ -29,6 +29,9 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(gameState.players[index].name),
+                subtitle: index == gameState.sheriff
+                    ? const Text('Sheriff')
+                    : null,
                 onTap: gameState.players[index].isAlive
                     ? () {
                         setState(() {

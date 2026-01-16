@@ -39,10 +39,10 @@ enum Role {
   RoleNightAction? get nightAction {
     switch (this) {
       case Role.witch:
-        return RoleNightAction(maxSelection: 1);
+        return RoleNightAction(selectionCount: 1);
       case Role.cupid:
         return RoleNightAction(
-          maxSelection: 2,
+          selectionCount: 2,
           allowSelfSelect: true,
           onConfirm: (selectedIndices, gameState) {
             assert(
@@ -55,7 +55,7 @@ enum Role {
         );
       case Role.werewolf:
         return RoleNightAction(
-          maxSelection: 1,
+          selectionCount: 1,
           onConfirm: (playerIds, gameState) {
             assert(
               playerIds.length == 1,
@@ -108,12 +108,12 @@ enum Role {
 }
 
 class RoleNightAction {
-  final int maxSelection;
+  final int selectionCount;
   final bool allowSelfSelect;
   final void Function(List<int> playerIds, GameState gameState)? onConfirm;
 
   const RoleNightAction({
-    required this.maxSelection,
+    required this.selectionCount,
     this.onConfirm,
     this.allowSelfSelect = false,
   });

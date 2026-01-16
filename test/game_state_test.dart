@@ -26,6 +26,7 @@ void main() {
       GamePhase.seer,
       GamePhase.werewolves,
       GamePhase.dawn,
+      GamePhase.sheriffElection,
       GamePhase.voting,
       GamePhase.dusk,
       GamePhase.seer,
@@ -45,6 +46,9 @@ void main() {
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
+      if (state.phase == GamePhase.sheriffElection) {
+        state.sheriff = 0; // Assign a sheriff to proceed
+      }
       final bool successful = state.transitionToNextPhase();
       expect(
         successful,

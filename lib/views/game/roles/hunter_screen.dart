@@ -19,15 +19,15 @@ class HunterScreen extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, _) => ActionScreen(
         appBarTitle: const Text("Choose the target"),
-        onPhaseComplete: onPhaseComplete,
         disabledPlayerIndices: [playerIndex],
-        maxSelection: 1,
+        selectionCount: 1,
         onConfirm: (selectedPlayers, gameState) {
           assert(
             selectedPlayers.length == 1,
             'Hunter must select exactly one player to shoot.',
           );
           gameState.markPlayerDead(selectedPlayers[0], DeathReason.hunter);
+          onPhaseComplete();
         },
       ),
     );

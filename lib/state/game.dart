@@ -14,6 +14,7 @@ class GameState extends ChangeNotifier {
   GamePhase _phase = GamePhase.dusk;
   GamePhase get phase => _phase;
   (int, int)? lovers;
+  int? sheriff;
   bool witchHasHealPotion = true;
   bool witchHasKillPotion = true;
 
@@ -260,6 +261,9 @@ class GameState extends ChangeNotifier {
         break;
       case GamePhase.witch:
         if (!hasAliveRole(Role.witch)) return false;
+        break;
+      case GamePhase.sheriffElection:
+        if (sheriff != null && players[sheriff!].isAlive) return false;
         break;
       case GamePhase.gameOver:
         if (checkWinConditions() == null) return false;
