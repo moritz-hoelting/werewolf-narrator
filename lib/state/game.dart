@@ -4,6 +4,7 @@ import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/model/winner.dart';
+import 'package:werewolf_narrator/state/game_phase.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
@@ -200,15 +201,6 @@ class GameState extends ChangeNotifier {
           next.index >= GamePhase.cupid.index) {
         fillVillagerRoles();
       }
-      if ((phase.index < GamePhase.dawn.index && next == GamePhase.dawn) ||
-          (phase == GamePhase.dusk && next == GamePhase.voting)) {
-        final winningTeam = checkWinConditions();
-        if (winningTeam != null) {
-          _phase = GamePhase.gameOver;
-          notifyListeners();
-          return true;
-        }
-      }
       _phase = next;
       if (next == GamePhase.dawn) {
         dayCounter += 1;
@@ -248,6 +240,9 @@ class GameState extends ChangeNotifier {
       case GamePhase.checkRoleCupid:
         if (dayCounter > 0 || !hasRole(Role.cupid)) return false;
         break;
+      case GamePhase.checkRoleLittleGirl:
+        if (dayCounter > 0 || !hasRole(Role.littleGirl)) return false;
+        break;
       case GamePhase.checkRoleWerewolves:
         if (dayCounter > 0 || !hasRole(Role.werewolf)) return false;
         break;
@@ -274,24 +269,4 @@ class GameState extends ChangeNotifier {
     }
     return true;
   }
-}
-
-enum GamePhase {
-  dusk,
-  checkRoleSeer,
-  checkRoleWitch,
-  checkRoleHunter,
-  checkRoleCupid,
-  checkRoleWerewolves,
-  cupid,
-  lovers,
-  seer,
-  werewolves,
-  witch,
-  dawn,
-  voting,
-
-  gameOver;
-
-  bool get isNight => this != dawn && this != voting;
 }

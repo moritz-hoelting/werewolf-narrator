@@ -10,6 +10,7 @@ enum Role {
   witch(isUnique: true),
   hunter(isUnique: true),
   cupid(isUnique: true),
+  littleGirl(isUnique: true),
   werewolf(isUnique: false);
 
   const Role({required this.isUnique});
@@ -28,6 +29,8 @@ enum Role {
         return 'Hunter';
       case Role.cupid:
         return 'Cupid';
+      case Role.littleGirl:
+        return 'Little Girl';
       case Role.werewolf:
         return 'Werewolf';
     }
@@ -75,6 +78,7 @@ enum Role {
       case Role.witch:
       case Role.hunter:
       case Role.cupid:
+      case Role.littleGirl:
         return Team.village;
     }
   }

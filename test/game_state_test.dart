@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/state/game_phase.dart';
 
 void main() {
   test("Test game phase order", () {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/state/game_phase.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
@@ -51,6 +51,12 @@ class GamePhaseScreen extends StatelessWidget {
         return CheckRoleScreen(
           key: ValueKey(phase),
           role: Role.witch,
+          onPhaseComplete: onPhaseComplete,
+        );
+      case GamePhase.checkRoleLittleGirl:
+        return CheckRoleScreen(
+          key: ValueKey(phase),
+          role: Role.littleGirl,
           onPhaseComplete: onPhaseComplete,
         );
       case GamePhase.checkRoleWerewolves:
