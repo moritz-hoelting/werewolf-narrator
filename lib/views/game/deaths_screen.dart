@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
 import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
@@ -25,13 +26,14 @@ class DeathsScreen extends StatelessWidget {
           return DeathActionsScreen(onPhaseComplete: onPhaseComplete);
         }
 
+        final localizations = AppLocalizations.of(context)!;
         final unannouncedDeaths = gameState.unannouncedDeaths;
 
         return Scaffold(
           extendBody: true,
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            title: title ?? const Text('Death Announcements'),
+            title: title ?? Text(localizations.screen_deaths_title),
             automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
           ),
@@ -49,7 +51,7 @@ class DeathsScreen extends StatelessWidget {
             child: unannouncedDeaths.isEmpty
                 ? Center(
                     child: Text(
-                      'No one died.',
+                      localizations.screen_deaths_noDeaths,
                       style: Theme.of(context).textTheme.headlineLarge,
                     ),
                   )
@@ -62,11 +64,13 @@ class DeathsScreen extends StatelessWidget {
                       final deathInformation = unannouncedDeaths[playerIndex]!;
                       return ListTile(
                         title: Text(
-                          'Player ${player.name} has died.',
+                          localizations.screen_deaths_playerHasDied(
+                            player.name,
+                          ),
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         subtitle: Text(
-                          '${player.role?.name(context) ?? 'Unknown Role'} - ${deathInformation.reason.name(context)}',
+                          '${player.role?.name(context) ?? localizations.role_unknown} - ${deathInformation.reason.name(context)}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       );
@@ -92,7 +96,7 @@ class DeathsScreen extends StatelessWidget {
                   onPhaseComplete();
                 }
               },
-              label: const Text('Continue'),
+              label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),

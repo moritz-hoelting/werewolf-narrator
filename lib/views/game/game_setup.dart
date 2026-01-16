@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/views/game/create_players.dart';
 import 'package:werewolf_narrator/views/game/select_roles.dart';
@@ -15,8 +16,9 @@ class GameSetupView extends StatefulWidget {
 
 class _GameSetupViewState extends State<GameSetupView> {
   GameSetupStep step = GameSetupStep.createPlayers;
+
   List<String> players = kDebugMode
-      ? List.generate(8, (i) => "Player ${i + 1}")
+      ? List.generate(8, (i) => 'Player ${i + 1}')
       : [];
 
   @override
@@ -26,7 +28,6 @@ class _GameSetupViewState extends State<GameSetupView> {
       onPopInvokedWithResult: (didPop, result) {
         switch (step) {
           case GameSetupStep.createPlayers:
-            // Allow pop
             break;
           case GameSetupStep.selectRoles:
             setState(() {
@@ -36,7 +37,7 @@ class _GameSetupViewState extends State<GameSetupView> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(step.title)),
+        appBar: AppBar(title: Text(step.title(context))),
         body: switch (step) {
           GameSetupStep.createPlayers => CreatePlayersScreen(
             onSubmit: submitCreatePlayers,
@@ -65,12 +66,14 @@ enum GameSetupStep {
   createPlayers,
   selectRoles;
 
-  String get title {
+  String title(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     switch (this) {
       case GameSetupStep.createPlayers:
-        return 'Create Players';
+        return localizations.screen_gameSetup_createPlayers_title;
       case GameSetupStep.selectRoles:
-        return 'Select Roles';
+        return localizations.screen_gameSetup_selectRoles_title;
     }
   }
 }

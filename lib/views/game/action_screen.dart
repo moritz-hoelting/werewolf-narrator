@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 class ActionScreen extends StatefulWidget {
   final Widget appBarTitle;
+  final Widget? instruction;
 
   final List<int> disabledPlayerIndices;
 
@@ -16,6 +18,7 @@ class ActionScreen extends StatefulWidget {
   const ActionScreen({
     super.key,
     required this.appBarTitle,
+    this.instruction,
     required this.disabledPlayerIndices,
     required this.selectionCount,
     this.allowSelectLess = false,
@@ -45,23 +48,36 @@ class _ActionScreenState extends State<ActionScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final localizations = AppLocalizations.of(context)!;
+
         return Scaffold(
           appBar: AppBar(
             title: widget.appBarTitle,
             automaticallyImplyLeading: false,
           ),
-          body: ListView.builder(
-            itemCount: gameState.playerCount,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(gameState.players[index].name),
-                onTap: getOnTapPlayer(index, gameState),
-                selected: _selectedPlayers[index],
-                enabled:
-                    gameState.players[index].isAlive &&
-                    !widget.disabledPlayerIndices.contains(index),
-              );
-            },
+          body: Column(
+            children: [
+              if (widget.instruction != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: widget.instruction!,
+                ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: gameState.playerCount,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(gameState.players[index].name),
+                      onTap: getOnTapPlayer(index, gameState),
+                      selected: _selectedPlayers[index],
+                      enabled:
+                          gameState.players[index].isAlive &&
+                          !widget.disabledPlayerIndices.contains(index),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -83,27 +99,32 @@ class _ActionScreenState extends State<ActionScreen> {
                       if (selectedCount < widget.selectionCount) {
                         final answer = showDialog<bool>(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Fewer selections made'),
-                            content: Text(
-                              'You have selected $selectedCount player(s), '
-                              'but the action allows selecting '
-                              '${widget.selectionCount} player(s). '
-                              'Do you want to continue?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: const Text('No'),
+                          builder: (context) {
+                            final localizations = AppLocalizations.of(context)!;
+                            return AlertDialog(
+                              title: Text(
+                                localizations.dialog_fewerSelectionsTitle,
                               ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: const Text('Yes'),
+                              content: Text(
+                                localizations.dialog_fewerSelectionsMessage(
+                                  selectedCount,
+                                  widget.selectionCount,
+                                ),
                               ),
-                            ],
-                          ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: Text(localizations.button_noLabel),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  child: Text(localizations.button_yesLabel),
+                                ),
+                              ],
+                            );
+                          },
                         );
                         answer.then((continueWithLess) {
                           if (continueWithLess == true) {
@@ -115,7 +136,7 @@ class _ActionScreenState extends State<ActionScreen> {
                       }
                     }
                   : null,
-              label: const Text('Continue'),
+              label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),
@@ -167,28 +188,18 @@ class RoleActionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (role.nightAction == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('No action for ${role.name(context)}'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(60),
-            ),
-            onPressed: onPhaseComplete,
-            label: const Text('Continue'),
-            icon: const Icon(Icons.arrow_forward),
-          ),
-        ),
-      );
-    }
+    assert(
+      role.nightAction != null,
+      'RoleActionScreen requires a role with a night action.',
+    );
 
     return Consumer<GameState>(
       builder: (context, gameState, _) => ActionScreen(
-        appBarTitle: Text('Select action for ${role.name(context)}'),
+        appBarTitle: Text(role.name(context)),
+        instruction: Text(
+          role.selectActionInstruction(context),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         disabledPlayerIndices: role.nightAction!.allowSelfSelect
             ? []
             : gameState.players

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 final int minPlayers = 8;
 
@@ -42,6 +43,8 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
       });
     }
 
+    final localizations = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -65,7 +68,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                         playerKeys.add(UniqueKey());
                       });
                     },
-                    label: const Text('Add Player'),
+                    label: Text(localizations.screen_createPlayers_addPlayer),
                     icon: const Icon(Icons.add),
                   ),
                 ),
@@ -123,7 +126,9 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                       widget.onSubmit(names);
                     }
                   : null,
-              label: const Text('Select roles'),
+              label: Text(
+                localizations.screen_createPlayers_selectRolesButtonLabel,
+              ),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),
@@ -226,13 +231,17 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return TextField(
       autocorrect: false,
       maxLength: 25,
       decoration: InputDecoration(
-        labelText: 'Player ${widget.idx + 1} Name',
+        labelText: localizations.screen_createPlayers_playerNumberInputLabel(
+          widget.idx + 1,
+        ),
         errorText: (_touched && !_focusNode.hasFocus && widget.isInvalid)
-            ? 'Invalid or duplicate name'
+            ? localizations.screen_createPlayers_error_invalidOrDuplicateName
             : null,
         border: OutlineInputBorder(),
         suffixIcon: IconButton(

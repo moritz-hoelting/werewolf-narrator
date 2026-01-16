@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
@@ -36,10 +37,15 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final localizations = AppLocalizations.of(context)!;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              'Select ${(gameState.roles[widget.role] ?? 0) > 1 ? 'all' : 'the'} ${widget.role.name(context)}',
+              widget.role.checkRoleInstruction(
+                context,
+                gameState.roles[widget.role] ?? 0,
+              ),
             ),
             automaticallyImplyLeading: false,
           ),
@@ -63,7 +69,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               onPressed: selectedCount == gameState.roles[widget.role]
                   ? () => onPhaseComplete(gameState)
                   : null,
-              label: const Text('Continue'),
+              label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),

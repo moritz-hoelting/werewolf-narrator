@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 
 class DawnScreen extends StatelessWidget {
@@ -9,7 +10,7 @@ class DawnScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DeathsScreen(
     onPhaseComplete: onPhaseComplete,
-    title: const Text('The village wakes as dawn breaks...'),
+    title: Text(AppLocalizations.of(context)!.screen_dawn_message),
     beamColor: Colors.orange.shade300,
   );
 }

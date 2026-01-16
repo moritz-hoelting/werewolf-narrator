@@ -1,0 +1,323 @@
+{
+    "@@locale": "en",
+    "appTitle": "Werewolf Narrator",
+    "@appTitle": {
+        "description": "Title of the application"
+    },
+    "button_newGameLabel": "New Game",
+    "@button_newGameLabel": {
+        "description": "Label for the button to start a new game"
+    },
+    "button_continueLabel": "Continue",
+    "@button_continueLabel": {
+        "description": "Label for the button to continue to the next phase"
+    },
+    "button_yesLabel": "Yes",
+    "@button_yesLabel": {
+        "description": "Confirmation button label"
+    },
+    "button_noLabel": "No",
+    "@button_noLabel": {
+        "description": "Cancel button label"
+    },
+    "screen_wakeLovers_title": "Wake the Lovers",
+    "@screen_wakeLovers_title": {
+        "description": "Title for the screen where the narrator wakes the lovers"
+    },
+    "screen_wakeLovers_instructions": "{playerA} and {playerB}, wake up and look at each other.",
+    "@screen_wakeLovers_instructions": {
+        "description": "Instructions for the lovers to wake up and see each other",
+        "placeholders": {
+            "playerA": {
+                "type": "String",
+                "example": "Alice"
+            },
+            "playerB": {
+                "type": "String",
+                "example": "Bob"
+            }
+        }
+    },
+    "screen_villageVote_title": "Select player to vote out",
+    "@screen_villageVote_title": {
+        "description": "Title for the village voting screen"
+    },
+    "screen_villageVote_sheriffLabel": "Sheriff",
+    "@screen_villageVote_sheriffLabel": {
+        "description": "Label shown next to the sheriff during village vote"
+    },
+    "dialog_noVote_title": "No player selected",
+    "@dialog_noVote_title": {
+        "description": "Title for the dialog shown when no player is selected"
+    },
+    "dialog_noVote_message": "Do you really want to continue without voting anybody out?",
+    "@dialog_noVote_message": {
+        "description": "Message shown when continuing without voting"
+    },
+    "screen_selectRoles_startButton": "Start Game!",
+    "@screen_selectRoles_startButton": {
+        "description": "Button label to start the game after selecting roles"
+    },
+    "screen_selectRoles_missingRoles": "{count} roles left to assign",
+    "@screen_selectRoles_missingRoles": {
+        "description": "Info text showing how many roles are still missing",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
+    "screen_gameSetup_createPlayers_title": "Create Players",
+    "@screen_gameSetup_createPlayers_title": {
+        "description": "Title for the game setup step where players are created"
+    },
+    "screen_gameSetup_selectRoles_title": "Select Roles",
+    "@screen_gameSetup_selectRoles_title": {
+        "description": "Title for the game setup step where roles are selected"
+    },
+    "screen_gameOver_title": "Game Over",
+    "@screen_gameOver_title": {
+        "description": "Title for the game over screen"
+    },
+    "screen_gameOver_noWinner": "Game Over! No winners determined.",
+    "@screen_gameOver_noWinner": {
+        "description": "Fallback text when no winning team could be determined"
+    },
+    "screen_gameOver_winnerVillageHeadline": "The Village has won!",
+    "@screen_gameOver_winnerVillageHeadline": {
+        "description": "Headline shown when the Village team wins"
+    },
+    "screen_gameOver_winnerWerewolvesHeadline": "The Werewolves have won!",
+    "@screen_gameOver_winnerWerewolvesHeadline": {
+        "description": "Headline shown when the Werewolves team wins"
+    },
+    "screen_gameOver_winnerLoversHeadline": "The Lovers have won!",
+    "@screen_gameOver_winnerLoversHeadline": {
+        "description": "Headline shown when the Lovers team wins"
+    },
+    "screen_gameOver_winnersLabel": "Winners:",
+    "@screen_gameOver_winnersLabel": {
+        "description": "Label shown above the list of winning players"
+    },
+    "screen_dusk_message": "The village sleeps as night falls...",
+    "@screen_dusk_message": {
+        "description": "Message shown on the dusk screen"
+    },
+    "screen_dawn_message": "The village wakes as dawn breaks...",
+    "@screen_dawn_message": {
+        "description": "Message shown on the dawn screen"
+    },
+    "screen_deaths_title": "Death Announcements",
+    "@screen_deaths_title": {
+        "description": "Title for the death announcements screen"
+    },
+    "screen_deaths_noDeaths": "No one died.",
+    "@screen_deaths_noDeaths": {
+        "description": "Message shown when no deaths have occurred"
+    },
+    "screen_deaths_playerHasDied": "Player {playerName} has died.",
+    "@screen_deaths_playerHasDied": {
+        "description": "Message announcing that a specific player has died",
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "Alice"
+            }
+        }
+    },
+
+    "screen_createPlayers_addPlayer": "Add Player",
+    "@screen_createPlayers_addPlayer": {
+        "description": "Button label to add a new player"
+    },
+    "screen_createPlayers_selectRolesButtonLabel": "Select roles",
+    "@screen_createPlayers_selectRolesButtonLabel": {
+        "description": "Button label to proceed to role selection"
+    },
+    "screen_createPlayers_playerNumberInputLabel": "Player {number} Name",
+    "@screen_createPlayers_playerNumberInputLabel": {
+        "description": "Label for the input field to enter a player's name",
+        "placeholders": {
+            "number": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_createPlayers_error_invalidOrDuplicateName": "Invalid or duplicate name",
+    "@screen_createPlayers_error_invalidOrDuplicateName": {
+        "description": "Error message shown when a player's name is invalid or duplicate"
+    },
+
+    "dialog_fewerSelectionsTitle": "Fewer selections made than allowed",
+    "@dialog_fewerSelectionsTitle": {
+        "description": "Title for the dialog shown when fewer selections are made than allowed"
+    },
+    "dialog_fewerSelectionsMessage": "You have selected {selectedCount, plural, =1{one player} other{{selectedCount} players}}, but the action allows selecting up to {maxCount, plural, =1{one player} other{{maxCount} players}}. Do you want to proceed?",
+    "@dialog_fewerSelectionsMessage": {
+        "description": "Message shown when fewer selections are made than allowed",
+        "placeholders": {
+            "selectedCount": {
+                "type": "int",
+                "example": "1"
+            },
+            "maxCount": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+
+    "screen_roleAction_instruction_witch": "Choose a player to poison or save.",
+    "@screen_roleAction_instruction_witch": {
+        "description": "Instruction for the Witch role action"
+    },
+    "screen_roleAction_instruction_witch_heal": "Heal",
+    "@screen_roleAction_instruction_witch_heal": {
+        "description": "Label for the Witch's heal action"
+    },
+    "screen_roleAction_instruction_witch_kill": "Poison",
+    "@screen_roleAction_instruction_witch_kill": {
+        "description": "Label for the Witch's poison action"
+    },
+    "screen_roleAction_instruction_witch_noPotionsLeft": "No potions left to use.",
+    "@screen_roleAction_instruction_witch_noPotionsLeft": {
+        "description": "Message shown when the Witch has no potions left"
+    },
+    "screen_roleAction_instruction_seer": "Choose a player to reveal their role.",
+    "@screen_roleAction_instruction_seer": {
+        "description": "Instruction for the Seer role action"
+    },
+    "screen_roleAction_instruction_hunter": "Choose a player to shoot.",
+    "@screen_roleAction_instruction_hunter": {
+        "description": "Instruction for the Hunter role action"
+    },
+    "screen_roleAction_instruction_cupid": "Choose two players you want to fall in love.",
+    "@screen_roleAction_instruction_cupid": {
+        "description": "Instruction for the Cupid role action"
+    },
+    "screen_roleAction_instruction_werewolf": "Choose a player to kill.",
+    "@screen_roleAction_instruction_werewolf": {
+        "description": "Instruction for the Werewolf role action"
+    },
+
+    "screen_sheriffElection_instruction": "Choose a player to be the sheriff.",
+    "@screen_sheriffElection_instruction": {
+        "description": "Instruction for the sheriff election screen"
+    },
+
+    "role_unknown": "Unknown role",
+    "@role_unknown": {
+        "description": "Display text when the role is unknown"
+    },
+    "role_villager": "Villager",
+    "@role_villager": {
+        "description": "Name of the Villager role"
+    },
+    "role_werewolf": "Werewolf",
+    "@role_werewolf": {
+        "description": "Name of the Werewolf role"
+    },
+    "role_seer": "Seer",
+    "@role_seer": {
+        "description": "Name of the Seer role"
+    },
+    "role_witch": "Witch",
+    "@role_witch": {
+        "description": "Name of the Witch role"
+    },
+    "role_hunter": "Hunter",
+    "@role_hunter": {
+        "description": "Name of the Hunter role"
+    },
+    "role_cupid": "Cupid",
+    "@role_cupid": {
+        "description": "Name of the Cupid role"
+    },
+    "role_littleGirl": "Little Girl",
+    "@role_littleGirl": {
+        "description": "Name of the Little Girl role"
+    },
+    "deathReason_werewolf": "Killed by Werewolves",
+    "@deathReason_werewolf": {
+        "description": "Reason for death: killed by werewolves"
+    },
+    "deathReason_villageVote": "Hung by the Village",
+    "@deathReason_villageVote": {
+        "description": "Reason for death: voted out by the village"
+    },
+    "deathReason_witch": "Poisoned by the Witch",
+    "@deathReason_witch": {
+        "description": "Reason for death: poisoned by the witch"
+    },
+    "deathReason_hunter": "Shot by the Hunter",
+    "@deathReason_hunter": {
+        "description": "Reason for death: shot by the hunter"
+    },
+    "deathReason_lover": "Died of a Broken Heart",
+    "@deathReason_lover": {
+        "description": "Reason for death: died because their lover died"
+    },
+
+    "screen_checkRoles_instruction_werewolf": "Select {count, plural, =1{the Werewolf} other{all Werewolves}}",
+    "@screen_checkRoles_instruction_werewolf": {
+        "description": "Instruction to select werewolf roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_seer": "Select {count, plural, =1{the Seer} other{all Seers}}",
+    "@screen_checkRoles_instruction_seer": {
+        "description": "Instruction to select seer roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_witch": "Select {count, plural, =1{the Witch} other{all Witches}}",
+    "@screen_checkRoles_instruction_witch": {
+        "description": "Instruction to select witch roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_hunter": "Select {count, plural, =1{the Hunter} other{all Hunters}}",
+    "@screen_checkRoles_instruction_hunter": {
+        "description": "Instruction to select hunter roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_cupid": "Select {count, plural, =1{the Cupid} other{all Cupids}}",
+    "@screen_checkRoles_instruction_cupid": {
+        "description": "Instruction to select cupid roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_littleGirl": "Select {count, plural, =1{the Little Girl} other{all Little Girls}}",
+    "@screen_checkRoles_instruction_littleGirl": {
+        "description": "Instruction to select little girl roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_role_screen.dart';
 import 'package:werewolf_narrator/views/game/game_over_screen.dart';
 import 'package:werewolf_narrator/views/game/roles/seer_screen.dart';
+import 'package:werewolf_narrator/views/game/sheriff_election_screen.dart';
 import 'package:werewolf_narrator/views/game/village_vote_screen.dart';
 import 'package:werewolf_narrator/views/game/wake_lovers_screen.dart';
 import 'package:werewolf_narrator/views/game/roles/witch_screen.dart';
@@ -86,18 +87,7 @@ class GamePhaseScreen extends StatelessWidget {
       case GamePhase.dawn:
         return DawnScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.sheriffElection:
-        return ActionScreen(
-          appBarTitle: const Text("Sheriff election"),
-          disabledPlayerIndices: [],
-          selectionCount: 1,
-          allowSelectLess: true,
-          onConfirm: (selectedPlayers, gameState) {
-            if (selectedPlayers.length == 1) {
-              gameState.sheriff = selectedPlayers[0];
-            }
-            onPhaseComplete();
-          },
-        );
+        return SheriffElectionScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.voting:
         return VillageVoteScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.gameOver:

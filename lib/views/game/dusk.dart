@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
 
 class DuskScreen extends StatelessWidget {
@@ -8,6 +9,8 @@ class DuskScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       extendBody: true,
       body: Container(
@@ -24,7 +27,7 @@ class DuskScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              'The village sleeps as night falls...',
+              localizations.screen_dusk_message,
               style: Theme.of(context).textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
@@ -38,7 +41,7 @@ class DuskScreen extends StatelessWidget {
             minimumSize: const Size.fromHeight(60),
           ),
           onPressed: onPhaseComplete,
-          label: const Text('Continue'),
+          label: Text(localizations.button_continueLabel),
           icon: const Icon(Icons.arrow_forward),
         ),
       ),

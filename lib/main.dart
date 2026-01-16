@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game.dart';
 
@@ -12,8 +14,15 @@ class WerewolfNarratorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Werewolf Narrator',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: Themes.lightTheme,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const HomePage(),
     );
   }
@@ -25,11 +34,12 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: colorScheme.inversePrimary,
-        title: const Text('Werewolf Narrator'),
+        title: Text(localizations.appTitle),
       ),
       body: Center(
         child: ElevatedButton(
@@ -46,7 +56,7 @@ class HomePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: const Text('New Game'),
+          child: Text(localizations.button_newGameLabel),
         ),
       ),
     );

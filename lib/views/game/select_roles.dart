@@ -1,6 +1,7 @@
 import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 
@@ -37,6 +38,8 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     final int missingRoles = widget.playerCount - totalSelected;
     final Set<Role> selectedRoleSet = selectedRoles.entries
         .where((entry) => entry.value > 0)
@@ -51,6 +54,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
       child: Column(
         children: [
           const SizedBox(height: 16),
+
           Expanded(
             child: ListView(
               children: Role.values
@@ -59,7 +63,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                       role: role,
                       count: selectedRoles[role] ?? 0,
                       maxCount: role.isUnique
-                          ? (role.isUnique && (selectedRoles[role] ?? 0) == 0
+                          ? ((selectedRoles[role] ?? 0) == 0
                                 ? min(1, missingRoles)
                                 : 0)
                           : missingRoles + (selectedRoles[role] ?? 0),
@@ -69,7 +73,9 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                   .toList(),
             ),
           ),
+
           const Divider(height: 32),
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -81,10 +87,11 @@ class _SelectRolesViewState extends State<SelectRolesView> {
                       selectedTeams.length >= 2
                   ? () => widget.onSubmit(selectedRoles)
                   : null,
-              label: const Text('Start Game!'),
               icon: const Icon(Icons.arrow_forward),
+              label: Text(localizations.screen_selectRoles_startButton),
             ),
           ),
+
           const SizedBox(height: 16),
         ],
       ),

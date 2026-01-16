@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
@@ -39,9 +40,11 @@ class _WitchScreenState extends State<WitchScreen> {
 
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final localizations = AppLocalizations.of(context)!;
+
         return Scaffold(
           appBar: AppBar(
-            title: Text('Select action for ${Role.witch.name(context)}'),
+            title: Text(localizations.role_witch),
             automaticallyImplyLeading: false,
           ),
           body: gameState.witchHasHealPotion || gameState.witchHasKillPotion
@@ -58,7 +61,9 @@ class _WitchScreenState extends State<WitchScreen> {
                               });
                             }
                           : null,
-                      label: const Text('Heal Player'),
+                      label: Text(
+                        localizations.screen_roleAction_instruction_witch_heal,
+                      ),
                       icon: const Icon(Icons.healing),
                     ),
                     TextButton.icon(
@@ -73,8 +78,17 @@ class _WitchScreenState extends State<WitchScreen> {
                               });
                             }
                           : null,
-                      label: const Text('Kill Player'),
-                      icon: const Icon(Icons.close),
+                      label: Text(
+                        localizations.screen_roleAction_instruction_witch_kill,
+                      ),
+                      icon: const Icon(Icons.science),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        localizations.screen_roleAction_instruction_witch,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
                     Expanded(
                       child: ListView.builder(
@@ -82,10 +96,10 @@ class _WitchScreenState extends State<WitchScreen> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             title: Text(gameState.players[index].name),
-                            leading: _selectedHealPlayer == index
+                            trailing: _selectedHealPlayer == index
                                 ? const Icon(Icons.healing)
                                 : (_selectedKillPlayer == index
-                                      ? const Icon(Icons.close)
+                                      ? const Icon(Icons.science)
                                       : null),
                             onTap: playerTapEnabled(index, gameState)
                                 ? () {
@@ -118,9 +132,10 @@ class _WitchScreenState extends State<WitchScreen> {
                     ),
                   ],
                 )
-              : const Center(
+              : Center(
                   child: Text(
-                    'No potions left to use.',
+                    localizations
+                        .screen_roleAction_instruction_witch_noPotionsLeft,
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
@@ -146,7 +161,7 @@ class _WitchScreenState extends State<WitchScreen> {
                 );
                 widget.onPhaseComplete();
               },
-              label: const Text('Continue'),
+              label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),

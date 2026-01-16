@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class DeathInformation {
   final DeathReason reason;
@@ -20,17 +21,18 @@ enum DeathReason {
   vote;
 
   String name(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     switch (this) {
       case DeathReason.werewolf:
-        return 'Killed by Werewolves';
+        return localizations.deathReason_werewolf;
       case DeathReason.witch:
-        return 'Poisoned by Witch';
+        return localizations.deathReason_witch;
       case DeathReason.lover:
-        return 'Died for Lover';
+        return localizations.deathReason_lover;
       case DeathReason.hunter:
-        return 'Shot by Hunter';
+        return localizations.deathReason_hunter;
       case DeathReason.vote:
-        return 'Voted Out';
+        return localizations.deathReason_villageVote;
     }
   }
 }

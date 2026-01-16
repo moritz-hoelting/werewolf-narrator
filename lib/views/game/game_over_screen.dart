@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/model/winner.dart';
@@ -10,17 +11,20 @@ class GameOverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Consumer<GameState>(
       builder: (context, gameState, _) {
         final winningTeam = gameState.checkWinConditions();
+
         if (winningTeam == null) {
-          // This should not happen; game over screen should only be shown when there's a winner.
+          // Should not happen, but keep it safe
           return Scaffold(
-            appBar: AppBar(title: const Text("Game Over")),
-            body: const Center(
+            appBar: AppBar(title: Text(localizations.screen_gameOver_title)),
+            body: Center(
               child: Text(
-                'Game Over! No winners determined.',
-                style: TextStyle(fontSize: 24),
+                localizations.screen_gameOver_noWinner,
+                style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -31,6 +35,7 @@ class GameOverScreen extends StatelessWidget {
             gameState.lovers != null &&
             gameState.players[gameState.lovers!.$1].role?.team !=
                 gameState.players[gameState.lovers!.$2].role?.team;
+
         final lovers = [gameState.lovers?.$1, gameState.lovers?.$2].nonNulls;
 
         List<Player> winners;
@@ -47,6 +52,7 @@ class GameOverScreen extends StatelessWidget {
                 .map((entry) => entry.value)
                 .toList();
             break;
+
           case Winner.werewolves:
             winners = gameState.players
                 .asMap()
@@ -59,6 +65,7 @@ class GameOverScreen extends StatelessWidget {
                 .map((entry) => entry.value)
                 .toList();
             break;
+
           case Winner.lovers:
             winners = gameState.players
                 .asMap()
@@ -70,19 +77,19 @@ class GameOverScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: const Text("Game Over")),
+          appBar: AppBar(title: Text(localizations.screen_gameOver_title)),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '${winningTeam.name(context)} have won!',
+                  winningTeam.winningHeadline(context),
                   style: Theme.of(context).textTheme.headlineLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Winners:',
+                  localizations.screen_gameOver_winnersLabel,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 12),

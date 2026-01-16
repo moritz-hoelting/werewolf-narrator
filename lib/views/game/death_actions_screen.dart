@@ -43,20 +43,10 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (deathActions.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Death Actions'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: widget.onPhaseComplete,
-            child: const Text('No death actions required. Continue.'),
-          ),
-        ),
-      );
-    }
+    assert(
+      deathActions.isNotEmpty,
+      "DeathActionsScreen built with no death actions",
+    );
 
     final (playerIndex, deathAction) = deathActions[0];
 

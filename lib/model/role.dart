@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
@@ -17,22 +18,65 @@ enum Role {
 
   final bool isUnique;
 
-  String name(BuildContext _) {
+  String name(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     switch (this) {
       case Role.villager:
-        return 'Villager';
+        return localizations.role_villager;
       case Role.seer:
-        return 'Seer';
+        return localizations.role_seer;
       case Role.witch:
-        return 'Witch';
+        return localizations.role_witch;
       case Role.hunter:
-        return 'Hunter';
+        return localizations.role_hunter;
       case Role.cupid:
-        return 'Cupid';
+        return localizations.role_cupid;
       case Role.littleGirl:
-        return 'Little Girl';
+        return localizations.role_littleGirl;
       case Role.werewolf:
-        return 'Werewolf';
+        return localizations.role_werewolf;
+    }
+  }
+
+  String checkRoleInstruction(BuildContext context, int count) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (this) {
+      case Role.villager:
+        throw UnimplementedError(
+          'Role $this does not have a check role instruction.',
+        );
+      case Role.seer:
+        return localizations.screen_checkRoles_instruction_seer(count);
+      case Role.witch:
+        return localizations.screen_checkRoles_instruction_witch(count);
+      case Role.hunter:
+        return localizations.screen_checkRoles_instruction_hunter(count);
+      case Role.cupid:
+        return localizations.screen_checkRoles_instruction_cupid(count);
+      case Role.littleGirl:
+        return localizations.screen_checkRoles_instruction_littleGirl(count);
+      case Role.werewolf:
+        return localizations.screen_checkRoles_instruction_werewolf(count);
+    }
+  }
+
+  String selectActionInstruction(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (this) {
+      case Role.witch:
+        return localizations.screen_roleAction_instruction_witch;
+      case Role.cupid:
+        return localizations.screen_roleAction_instruction_cupid;
+      case Role.werewolf:
+        return localizations.screen_roleAction_instruction_werewolf;
+      case Role.seer:
+        return localizations.screen_roleAction_instruction_seer;
+      case Role.hunter:
+        return localizations.screen_roleAction_instruction_hunter;
+      default:
+        throw UnimplementedError(
+          'Role $this does not have a night action instruction.',
+        );
     }
   }
 

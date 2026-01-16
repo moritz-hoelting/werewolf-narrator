@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
@@ -19,33 +20,49 @@ class _SeerScreenState extends State<SeerScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final localizations = AppLocalizations.of(context)!;
+
         return Scaffold(
           appBar: AppBar(
-            title: Text('Select action for ${Role.seer.name(context)}'),
+            title: Text(localizations.role_seer),
             automaticallyImplyLeading: false,
           ),
-          body: ListView.builder(
-            itemCount: gameState.playerCount,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(gameState.players[index].name),
-                subtitle: _selectedPlayer == index
-                    ? Text(
-                        'Role: ${gameState.players[index].role?.name(context) ?? "Unknown"}',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      )
-                    : null,
-                onTap: () {
-                  setState(() {
-                    _selectedPlayer = index;
-                  });
-                },
-                selected: _selectedPlayer == index,
-                enabled:
-                    gameState.players[index].isAlive &&
-                    gameState.players[index].role != Role.seer,
-              );
-            },
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  localizations.screen_roleAction_instruction_seer,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: gameState.playerCount,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(gameState.players[index].name),
+                      subtitle: _selectedPlayer == index
+                          ? Text(
+                              gameState.players[index].role?.name(context) ??
+                                  localizations.role_unknown,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            )
+                          : null,
+                      onTap: () {
+                        setState(() {
+                          _selectedPlayer = index;
+                        });
+                      },
+                      selected: _selectedPlayer == index,
+                      enabled:
+                          gameState.players[index].isAlive &&
+                          gameState.players[index].role != Role.seer,
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -56,7 +73,7 @@ class _SeerScreenState extends State<SeerScreen> {
               onPressed: _selectedPlayer != null
                   ? widget.onPhaseComplete
                   : null,
-              label: const Text('Continue'),
+              label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
             ),
           ),
