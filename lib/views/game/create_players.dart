@@ -248,7 +248,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
           icon: const Icon(Icons.delete),
           iconSize: 30,
           onPressed: widget.onDelete,
-          disabledColor: Colors.grey.shade800,
+          disabledColor: Colors.grey.shade400,
         ),
       ),
       buildCounter:
