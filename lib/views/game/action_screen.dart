@@ -73,6 +73,9 @@ class _ActionScreenState extends State<ActionScreen> {
                       enabled:
                           gameState.players[index].isAlive &&
                           !widget.disabledPlayerIndices.contains(index),
+                      selectedTileColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
                     );
                   },
                 ),

@@ -22,7 +22,7 @@ class HunterScreen extends StatelessWidget {
         final localizations = AppLocalizations.of(context)!;
 
         return ActionScreen(
-          appBarTitle: Text(localizations.role_hunter),
+          appBarTitle: Text(localizations.role_hunter_name),
           instruction: Text(
             localizations.screen_roleAction_instruction_hunter,
             style: Theme.of(context).textTheme.bodyLarge,

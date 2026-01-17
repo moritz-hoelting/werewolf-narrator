@@ -207,37 +207,65 @@
         "description": "Instruction for the sheriff election screen"
     },
 
-    "role_unknown": "Unknown role",
-    "@role_unknown": {
+    "role_unknown_name": "Unknown role",
+    "@role_unknown_name": {
         "description": "Display text when the role is unknown"
     },
-    "role_villager": "Villager",
-    "@role_villager": {
+    "role_villager_name": "Villager",
+    "@role_villager_name": {
         "description": "Name of the Villager role"
     },
-    "role_werewolf": "Werewolf",
-    "@role_werewolf": {
+    "role_villager_description": "A simple villager with no special abilities.",
+    "@role_villager_description": {
+        "description": "Description of the Villager role"
+    },
+    "role_werewolf_name": "Werewolf",
+    "@role_werewolf_name": {
         "description": "Name of the Werewolf role"
     },
-    "role_seer": "Seer",
-    "@role_seer": {
+    "role_werewolf_description": "A fearsome creature that wakes as a pack and hunts villagers at night.",
+    "@role_werewolf_description": {
+        "description": "Description of the Werewolf role"
+    },
+    "role_seer_name": "Seer",
+    "@role_seer_name": {
         "description": "Name of the Seer role"
     },
-    "role_witch": "Witch",
-    "@role_witch": {
+    "role_seer_description": "Can reveal the role of one player each night.",
+    "@role_seer_description": {
+        "description": "Description of the Seer role"
+    },
+    "role_witch_name": "Witch",
+    "@role_witch_name": {
         "description": "Name of the Witch role"
     },
-    "role_hunter": "Hunter",
-    "@role_hunter": {
+    "role_witch_description": "Has one healing potion and one poison potion to use during the game.",
+    "@role_witch_description": {
+        "description": "Description of the Witch role"
+    },
+    "role_hunter_name": "Hunter",
+    "@role_hunter_name": {
         "description": "Name of the Hunter role"
     },
-    "role_cupid": "Cupid",
-    "@role_cupid": {
+    "role_hunter_description": "Can shoot one player upon death.",
+    "@role_hunter_description": {
+        "description": "Description of the Hunter role"
+    },
+    "role_cupid_name": "Cupid",
+    "@role_cupid_name": {
         "description": "Name of the Cupid role"
     },
-    "role_littleGirl": "Little Girl",
-    "@role_littleGirl": {
+    "role_cupid_description": "Selects two players to fall in love at the start of the game.",
+    "@role_cupid_description": {
+        "description": "Description of the Cupid role"
+    },
+    "role_littleGirl_name": "Little Girl",
+    "@role_littleGirl_name": {
         "description": "Name of the Little Girl role"
+    },
+    "role_littleGirl_description": "Can secretly peek during the Werewolves' turn.",
+    "@role_littleGirl_description": {
+        "description": "Description of the Little Girl role"
     },
     "deathReason_werewolf": "Killed by Werewolves",
     "@deathReason_werewolf": {
@@ -260,9 +288,9 @@
         "description": "Reason for death: died because their lover died"
     },
 
-    "screen_checkRoles_instruction_werewolf": "Select {count, plural, =1{the Werewolf} other{all Werewolves}}",
+    "screen_checkRoles_instruction_werewolf": "Wake and select {count, plural, =1{the Werewolf} other{all Werewolves}}",
     "@screen_checkRoles_instruction_werewolf": {
-        "description": "Instruction to select werewolf roles",
+        "description": "Instruction to wake and select werewolf roles",
         "placeholders": {
             "count": {
                 "type": "int",
@@ -270,9 +298,9 @@
             }
         }
     },
-    "screen_checkRoles_instruction_seer": "Select {count, plural, =1{the Seer} other{all Seers}}",
+    "screen_checkRoles_instruction_seer": "Wake and select {count, plural, =1{the Seer} other{all Seers}}",
     "@screen_checkRoles_instruction_seer": {
-        "description": "Instruction to select seer roles",
+        "description": "Instruction to wake and select seer roles",
         "placeholders": {
             "count": {
                 "type": "int",
@@ -280,9 +308,9 @@
             }
         }
     },
-    "screen_checkRoles_instruction_witch": "Select {count, plural, =1{the Witch} other{all Witches}}",
+    "screen_checkRoles_instruction_witch": "Wake and select {count, plural, =1{the Witch} other{all Witches}}",
     "@screen_checkRoles_instruction_witch": {
-        "description": "Instruction to select witch roles",
+        "description": "Instruction to wake and select witch roles",
         "placeholders": {
             "count": {
                 "type": "int",
@@ -290,9 +318,9 @@
             }
         }
     },
-    "screen_checkRoles_instruction_hunter": "Select {count, plural, =1{the Hunter} other{all Hunters}}",
+    "screen_checkRoles_instruction_hunter": "Wake and select {count, plural, =1{the Hunter} other{all Hunters}}",
     "@screen_checkRoles_instruction_hunter": {
-        "description": "Instruction to select hunter roles",
+        "description": "Instruction to wake and select hunter roles",
         "placeholders": {
             "count": {
                 "type": "int",
@@ -300,9 +328,9 @@
             }
         }
     },
-    "screen_checkRoles_instruction_cupid": "Select {count, plural, =1{the Cupid} other{all Cupids}}",
+    "screen_checkRoles_instruction_cupid": "Wake and select {count, plural, =1{the Cupid} other{all Cupids}}",
     "@screen_checkRoles_instruction_cupid": {
-        "description": "Instruction to select cupid roles",
+        "description": "Instruction to wake and select cupid roles",
         "placeholders": {
             "count": {
                 "type": "int",
@@ -310,9 +338,9 @@
             }
         }
     },
-    "screen_checkRoles_instruction_littleGirl": "Select {count, plural, =1{the Little Girl} other{all Little Girls}}",
+    "screen_checkRoles_instruction_littleGirl": "Wake and select {count, plural, =1{the Little Girl} other{all Little Girls}}",
     "@screen_checkRoles_instruction_littleGirl": {
-        "description": "Instruction to select little girl roles",
+        "description": "Instruction to wake and select little girl roles",
         "placeholders": {
             "count": {
                 "type": "int",

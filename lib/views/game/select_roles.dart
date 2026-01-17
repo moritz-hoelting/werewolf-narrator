@@ -99,7 +99,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   }
 }
 
-class RoleSelectorCard extends StatelessWidget {
+class RoleSelectorCard extends StatefulWidget {
   final Role role;
   final int count;
   final int maxCount;
@@ -114,8 +114,16 @@ class RoleSelectorCard extends StatelessWidget {
   });
 
   @override
+  State<RoleSelectorCard> createState() => _RoleSelectorCardState();
+}
+
+class _RoleSelectorCardState extends State<RoleSelectorCard> {
+  bool _descriptionExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final description = widget.role.description(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -124,24 +132,58 @@ class RoleSelectorCard extends StatelessWidget {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: count > 0 ? theme.colorScheme.primary : theme.dividerColor,
+            color: widget.count > 0
+                ? theme.colorScheme.primary
+                : theme.dividerColor,
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
+        padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Role name
-            Expanded(
-              child: Text(
-                role.name(context),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+            Row(
+              children: [
+                // Role name and description
+                Expanded(
+                  child: Row(
+                    children: [
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {
+                          setState(() {
+                            _descriptionExpanded = !_descriptionExpanded;
+                          });
+                        },
+                        icon: Icon(
+                          _descriptionExpanded
+                              ? Icons.expand_less
+                              : Icons.expand_more,
+                        ),
+                      ),
+                      Text(
+                        widget.role.name(context),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
 
-            // Counter
-            _Counter(value: count, maxValue: maxCount, setValue: onChanged),
+                // Counter
+                _Counter(
+                  value: widget.count,
+                  maxValue: widget.maxCount,
+                  setValue: widget.onChanged,
+                ),
+              ],
+            ),
+            if (_descriptionExpanded)
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Text(description, style: theme.textTheme.bodyMedium),
+              ),
           ],
         ),
       ),

@@ -48,6 +48,9 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                     : null,
                 selected: _selectedPlayer == index,
                 enabled: player.isAlive,
+                selectedTileColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.2),
               );
             },
           ),

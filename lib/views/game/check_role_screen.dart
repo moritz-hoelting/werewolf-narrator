@@ -57,6 +57,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                 onTap: getOnTapPlayer(index, gameState),
                 selected: _selectedPlayers[index],
                 enabled: gameState.players[index].role == null,
+                selectedTileColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.2),
               );
             },
           ),

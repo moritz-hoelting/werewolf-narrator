@@ -44,7 +44,7 @@ class _WitchScreenState extends State<WitchScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(localizations.role_witch),
+            title: Text(localizations.role_witch_name),
             automaticallyImplyLeading: false,
           ),
           body: gameState.witchHasHealPotion || gameState.witchHasKillPotion
@@ -126,6 +126,16 @@ class _WitchScreenState extends State<WitchScreen> {
                                 (_selectedHealPlayer == index &&
                                     !_killModeActive),
                             enabled: playerTapEnabled(index, gameState),
+                            selectedTileColor: _killModeActive
+                                ? Colors.red.withAlpha(50)
+                                : Colors.green.withAlpha(50),
+                            tileColor: _killModeActive
+                                ? (_selectedHealPlayer == index
+                                      ? Colors.green.withAlpha(30)
+                                      : null)
+                                : (_selectedKillPlayer == index
+                                      ? Colors.red.withAlpha(30)
+                                      : null),
                           );
                         },
                       ),

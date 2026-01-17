@@ -22,19 +22,39 @@ enum Role {
     final localizations = AppLocalizations.of(context)!;
     switch (this) {
       case Role.villager:
-        return localizations.role_villager;
+        return localizations.role_villager_name;
       case Role.seer:
-        return localizations.role_seer;
+        return localizations.role_seer_name;
       case Role.witch:
-        return localizations.role_witch;
+        return localizations.role_witch_name;
       case Role.hunter:
-        return localizations.role_hunter;
+        return localizations.role_hunter_name;
       case Role.cupid:
-        return localizations.role_cupid;
+        return localizations.role_cupid_name;
       case Role.littleGirl:
-        return localizations.role_littleGirl;
+        return localizations.role_littleGirl_name;
       case Role.werewolf:
-        return localizations.role_werewolf;
+        return localizations.role_werewolf_name;
+    }
+  }
+
+  String description(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    switch (this) {
+      case Role.villager:
+        return localizations.role_villager_description;
+      case Role.seer:
+        return localizations.role_seer_description;
+      case Role.witch:
+        return localizations.role_witch_description;
+      case Role.hunter:
+        return localizations.role_hunter_description;
+      case Role.cupid:
+        return localizations.role_cupid_description;
+      case Role.littleGirl:
+        return localizations.role_littleGirl_description;
+      case Role.werewolf:
+        return localizations.role_werewolf_description;
     }
   }
 

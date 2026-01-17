@@ -24,7 +24,7 @@ class _SeerScreenState extends State<SeerScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(localizations.role_seer),
+            title: Text(localizations.role_seer_name),
             automaticallyImplyLeading: false,
           ),
           body: Column(
@@ -45,7 +45,7 @@ class _SeerScreenState extends State<SeerScreen> {
                       subtitle: _selectedPlayer == index
                           ? Text(
                               gameState.players[index].role?.name(context) ??
-                                  localizations.role_unknown,
+                                  localizations.role_unknown_name,
                               style: Theme.of(context).textTheme.bodyLarge,
                             )
                           : null,
@@ -58,6 +58,9 @@ class _SeerScreenState extends State<SeerScreen> {
                       enabled:
                           gameState.players[index].isAlive &&
                           gameState.players[index].role != Role.seer,
+                      selectedTileColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
                     );
                   },
                 ),
