@@ -39,6 +39,13 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
       builder: (context, gameState, _) {
         final localizations = AppLocalizations.of(context)!;
 
+        final maxSelection = gameState.roles[widget.role] ?? 0;
+        final minSelection =
+            gameState.roles[Role.thief] != null &&
+                gameState.roles[Role.thief]! > 0
+            ? maxSelection - (2 * gameState.roles[Role.thief]!)
+            : maxSelection;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -69,7 +76,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: selectedCount == gameState.roles[widget.role]
+              onPressed:
+                  selectedCount >= minSelection && selectedCount <= maxSelection
                   ? () => onPhaseComplete(gameState)
                   : null,
               label: Text(localizations.button_continueLabel),
@@ -88,11 +96,21 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
     if ((gameState.roles[widget.role] ?? 0) == 1) {
       return () {
+        final hasThiefRole = gameState.hasRole(Role.thief);
         setState(() {
-          for (int i = 0; i < _selectedPlayers.length; i++) {
-            _selectedPlayers[i] = false;
+          if (hasThiefRole) {
+            for (int i = 0; i < _selectedPlayers.length; i++) {
+              if (i != index) {
+                _selectedPlayers[i] = false;
+              }
+            }
+            _selectedPlayers[index] = !_selectedPlayers[index];
+          } else {
+            for (int i = 0; i < _selectedPlayers.length; i++) {
+              _selectedPlayers[i] = false;
+            }
+            _selectedPlayers[index] = true;
           }
-          _selectedPlayers[index] = true;
         });
       };
     }

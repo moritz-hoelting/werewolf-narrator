@@ -20,6 +20,50 @@
     "@button_noLabel": {
         "description": "Cancel button label"
     },
+    "screen_gameSetup_createPlayers_title": "Create Players",
+    "@screen_gameSetup_createPlayers_title": {
+        "description": "Title for the game setup step where players are created"
+    },
+    "screen_gameSetup_selectRoles_title": "Select Roles",
+    "@screen_gameSetup_selectRoles_title": {
+        "description": "Title for the game setup step where roles are selected"
+    },
+    "screen_createPlayers_addPlayer": "Add Player",
+    "@screen_createPlayers_addPlayer": {
+        "description": "Button label to add a new player"
+    },
+    "screen_createPlayers_selectRolesButtonLabel": "Select roles",
+    "@screen_createPlayers_selectRolesButtonLabel": {
+        "description": "Button label to proceed to role selection"
+    },
+    "screen_createPlayers_playerNumberInputLabel": "Player {number} Name",
+    "@screen_createPlayers_playerNumberInputLabel": {
+        "description": "Label for the input field to enter a player's name",
+        "placeholders": {
+            "number": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_createPlayers_error_invalidOrDuplicateName": "Invalid or duplicate name",
+    "@screen_createPlayers_error_invalidOrDuplicateName": {
+        "description": "Error message shown when a player's name is invalid or duplicate"
+    },
+    "screen_selectRoles_startButton": "Start Game!",
+    "@screen_selectRoles_startButton": {
+        "description": "Button label to start the game after selecting roles"
+    },
+    "screen_selectRoles_missingRoles": "{count} roles left to assign",
+    "@screen_selectRoles_missingRoles": {
+        "description": "Info text showing how many roles are still missing",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "3"
+            }
+        }
+    },
     "screen_wakeLovers_title": "Wake the Lovers",
     "@screen_wakeLovers_title": {
         "description": "Title for the screen where the narrator wakes the lovers"
@@ -46,59 +90,9 @@
     "@screen_villageVote_sheriffLabel": {
         "description": "Label shown next to the sheriff during village vote"
     },
-    "dialog_noVote_title": "No player selected",
-    "@dialog_noVote_title": {
-        "description": "Title for the dialog shown when no player is selected"
-    },
-    "dialog_noVote_message": "Do you really want to continue without voting anybody out?",
-    "@dialog_noVote_message": {
-        "description": "Message shown when continuing without voting"
-    },
-    "screen_selectRoles_startButton": "Start Game!",
-    "@screen_selectRoles_startButton": {
-        "description": "Button label to start the game after selecting roles"
-    },
-    "screen_selectRoles_missingRoles": "{count} roles left to assign",
-    "@screen_selectRoles_missingRoles": {
-        "description": "Info text showing how many roles are still missing",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "3"
-            }
-        }
-    },
-    "screen_gameSetup_createPlayers_title": "Create Players",
-    "@screen_gameSetup_createPlayers_title": {
-        "description": "Title for the game setup step where players are created"
-    },
-    "screen_gameSetup_selectRoles_title": "Select Roles",
-    "@screen_gameSetup_selectRoles_title": {
-        "description": "Title for the game setup step where roles are selected"
-    },
-    "screen_gameOver_title": "Game Over",
-    "@screen_gameOver_title": {
-        "description": "Title for the game over screen"
-    },
-    "screen_gameOver_noWinner": "Game Over! No winners determined.",
-    "@screen_gameOver_noWinner": {
-        "description": "Fallback text when no winning team could be determined"
-    },
-    "screen_gameOver_winnerVillageHeadline": "The Village has won!",
-    "@screen_gameOver_winnerVillageHeadline": {
-        "description": "Headline shown when the Village team wins"
-    },
-    "screen_gameOver_winnerWerewolvesHeadline": "The Werewolves have won!",
-    "@screen_gameOver_winnerWerewolvesHeadline": {
-        "description": "Headline shown when the Werewolves team wins"
-    },
-    "screen_gameOver_winnerLoversHeadline": "The Lovers have won!",
-    "@screen_gameOver_winnerLoversHeadline": {
-        "description": "Headline shown when the Lovers team wins"
-    },
-    "screen_gameOver_winnersLabel": "Winners:",
-    "@screen_gameOver_winnersLabel": {
-        "description": "Label shown above the list of winning players"
+    "screen_sheriffElection_instruction": "Choose a player to be the sheriff.",
+    "@screen_sheriffElection_instruction": {
+        "description": "Instruction for the sheriff election screen"
     },
     "screen_dusk_message": "The village sleeps as night falls...",
     "@screen_dusk_message": {
@@ -126,30 +120,38 @@
             }
         }
     },
-
-    "screen_createPlayers_addPlayer": "Add Player",
-    "@screen_createPlayers_addPlayer": {
-        "description": "Button label to add a new player"
+    "screen_gameOver_title": "Game Over",
+    "@screen_gameOver_title": {
+        "description": "Title for the game over screen"
     },
-    "screen_createPlayers_selectRolesButtonLabel": "Select roles",
-    "@screen_createPlayers_selectRolesButtonLabel": {
-        "description": "Button label to proceed to role selection"
+    "screen_gameOver_noWinner": "Game Over! No winners determined.",
+    "@screen_gameOver_noWinner": {
+        "description": "Fallback text when no winning team could be determined"
     },
-    "screen_createPlayers_playerNumberInputLabel": "Player {number} Name",
-    "@screen_createPlayers_playerNumberInputLabel": {
-        "description": "Label for the input field to enter a player's name",
-        "placeholders": {
-            "number": {
-                "type": "int",
-                "example": "1"
-            }
-        }
+    "screen_gameOver_winnerVillageHeadline": "The Village has won!",
+    "@screen_gameOver_winnerVillageHeadline": {
+        "description": "Headline shown when the Village team wins"
     },
-    "screen_createPlayers_error_invalidOrDuplicateName": "Invalid or duplicate name",
-    "@screen_createPlayers_error_invalidOrDuplicateName": {
-        "description": "Error message shown when a player's name is invalid or duplicate"
+    "screen_gameOver_winnerWerewolvesHeadline": "The Werewolves have won!",
+    "@screen_gameOver_winnerWerewolvesHeadline": {
+        "description": "Headline shown when the Werewolves team wins"
     },
-
+    "screen_gameOver_winnerLoversHeadline": "The Lovers have won!",
+    "@screen_gameOver_winnerLoversHeadline": {
+        "description": "Headline shown when the Lovers team wins"
+    },
+    "screen_gameOver_winnersLabel": "Winners:",
+    "@screen_gameOver_winnersLabel": {
+        "description": "Label shown above the list of winning players"
+    },
+    "dialog_noVote_title": "No player selected",
+    "@dialog_noVote_title": {
+        "description": "Title for the dialog shown when no player is selected"
+    },
+    "dialog_noVote_message": "Do you really want to continue without voting anybody out?",
+    "@dialog_noVote_message": {
+        "description": "Message shown when continuing without voting"
+    },
     "dialog_fewerSelectionsTitle": "Fewer selections made than allowed",
     "@dialog_fewerSelectionsTitle": {
         "description": "Title for the dialog shown when fewer selections are made than allowed"
@@ -168,7 +170,6 @@
             }
         }
     },
-
     "screen_roleAction_instruction_witch": "Choose a player to poison or save.",
     "@screen_roleAction_instruction_witch": {
         "description": "Instruction for the Witch role action"
@@ -201,12 +202,10 @@
     "@screen_roleAction_instruction_werewolf": {
         "description": "Instruction for the Werewolf role action"
     },
-
-    "screen_sheriffElection_instruction": "Choose a player to be the sheriff.",
-    "@screen_sheriffElection_instruction": {
-        "description": "Instruction for the sheriff election screen"
+    "screen_roleAction_instruction_thief": "Choose one of the two remaining roles to take.",
+    "@screen_roleAction_instruction_thief": {
+        "description": "Instruction for the Thief role action"
     },
-
     "role_unknown_name": "Unknown role",
     "@role_unknown_name": {
         "description": "Display text when the role is unknown"
@@ -267,6 +266,14 @@
     "@role_littleGirl_description": {
         "description": "Description of the Little Girl role"
     },
+    "role_thief_name": "Thief",
+    "@role_thief_name": {
+        "description": "Name of the Thief role"
+    },
+    "role_thief_description": "Adds two additional villager roles at the start. Can choose out of the two remaining roles in the first night. Must take a werewolf if both are werewolves.",
+    "@role_thief_description": {
+        "description": "Description of the Thief role"
+    },
     "deathReason_werewolf": "Killed by Werewolves",
     "@deathReason_werewolf": {
         "description": "Reason for death: killed by werewolves"
@@ -287,7 +294,6 @@
     "@deathReason_lover": {
         "description": "Reason for death: died because their lover died"
     },
-
     "screen_checkRoles_instruction_werewolf": "Wake and select {count, plural, =1{the Werewolf} other{all Werewolves}}",
     "@screen_checkRoles_instruction_werewolf": {
         "description": "Instruction to wake and select werewolf roles",
@@ -341,6 +347,16 @@
     "screen_checkRoles_instruction_littleGirl": "Wake and select {count, plural, =1{the Little Girl} other{all Little Girls}}",
     "@screen_checkRoles_instruction_littleGirl": {
         "description": "Instruction to wake and select little girl roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_checkRoles_instruction_thief": "Wake and select {count, plural, =1{the Thief} other{all Thieves}}",
+    "@screen_checkRoles_instruction_thief": {
+        "description": "Instruction to wake and select thief roles",
         "placeholders": {
             "count": {
                 "type": "int",

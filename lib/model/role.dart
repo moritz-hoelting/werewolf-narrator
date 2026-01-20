@@ -12,6 +12,7 @@ enum Role {
   hunter(isUnique: true),
   cupid(isUnique: true),
   littleGirl(isUnique: true),
+  thief(isUnique: true),
   werewolf(isUnique: false);
 
   const Role({required this.isUnique});
@@ -33,6 +34,8 @@ enum Role {
         return localizations.role_cupid_name;
       case Role.littleGirl:
         return localizations.role_littleGirl_name;
+      case Role.thief:
+        return localizations.role_thief_name;
       case Role.werewolf:
         return localizations.role_werewolf_name;
     }
@@ -53,6 +56,8 @@ enum Role {
         return localizations.role_cupid_description;
       case Role.littleGirl:
         return localizations.role_littleGirl_description;
+      case Role.thief:
+        return localizations.role_thief_description;
       case Role.werewolf:
         return localizations.role_werewolf_description;
     }
@@ -75,6 +80,8 @@ enum Role {
         return localizations.screen_checkRoles_instruction_cupid(count);
       case Role.littleGirl:
         return localizations.screen_checkRoles_instruction_littleGirl(count);
+      case Role.thief:
+        return localizations.screen_checkRoles_instruction_thief(count);
       case Role.werewolf:
         return localizations.screen_checkRoles_instruction_werewolf(count);
     }
@@ -143,6 +150,7 @@ enum Role {
       case Role.hunter:
       case Role.cupid:
       case Role.littleGirl:
+      case Role.thief:
         return Team.village;
     }
   }

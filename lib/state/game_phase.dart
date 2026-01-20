@@ -6,6 +6,8 @@ enum GamePhase {
   checkRoleCupid,
   checkRoleLittleGirl,
   checkRoleWerewolves,
+  checkRoleThief,
+  thief,
   cupid,
   lovers,
   seer,

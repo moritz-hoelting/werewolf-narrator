@@ -21,8 +21,15 @@ class GameState extends ChangeNotifier {
   GameState({required List<String> players, required this.roles})
     : players = players.map((name) => Player(name: name)).toList() {
     assert(
-      players.length == roles.values.fold(0, (sum, count) => sum + count),
-      'Number of players must match total number of roles assigned',
+      players.length ==
+          roles.entries.fold(
+            0,
+            (sum, entry) =>
+                sum +
+                entry.value +
+                (entry.key == Role.thief ? entry.value * -2 : 0),
+          ),
+      'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
   }
 
@@ -83,6 +90,48 @@ class GameState extends ChangeNotifier {
         .map((entry) => entry.key)
         .toList();
     setPlayersRole(Role.villager, unassignedPlayers);
+  }
+
+  List<Role> get unassignedRoles {
+    final allRoles = roles;
+    final assignedRoles = players.map((player) => player.role).fold(
+      <Role, int>{},
+      (acc, element) {
+        if (element != null) {
+          acc[element] = (acc[element] ?? 0) + 1;
+        }
+        return acc;
+      },
+    );
+
+    return allRoles.entries
+        .map((entry) {
+          final assignedCount = assignedRoles[entry.key] ?? 0;
+          return (entry.key, entry.value - assignedCount);
+        })
+        .fold(<Role>[], (acc, element) {
+          for (int i = 0; i < element.$2; i++) {
+            acc.add(element.$1);
+          }
+          return acc;
+        });
+  }
+
+  void removeUnassignedRoles() {
+    final unassignedRoles = this.unassignedRoles.fold(<Role, int>{}, (
+      acc,
+      element,
+    ) {
+      acc[element] = (acc[element] ?? 0) + 1;
+      return acc;
+    });
+    for (final entry in unassignedRoles.entries) {
+      roles[entry.key] = (roles[entry.key] ?? 0) - entry.value;
+      if (roles[entry.key]! <= 0) {
+        roles.remove(entry.key);
+      }
+    }
+    notifyListeners();
   }
 
   void setLovers(int playerAidx, int playerBidx) {
@@ -198,9 +247,14 @@ class GameState extends ChangeNotifier {
     final next = nextPhase;
     if (next != null) {
       if (dayCounter == 0 &&
-          phase.index < GamePhase.cupid.index &&
-          next.index >= GamePhase.cupid.index) {
+          phase.index < GamePhase.thief.index &&
+          next.index >= GamePhase.thief.index) {
         fillVillagerRoles();
+      }
+      if (dayCounter == 0 &&
+          phase.index <= GamePhase.thief.index &&
+          next.index > GamePhase.thief.index) {
+        removeUnassignedRoles();
       }
       _phase = next;
       if (next == GamePhase.dawn) {
@@ -246,6 +300,12 @@ class GameState extends ChangeNotifier {
         break;
       case GamePhase.checkRoleWerewolves:
         if (dayCounter > 0 || !hasRole(Role.werewolf)) return false;
+        break;
+      case GamePhase.checkRoleThief:
+        if (dayCounter > 0 || !hasRole(Role.thief)) return false;
+        break;
+      case GamePhase.thief:
+        if (dayCounter > 0 || !hasAliveRole(Role.thief)) return false;
         break;
       case GamePhase.cupid:
         if (dayCounter > 0 || !hasAliveRole(Role.cupid)) return false;

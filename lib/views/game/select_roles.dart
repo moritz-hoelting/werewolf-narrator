@@ -85,7 +85,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
               onPressed:
                   totalSelected == widget.playerCount &&
                       selectedTeams.length >= 2
-                  ? () => widget.onSubmit(selectedRoles)
+                  ? _submit
                   : null,
               icon: const Icon(Icons.arrow_forward),
               label: Text(localizations.screen_selectRoles_startButton),
@@ -96,6 +96,18 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         ],
       ),
     );
+  }
+
+  void _submit() {
+    final modifiedRoles = Map<Role, int>.from(selectedRoles);
+
+    if (selectedRoles[Role.thief] != null && selectedRoles[Role.thief]! > 0) {
+      modifiedRoles[Role.villager] =
+          (modifiedRoles[Role.villager] ?? 0) +
+          (2 * selectedRoles[Role.thief]!);
+    }
+
+    widget.onSubmit(modifiedRoles);
   }
 }
 

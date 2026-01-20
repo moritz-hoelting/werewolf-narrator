@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_role_screen.dart';
 import 'package:werewolf_narrator/views/game/game_over_screen.dart';
 import 'package:werewolf_narrator/views/game/roles/seer_screen.dart';
+import 'package:werewolf_narrator/views/game/roles/thief_screen.dart';
 import 'package:werewolf_narrator/views/game/sheriff_election_screen.dart';
 import 'package:werewolf_narrator/views/game/village_vote_screen.dart';
 import 'package:werewolf_narrator/views/game/wake_lovers_screen.dart';
@@ -66,6 +67,14 @@ class GamePhaseScreen extends StatelessWidget {
           role: Role.werewolf,
           onPhaseComplete: onPhaseComplete,
         );
+      case GamePhase.checkRoleThief:
+        return CheckRoleScreen(
+          key: ValueKey(phase),
+          role: Role.thief,
+          onPhaseComplete: onPhaseComplete,
+        );
+      case GamePhase.thief:
+        return ThiefScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.cupid:
         return RoleActionScreen(
           key: ValueKey(phase),
