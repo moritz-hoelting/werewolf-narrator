@@ -1,9 +1,47 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/state/game.dart';
+part of 'role.dart';
+
+class ThiefRole extends Role {
+  const ThiefRole._();
+  static final RoleType type = RoleType<ThiefRole>();
+  @override
+  RoleType get objectType => type;
+
+  static const Role instance = ThiefRole._();
+
+  static void registerRole() {
+    RoleManager.registerRole<ThiefRole>(
+      RegisterRoleInformation(ThiefRole._, instance),
+    );
+  }
+
+  @override
+  bool get isUnique => true;
+  @override
+  Team get initialTeam => Team.village;
+
+  @override
+  String name(BuildContext context) {
+    return AppLocalizations.of(context)!.role_thief_name;
+  }
+
+  @override
+  String description(BuildContext context) {
+    return AppLocalizations.of(context)!.role_thief_description;
+  }
+
+  @override
+  String checkRoleInstruction(BuildContext context, int count) {
+    final localizations = AppLocalizations.of(context)!;
+    return localizations.screen_checkRoles_instruction_thief(count);
+  }
+
+  @override
+  bool hasNightScreen(GameState gameState) => gameState.dayCounter == 0;
+  @override
+  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
+    return (context) => ThiefScreen(onPhaseComplete: onComplete);
+  }
+}
 
 class ThiefScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
@@ -15,7 +53,7 @@ class ThiefScreen extends StatefulWidget {
 }
 
 class _ThiefScreenState extends State<ThiefScreen> {
-  _Selected _selected = _Selected.none;
+  _ThiefSelectedRole _selected = _ThiefSelectedRole.none;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +64,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
         final missingRoles = gameState.unassignedRoles;
 
         assert(
-          missingRoles.length == 2 * gameState.roles[Role.thief]!,
+          missingRoles.length == 2 * gameState.roles[ThiefRole.type]!,
           'Number of missing roles must match twice the number of Thief roles assigned',
         );
 
@@ -55,10 +93,10 @@ class _ThiefScreenState extends State<ThiefScreen> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (_selected == _Selected.roleA) {
-                          _selected = _Selected.none;
+                        if (_selected == _ThiefSelectedRole.roleA) {
+                          _selected = _ThiefSelectedRole.none;
                         } else {
-                          _selected = _Selected.roleA;
+                          _selected = _ThiefSelectedRole.roleA;
                         }
                       });
                     },
@@ -67,22 +105,24 @@ class _ThiefScreenState extends State<ThiefScreen> {
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
-                      backgroundColor: _selected == _Selected.roleA
+                      backgroundColor: _selected == _ThiefSelectedRole.roleA
                           ? Theme.of(
                               context,
                             ).colorScheme.primary.withValues(alpha: 0.5)
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(roleA.name(context)),
+                    child: Text(
+                      RoleManager.getRoleInstance(roleA).name(context),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (_selected == _Selected.roleB) {
-                          _selected = _Selected.none;
+                        if (_selected == _ThiefSelectedRole.roleB) {
+                          _selected = _ThiefSelectedRole.none;
                         } else {
-                          _selected = _Selected.roleB;
+                          _selected = _ThiefSelectedRole.roleB;
                         }
                       });
                     },
@@ -91,14 +131,16 @@ class _ThiefScreenState extends State<ThiefScreen> {
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(12)),
                       ),
-                      backgroundColor: _selected == _Selected.roleB
+                      backgroundColor: _selected == _ThiefSelectedRole.roleB
                           ? Theme.of(
                               context,
                             ).colorScheme.primary.withValues(alpha: 0.5)
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(roleB.name(context)),
+                    child: Text(
+                      RoleManager.getRoleInstance(roleB).name(context),
+                    ),
                   ),
                 ],
               ),
@@ -111,9 +153,11 @@ class _ThiefScreenState extends State<ThiefScreen> {
                 minimumSize: const Size.fromHeight(60),
               ),
               onPressed:
-                  _selected == _Selected.none &&
-                      roleA.team == Team.werewolves &&
-                      roleB.team == Team.werewolves
+                  _selected == _ThiefSelectedRole.none &&
+                      RoleManager.getRoleInstance(roleA).team(gameState) ==
+                          Team.werewolves &&
+                      RoleManager.getRoleInstance(roleB).team(gameState) ==
+                          Team.werewolves
                   ? null
                   : () {
                       submit(gameState, roleA, roleB);
@@ -127,17 +171,21 @@ class _ThiefScreenState extends State<ThiefScreen> {
     );
   }
 
-  void submit(GameState gameState, Role roleA, Role roleB) {
-    if (_selected != _Selected.none) {
-      final selectedRole = _selected == _Selected.roleA ? roleA : roleB;
-      gameState.players
-              .where((player) => player.role == Role.thief)
-              .firstOrNull
-              ?.role =
-          selectedRole;
+  void submit(GameState gameState, RoleType roleA, RoleType roleB) {
+    if (_selected != _ThiefSelectedRole.none) {
+      final selectedRole = _selected == _ThiefSelectedRole.roleA
+          ? roleA
+          : roleB;
+      gameState.setPlayersRole(
+        selectedRole,
+        gameState.players.indexed
+            .where((player) => player.$2.role is ThiefRole)
+            .map((player) => player.$1)
+            .toList(),
+      );
     }
     widget.onPhaseComplete();
   }
 }
 
-enum _Selected { none, roleA, roleB }
+enum _ThiefSelectedRole { none, roleA, roleB }

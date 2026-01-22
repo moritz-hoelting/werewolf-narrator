@@ -1,5 +1,6 @@
 import 'package:werewolf_narrator/model/death_information.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
 
 class Player {
   final String name;
@@ -13,11 +14,11 @@ class Player {
 
   DeathInformation? get deathInformation => _deathInformation;
   bool get isAlive => _deathInformation == null;
-  bool get waitForDeathAction {
+  bool waitForDeathAction(GameState gameState) {
     if (isAlive || usedDeathAction || role == null) {
       return false;
     }
-    return role!.hasDeathScreen;
+    return role!.hasDeathScreen(gameState);
   }
 
   void markDead(DeathInformation deathInfo) {

@@ -1,8 +1,47 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/state/game.dart';
+part of 'role.dart';
+
+class SeerRole extends Role {
+  const SeerRole._();
+  static final RoleType type = RoleType<SeerRole>();
+  @override
+  RoleType get objectType => type;
+
+  static const Role instance = SeerRole._();
+
+  static void registerRole() {
+    RoleManager.registerRole<SeerRole>(
+      RegisterRoleInformation(SeerRole._, instance),
+    );
+  }
+
+  @override
+  bool get isUnique => true;
+  @override
+  Team get initialTeam => Team.village;
+
+  @override
+  String name(BuildContext context) {
+    return AppLocalizations.of(context)!.role_seer_name;
+  }
+
+  @override
+  String description(BuildContext context) {
+    return AppLocalizations.of(context)!.role_seer_description;
+  }
+
+  @override
+  String checkRoleInstruction(BuildContext context, int count) {
+    final localizations = AppLocalizations.of(context)!;
+    return localizations.screen_checkRoles_instruction_seer(count);
+  }
+
+  @override
+  bool hasNightScreen(GameState gameState) => true;
+  @override
+  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
+    return (context) => SeerScreen(onPhaseComplete: onComplete);
+  }
+}
 
 class SeerScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
@@ -57,7 +96,7 @@ class _SeerScreenState extends State<SeerScreen> {
                       selected: _selectedPlayer == index,
                       enabled:
                           gameState.players[index].isAlive &&
-                          gameState.players[index].role != Role.seer,
+                          gameState.players[index].role.runtimeType != SeerRole,
                       selectedTileColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),

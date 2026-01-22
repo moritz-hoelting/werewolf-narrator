@@ -12,20 +12,29 @@ class DeathActionsScreen extends StatefulWidget {
 }
 
 class _DeathActionsScreenState extends State<DeathActionsScreen> {
-  List<(int, Widget Function(VoidCallback onPhaseComplete))> deathActions = [];
+  List<(int, WidgetBuilder Function(VoidCallback onPhaseComplete))>
+  deathActions = [];
 
   void _reloadDeathActionsInternal() {
     deathActions.clear();
-    Provider.of<GameState>(context, listen: false).players
+    final gameState = Provider.of<GameState>(context, listen: false);
+    gameState.players
         .asMap()
         .entries
-        .where((player) => player.value.waitForDeathAction)
+        .where(
+          (player) =>
+              player.value.role != null &&
+              player.value.role!.hasDeathScreen(gameState) &&
+              player.value.waitForDeathAction(gameState),
+        )
         .forEach((elem) {
           final (index, player) = (elem.key, elem.value);
-          final deathScreenBuilder = player.role!.getDeathScreen(index);
-          if (deathScreenBuilder != null) {
-            deathActions.add((index, deathScreenBuilder));
-          }
+
+          deathActions.add((
+            index,
+            (VoidCallback onComplete) =>
+                player.role!.deathActionScreen(onComplete)!,
+          ));
         });
   }
 
@@ -57,6 +66,6 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
       if (deathActions.isEmpty) {
         widget.onPhaseComplete();
       }
-    });
+    })(context);
   }
 }

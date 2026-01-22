@@ -1,13 +1,15 @@
 import 'dart:math' show min;
 
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/roles.dart';
 import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/role.dart';
 
 class SelectRolesView extends StatefulWidget {
   final int playerCount;
-  final void Function(Map<Role, int>) onSubmit;
+  final void Function(Map<RoleType, int>) onSubmit;
 
   const SelectRolesView({
     super.key,
@@ -20,18 +22,18 @@ class SelectRolesView extends StatefulWidget {
 }
 
 class _SelectRolesViewState extends State<SelectRolesView> {
-  final Map<Role, int> selectedRoles = {};
+  final Map<RoleType, int> _selectedRoles = {};
 
   int get totalSelected =>
-      selectedRoles.values.fold(0, (sum, count) => sum + count);
+      _selectedRoles.values.fold(0, (sum, count) => sum + count);
   bool canAdd(int amount) => (totalSelected + amount) <= widget.playerCount;
 
-  void setCount(Role role, int count) {
+  void setCount(RoleType role, int count) {
     setState(() {
       if (count == 0) {
-        selectedRoles.remove(role);
+        _selectedRoles.remove(role);
       } else {
-        selectedRoles[role] = count;
+        _selectedRoles[role] = count;
       }
     });
   }
@@ -41,12 +43,12 @@ class _SelectRolesViewState extends State<SelectRolesView> {
     final localizations = AppLocalizations.of(context)!;
 
     final int missingRoles = widget.playerCount - totalSelected;
-    final Set<Role> selectedRoleSet = selectedRoles.entries
+    final Set<RoleType> selectedRoleSet = _selectedRoles.entries
         .where((entry) => entry.value > 0)
         .map((entry) => entry.key)
         .toSet();
     final Set<Team> selectedTeams = selectedRoleSet
-        .map((role) => role.team)
+        .map((role) => RoleManager.getRoleInstance(role).initialTeam)
         .toSet();
 
     return Container(
@@ -57,20 +59,24 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
           Expanded(
             child: ListView(
-              children: Role.values
-                  .map(
-                    (role) => RoleSelectorCard(
-                      role: role,
-                      count: selectedRoles[role] ?? 0,
-                      maxCount: role.isUnique
-                          ? ((selectedRoles[role] ?? 0) == 0
-                                ? min(1, missingRoles)
-                                : 0)
-                          : missingRoles + (selectedRoles[role] ?? 0),
-                      onChanged: (count) => setCount(role, count),
-                    ),
-                  )
-                  .toList(),
+              children:
+                  groupBy(
+                        RoleManager.registeredRoles,
+                        (role) => RoleManager.getRoleInstance(role).initialTeam,
+                      ).values.flattened
+                      .map(
+                        (role) => RoleSelectorCard(
+                          role: role,
+                          count: _selectedRoles[role] ?? 0,
+                          maxCount: RoleManager.getRoleInstance(role).isUnique
+                              ? ((_selectedRoles[role] ?? 0) == 0
+                                    ? min(1, missingRoles)
+                                    : 0)
+                              : missingRoles + (_selectedRoles[role] ?? 0),
+                          onChanged: (count) => setCount(role, count),
+                        ),
+                      )
+                      .toList(),
             ),
           ),
 
@@ -99,12 +105,16 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   }
 
   void _submit() {
-    final modifiedRoles = Map<Role, int>.from(selectedRoles);
+    final modifiedRoles = Map<RoleType, int>.from(_selectedRoles);
 
-    if (selectedRoles[Role.thief] != null && selectedRoles[Role.thief]! > 0) {
-      modifiedRoles[Role.villager] =
-          (modifiedRoles[Role.villager] ?? 0) +
-          (2 * selectedRoles[Role.thief]!);
+    final thiefRoleType = ThiefRole.type;
+    final villagerRoleType = VillagerRole.type;
+
+    if (_selectedRoles[thiefRoleType] != null &&
+        _selectedRoles[thiefRoleType]! > 0) {
+      modifiedRoles[villagerRoleType] =
+          (modifiedRoles[villagerRoleType] ?? 0) +
+          (2 * _selectedRoles[thiefRoleType]!);
     }
 
     widget.onSubmit(modifiedRoles);
@@ -112,7 +122,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 }
 
 class RoleSelectorCard extends StatefulWidget {
-  final Role role;
+  final RoleType role;
   final int count;
   final int maxCount;
   final ValueChanged<int> onChanged;
@@ -135,7 +145,8 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final description = widget.role.description(context);
+    final role = RoleManager.getRoleInstance(widget.role);
+    final description = role.description(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -174,7 +185,7 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
                         ),
                       ),
                       Text(
-                        widget.role.name(context),
+                        role.name(context),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

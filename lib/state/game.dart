@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/roles.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/model/winner.dart';
+import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
-  final Map<Role, int> roles;
+  final Map<RoleType, int> roles;
 
   int dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
@@ -27,10 +28,14 @@ class GameState extends ChangeNotifier {
             (sum, entry) =>
                 sum +
                 entry.value +
-                (entry.key == Role.thief ? entry.value * -2 : 0),
+                (entry.key == ThiefRole.type ? entry.value * -2 : 0),
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
+  }
+
+  void notifyUpdate() {
+    notifyListeners();
   }
 
   bool get isNight => phase.isNight;
@@ -69,15 +74,37 @@ class GameState extends ChangeNotifier {
     }),
   );
 
-  bool hasRole(Role role) => roles.containsKey(role) && roles[role]! > 0;
+  bool hasRole(RoleType role) => roles.containsKey(role) && roles[role]! > 0;
+  bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
 
-  bool hasAliveRole(Role role) =>
+  (int, Player)? getRolePlayer(RoleType role) => players.indexed
+      .where(
+        (player) =>
+            player.$2.role != null && player.$2.role!.objectType == role,
+      )
+      .firstOrNull;
+  (int, Player)? getRoleTypePlayer<T extends Role>() =>
+      getRolePlayer(RoleType<T>());
+
+  List<(int, Player)> getRolePlayers(RoleType role) => players.indexed
+      .where(
+        (player) =>
+            player.$2.role != null && player.$2.role!.objectType == role,
+      )
+      .toList();
+  List<(int, Player)> getRoleTypePlayers<T extends Role>() =>
+      getRolePlayers(RoleType<T>());
+
+  bool hasAliveRole(RoleType role) =>
       hasRole(role) &&
-      players.where((p) => p.role == role && p.isAlive).isNotEmpty;
+      players
+          .where((p) => p.role.runtimeType == role.type && p.isAlive)
+          .isNotEmpty;
+  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
 
-  void setPlayersRole(Role role, List<int> playerIndices) {
+  void setPlayersRole(RoleType role, List<int> playerIndices) {
     for (final index in playerIndices) {
-      players[index].role = role;
+      players[index].role = RoleManager.instantiateRole(role);
     }
     notifyListeners();
   }
@@ -89,16 +116,16 @@ class GameState extends ChangeNotifier {
         .where((entry) => entry.value.role == null)
         .map((entry) => entry.key)
         .toList();
-    setPlayersRole(Role.villager, unassignedPlayers);
+    setPlayersRole(VillagerRole.type, unassignedPlayers);
   }
 
-  List<Role> get unassignedRoles {
+  List<RoleType> get unassignedRoles {
     final allRoles = roles;
     final assignedRoles = players.map((player) => player.role).fold(
-      <Role, int>{},
+      <RoleType, int>{},
       (acc, element) {
         if (element != null) {
-          acc[element] = (acc[element] ?? 0) + 1;
+          acc[element.objectType] = (acc[element.objectType] ?? 0) + 1;
         }
         return acc;
       },
@@ -109,7 +136,7 @@ class GameState extends ChangeNotifier {
           final assignedCount = assignedRoles[entry.key] ?? 0;
           return (entry.key, entry.value - assignedCount);
         })
-        .fold(<Role>[], (acc, element) {
+        .fold(<RoleType>[], (acc, element) {
           for (int i = 0; i < element.$2; i++) {
             acc.add(element.$1);
           }
@@ -118,7 +145,7 @@ class GameState extends ChangeNotifier {
   }
 
   void removeUnassignedRoles() {
-    final unassignedRoles = this.unassignedRoles.fold(<Role, int>{}, (
+    final unassignedRoles = this.unassignedRoles.fold(<RoleType, int>{}, (
       acc,
       element,
     ) {
@@ -225,14 +252,16 @@ class GameState extends ChangeNotifier {
   }
 
   bool get pendingDeathActions =>
-      players.any((player) => player.waitForDeathAction);
+      players.any((player) => player.waitForDeathAction(this));
 
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
   Winner? checkWinConditions() {
     final alivePlayers = players.where((player) => player.isAlive).toList();
-    final aliveTeams = alivePlayers.map((player) => player.role!.team).toSet();
+    final aliveTeams = alivePlayers
+        .map((player) => player.role!.team(this))
+        .toSet();
     if (aliveTeams.length == 1) {
       return aliveTeams.first.toWinner;
     }
@@ -284,43 +313,43 @@ class GameState extends ChangeNotifier {
     }
     switch (next) {
       case GamePhase.checkRoleSeer:
-        if (dayCounter > 0 || !hasRole(Role.seer)) return false;
+        if (dayCounter > 0 || !hasRoleType<SeerRole>()) return false;
         break;
       case GamePhase.checkRoleWitch:
-        if (dayCounter > 0 || !hasRole(Role.witch)) return false;
+        if (dayCounter > 0 || !hasRoleType<WitchRole>()) return false;
         break;
       case GamePhase.checkRoleHunter:
-        if (dayCounter > 0 || !hasRole(Role.hunter)) return false;
+        if (dayCounter > 0 || !hasRoleType<HunterRole>()) return false;
         break;
       case GamePhase.checkRoleCupid:
-        if (dayCounter > 0 || !hasRole(Role.cupid)) return false;
+        if (dayCounter > 0 || !hasRoleType<CupidRole>()) return false;
         break;
       case GamePhase.checkRoleLittleGirl:
-        if (dayCounter > 0 || !hasRole(Role.littleGirl)) return false;
+        if (dayCounter > 0 || !hasRoleType<LittleGirlRole>()) return false;
         break;
       case GamePhase.checkRoleWerewolves:
-        if (dayCounter > 0 || !hasRole(Role.werewolf)) return false;
+        if (dayCounter > 0 || !hasRoleType<WerewolfRole>()) return false;
         break;
       case GamePhase.checkRoleThief:
-        if (dayCounter > 0 || !hasRole(Role.thief)) return false;
+        if (dayCounter > 0 || !hasRoleType<ThiefRole>()) return false;
         break;
       case GamePhase.thief:
-        if (dayCounter > 0 || !hasAliveRole(Role.thief)) return false;
+        if (dayCounter > 0 || !hasAliveRoleType<ThiefRole>()) return false;
         break;
       case GamePhase.cupid:
-        if (dayCounter > 0 || !hasAliveRole(Role.cupid)) return false;
+        if (dayCounter > 0 || !hasAliveRoleType<CupidRole>()) return false;
         break;
       case GamePhase.lovers:
-        if (dayCounter > 0 || !hasRole(Role.cupid)) return false;
+        if (dayCounter > 0 || !hasRoleType<CupidRole>()) return false;
         break;
       case GamePhase.seer:
-        if (!hasAliveRole(Role.seer)) return false;
+        if (!hasAliveRoleType<SeerRole>()) return false;
         break;
       case GamePhase.werewolves:
-        if (!hasAliveRole(Role.werewolf)) return false;
+        if (!hasAliveRoleType<WerewolfRole>()) return false;
         break;
       case GamePhase.witch:
-        if (!hasAliveRole(Role.witch)) return false;
+        if (!hasAliveRoleType<WitchRole>()) return false;
         break;
       case GamePhase.sheriffElection:
         if (sheriff != null && players[sheriff!].isAlive) return false;

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 class CheckRoleScreen extends StatefulWidget {
-  final Role role;
+  final RoleType role;
   final VoidCallback onPhaseComplete;
 
   const CheckRoleScreen({
@@ -40,16 +41,14 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         final localizations = AppLocalizations.of(context)!;
 
         final maxSelection = gameState.roles[widget.role] ?? 0;
-        final minSelection =
-            gameState.roles[Role.thief] != null &&
-                gameState.roles[Role.thief]! > 0
-            ? maxSelection - (2 * gameState.roles[Role.thief]!)
+        final minSelection = gameState.hasRoleType<ThiefRole>()
+            ? maxSelection - (2 * gameState.roles[ThiefRole.type]!)
             : maxSelection;
 
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              widget.role.checkRoleInstruction(
+              RoleManager.getRoleInstance(widget.role).checkRoleInstruction(
                 context,
                 gameState.roles[widget.role] ?? 0,
               ),
@@ -96,7 +95,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
     if ((gameState.roles[widget.role] ?? 0) == 1) {
       return () {
-        final hasThiefRole = gameState.hasRole(Role.thief);
+        final hasThiefRole = gameState.hasRoleType<ThiefRole>();
         setState(() {
           if (hasThiefRole) {
             for (int i = 0; i < _selectedPlayers.length; i++) {

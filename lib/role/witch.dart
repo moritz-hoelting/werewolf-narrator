@@ -1,14 +1,66 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/state/game.dart';
+part of 'role.dart';
+
+class WitchRole extends Role {
+  WitchRole._();
+  static final RoleType type = RoleType<WitchRole>();
+  @override
+  RoleType get objectType => type;
+
+  static final Role instance = WitchRole._();
+
+  static void registerRole() {
+    RoleManager.registerRole<WitchRole>(
+      RegisterRoleInformation(WitchRole._, instance),
+    );
+  }
+
+  bool hasHealPotion = true;
+  bool hasKillPotion = true;
+
+  @override
+  bool get isUnique => true;
+  @override
+  Team get initialTeam => Team.village;
+
+  @override
+  String name(BuildContext context) {
+    return AppLocalizations.of(context)!.role_witch_name;
+  }
+
+  @override
+  String description(BuildContext context) {
+    return AppLocalizations.of(context)!.role_witch_description;
+  }
+
+  @override
+  String checkRoleInstruction(BuildContext context, int count) {
+    final localizations = AppLocalizations.of(context)!;
+    return localizations.screen_checkRoles_instruction_witch(count);
+  }
+
+  @override
+  bool hasNightScreen(GameState gameState) => true;
+  @override
+  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
+    return (context) => WitchScreen(
+      onPhaseComplete: onComplete,
+      hasHealPotion: hasHealPotion,
+      hasKillPotion: hasKillPotion,
+    );
+  }
+}
 
 class WitchScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
+  final bool hasHealPotion;
+  final bool hasKillPotion;
 
-  const WitchScreen({super.key, required this.onPhaseComplete});
+  const WitchScreen({
+    super.key,
+    required this.onPhaseComplete,
+    required this.hasHealPotion,
+    required this.hasKillPotion,
+  });
 
   @override
   State<WitchScreen> createState() => _WitchScreenState();
@@ -47,14 +99,14 @@ class _WitchScreenState extends State<WitchScreen> {
             title: Text(localizations.role_witch_name),
             automaticallyImplyLeading: false,
           ),
-          body: gameState.witchHasHealPotion || gameState.witchHasKillPotion
+          body: widget.hasHealPotion || widget.hasKillPotion
               ? Column(
                   children: [
                     TextButton.icon(
                       style: !_killModeActive
                           ? selectedModeButtonStyle
                           : modeButtonStyle,
-                      onPressed: _killModeActive && gameState.witchHasHealPotion
+                      onPressed: _killModeActive && widget.hasHealPotion
                           ? () {
                               setState(() {
                                 _killModeActive = false;
@@ -70,8 +122,7 @@ class _WitchScreenState extends State<WitchScreen> {
                       style: _killModeActive
                           ? selectedModeButtonStyle
                           : modeButtonStyle,
-                      onPressed:
-                          !_killModeActive && gameState.witchHasKillPotion
+                      onPressed: !_killModeActive && widget.hasKillPotion
                           ? () {
                               setState(() {
                                 _killModeActive = true;
@@ -186,7 +237,7 @@ class _WitchScreenState extends State<WitchScreen> {
         gameState.currentCycleDeaths[index] == DeathReason.werewolf;
     return gameState.playerAliveOrKilledThisCycle(index) &&
         (_killModeActive
-            ? (gameState.players[index].role != Role.witch &&
+            ? (gameState.players[index].role.runtimeType != WitchRole &&
                   gameState.playerAliveOrKilledThisCycle(index) &&
                   !killedByWerewolves)
             : (killedByWerewolves));

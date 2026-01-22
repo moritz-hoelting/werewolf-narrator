@@ -1,19 +1,29 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
 
 void main() {
+  setUpAll(() {
+    RoleManager.ensureRegistered();
+  });
+
   test("Test game phase order", () {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
-      roles: {Role.seer: 1, Role.hunter: 1, Role.cupid: 1, Role.werewolf: 1},
+      roles: {
+        SeerRole.type: 1,
+        HunterRole.type: 1,
+        CupidRole.type: 1,
+        WerewolfRole.type: 1,
+      },
     );
 
-    state.players[0].role = Role.seer;
-    state.players[1].role = Role.hunter;
-    state.players[2].role = Role.cupid;
-    state.players[3].role = Role.werewolf;
+    state.players[0].role = RoleManager.instantiateRole(SeerRole.type);
+    state.players[1].role = RoleManager.instantiateRole(HunterRole.type);
+    state.players[2].role = RoleManager.instantiateRole(CupidRole.type);
+    state.players[3].role = RoleManager.instantiateRole(WerewolfRole.type);
 
     final List<GamePhase> expectedOrder = [
       GamePhase.dusk,

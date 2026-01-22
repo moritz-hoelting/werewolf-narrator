@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
 class ActionScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class ActionScreen extends StatefulWidget {
     super.key,
     required this.appBarTitle,
     this.instruction,
-    required this.disabledPlayerIndices,
+    this.disabledPlayerIndices = const [],
     required this.selectionCount,
     this.allowSelectLess = false,
     required this.onConfirm,
@@ -176,49 +175,5 @@ class _ActionScreenState extends State<ActionScreen> {
             });
           }
         : null;
-  }
-}
-
-class RoleActionScreen extends StatelessWidget {
-  final Role role;
-  final VoidCallback onPhaseComplete;
-
-  const RoleActionScreen({
-    super.key,
-    required this.role,
-    required this.onPhaseComplete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    assert(
-      role.nightAction != null,
-      'RoleActionScreen requires a role with a night action.',
-    );
-
-    return Consumer<GameState>(
-      builder: (context, gameState, _) => ActionScreen(
-        appBarTitle: Text(role.name(context)),
-        instruction: Text(
-          role.selectActionInstruction(context),
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        disabledPlayerIndices: role.nightAction!.allowSelfSelect
-            ? []
-            : gameState.players
-                  .asMap()
-                  .entries
-                  .where((entry) => entry.value.role == role)
-                  .map((entry) => entry.key)
-                  .toList(),
-        selectionCount: role.nightAction!.selectionCount,
-        onConfirm: (selectedPlayers, gameState) {
-          if (role.nightAction!.onConfirm != null) {
-            role.nightAction!.onConfirm!(selectedPlayers, gameState);
-          }
-          onPhaseComplete();
-        },
-      ),
-    );
   }
 }
