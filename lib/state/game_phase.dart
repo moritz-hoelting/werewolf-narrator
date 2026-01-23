@@ -1,11 +1,7 @@
 enum GamePhase {
   dusk,
   checkRoles,
-  thief,
-  cupid,
-  seer,
-  werewolves,
-  witch,
+  nightActions,
   dawn,
   sheriffElection,
   voting,

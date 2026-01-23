@@ -10,7 +10,31 @@ class ThiefRole extends Role {
 
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
-      RegisterRoleInformation(ThiefRole._, instance),
+      RegisterRoleInformation(ThiefRole._, instance, initialize: initialize),
+    );
+  }
+
+  static void initialize(GameState gameState) {
+    gameState.remainingRoleHooks.putIfAbsent(ThiefRole.type, () => []).add((
+      gameState,
+      remainingCount,
+    ) {
+      gameState.removeUnassignedRoles();
+    });
+  }
+
+  @override
+  void onAssign(GameState gameState, int playerIndex) {
+    super.onAssign(gameState, playerIndex);
+
+    gameState.nightActionManager.registerAction(
+      ThiefRole.type,
+      (gameState, onComplete) =>
+          (context) => ThiefScreen(onPhaseComplete: onComplete),
+      conditioned: (gameState) =>
+          gameState.dayCounter == 0 &&
+          gameState.playerAliveUntilDawn(playerIndex),
+      beforeAll: true,
     );
   }
 
@@ -33,13 +57,6 @@ class ThiefRole extends Role {
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
     return localizations.screen_checkRoles_instruction_thief(count);
-  }
-
-  @override
-  bool hasNightScreen(GameState gameState) => gameState.dayCounter == 0;
-  @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
-    return (context) => ThiefScreen(onPhaseComplete: onComplete);
   }
 }
 
@@ -178,6 +195,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
             .toList(),
       );
     }
+    gameState.removeUnassignedRoles();
     widget.onPhaseComplete();
   }
 }

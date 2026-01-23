@@ -14,6 +14,18 @@ class WitchRole extends Role {
     );
   }
 
+  @override
+  void onAssign(GameState gameState, int playerIndex) {
+    super.onAssign(gameState, playerIndex);
+
+    gameState.nightActionManager.registerAction(
+      WitchRole.type,
+      (gameState, onComplete) => nightActionScreen(onComplete),
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      after: [WerewolvesTeam.type, CupidRole.type],
+    );
+  }
+
   int healPotions = 1;
   int killPotions = 1;
 
@@ -38,10 +50,7 @@ class WitchRole extends Role {
     return localizations.screen_checkRoles_instruction_witch(count);
   }
 
-  @override
-  bool hasNightScreen(GameState gameState) => true;
-  @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) =>
+  WidgetBuilder nightActionScreen(VoidCallback onComplete) =>
       (context) => WitchScreen(
         onPhaseComplete: onComplete,
         healPotions: healPotions,
@@ -208,7 +217,7 @@ class _WitchScreenState extends State<WitchScreen> {
               ),
               onPressed: () {
                 if (_selectedHealPlayer != null) {
-                  gameState.witchHealPlayer(_selectedHealPlayer!);
+                  gameState.markPlayerRevived(_selectedHealPlayer!);
                 }
                 if (_selectedKillPlayer != null) {
                   gameState.markPlayerDead(

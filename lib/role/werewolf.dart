@@ -14,8 +14,6 @@ class WerewolfRole extends Role {
     );
   }
 
-  // TODO: team night action
-
   @override
   bool get isUnique => false;
   @override

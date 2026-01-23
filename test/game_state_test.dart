@@ -27,23 +27,21 @@ void main() {
     state.players[2].role = RoleManager.instantiateRole(CupidRole.type);
     state.players[3].role = RoleManager.instantiateRole(WerewolfRole.type);
 
+    state.nightActionManager.ensureOrdered();
+
     final List<GamePhase> expectedOrder = [
       GamePhase.dusk,
       GamePhase.checkRoles,
-      GamePhase.cupid,
-      GamePhase.seer,
-      GamePhase.werewolves,
+      GamePhase.nightActions,
       GamePhase.dawn,
       GamePhase.sheriffElection,
       GamePhase.voting,
       GamePhase.dusk,
-      GamePhase.seer,
-      GamePhase.werewolves,
+      GamePhase.nightActions,
       GamePhase.dawn,
       GamePhase.voting,
       GamePhase.dusk,
-      GamePhase.seer,
-      GamePhase.werewolves,
+      GamePhase.nightActions,
       GamePhase.dawn,
       GamePhase.voting,
     ];

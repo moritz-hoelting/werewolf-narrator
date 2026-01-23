@@ -12,6 +12,21 @@ class WerewolvesTeam extends Team {
   }
 
   @override
+  void initialize(GameState gameState) {
+    super.initialize(gameState);
+
+    gameState.nightActionManager.registerAction(
+      WerewolvesTeam.type,
+      (gameState, onComplete) {
+        return nightActionScreen(onComplete);
+      },
+      conditioned: (gameState) =>
+          gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>(),
+      after: [CupidRole.type, SeerRole.type],
+    );
+  }
+
+  @override
   String name(BuildContext context) =>
       AppLocalizations.of(context)!.team_werewolves_name;
 
@@ -19,10 +34,7 @@ class WerewolvesTeam extends Team {
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context)!.team_werewolves_winHeadline;
 
-  @override
-  bool hasNightScreen(GameState gameState) => true;
-  @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) => (context) {
+  WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context)!;
     final werewolvesOrDead = Provider.of<GameState>(context, listen: false)
         .players

@@ -15,6 +15,19 @@ class SeerRole extends Role {
   }
 
   @override
+  void onAssign(GameState gameState, int playerIndex) {
+    super.onAssign(gameState, playerIndex);
+
+    gameState.nightActionManager.registerAction(
+      SeerRole.type,
+      (gameState, onComplete) =>
+          (context) => SeerScreen(onPhaseComplete: onComplete),
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      after: [CupidRole.type],
+    );
+  }
+
+  @override
   bool get isUnique => true;
   @override
   TeamType get initialTeam => VillageTeam.type;
@@ -33,13 +46,6 @@ class SeerRole extends Role {
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
     return localizations.screen_checkRoles_instruction_seer(count);
-  }
-
-  @override
-  bool hasNightScreen(GameState gameState) => true;
-  @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
-    return (context) => SeerScreen(onPhaseComplete: onComplete);
   }
 }
 

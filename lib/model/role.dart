@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
 
 class RoleType<T extends Role> {
   const RoleType._();
@@ -82,11 +83,18 @@ abstract class RoleManager {
 
   static List<RoleType> get registeredRoles =>
       List.unmodifiable(_roleInformation.keys.toList());
+
+  static void Function(GameState gameState)? getInitializer(RoleType role) {
+    final info = _roleInformation[role];
+    return info?.initialize;
+  }
 }
 
 class RegisterRoleInformation<T extends Role> {
   final Role Function() constructor;
   final Role instance;
 
-  RegisterRoleInformation(this.constructor, this.instance);
+  final void Function(GameState gameState)? initialize;
+
+  RegisterRoleInformation(this.constructor, this.instance, {this.initialize});
 }

@@ -39,7 +39,4 @@ sealed class Role {
 
   bool hasDeathScreen(GameState gameState) => false;
   WidgetBuilder? deathActionScreen(VoidCallback onComplete) => null;
-
-  bool hasNightScreen(GameState gameState) => false;
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) => null;
 }

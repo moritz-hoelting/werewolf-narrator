@@ -14,10 +14,9 @@ part 'werewolves.dart';
 sealed class Team {
   const Team();
 
+  void initialize(GameState gameState) {}
+
   String name(BuildContext context);
 
   String winningHeadline(BuildContext context);
-
-  bool hasNightScreen(GameState gameState) => false;
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) => null;
 }

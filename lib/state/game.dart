@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
 import 'package:werewolf_narrator/team/team.dart';
+import 'package:werewolf_narrator/state/night_actions.dart';
 
 typedef DeathHook =
     bool Function(GameState gameState, int playerIndex, DeathReason reason);
@@ -14,12 +15,19 @@ typedef DeathHook =
 typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
 
 class GameState extends ChangeNotifier {
+  final NightActionManager nightActionManager = NightActionManager();
+
   final List<Player> players;
   final Map<TeamType, Team> teams;
   final Map<RoleType, int> roleCounts;
 
   final List<DeathHook> deathHooks = [];
   final List<ReviveHook> reviveHooks = [];
+  final Map<
+    RoleType,
+    List<void Function(GameState gameState, int remainingCount)>
+  >
+  remainingRoleHooks = {};
 
   int dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
@@ -52,6 +60,15 @@ class GameState extends ChangeNotifier {
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
+    for (final team in teams.values) {
+      team.initialize(this);
+    }
+    for (final role in roleCounts.keys) {
+      final roleInitializer = RoleManager.getInitializer(role);
+      if (roleInitializer != null) {
+        roleInitializer(this);
+      }
+    }
   }
 
   void notifyUpdate() {
@@ -98,31 +115,83 @@ class GameState extends ChangeNotifier {
       roleCounts.containsKey(role) && roleCounts[role]! > 0;
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
 
-  (int, Player)? getRolePlayer(RoleType role) =>
+  bool hasAliveRole(RoleType role) =>
+      hasRole(role) &&
+      players.indexed.any(
+        (p) =>
+            p.$2.role != null &&
+            p.$2.role!.objectType == role &&
+            playerAliveUntilDawn(p.$1),
+      );
+  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
+
+  (int, Player)? getPlayerOfRole(RoleType role) =>
       players.indexed.singleWhereOrNull(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
       );
-  (int, Player)? getRoleTypePlayer<T extends Role>() =>
-      getRolePlayer(RoleType<T>());
+  (int, Player)? getPlayerOfRoleType<T extends Role>() =>
+      getPlayerOfRole(RoleType<T>());
+  (int, Player)? getAlivePlayerOfRole(RoleType role) =>
+      players.indexed.singleWhereOrNull(
+        (player) =>
+            player.$2.role != null &&
+            player.$2.role!.objectType == role &&
+            playerAliveUntilDawn(player.$1),
+      );
+  (int, Player)? getAlivePlayerOfRoleType<T extends Role>() =>
+      getAlivePlayerOfRole(RoleType<T>());
 
-  List<(int, Player)> getRolePlayers(RoleType role) => players.indexed
+  List<(int, Player)> getPlayersOfRole(RoleType role) => players.indexed
       .where(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
       )
       .toList();
-  List<(int, Player)> getRoleTypePlayers<T extends Role>() =>
-      getRolePlayers(RoleType<T>());
+  List<(int, Player)> getPlayersOfRoleType<T extends Role>() =>
+      getPlayersOfRole(RoleType<T>());
+  List<(int, Player)> getAlivePlayersOfRole(RoleType role) => players.indexed
+      .where(
+        (player) =>
+            player.$2.role != null &&
+            player.$2.role!.objectType == role &&
+            playerAliveUntilDawn(player.$1),
+      )
+      .toList();
+  List<(int, Player)> getAlivePlayersOfRoleType<T extends Role>() =>
+      getAlivePlayersOfRole(RoleType<T>());
 
-  bool hasAliveRole(RoleType role) =>
-      hasRole(role) &&
-      players
-          .where(
-            (p) => p.role != null && p.role!.objectType == role && p.isAlive,
-          )
-          .isNotEmpty;
-  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
+  bool hasPlayerOfTeam(TeamType team) => players.any(
+    (player) => player.role != null && player.role!.team(this) == team,
+  );
+  bool hasPlayerOfTeamType<T extends Team>() => hasPlayerOfTeam(TeamType<T>());
+  bool hasAlivePlayerOfTeam(TeamType team) => players.indexed.any(
+    (player) =>
+        playerAliveUntilDawn(player.$1) &&
+        player.$2.role != null &&
+        player.$2.role!.team(this) == team,
+  );
+  bool hasAlivePlayerOfTeamType<T extends Team>() =>
+      hasAlivePlayerOfTeam(TeamType<T>());
+
+  List<(int, Player)> getPlayersOfTeam(TeamType team) => players.indexed
+      .where(
+        (player) =>
+            player.$2.role != null && player.$2.role!.team(this) == team,
+      )
+      .toList();
+  List<(int, Player)> getPlayersOfTeamType<T extends Team>() =>
+      getPlayersOfTeam(TeamType<T>());
+  List<(int, Player)> getAlivePlayersOfTeam(TeamType team) => players.indexed
+      .where(
+        (player) =>
+            player.$2.role != null &&
+            player.$2.role!.team(this) == team &&
+            playerAliveUntilDawn(player.$1),
+      )
+      .toList();
+  List<(int, Player)> getAlivePlayersOfTeamType<T extends Team>() =>
+      getAlivePlayersOfTeam(TeamType<T>());
 
   void setPlayersRole(RoleType role, List<int> playerIndices) {
     for (final index in playerIndices) {
@@ -246,20 +315,13 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool playerAliveOrKilledThisCycle(int playerIndex) {
-    return players[playerIndex].isAlive ||
-        currentCycleDeaths.containsKey(playerIndex);
-  }
+  bool playerAliveOrKilledThisCycle(int playerIndex) =>
+      players[playerIndex].isAlive ||
+      currentCycleDeaths.containsKey(playerIndex);
 
-  void witchHealPlayer(int playerIndex) {
-    final currentCycleDeaths = this.currentCycleDeaths;
-    if (currentCycleDeaths.containsKey(playerIndex)) {
-      if (currentCycleDeaths[playerIndex] == DeathReason.werewolf) {
-        markPlayerRevived(playerIndex);
-        notifyListeners();
-      }
-    }
-  }
+  bool playerAliveUntilDawn(int playerIndex) =>
+      players[playerIndex].isAlive ||
+      (isNight && currentCycleDeaths.containsKey(playerIndex));
 
   bool get pendingDeathActions =>
       players.any((player) => player.waitForDeathAction(this));
@@ -286,14 +348,9 @@ class GameState extends ChangeNotifier {
     final next = nextPhase;
     if (next != null) {
       if (dayCounter == 0 &&
-          phase.index < GamePhase.thief.index &&
-          next.index >= GamePhase.thief.index) {
+          phase.index < GamePhase.nightActions.index &&
+          next.index >= GamePhase.nightActions.index) {
         fillVillagerRoles();
-      }
-      if (dayCounter == 0 &&
-          phase.index <= GamePhase.thief.index &&
-          next.index > GamePhase.thief.index) {
-        removeUnassignedRoles();
       }
       _phase = next;
       if (next == GamePhase.dawn) {
@@ -328,20 +385,12 @@ class GameState extends ChangeNotifier {
         );
         if (dayCounter > 0 || !hasAnyRoleOtherThanVillager) return false;
         break;
-      case GamePhase.thief:
-        if (dayCounter > 0 || !hasAliveRoleType<ThiefRole>()) return false;
-        break;
-      case GamePhase.cupid:
-        if (dayCounter > 0 || !hasAliveRoleType<CupidRole>()) return false;
-        break;
-      case GamePhase.seer:
-        if (!hasAliveRoleType<SeerRole>()) return false;
-        break;
-      case GamePhase.werewolves:
-        if (!hasAliveRoleType<WerewolfRole>()) return false;
-        break;
-      case GamePhase.witch:
-        if (!hasAliveRoleType<WitchRole>()) return false;
+      case GamePhase.nightActions:
+        if (nightActionManager.nightActions.none(
+          (phaseInfo) => phaseInfo.conditioned(this),
+        )) {
+          return false;
+        }
         break;
       case GamePhase.sheriffElection:
         if (sheriff != null && players[sheriff!].isAlive) return false;

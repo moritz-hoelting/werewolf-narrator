@@ -47,11 +47,28 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
 
   void onComplete() {
     if (_remainingRoles.length == 1) {
+      executeHooks();
       widget.onPhaseComplete();
     } else {
       setState(() {
         _remainingRoles.removeFirst();
       });
+    }
+  }
+
+  void executeHooks() {
+    final gameState = Provider.of<GameState>(context, listen: false);
+    final unassignedRoles = gameState.unassignedRoles.fold(<RoleType, int>{}, (
+      acc,
+      element,
+    ) {
+      acc[element] = (acc[element] ?? 0) + 1;
+      return acc;
+    });
+    for (final roleType in unassignedRoles.entries) {
+      gameState.remainingRoleHooks[roleType.key]?.forEach(
+        (hook) => hook(gameState, roleType.value),
+      );
     }
   }
 }

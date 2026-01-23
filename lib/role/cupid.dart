@@ -18,6 +18,17 @@ class CupidRole extends Role {
 
   @override
   void onAssign(GameState gameState, int playerIndex) {
+    super.onAssign(gameState, playerIndex);
+
+    gameState.nightActionManager.registerAction(
+      CupidRole.type,
+      (gameState, onComplete) {
+        return nightActionScreen(onComplete);
+      },
+      conditioned: (gameState) =>
+          lovers == null && gameState.playerAliveUntilDawn(playerIndex),
+    );
+
     gameState.deathHooks.add((gameState, playerIndex, reason) {
       if (reason != DeathReason.lover &&
           lovers != null &&
@@ -65,10 +76,7 @@ class CupidRole extends Role {
     return localizations.screen_checkRoles_instruction_cupid(count);
   }
 
-  @override
-  bool hasNightScreen(GameState gameState) => lovers == null;
-  @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
+  WidgetBuilder nightActionScreen(VoidCallback onComplete) {
     return (context) => CupidScreen(onComplete: onComplete, cupidRole: this);
   }
 }
