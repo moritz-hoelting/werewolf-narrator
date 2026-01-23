@@ -8,18 +8,26 @@ import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
 import 'package:werewolf_narrator/team/team.dart';
 
+typedef DeathHook =
+    bool Function(GameState gameState, int playerIndex, DeathReason reason);
+
+typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
+
 class GameState extends ChangeNotifier {
   final List<Player> players;
   final Map<TeamType, Team> teams;
   final Map<RoleType, int> roleCounts;
 
+  final List<DeathHook> deathHooks = [];
+  final List<ReviveHook> reviveHooks = [];
+
   int dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
   GamePhase get phase => _phase;
-  (int, int)? lovers;
   int? sheriff;
-  bool witchHasHealPotion = true;
-  bool witchHasKillPotion = true;
+
+  final List<int> _markDeadRecursionGuard = [];
+  final List<int> _markRevivedRecursionGuard = [];
 
   GameState({required List<String> players, required this.roleCounts})
     : players = players.map((name) => Player(name: name)).toList(),
@@ -118,7 +126,9 @@ class GameState extends ChangeNotifier {
 
   void setPlayersRole(RoleType role, List<int> playerIndices) {
     for (final index in playerIndices) {
-      players[index].role = RoleManager.instantiateRole(role);
+      final Role playerRole = RoleManager.instantiateRole(role);
+      players[index].role = playerRole;
+      playerRole.onAssign(this, index);
     }
     notifyListeners();
   }
@@ -174,37 +184,50 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setLovers(int playerAidx, int playerBidx) {
-    lovers = (playerAidx, playerBidx);
-    notifyListeners();
-  }
-
   void markPlayerDead(
     int playerIndex,
     DeathReason deathReason, {
     bool? atNight,
     int? day,
   }) {
-    players[playerIndex].markDead(
-      DeathInformation(
-        reason: deathReason,
-        day: day ?? dayCounter,
-        atNight: atNight ?? isNight,
-      ),
-    );
-    if (lovers != null &&
-        (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
-      final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
-      if (players[otherLover].isAlive) {
-        players[otherLover].markDead(
-          DeathInformation(
-            reason: DeathReason.lover,
-            day: day ?? dayCounter,
-            atNight: atNight ?? isNight,
-          ),
-        );
+    if (_markDeadRecursionGuard.contains(playerIndex)) {
+      return;
+    }
+    _markDeadRecursionGuard.add(playerIndex);
+    bool shouldDie = true;
+    for (final hook in deathHooks) {
+      if (hook(this, playerIndex, deathReason)) {
+        shouldDie = false;
       }
     }
+    if (shouldDie) {
+      players[playerIndex].markDead(
+        DeathInformation(
+          reason: deathReason,
+          day: day ?? dayCounter,
+          atNight: atNight ?? isNight,
+        ),
+      );
+    }
+    _markDeadRecursionGuard.remove(playerIndex);
+    notifyListeners();
+  }
+
+  void markPlayerRevived(int playerIndex) {
+    if (_markRevivedRecursionGuard.contains(playerIndex)) {
+      return;
+    }
+    _markRevivedRecursionGuard.add(playerIndex);
+    bool shouldRevive = true;
+    for (final hook in reviveHooks) {
+      if (hook(this, playerIndex)) {
+        shouldRevive = false;
+      }
+    }
+    if (shouldRevive) {
+      players[playerIndex].markRevived();
+    }
+    _markRevivedRecursionGuard.remove(playerIndex);
     notifyListeners();
   }
 
@@ -228,39 +251,13 @@ class GameState extends ChangeNotifier {
         currentCycleDeaths.containsKey(playerIndex);
   }
 
-  void revivePlayer(int playerIndex) {
-    players[playerIndex].revive();
-    if (lovers != null &&
-        (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
-      final otherLover = (playerIndex == lovers!.$1) ? lovers!.$2 : lovers!.$1;
-      final otherDeathInformation = players[otherLover].deathInformation;
-      if (otherDeathInformation != null &&
-          otherDeathInformation.reason == DeathReason.lover) {
-        players[otherLover].revive();
-      }
-    }
-    notifyListeners();
-  }
-
   void witchHealPlayer(int playerIndex) {
     final currentCycleDeaths = this.currentCycleDeaths;
     if (currentCycleDeaths.containsKey(playerIndex)) {
       if (currentCycleDeaths[playerIndex] == DeathReason.werewolf) {
-        revivePlayer(playerIndex);
+        markPlayerRevived(playerIndex);
         notifyListeners();
       }
-    }
-  }
-
-  void witchUseUpPotion({bool heal = false, bool kill = false}) {
-    if (heal) {
-      witchHasHealPotion = false;
-    }
-    if (kill) {
-      witchHasKillPotion = false;
-    }
-    if (heal || kill) {
-      notifyListeners();
     }
   }
 
@@ -336,9 +333,6 @@ class GameState extends ChangeNotifier {
         break;
       case GamePhase.cupid:
         if (dayCounter > 0 || !hasAliveRoleType<CupidRole>()) return false;
-        break;
-      case GamePhase.lovers:
-        if (dayCounter > 0 || !hasRoleType<CupidRole>()) return false;
         break;
       case GamePhase.seer:
         if (!hasAliveRoleType<SeerRole>()) return false;

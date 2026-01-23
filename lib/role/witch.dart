@@ -14,8 +14,8 @@ class WitchRole extends Role {
     );
   }
 
-  bool hasHealPotion = true;
-  bool hasKillPotion = true;
+  int healPotions = 1;
+  int killPotions = 1;
 
   @override
   bool get isUnique => true;
@@ -41,25 +41,34 @@ class WitchRole extends Role {
   @override
   bool hasNightScreen(GameState gameState) => true;
   @override
-  WidgetBuilder? nightActionScreen(VoidCallback onComplete) {
-    return (context) => WitchScreen(
-      onPhaseComplete: onComplete,
-      hasHealPotion: hasHealPotion,
-      hasKillPotion: hasKillPotion,
-    );
-  }
+  WidgetBuilder? nightActionScreen(VoidCallback onComplete) =>
+      (context) => WitchScreen(
+        onPhaseComplete: onComplete,
+        healPotions: healPotions,
+        killPotions: killPotions,
+        useUpPotions: ({heal = 0, kill = 0}) {
+          healPotions -= heal;
+          killPotions -= kill;
+          if (heal > 0 || kill > 0) {
+            Provider.of<GameState>(context, listen: false).notifyUpdate();
+          }
+        },
+      );
 }
 
 class WitchScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
-  final bool hasHealPotion;
-  final bool hasKillPotion;
+  final int healPotions;
+  final int killPotions;
+
+  final void Function({int heal, int kill}) useUpPotions;
 
   const WitchScreen({
     super.key,
     required this.onPhaseComplete,
-    required this.hasHealPotion,
-    required this.hasKillPotion,
+    required this.healPotions,
+    required this.killPotions,
+    required this.useUpPotions,
   });
 
   @override
@@ -70,16 +79,7 @@ class _WitchScreenState extends State<WitchScreen> {
   int? _selectedKillPlayer;
   int? _selectedHealPlayer;
 
-  late bool _killModeActive;
-
-  @override
-  void initState() {
-    super.initState();
-    _killModeActive = !Provider.of<GameState>(
-      context,
-      listen: false,
-    ).witchHasHealPotion;
-  }
+  late bool _killModeActive = widget.healPotions == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -99,14 +99,14 @@ class _WitchScreenState extends State<WitchScreen> {
             title: Text(localizations.role_witch_name),
             automaticallyImplyLeading: false,
           ),
-          body: widget.hasHealPotion || widget.hasKillPotion
+          body: widget.healPotions > 0 || widget.killPotions > 0
               ? Column(
                   children: [
                     TextButton.icon(
                       style: !_killModeActive
                           ? selectedModeButtonStyle
                           : modeButtonStyle,
-                      onPressed: _killModeActive && widget.hasHealPotion
+                      onPressed: _killModeActive && widget.healPotions > 0
                           ? () {
                               setState(() {
                                 _killModeActive = false;
@@ -122,7 +122,7 @@ class _WitchScreenState extends State<WitchScreen> {
                       style: _killModeActive
                           ? selectedModeButtonStyle
                           : modeButtonStyle,
-                      onPressed: !_killModeActive && widget.hasKillPotion
+                      onPressed: !_killModeActive && widget.killPotions > 0
                           ? () {
                               setState(() {
                                 _killModeActive = true;
@@ -216,9 +216,9 @@ class _WitchScreenState extends State<WitchScreen> {
                     DeathReason.witch,
                   );
                 }
-                gameState.witchUseUpPotion(
-                  heal: _selectedHealPlayer != null,
-                  kill: _selectedKillPlayer != null,
+                widget.useUpPotions(
+                  heal: _selectedHealPlayer != null ? 1 : 0,
+                  kill: _selectedKillPlayer != null ? 1 : 0,
                 );
                 widget.onPhaseComplete();
               },

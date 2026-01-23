@@ -3,7 +3,6 @@ enum GamePhase {
   checkRoles,
   thief,
   cupid,
-  lovers,
   seer,
   werewolves,
   witch,

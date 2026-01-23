@@ -27,6 +27,8 @@ sealed class Role {
 
   RoleType get objectType;
 
+  void onAssign(GameState gameState, int playerIndex) {}
+
   bool get isUnique;
   TeamType get initialTeam;
   TeamType team(GameState gameState) => initialTeam;

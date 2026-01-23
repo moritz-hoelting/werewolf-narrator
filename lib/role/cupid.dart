@@ -8,13 +8,40 @@ class CupidRole extends Role {
   @override
   RoleType get objectType => type;
 
-  // TODO: register death handler
   (int, int)? lovers;
 
   static void registerRole() {
     RoleManager.registerRole<CupidRole>(
       RegisterRoleInformation(CupidRole._, instance),
     );
+  }
+
+  @override
+  void onAssign(GameState gameState, int playerIndex) {
+    gameState.deathHooks.add((gameState, playerIndex, reason) {
+      if (reason != DeathReason.lover &&
+          lovers != null &&
+          (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
+        final int otherLoverIndex = playerIndex == lovers!.$1
+            ? lovers!.$2
+            : lovers!.$1;
+        gameState.markPlayerDead(otherLoverIndex, DeathReason.lover);
+      }
+
+      return false;
+    });
+
+    gameState.reviveHooks.add((gameState, playerIndex) {
+      if (lovers != null &&
+          (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
+        final int otherLoverIndex = playerIndex == lovers!.$1
+            ? lovers!.$2
+            : lovers!.$1;
+        gameState.markPlayerRevived(otherLoverIndex);
+      }
+
+      return false;
+    });
   }
 
   @override
@@ -61,11 +88,9 @@ class CupidScreen extends StatefulWidget {
 }
 
 class _CupidScreenState extends State<CupidScreen> {
-  bool _loversSelected = false;
-
   @override
   Widget build(BuildContext context) {
-    if (!_loversSelected) {
+    if (widget.cupidRole.lovers == null) {
       return ActionScreen(
         appBarTitle: Text(CupidRole.instance.name(context)),
         selectionCount: 2,
@@ -76,52 +101,54 @@ class _CupidScreenState extends State<CupidScreen> {
           );
           widget.cupidRole.lovers = (selectedIndices[0], selectedIndices[1]);
           gameState.notifyUpdate();
-          setState(() {
-            _loversSelected = true;
-          });
         },
       );
     } else {
-      return WakeLoversScreen(onPhaseComplete: widget.onComplete);
+      return WakeLoversScreen(
+        onPhaseComplete: widget.onComplete,
+        lovers: widget.cupidRole.lovers!,
+      );
     }
   }
 }
 
 class WakeLoversScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
+  final (int, int) lovers;
 
-  const WakeLoversScreen({super.key, required this.onPhaseComplete});
+  const WakeLoversScreen({
+    super.key,
+    required this.onPhaseComplete,
+    required this.lovers,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        assert(
-          gameState.lovers != null,
-          'Lovers should be set when waking them up.',
-        );
-
         final localizations = AppLocalizations.of(context)!;
         return Scaffold(
           appBar: AppBar(
             title: Text(localizations.screen_wakeLovers_title),
             automaticallyImplyLeading: false,
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16.0,
-              children: [
-                const Icon(Icons.favorite, color: Colors.red, size: 160),
-                Text(
-                  localizations.screen_wakeLovers_instructions(
-                    gameState.players[gameState.lovers!.$1].name,
-                    gameState.players[gameState.lovers!.$2].name,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 16.0,
+                children: [
+                  const Icon(Icons.favorite, color: Colors.red, size: 160),
+                  Text(
+                    localizations.screen_wakeLovers_instructions(
+                      gameState.players[lovers.$1].name,
+                      gameState.players[lovers.$2].name,
+                    ),
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: Padding(

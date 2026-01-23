@@ -31,7 +31,6 @@ void main() {
       GamePhase.dusk,
       GamePhase.checkRoles,
       GamePhase.cupid,
-      GamePhase.lovers,
       GamePhase.seer,
       GamePhase.werewolves,
       GamePhase.dawn,

@@ -25,7 +25,7 @@ class Player {
     _deathInformation = deathInfo;
   }
 
-  void revive() {
+  void markRevived() {
     _deathInformation = null;
   }
 

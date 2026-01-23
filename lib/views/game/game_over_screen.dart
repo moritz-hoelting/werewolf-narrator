@@ -25,12 +25,16 @@ class GameOverScreen extends StatelessWidget {
 
         final winningTeam = winningTeamOrNull!;
 
-        final bool loversDifferentTeams =
-            gameState.lovers != null &&
-            gameState.players[gameState.lovers!.$1].role?.team(gameState) !=
-                gameState.players[gameState.lovers!.$2].role?.team(gameState);
+        // final bool loversDifferentTeams =
+        //     gameState.lovers != null &&
+        //     gameState.players[gameState.lovers!.$1].role?.team(gameState) !=
+        //         gameState.players[gameState.lovers!.$2].role?.team(gameState);
 
-        final lovers = [gameState.lovers?.$1, gameState.lovers?.$2].nonNulls;
+        // final lovers = [gameState.lovers?.$1, gameState.lovers?.$2].nonNulls;
+
+        // TODO: Dummy values to avoid errors
+        final bool loversDifferentTeams = true;
+        final lovers = <int>[0, 1];
 
         List<Player> winners;
         switch (winningTeam) {

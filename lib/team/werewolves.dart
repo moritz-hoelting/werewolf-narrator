@@ -18,4 +18,27 @@ class WerewolvesTeam extends Team {
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context)!.team_werewolves_winHeadline;
+
+  @override
+  bool hasNightScreen(GameState gameState) => true;
+  @override
+  WidgetBuilder? nightActionScreen(VoidCallback onComplete) => (context) {
+    final localizations = AppLocalizations.of(context)!;
+    final werewolvesOrDead = Provider.of<GameState>(context, listen: false)
+        .players
+        .indexed
+        .where((player) => player.$2.role is WerewolfRole || !player.$2.isAlive)
+        .map((player) => player.$1)
+        .toList();
+    return ActionScreen(
+      appBarTitle: Text(localizations.role_werewolf_name),
+      instruction: Text(localizations.screen_roleAction_instruction_werewolf),
+      selectionCount: 1,
+      disabledPlayerIndices: werewolvesOrDead,
+      onConfirm: (selectedPlayers, gameState) {
+        gameState.markPlayerDead(selectedPlayers[0], DeathReason.werewolf);
+        onComplete();
+      },
+    );
+  };
 }

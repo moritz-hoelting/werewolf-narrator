@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
-import 'package:werewolf_narrator/views/game/action_screen.dart';
+import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
 import 'package:werewolf_narrator/views/game/check_roles_screen.dart';
@@ -37,46 +35,34 @@ class GamePhaseScreen extends StatelessWidget {
           onPhaseComplete: onPhaseComplete,
         );
       case GamePhase.thief:
-        return ThiefScreen(onPhaseComplete: onPhaseComplete);
+        final thief = Provider.of<GameState>(
+          context,
+          listen: false,
+        ).getRoleTypePlayer<ThiefRole>()!.$2.role!;
+        return thief.nightActionScreen(onPhaseComplete)!(context);
       case GamePhase.cupid:
         final cupid = Provider.of<GameState>(
           context,
           listen: false,
         ).getRoleTypePlayer<CupidRole>()!.$2.role!;
         return cupid.nightActionScreen(onPhaseComplete)!(context);
-      case GamePhase.lovers:
-        return WakeLoversScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.seer:
-        return SeerScreen(onPhaseComplete: onPhaseComplete);
+        final seer = Provider.of<GameState>(
+          context,
+          listen: false,
+        ).getRoleTypePlayer<SeerRole>()!.$2.role!;
+        return seer.nightActionScreen(onPhaseComplete)!(context);
       case GamePhase.werewolves:
-        final localizations = AppLocalizations.of(context)!;
-        final werewolvesOrDead = Provider.of<GameState>(context, listen: false)
-            .players
-            .indexed
-            .where(
-              (player) => player.$2.role is WerewolfRole || !player.$2.isAlive,
-            )
-            .map((player) => player.$1)
-            .toList();
-        return ActionScreen(
-          appBarTitle: Text(localizations.role_werewolf_name),
-          instruction: Text(
-            localizations.screen_roleAction_instruction_werewolf,
-          ),
-          selectionCount: 1,
-          disabledPlayerIndices: werewolvesOrDead,
-          onConfirm: (selectedPlayers, gameState) {
-            gameState.markPlayerDead(selectedPlayers[0], DeathReason.werewolf);
-            onPhaseComplete();
-          },
-        );
-      case GamePhase.witch:
         final gameState = Provider.of<GameState>(context, listen: false);
-        return WitchScreen(
-          onPhaseComplete: onPhaseComplete,
-          hasHealPotion: gameState.witchHasHealPotion,
-          hasKillPotion: gameState.witchHasKillPotion,
-        );
+        return gameState.teams[WerewolvesTeam.type]!.nightActionScreen(
+          onPhaseComplete,
+        )!(context);
+      case GamePhase.witch:
+        final witch = Provider.of<GameState>(
+          context,
+          listen: false,
+        ).getRoleTypePlayer<WitchRole>()!.$2.role!;
+        return witch.nightActionScreen(onPhaseComplete)!(context);
       case GamePhase.dawn:
         return DawnScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.sheriffElection:
