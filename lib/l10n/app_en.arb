@@ -124,10 +124,6 @@
     "@screen_gameOver_title": {
         "description": "Title for the game over screen"
     },
-    "screen_gameOver_noWinner": "Game Over! No winners determined.",
-    "@screen_gameOver_noWinner": {
-        "description": "Fallback text when no winning team could be determined"
-    },
     "screen_gameOver_winnerVillageHeadline": "The Village has won!",
     "@screen_gameOver_winnerVillageHeadline": {
         "description": "Headline shown when the Village team wins"

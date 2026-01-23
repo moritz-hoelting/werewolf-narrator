@@ -27,10 +27,7 @@ void main() {
 
     final List<GamePhase> expectedOrder = [
       GamePhase.dusk,
-      GamePhase.checkRoleSeer,
-      GamePhase.checkRoleHunter,
-      GamePhase.checkRoleCupid,
-      GamePhase.checkRoleWerewolves,
+      GamePhase.checkRoles,
       GamePhase.cupid,
       GamePhase.lovers,
       GamePhase.seer,

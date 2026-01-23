@@ -5,14 +5,60 @@ import 'package:werewolf_narrator/model/roles.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
+class CheckRolesScreen extends StatefulWidget {
+  const CheckRolesScreen({super.key, required this.onPhaseComplete});
+
+  final VoidCallback onPhaseComplete;
+
+  @override
+  State<CheckRolesScreen> createState() => _CheckRolesScreenState();
+}
+
+class _CheckRolesScreenState extends State<CheckRolesScreen> {
+  late final List<RoleType> _remainingRoles;
+
+  @override
+  void initState() {
+    super.initState();
+    final gameRoles = Provider.of<GameState>(context, listen: false)
+        .roles
+        .entries
+        .where((entry) => entry.value > 0 && entry.key != VillagerRole.type)
+        .map((entry) => entry.key)
+        .toList();
+    _remainingRoles = RoleManager.registeredRoles
+        .where((role) => gameRoles.contains(role))
+        .toList();
+    assert(
+      _remainingRoles.isNotEmpty,
+      'There should be at least one role to check',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CheckRoleScreen(role: _remainingRoles[0], onComplete: onComplete);
+  }
+
+  void onComplete() {
+    if (_remainingRoles.length == 1) {
+      widget.onPhaseComplete();
+    } else {
+      setState(() {
+        _remainingRoles.removeAt(0);
+      });
+    }
+  }
+}
+
 class CheckRoleScreen extends StatefulWidget {
   final RoleType role;
-  final VoidCallback onPhaseComplete;
+  final VoidCallback onComplete;
 
   const CheckRoleScreen({
     super.key,
     required this.role,
-    required this.onPhaseComplete,
+    required this.onComplete,
   });
 
   @override
@@ -77,7 +123,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               ),
               onPressed:
                   selectedCount >= minSelection && selectedCount <= maxSelection
-                  ? () => onPhaseComplete(gameState)
+                  ? () => onComplete(gameState)
                   : null,
               label: Text(localizations.button_continueLabel),
               icon: const Icon(Icons.arrow_forward),
@@ -125,7 +171,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         : null;
   }
 
-  void onPhaseComplete(GameState gameState) {
+  void onComplete(GameState gameState) {
     final selectedIndices = _selectedPlayers
         .asMap()
         .entries
@@ -134,6 +180,6 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         .toList();
     gameState.setPlayersRole(widget.role, selectedIndices);
 
-    widget.onPhaseComplete();
+    widget.onComplete();
   }
 }

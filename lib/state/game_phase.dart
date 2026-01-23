@@ -1,12 +1,6 @@
 enum GamePhase {
   dusk,
-  checkRoleSeer,
-  checkRoleWitch,
-  checkRoleHunter,
-  checkRoleCupid,
-  checkRoleLittleGirl,
-  checkRoleWerewolves,
-  checkRoleThief,
+  checkRoles,
   thief,
   cupid,
   lovers,

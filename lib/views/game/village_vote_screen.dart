@@ -34,8 +34,8 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
 
               return ListTile(
                 title: Text(player.name),
-                subtitle: index == gameState.sheriff
-                    ? Text(localizations.screen_villageVote_sheriffLabel)
+                trailing: index == gameState.sheriff
+                    ? const Icon(Icons.local_police_outlined)
                     : null,
                 onTap: player.isAlive
                     ? () {

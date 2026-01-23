@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
@@ -312,26 +313,11 @@ class GameState extends ChangeNotifier {
       return false;
     }
     switch (next) {
-      case GamePhase.checkRoleSeer:
-        if (dayCounter > 0 || !hasRoleType<SeerRole>()) return false;
-        break;
-      case GamePhase.checkRoleWitch:
-        if (dayCounter > 0 || !hasRoleType<WitchRole>()) return false;
-        break;
-      case GamePhase.checkRoleHunter:
-        if (dayCounter > 0 || !hasRoleType<HunterRole>()) return false;
-        break;
-      case GamePhase.checkRoleCupid:
-        if (dayCounter > 0 || !hasRoleType<CupidRole>()) return false;
-        break;
-      case GamePhase.checkRoleLittleGirl:
-        if (dayCounter > 0 || !hasRoleType<LittleGirlRole>()) return false;
-        break;
-      case GamePhase.checkRoleWerewolves:
-        if (dayCounter > 0 || !hasRoleType<WerewolfRole>()) return false;
-        break;
-      case GamePhase.checkRoleThief:
-        if (dayCounter > 0 || !hasRoleType<ThiefRole>()) return false;
+      case GamePhase.checkRoles:
+        final bool hasAnyRoleOtherThanVillager = roles.entries.any(
+          (entry) => entry.value > 0 && entry.key != VillagerRole.type,
+        );
+        if (dayCounter > 0 || !hasAnyRoleOtherThanVillager) return false;
         break;
       case GamePhase.thief:
         if (dayCounter > 0 || !hasAliveRoleType<ThiefRole>()) return false;

@@ -15,26 +15,19 @@ class GameOverScreen extends StatelessWidget {
 
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final winningTeam = gameState.checkWinConditions();
+        final winningTeamOrNull = gameState.checkWinConditions();
 
-        if (winningTeam == null) {
-          // Should not happen, but keep it safe
-          return Scaffold(
-            appBar: AppBar(title: Text(localizations.screen_gameOver_title)),
-            body: Center(
-              child: Text(
-                localizations.screen_gameOver_noWinner,
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-            ),
-          );
-        }
+        assert(
+          winningTeamOrNull != null,
+          'GameOverScreen should only be shown when there is a winner',
+        );
+
+        final winningTeam = winningTeamOrNull!;
 
         final bool loversDifferentTeams =
             gameState.lovers != null &&
-            gameState.players[gameState.lovers!.$1].role?.team !=
-                gameState.players[gameState.lovers!.$2].role?.team;
+            gameState.players[gameState.lovers!.$1].role?.team(gameState) !=
+                gameState.players[gameState.lovers!.$2].role?.team(gameState);
 
         final lovers = [gameState.lovers?.$1, gameState.lovers?.$2].nonNulls;
 
@@ -46,7 +39,7 @@ class GameOverScreen extends StatelessWidget {
                 .entries
                 .where(
                   (entry) =>
-                      entry.value.role?.team == Team.village &&
+                      entry.value.role?.team(gameState) == Team.village &&
                       (!loversDifferentTeams || !lovers.contains(entry.key)),
                 )
                 .map((entry) => entry.value)
@@ -59,7 +52,7 @@ class GameOverScreen extends StatelessWidget {
                 .entries
                 .where(
                   (entry) =>
-                      entry.value.role?.team == Team.werewolves &&
+                      entry.value.role?.team(gameState) == Team.werewolves &&
                       (!loversDifferentTeams || !lovers.contains(entry.key)),
                 )
                 .map((entry) => entry.value)
@@ -83,7 +76,7 @@ class GameOverScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  winningTeam.winningHeadline(context),
+                  winningTeamOrNull.winningHeadline(context),
                   style: Theme.of(context).textTheme.headlineLarge,
                   textAlign: TextAlign.center,
                 ),

@@ -8,7 +8,7 @@ import 'package:werewolf_narrator/state/game_phase.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';
-import 'package:werewolf_narrator/views/game/check_role_screen.dart';
+import 'package:werewolf_narrator/views/game/check_roles_screen.dart';
 import 'package:werewolf_narrator/views/game/game_over_screen.dart';
 import 'package:werewolf_narrator/views/game/sheriff_election_screen.dart';
 import 'package:werewolf_narrator/views/game/village_vote_screen.dart';
@@ -31,46 +31,9 @@ class GamePhaseScreen extends StatelessWidget {
           key: ValueKey(phase),
           onPhaseComplete: onPhaseComplete,
         );
-      case GamePhase.checkRoleSeer:
-        return CheckRoleScreen(
+      case GamePhase.checkRoles:
+        return CheckRolesScreen(
           key: ValueKey(phase),
-          role: SeerRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleCupid:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: CupidRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleHunter:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: HunterRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleWitch:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: WitchRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleLittleGirl:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: LittleGirlRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleWerewolves:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: WerewolfRole.type,
-          onPhaseComplete: onPhaseComplete,
-        );
-      case GamePhase.checkRoleThief:
-        return CheckRoleScreen(
-          key: ValueKey(phase),
-          role: ThiefRole.type,
           onPhaseComplete: onPhaseComplete,
         );
       case GamePhase.thief:
