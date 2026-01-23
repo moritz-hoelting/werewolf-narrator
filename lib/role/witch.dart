@@ -20,7 +20,7 @@ class WitchRole extends Role {
   @override
   bool get isUnique => true;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {
@@ -237,7 +237,7 @@ class _WitchScreenState extends State<WitchScreen> {
         gameState.currentCycleDeaths[index] == DeathReason.werewolf;
     return gameState.playerAliveOrKilledThisCycle(index) &&
         (_killModeActive
-            ? (gameState.players[index].role.runtimeType != WitchRole &&
+            ? (gameState.players[index].role?.objectType != WitchRole.type &&
                   gameState.playerAliveOrKilledThisCycle(index) &&
                   !killedByWerewolves)
             : (killedByWerewolves));

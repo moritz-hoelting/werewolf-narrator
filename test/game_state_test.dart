@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
@@ -7,12 +8,13 @@ import 'package:werewolf_narrator/state/game_phase.dart';
 void main() {
   setUpAll(() {
     RoleManager.ensureRegistered();
+    TeamManager.ensureRegistered();
   });
 
   test("Test game phase order", () {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
-      roles: {
+      roleCounts: {
         SeerRole.type: 1,
         HunterRole.type: 1,
         CupidRole.type: 1,

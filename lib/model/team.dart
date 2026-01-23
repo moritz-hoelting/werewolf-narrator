@@ -1,15 +1,87 @@
-import 'package:werewolf_narrator/model/winner.dart';
+import 'dart:collection';
 
-enum Team {
-  village,
-  werewolves;
+import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/team/team.dart';
 
-  Winner get toWinner {
-    switch (this) {
-      case Team.village:
-        return Winner.village;
-      case Team.werewolves:
-        return Winner.werewolves;
+class TeamType<T extends Team> {
+  const TeamType._();
+
+  static final _teamMap = <Type, TeamType>{};
+
+  factory TeamType() {
+    if (!_teamMap.containsKey(T)) {
+      _teamMap[T] = TeamType<T>._();
+    }
+    return _teamMap[T] as TeamType<T>;
+  }
+
+  Type get type => T;
+
+  @override
+  bool operator ==(Object other) => other is TeamType<T>;
+  @override
+  int get hashCode => T.hashCode;
+
+  Team get instance => TeamManager.getTeamInstance(this);
+
+  String name(BuildContext context) {
+    return instance.name(context);
+  }
+
+  @override
+  String toString() => 'Team<$T>';
+}
+
+abstract class TeamManager {
+  static final LinkedHashMap<TeamType, RegisterTeamInformation>
+  _teamInformation = LinkedHashMap();
+  static bool _registered = false;
+
+  static void ensureRegistered() {
+    if (!_registered) {
+      _registerRoles();
+      _registered = true;
     }
   }
+
+  static void _registerRoles() {
+    VillageTeam.registerTeam();
+    WerewolvesTeam.registerTeam();
+    LoversTeam.registerTeam();
+  }
+
+  static void registerRole<T extends Team>(RegisterTeamInformation<T> info) {
+    if (_teamInformation.containsKey(TeamType<T>())) {
+      throw Exception('Team of type $T is already registered');
+    }
+    _teamInformation[TeamType<T>()] = info;
+  }
+
+  static Team instantiateTeam(TeamType team) {
+    final info = _teamInformation[team];
+    if (info != null) {
+      return info.constructor();
+    } else {
+      throw Exception('No constructor registered for team type $team');
+    }
+  }
+
+  static Team getTeamInstance(TeamType team) {
+    final info = _teamInformation[team];
+    if (info != null) {
+      return info.instance;
+    } else {
+      throw Exception('No instance registered for team type $team');
+    }
+  }
+
+  static List<TeamType> get registeredRoles =>
+      List.unmodifiable(_teamInformation.keys.toList());
+}
+
+class RegisterTeamInformation<T extends Team> {
+  final Team Function() constructor;
+  final Team instance;
+
+  RegisterTeamInformation(this.constructor, this.instance);
 }

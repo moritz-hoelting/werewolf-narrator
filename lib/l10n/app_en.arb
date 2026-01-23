@@ -124,18 +124,6 @@
     "@screen_gameOver_title": {
         "description": "Title for the game over screen"
     },
-    "screen_gameOver_winnerVillageHeadline": "The Village has won!",
-    "@screen_gameOver_winnerVillageHeadline": {
-        "description": "Headline shown when the Village team wins"
-    },
-    "screen_gameOver_winnerWerewolvesHeadline": "The Werewolves have won!",
-    "@screen_gameOver_winnerWerewolvesHeadline": {
-        "description": "Headline shown when the Werewolves team wins"
-    },
-    "screen_gameOver_winnerLoversHeadline": "The Lovers have won!",
-    "@screen_gameOver_winnerLoversHeadline": {
-        "description": "Headline shown when the Lovers team wins"
-    },
     "screen_gameOver_winnersLabel": "Winners:",
     "@screen_gameOver_winnersLabel": {
         "description": "Label shown above the list of winning players"
@@ -269,6 +257,30 @@
     "role_thief_description": "Adds two additional villager roles at the start. Can choose out of the two remaining roles in the first night. Must take a werewolf if both are werewolves.",
     "@role_thief_description": {
         "description": "Description of the Thief role"
+    },
+    "team_village_name": "Village",
+    "@team_village_name": {
+        "description": "Name of the Village team"
+    },
+    "team_werewolves_name": "Werewolves",
+    "@team_werewolves_name": {
+        "description": "Name of the Werewolves' team"
+    },
+    "team_lovers_name": "Lovers",
+    "@team_lovers_name": {
+        "description": "Name of the Lovers' team"
+    },
+    "team_village_winHeadline": "The Village has won!",
+    "@team_village_winHeadline": {
+        "description": "Headline shown when the Village team wins"
+    },
+    "team_werewolves_winHeadline": "The Werewolves have won!",
+    "@team_werewolves_winHeadline": {
+        "description": "Headline shown when the Werewolves' team wins"
+    },
+    "team_lovers_winHeadline": "The Lovers have won!",
+    "@team_lovers_winHeadline": {
+        "description": "Headline shown when the Lovers' team wins"
     },
     "deathReason_werewolf": "Killed by Werewolves",
     "@deathReason_werewolf": {

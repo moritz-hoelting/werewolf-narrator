@@ -17,7 +17,7 @@ class HunterRole extends Role {
   @override
   bool get isUnique => true;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {
@@ -55,7 +55,7 @@ class HunterScreen extends StatelessWidget {
         final localizations = AppLocalizations.of(context)!;
 
         final playerIndex = gameState.players.indexWhere(
-          (player) => player.role.runtimeType == HunterRole,
+          (player) => player.role?.objectType == HunterRole.type,
         );
 
         return ActionScreen(

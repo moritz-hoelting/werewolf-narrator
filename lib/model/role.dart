@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/role/role.dart';
 
 class RoleType<T extends Role> {
@@ -20,6 +21,12 @@ class RoleType<T extends Role> {
   bool operator ==(Object other) => other is RoleType<T>;
   @override
   int get hashCode => T.hashCode;
+
+  Role get instance => RoleManager.getRoleInstance(this);
+
+  String name(BuildContext context) {
+    return instance.name(context);
+  }
 
   @override
   String toString() => 'Role<$T>';

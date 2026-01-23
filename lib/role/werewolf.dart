@@ -19,7 +19,7 @@ class WerewolfRole extends Role {
   @override
   bool get isUnique => false;
   @override
-  Team get initialTeam => Team.werewolves;
+  TeamType get initialTeam => WerewolvesTeam.type;
 
   @override
   String name(BuildContext context) {

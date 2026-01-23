@@ -3,7 +3,7 @@ import 'dart:math' show min;
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
 
@@ -47,8 +47,8 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .where((entry) => entry.value > 0)
         .map((entry) => entry.key)
         .toSet();
-    final Set<Team> selectedTeams = selectedRoleSet
-        .map((role) => RoleManager.getRoleInstance(role).initialTeam)
+    final Set<TeamType> selectedTeams = selectedRoleSet
+        .map((role) => role.instance.initialTeam)
         .toSet();
 
     return Container(
@@ -62,13 +62,13 @@ class _SelectRolesViewState extends State<SelectRolesView> {
               children:
                   groupBy(
                         RoleManager.registeredRoles,
-                        (role) => RoleManager.getRoleInstance(role).initialTeam,
+                        (role) => role.instance.initialTeam,
                       ).values.flattened
                       .map(
                         (role) => RoleSelectorCard(
                           role: role,
                           count: _selectedRoles[role] ?? 0,
-                          maxCount: RoleManager.getRoleInstance(role).isUnique
+                          maxCount: role.instance.isUnique
                               ? ((_selectedRoles[role] ?? 0) == 0
                                     ? min(1, missingRoles)
                                     : 0)
@@ -145,7 +145,7 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final role = RoleManager.getRoleInstance(widget.role);
+    final role = widget.role.instance;
     final description = role.description(context);
 
     return Padding(

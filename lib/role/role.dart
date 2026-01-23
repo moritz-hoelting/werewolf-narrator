@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'cupid.dart';
@@ -27,8 +28,8 @@ sealed class Role {
   RoleType get objectType;
 
   bool get isUnique;
-  Team get initialTeam;
-  Team team(GameState gameState) => initialTeam;
+  TeamType get initialTeam;
+  TeamType team(GameState gameState) => initialTeam;
 
   String name(BuildContext context);
   String description(BuildContext context);

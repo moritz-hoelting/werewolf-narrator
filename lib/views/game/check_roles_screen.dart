@@ -1,7 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
 
@@ -15,20 +16,20 @@ class CheckRolesScreen extends StatefulWidget {
 }
 
 class _CheckRolesScreenState extends State<CheckRolesScreen> {
-  late final List<RoleType> _remainingRoles;
+  late final QueueList<RoleType> _remainingRoles;
 
   @override
   void initState() {
     super.initState();
     final gameRoles = Provider.of<GameState>(context, listen: false)
-        .roles
+        .roleCounts
         .entries
         .where((entry) => entry.value > 0 && entry.key != VillagerRole.type)
         .map((entry) => entry.key)
         .toList();
-    _remainingRoles = RoleManager.registeredRoles
-        .where((role) => gameRoles.contains(role))
-        .toList();
+    _remainingRoles = QueueList.from(
+      RoleManager.registeredRoles.where((role) => gameRoles.contains(role)),
+    );
     assert(
       _remainingRoles.isNotEmpty,
       'There should be at least one role to check',
@@ -37,7 +38,11 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CheckRoleScreen(role: _remainingRoles[0], onComplete: onComplete);
+    return CheckRoleScreen(
+      key: UniqueKey(),
+      role: _remainingRoles[0],
+      onComplete: onComplete,
+    );
   }
 
   void onComplete() {
@@ -45,7 +50,7 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
       widget.onPhaseComplete();
     } else {
       setState(() {
-        _remainingRoles.removeAt(0);
+        _remainingRoles.removeFirst();
       });
     }
   }
@@ -86,17 +91,17 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
       builder: (context, gameState, _) {
         final localizations = AppLocalizations.of(context)!;
 
-        final maxSelection = gameState.roles[widget.role] ?? 0;
+        final maxSelection = gameState.roleCounts[widget.role] ?? 0;
         final minSelection = gameState.hasRoleType<ThiefRole>()
-            ? maxSelection - (2 * gameState.roles[ThiefRole.type]!)
+            ? maxSelection - (2 * gameState.roleCounts[ThiefRole.type]!)
             : maxSelection;
 
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              RoleManager.getRoleInstance(widget.role).checkRoleInstruction(
+              widget.role.instance.checkRoleInstruction(
                 context,
-                gameState.roles[widget.role] ?? 0,
+                gameState.roleCounts[widget.role] ?? 0,
               ),
             ),
             automaticallyImplyLeading: false,
@@ -139,7 +144,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
       return null;
     }
 
-    if ((gameState.roles[widget.role] ?? 0) == 1) {
+    if ((gameState.roleCounts[widget.role] ?? 0) == 1) {
       return () {
         final hasThiefRole = gameState.hasRoleType<ThiefRole>();
         setState(() {
@@ -162,7 +167,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
     return (_selectedPlayers[index] ||
             (!_selectedPlayers[index] &&
-                selectedCount < (gameState.roles[widget.role] ?? 0)))
+                selectedCount < (gameState.roleCounts[widget.role] ?? 0)))
         ? () {
             setState(() {
               _selectedPlayers[index] = !_selectedPlayers[index];
@@ -172,11 +177,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   }
 
   void onComplete(GameState gameState) {
-    final selectedIndices = _selectedPlayers
-        .asMap()
-        .entries
-        .where((entry) => entry.value)
-        .map((entry) => entry.key)
+    final selectedIndices = _selectedPlayers.indexed
+        .where((entry) => entry.$2)
+        .map((entry) => entry.$1)
         .toList();
     gameState.setPlayersRole(widget.role, selectedIndices);
 

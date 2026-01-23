@@ -1,10 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/model/winner.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/team.dart';
 
 class GameOverScreen extends StatelessWidget {
   const GameOverScreen({super.key});
@@ -33,39 +34,34 @@ class GameOverScreen extends StatelessWidget {
 
         List<Player> winners;
         switch (winningTeam) {
-          case Winner.village:
+          case TeamType<VillageTeam>():
             winners = gameState.players
-                .asMap()
-                .entries
-                .where(
-                  (entry) =>
-                      entry.value.role?.team(gameState) == Team.village &&
-                      (!loversDifferentTeams || !lovers.contains(entry.key)),
+                .whereIndexed(
+                  (index, player) =>
+                      player.role?.team(gameState) == VillageTeam.type &&
+                      (!loversDifferentTeams || !lovers.contains(index)),
                 )
-                .map((entry) => entry.value)
                 .toList();
             break;
 
-          case Winner.werewolves:
+          case TeamType<WerewolvesTeam>():
             winners = gameState.players
-                .asMap()
-                .entries
-                .where(
-                  (entry) =>
-                      entry.value.role?.team(gameState) == Team.werewolves &&
-                      (!loversDifferentTeams || !lovers.contains(entry.key)),
+                .whereIndexed(
+                  (index, player) =>
+                      player.role?.team(gameState) == WerewolvesTeam.type &&
+                      (!loversDifferentTeams || !lovers.contains(index)),
                 )
-                .map((entry) => entry.value)
                 .toList();
             break;
 
-          case Winner.lovers:
+          case TeamType<LoversTeam>():
             winners = gameState.players
-                .asMap()
-                .entries
-                .where((entry) => lovers.contains(entry.key))
-                .map((entry) => entry.value)
+                .whereIndexed((index, player) => lovers.contains(index))
                 .toList();
+            break;
+
+          default:
+            winners = [];
             break;
         }
 
@@ -76,7 +72,7 @@ class GameOverScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  winningTeamOrNull.winningHeadline(context),
+                  winningTeam.instance.winningHeadline(context),
                   style: Theme.of(context).textTheme.headlineLarge,
                   textAlign: TextAlign.center,
                 ),

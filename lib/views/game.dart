@@ -23,7 +23,7 @@ class _GameViewState extends State<GameView> {
       return ChangeNotifierProvider(
         create: (context) => GameState(
           players: setupResult!.players,
-          roles: setupResult!.selectedRoles,
+          roleCounts: setupResult!.selectedRoles,
         ),
         child: Consumer<GameState>(
           builder: (context, gameState, child) {

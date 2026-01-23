@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game.dart';
 
@@ -9,6 +10,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   RoleManager.ensureRegistered();
+  TeamManager.ensureRegistered();
 
   runApp(const WerewolfNarratorApp());
 }

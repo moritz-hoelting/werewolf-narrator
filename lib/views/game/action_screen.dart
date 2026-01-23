@@ -92,11 +92,9 @@ class _ActionScreenState extends State<ActionScreen> {
                       (widget.allowSelectLess &&
                           selectedCount < widget.selectionCount))
                   ? () {
-                      final selectedPlayers = _selectedPlayers
-                          .asMap()
-                          .entries
-                          .where((entry) => entry.value)
-                          .map((entry) => entry.key)
+                      final selectedPlayers = _selectedPlayers.indexed
+                          .where((entry) => entry.$2)
+                          .map((entry) => entry.$1)
                           .toList();
                       if (selectedCount < widget.selectionCount) {
                         final answer = showDialog<bool>(

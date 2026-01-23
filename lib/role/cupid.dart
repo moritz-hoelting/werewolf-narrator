@@ -20,7 +20,7 @@ class CupidRole extends Role {
   @override
   bool get isUnique => true;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {

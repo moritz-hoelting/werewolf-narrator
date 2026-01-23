@@ -17,7 +17,7 @@ class SeerRole extends Role {
   @override
   bool get isUnique => true;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {
@@ -96,7 +96,8 @@ class _SeerScreenState extends State<SeerScreen> {
                       selected: _selectedPlayer == index,
                       enabled:
                           gameState.players[index].isAlive &&
-                          gameState.players[index].role.runtimeType != SeerRole,
+                          gameState.players[index].role?.objectType !=
+                              SeerRole.type,
                       selectedTileColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),

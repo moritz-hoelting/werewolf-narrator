@@ -17,7 +17,7 @@ class ThiefRole extends Role {
   @override
   bool get isUnique => true;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {
@@ -64,7 +64,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
         final missingRoles = gameState.unassignedRoles;
 
         assert(
-          missingRoles.length == 2 * gameState.roles[ThiefRole.type]!,
+          missingRoles.length == 2 * gameState.roleCounts[ThiefRole.type]!,
           'Number of missing roles must match twice the number of Thief roles assigned',
         );
 
@@ -112,9 +112,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(
-                      RoleManager.getRoleInstance(roleA).name(context),
-                    ),
+                    child: Text(roleA.name(context)),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -138,9 +136,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(
-                      RoleManager.getRoleInstance(roleB).name(context),
-                    ),
+                    child: Text(roleB.name(context)),
                   ),
                 ],
               ),
@@ -154,10 +150,8 @@ class _ThiefScreenState extends State<ThiefScreen> {
               ),
               onPressed:
                   _selected == _ThiefSelectedRole.none &&
-                      RoleManager.getRoleInstance(roleA).team(gameState) ==
-                          Team.werewolves &&
-                      RoleManager.getRoleInstance(roleB).team(gameState) ==
-                          Team.werewolves
+                      roleA.instance.team(gameState) == WerewolvesTeam.type &&
+                      roleB.instance.team(gameState) == WerewolvesTeam.type
                   ? null
                   : () {
                       submit(gameState, roleA, roleB);

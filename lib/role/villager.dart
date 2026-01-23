@@ -17,7 +17,7 @@ class VillagerRole extends Role {
   @override
   bool get isUnique => false;
   @override
-  Team get initialTeam => Team.village;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {

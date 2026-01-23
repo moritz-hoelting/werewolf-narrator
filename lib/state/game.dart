@@ -2,15 +2,16 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/roles.dart';
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/model/winner.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
+import 'package:werewolf_narrator/team/team.dart';
 
 class GameState extends ChangeNotifier {
   final List<Player> players;
-  final Map<RoleType, int> roles;
+  final Map<TeamType, Team> teams;
+  final Map<RoleType, int> roleCounts;
 
   int dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
@@ -20,11 +21,21 @@ class GameState extends ChangeNotifier {
   bool witchHasHealPotion = true;
   bool witchHasKillPotion = true;
 
-  GameState({required List<String> players, required this.roles})
-    : players = players.map((name) => Player(name: name)).toList() {
+  GameState({required List<String> players, required this.roleCounts})
+    : players = players.map((name) => Player(name: name)).toList(),
+      teams = Map.fromEntries(
+        roleCounts.entries
+            .where((entry) => entry.value > 0)
+            .map((entry) => entry.key.instance.initialTeam)
+            .toSet()
+            .map(
+              (teamType) =>
+                  MapEntry(teamType, TeamManager.instantiateTeam(teamType)),
+            ),
+      ) {
     assert(
       players.length ==
-          roles.entries.fold(
+          roleCounts.entries.fold(
             0,
             (sum, entry) =>
                 sum +
@@ -75,15 +86,15 @@ class GameState extends ChangeNotifier {
     }),
   );
 
-  bool hasRole(RoleType role) => roles.containsKey(role) && roles[role]! > 0;
+  bool hasRole(RoleType role) =>
+      roleCounts.containsKey(role) && roleCounts[role]! > 0;
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
 
-  (int, Player)? getRolePlayer(RoleType role) => players.indexed
-      .where(
+  (int, Player)? getRolePlayer(RoleType role) =>
+      players.indexed.singleWhereOrNull(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
-      )
-      .firstOrNull;
+      );
   (int, Player)? getRoleTypePlayer<T extends Role>() =>
       getRolePlayer(RoleType<T>());
 
@@ -99,7 +110,9 @@ class GameState extends ChangeNotifier {
   bool hasAliveRole(RoleType role) =>
       hasRole(role) &&
       players
-          .where((p) => p.role.runtimeType == role.type && p.isAlive)
+          .where(
+            (p) => p.role != null && p.role!.objectType == role && p.isAlive,
+          )
           .isNotEmpty;
   bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
 
@@ -121,7 +134,6 @@ class GameState extends ChangeNotifier {
   }
 
   List<RoleType> get unassignedRoles {
-    final allRoles = roles;
     final assignedRoles = players.map((player) => player.role).fold(
       <RoleType, int>{},
       (acc, element) {
@@ -132,7 +144,7 @@ class GameState extends ChangeNotifier {
       },
     );
 
-    return allRoles.entries
+    return roleCounts.entries
         .map((entry) {
           final assignedCount = assignedRoles[entry.key] ?? 0;
           return (entry.key, entry.value - assignedCount);
@@ -154,9 +166,9 @@ class GameState extends ChangeNotifier {
       return acc;
     });
     for (final entry in unassignedRoles.entries) {
-      roles[entry.key] = (roles[entry.key] ?? 0) - entry.value;
-      if (roles[entry.key]! <= 0) {
-        roles.remove(entry.key);
+      roleCounts[entry.key] = (roleCounts[entry.key] ?? 0) - entry.value;
+      if (roleCounts[entry.key]! <= 0) {
+        roleCounts.remove(entry.key);
       }
     }
     notifyListeners();
@@ -258,17 +270,17 @@ class GameState extends ChangeNotifier {
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
-  Winner? checkWinConditions() {
+  TeamType? checkWinConditions() {
     final alivePlayers = players.where((player) => player.isAlive).toList();
     final aliveTeams = alivePlayers
         .map((player) => player.role!.team(this))
         .toSet();
     if (aliveTeams.length == 1) {
-      return aliveTeams.first.toWinner;
+      return aliveTeams.first;
     }
     if (alivePlayers.length == 2 &&
-        aliveTeams.containsAll({Team.werewolves, Team.village})) {
-      return Winner.lovers;
+        aliveTeams.containsAll({WerewolvesTeam.type, VillageTeam.type})) {
+      return LoversTeam.type;
     }
     return null;
   }
@@ -314,7 +326,7 @@ class GameState extends ChangeNotifier {
     }
     switch (next) {
       case GamePhase.checkRoles:
-        final bool hasAnyRoleOtherThanVillager = roles.entries.any(
+        final bool hasAnyRoleOtherThanVillager = roleCounts.entries.any(
           (entry) => entry.value > 0 && entry.key != VillagerRole.type,
         );
         if (dayCounter > 0 || !hasAnyRoleOtherThanVillager) return false;

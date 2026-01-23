@@ -18,17 +18,15 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
   void _reloadDeathActionsInternal() {
     deathActions.clear();
     final gameState = Provider.of<GameState>(context, listen: false);
-    gameState.players
-        .asMap()
-        .entries
+    gameState.players.indexed
         .where(
           (player) =>
-              player.value.role != null &&
-              player.value.role!.hasDeathScreen(gameState) &&
-              player.value.waitForDeathAction(gameState),
+              player.$2.role != null &&
+              player.$2.role!.hasDeathScreen(gameState) &&
+              player.$2.waitForDeathAction(gameState),
         )
         .forEach((elem) {
-          final (index, player) = (elem.key, elem.value);
+          final (index, player) = (elem.$1, elem.$2);
 
           deathActions.add((
             index,
