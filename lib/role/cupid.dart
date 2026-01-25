@@ -8,8 +8,6 @@ class CupidRole extends Role {
   @override
   RoleType get objectType => type;
 
-  (int, int)? lovers;
-
   static void registerRole() {
     RoleManager.registerRole<CupidRole>(
       RegisterRoleInformation(CupidRole._, instance),
@@ -26,33 +24,9 @@ class CupidRole extends Role {
         return nightActionScreen(onComplete);
       },
       conditioned: (gameState) =>
-          lovers == null && gameState.playerAliveUntilDawn(playerIndex),
+          !gameState.teams.containsKey(LoversTeam.type) &&
+          gameState.playerAliveUntilDawn(playerIndex),
     );
-
-    gameState.deathHooks.add((gameState, playerIndex, reason) {
-      if (reason != DeathReason.lover &&
-          lovers != null &&
-          (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
-        final int otherLoverIndex = playerIndex == lovers!.$1
-            ? lovers!.$2
-            : lovers!.$1;
-        gameState.markPlayerDead(otherLoverIndex, DeathReason.lover);
-      }
-
-      return false;
-    });
-
-    gameState.reviveHooks.add((gameState, playerIndex) {
-      if (lovers != null &&
-          (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
-        final int otherLoverIndex = playerIndex == lovers!.$1
-            ? lovers!.$2
-            : lovers!.$1;
-        gameState.markPlayerRevived(otherLoverIndex);
-      }
-
-      return false;
-    });
   }
 
   @override
@@ -96,27 +70,39 @@ class CupidScreen extends StatefulWidget {
 }
 
 class _CupidScreenState extends State<CupidScreen> {
+  LoversTeam? loversTeam;
+
   @override
   Widget build(BuildContext context) {
-    if (widget.cupidRole.lovers == null) {
+    if (loversTeam == null) {
       return ActionScreen(
         appBarTitle: Text(widget.cupidRole.name(context)),
         selectionCount: 2,
-        onConfirm: (selectedIndices, gameState) {
-          assert(
-            selectedIndices.length == 2,
-            'Cupid must select exactly two players as lovers.',
-          );
-          widget.cupidRole.lovers = (selectedIndices[0], selectedIndices[1]);
-          gameState.notifyUpdate();
-        },
+        onConfirm: onAssignLovers,
       );
     } else {
       return WakeLoversScreen(
         onPhaseComplete: widget.onComplete,
-        lovers: widget.cupidRole.lovers!,
+        lovers: loversTeam!.lovers!,
       );
     }
+  }
+
+  void onAssignLovers(List<int> selectedIndices, GameState gameState) {
+    assert(
+      selectedIndices.length == 2,
+      'Cupid must select exactly two players as lovers.',
+    );
+    selectedIndices.sort();
+    final team = LoversTeam.withLovers((
+      selectedIndices[0],
+      selectedIndices[1],
+    ));
+    loversTeam = team;
+    gameState.teams[LoversTeam.type] = team;
+    team.initialize(gameState);
+
+    gameState.notifyUpdate();
   }
 }
 

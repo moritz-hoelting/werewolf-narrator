@@ -39,18 +39,18 @@ abstract class TeamManager {
 
   static void ensureRegistered() {
     if (!_registered) {
-      _registerRoles();
+      _registerTeams();
       _registered = true;
     }
   }
 
-  static void _registerRoles() {
+  static void _registerTeams() {
     VillageTeam.registerTeam();
     WerewolvesTeam.registerTeam();
     LoversTeam.registerTeam();
   }
 
-  static void registerRole<T extends Team>(RegisterTeamInformation<T> info) {
+  static void registerTeam<T extends Team>(RegisterTeamInformation<T> info) {
     if (_teamInformation.containsKey(TeamType<T>())) {
       throw Exception('Team of type $T is already registered');
     }
@@ -75,7 +75,7 @@ abstract class TeamManager {
     }
   }
 
-  static List<TeamType> get registeredRoles =>
+  static List<TeamType> get registeredTeams =>
       List.unmodifiable(_teamInformation.keys.toList());
 }
 

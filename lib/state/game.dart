@@ -14,6 +14,12 @@ typedef DeathHook =
 
 typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
 
+typedef RemainingRoleHook =
+    void Function(GameState gameState, int remainingCount);
+
+typedef PlayerWinHook =
+    bool? Function(GameState gameState, Team winningTeam, int playerIndex);
+
 class GameState extends ChangeNotifier {
   final NightActionManager nightActionManager = NightActionManager();
 
@@ -23,11 +29,8 @@ class GameState extends ChangeNotifier {
 
   final List<DeathHook> deathHooks = [];
   final List<ReviveHook> reviveHooks = [];
-  final Map<
-    RoleType,
-    List<void Function(GameState gameState, int remainingCount)>
-  >
-  remainingRoleHooks = {};
+  final Map<RoleType, List<RemainingRoleHook>> remainingRoleHooks = {};
+  final List<PlayerWinHook> playerWinHooks = [];
 
   int dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
@@ -329,19 +332,42 @@ class GameState extends ChangeNotifier {
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
-  TeamType? checkWinConditions() {
-    final alivePlayers = players.where((player) => player.isAlive).toList();
-    final aliveTeams = alivePlayers
-        .map((player) => player.role!.team(this))
-        .toSet();
-    if (aliveTeams.length == 1) {
-      return aliveTeams.first;
-    }
-    if (alivePlayers.length == 2 &&
-        aliveTeams.containsAll({WerewolvesTeam.type, VillageTeam.type})) {
-      return LoversTeam.type;
+  Team? checkWinConditions() {
+    for (final team in teams.values) {
+      if (team.hasWon(this)) {
+        return team;
+      }
     }
     return null;
+  }
+
+  List<(int, Player)>? winningPlayers() {
+    final Team? winningTeam = checkWinConditions();
+    if (winningTeam == null) return null;
+
+    final List<(int, Player)> winners = winningTeam.winningPlayers(this);
+
+    final nonWinningPlayers = List.generate(
+      playerCount,
+      (i) => i,
+    ).toSet().difference(winners.map((player) => player.$1).toSet());
+    for (final playerIndex in nonWinningPlayers) {
+      for (final playerWinHook in playerWinHooks) {
+        final bool? result = playerWinHook(this, winningTeam, playerIndex);
+        if (result == true) {
+          winners.add((playerIndex, players[playerIndex]));
+        }
+      }
+    }
+
+    return winners
+        .where(
+          (player) => playerWinHooks.none(
+            (playerWinHook) =>
+                playerWinHook(this, winningTeam, player.$1) == false,
+          ),
+        )
+        .toList();
   }
 
   bool transitionToNextPhase() {

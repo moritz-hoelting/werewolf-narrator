@@ -3,10 +3,12 @@ part of 'team.dart';
 class WerewolvesTeam extends Team {
   const WerewolvesTeam._();
   static final TeamType type = TeamType<WerewolvesTeam>();
+  @override
+  TeamType get objectType => type;
   static const Team instance = WerewolvesTeam._();
 
   static void registerTeam() {
-    TeamManager.registerRole<WerewolvesTeam>(
+    TeamManager.registerTeam<WerewolvesTeam>(
       RegisterTeamInformation(WerewolvesTeam._, instance),
     );
   }
@@ -56,4 +58,13 @@ class WerewolvesTeam extends Team {
       },
     );
   };
+
+  @override
+  bool hasWon(GameState gameState) => setEquals(
+    gameState.players
+        .where((player) => player.isAlive)
+        .map((player) => player.role?.team(gameState))
+        .toSet(),
+    {WerewolvesTeam.type},
+  );
 }
