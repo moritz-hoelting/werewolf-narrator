@@ -60,12 +60,12 @@ class WitchRole extends Role implements DeathReason {
   @override
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
-    return localizations.screen_checkRoles_instruction_witch(count);
+    return localizations.role_witch_checkInstruction(count);
   }
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.deathReason_witch;
+      AppLocalizations.of(context)!.role_witch_deathReason;
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(

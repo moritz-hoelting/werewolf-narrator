@@ -78,7 +78,7 @@ class LoversTeam extends Team implements DeathReason {
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.deathReason_lover;
+      AppLocalizations.of(context)!.team_lovers_deathReason;
 
   @override
   bool hasWon(GameState gameState) =>

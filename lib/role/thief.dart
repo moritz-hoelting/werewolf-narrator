@@ -83,7 +83,7 @@ class ThiefRole extends Role {
   @override
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
-    return localizations.screen_checkRoles_instruction_thief(count);
+    return localizations.role_thief_checkInstruction(count);
   }
 }
 

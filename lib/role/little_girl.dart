@@ -37,6 +37,6 @@ class LittleGirlRole extends Role {
   @override
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
-    return localizations.screen_checkRoles_instruction_littleGirl(count);
+    return localizations.role_littleGirl_checkInstruction(count);
   }
 }

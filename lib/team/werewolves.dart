@@ -49,7 +49,7 @@ class WerewolvesTeam extends Team implements DeathReason {
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.deathReason_werewolf;
+      AppLocalizations.of(context)!.team_werewolves_deathReason;
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context)!;

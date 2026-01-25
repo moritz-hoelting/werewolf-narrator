@@ -1,8 +1,10 @@
 name: werewolf_narrator
 description: "Helping you narrate your games of Werewolf."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+homepage: https://werewolf-narrator.hoelting.dev
+repository: https://github.com/moritz-hoelting/werewolf-narrator
+
+# The following line prevents the package from being accidentally published.
+publish_to: "none"
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -98,4 +100,6 @@ flutter:
 
 flutter_app_name_localization:
   default: "Werewolf Narrator"
-  locales: []
+  locales:
+    - locale: de
+      name: "Werwolf Erzähler"

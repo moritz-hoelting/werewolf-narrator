@@ -42,12 +42,12 @@ class HunterRole extends Role implements DeathReason {
   @override
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
-    return localizations.screen_checkRoles_instruction_hunter(count);
+    return localizations.role_hunter_checkInstruction(count);
   }
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.deathReason_hunter;
+      AppLocalizations.of(context)!.role_hunter_deathReason;
 
   @override
   bool hasDeathScreen(GameState gameState) => true;

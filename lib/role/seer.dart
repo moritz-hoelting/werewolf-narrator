@@ -55,7 +55,7 @@ class SeerRole extends Role {
   @override
   String checkRoleInstruction(BuildContext context, int count) {
     final localizations = AppLocalizations.of(context)!;
-    return localizations.screen_checkRoles_instruction_seer(count);
+    return localizations.role_seer_checkInstruction(count);
   }
 }
 

@@ -30,7 +30,7 @@ class VillageTeam extends Team implements DeathReason {
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.deathReason_villageVote;
+      AppLocalizations.of(context)!.team_village_deathReason;
 
   @override
   bool hasWon(GameState gameState) => setEquals(

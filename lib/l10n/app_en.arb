@@ -218,6 +218,16 @@
     "@role_seer_description": {
         "description": "Description of the Seer role"
     },
+    "role_seer_checkInstruction": "Wake and select {count, plural, =1{the Seer} other{all Seers}}",
+    "@role_seer_checkInstruction": {
+        "description": "Instruction to wake and select seer roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
     "role_witch_name": "Witch",
     "@role_witch_name": {
         "description": "Name of the Witch role"
@@ -225,6 +235,20 @@
     "role_witch_description": "Has one healing potion and one poison potion to use during the game.",
     "@role_witch_description": {
         "description": "Description of the Witch role"
+    },
+    "role_witch_checkInstruction": "Wake and select {count, plural, =1{the Witch} other{all Witches}}",
+    "@role_witch_checkInstruction": {
+        "description": "Instruction to wake and select witch roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_witch_deathReason": "Poisoned by the Witch",
+    "@role_witch_deathReason": {
+        "description": "Reason for death: poisoned by the witch"
     },
     "role_hunter_name": "Hunter",
     "@role_hunter_name": {
@@ -234,6 +258,20 @@
     "@role_hunter_description": {
         "description": "Description of the Hunter role"
     },
+    "role_hunter_checkInstruction": "Wake and select {count, plural, =1{the Hunter} other{all Hunters}}",
+    "@role_hunter_checkInstruction": {
+        "description": "Instruction to wake and select hunter roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_hunter_deathReason": "Shot by the Hunter",
+    "@role_hunter_deathReason": {
+        "description": "Reason for death: shot by the hunter"
+    },
     "role_cupid_name": "Cupid",
     "@role_cupid_name": {
         "description": "Name of the Cupid role"
@@ -241,6 +279,16 @@
     "role_cupid_description": "Selects two players to fall in love at the start of the game.",
     "@role_cupid_description": {
         "description": "Description of the Cupid role"
+    },
+    "role_cupid_checkInstruction": "Wake and select {count, plural, =1{the Cupid} other{all Cupids}}",
+    "@role_cupid_checkInstruction": {
+        "description": "Instruction to wake and select cupid roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
     },
     "role_littleGirl_name": "Little Girl",
     "@role_littleGirl_name": {
@@ -250,110 +298,8 @@
     "@role_littleGirl_description": {
         "description": "Description of the Little Girl role"
     },
-    "role_thief_name": "Thief",
-    "@role_thief_name": {
-        "description": "Name of the Thief role"
-    },
-    "role_thief_description": "Adds two additional villager roles at the start. Can choose out of the two remaining roles in the first night. Must take a werewolf if both are werewolves.",
-    "@role_thief_description": {
-        "description": "Description of the Thief role"
-    },
-    "team_village_name": "Village",
-    "@team_village_name": {
-        "description": "Name of the Village team"
-    },
-    "team_werewolves_name": "Werewolves",
-    "@team_werewolves_name": {
-        "description": "Name of the Werewolves' team"
-    },
-    "team_lovers_name": "Lovers",
-    "@team_lovers_name": {
-        "description": "Name of the Lovers' team"
-    },
-    "team_village_winHeadline": "The Village has won!",
-    "@team_village_winHeadline": {
-        "description": "Headline shown when the Village team wins"
-    },
-    "team_werewolves_winHeadline": "The Werewolves have won!",
-    "@team_werewolves_winHeadline": {
-        "description": "Headline shown when the Werewolves' team wins"
-    },
-    "team_lovers_winHeadline": "The Lovers have won!",
-    "@team_lovers_winHeadline": {
-        "description": "Headline shown when the Lovers' team wins"
-    },
-    "deathReason_werewolf": "Killed by Werewolves",
-    "@deathReason_werewolf": {
-        "description": "Reason for death: killed by werewolves"
-    },
-    "deathReason_villageVote": "Hung by the Village",
-    "@deathReason_villageVote": {
-        "description": "Reason for death: voted out by the village"
-    },
-    "deathReason_witch": "Poisoned by the Witch",
-    "@deathReason_witch": {
-        "description": "Reason for death: poisoned by the witch"
-    },
-    "deathReason_hunter": "Shot by the Hunter",
-    "@deathReason_hunter": {
-        "description": "Reason for death: shot by the hunter"
-    },
-    "deathReason_lover": "Died of a Broken Heart",
-    "@deathReason_lover": {
-        "description": "Reason for death: died because their lover died"
-    },
-    "screen_checkRoles_instruction_werewolf": "Wake and select {count, plural, =1{the Werewolf} other{all Werewolves}}",
-    "@screen_checkRoles_instruction_werewolf": {
-        "description": "Instruction to wake and select werewolf roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "2"
-            }
-        }
-    },
-    "screen_checkRoles_instruction_seer": "Wake and select {count, plural, =1{the Seer} other{all Seers}}",
-    "@screen_checkRoles_instruction_seer": {
-        "description": "Instruction to wake and select seer roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "1"
-            }
-        }
-    },
-    "screen_checkRoles_instruction_witch": "Wake and select {count, plural, =1{the Witch} other{all Witches}}",
-    "@screen_checkRoles_instruction_witch": {
-        "description": "Instruction to wake and select witch roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "1"
-            }
-        }
-    },
-    "screen_checkRoles_instruction_hunter": "Wake and select {count, plural, =1{the Hunter} other{all Hunters}}",
-    "@screen_checkRoles_instruction_hunter": {
-        "description": "Instruction to wake and select hunter roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "1"
-            }
-        }
-    },
-    "screen_checkRoles_instruction_cupid": "Wake and select {count, plural, =1{the Cupid} other{all Cupids}}",
-    "@screen_checkRoles_instruction_cupid": {
-        "description": "Instruction to wake and select cupid roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "1"
-            }
-        }
-    },
-    "screen_checkRoles_instruction_littleGirl": "Wake and select {count, plural, =1{the Little Girl} other{all Little Girls}}",
-    "@screen_checkRoles_instruction_littleGirl": {
+    "role_littleGirl_checkInstruction": "Wake and select {count, plural, =1{the Little Girl} other{all Little Girls}}",
+    "@role_littleGirl_checkInstruction": {
         "description": "Instruction to wake and select little girl roles",
         "placeholders": {
             "count": {
@@ -362,8 +308,16 @@
             }
         }
     },
-    "screen_checkRoles_instruction_thief": "Wake and select {count, plural, =1{the Thief} other{all Thieves}}",
-    "@screen_checkRoles_instruction_thief": {
+    "role_thief_name": "Thief",
+    "@role_thief_name": {
+        "description": "Name of the Thief role"
+    },
+    "role_thief_description": "Adds two additional villager roles at the start. Can choose out of the two remaining roles in the first night. Must take a werewolf if both are werewolves.",
+    "@role_thief_description": {
+        "description": "Description of the Thief role"
+    },
+    "role_thief_checkInstruction": "Wake and select {count, plural, =1{the Thief} other{all Thieves}}",
+    "@role_thief_checkInstruction": {
         "description": "Instruction to wake and select thief roles",
         "placeholders": {
             "count": {
@@ -371,5 +325,51 @@
                 "example": "1"
             }
         }
+    },
+    "team_village_name": "Village",
+    "@team_village_name": {
+        "description": "Name of the Village team"
+    },
+    "team_village_winHeadline": "The Village has won!",
+    "@team_village_winHeadline": {
+        "description": "Headline shown when the Village team wins"
+    },
+    "team_village_deathReason": "Hung by the Village",
+    "@team_village_deathReason": {
+        "description": "Reason for death: voted out by the village"
+    },
+    "team_werewolves_name": "Werewolves",
+    "@team_werewolves_name": {
+        "description": "Name of the Werewolves' team"
+    },
+    "team_werewolves_winHeadline": "The Werewolves have won!",
+    "@team_werewolves_winHeadline": {
+        "description": "Headline shown when the Werewolves' team wins"
+    },
+    "team_werewolves_checkInstruction": "Wake and select {count, plural, =1{the Werewolf} other{all Werewolves}}",
+    "@team_werewolves_checkInstruction": {
+        "description": "Instruction to wake and select werewolf roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "team_werewolves_deathReason": "Killed by Werewolves",
+    "@team_werewolves_deathReason": {
+        "description": "Reason for death: killed by werewolves"
+    },
+    "team_lovers_name": "Lovers",
+    "@team_lovers_name": {
+        "description": "Name of the Lovers' team"
+    },
+    "team_lovers_winHeadline": "The Lovers have won!",
+    "@team_lovers_winHeadline": {
+        "description": "Headline shown when the Lovers' team wins"
+    },
+    "team_lovers_deathReason": "Died of a Broken Heart",
+    "@team_lovers_deathReason": {
+        "description": "Reason for death: died because their lover died"
     }
 }
