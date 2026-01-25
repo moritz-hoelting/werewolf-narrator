@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 
-class VillageTeam extends Team {
+class VillageTeam extends Team implements DeathReason {
   const VillageTeam._();
   static final TeamType type = TeamType<VillageTeam>();
   @override
@@ -25,6 +27,10 @@ class VillageTeam extends Team {
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context)!.team_village_winHeadline;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context)!.deathReason_villageVote;
 
   @override
   bool hasWon(GameState gameState) => setEquals(

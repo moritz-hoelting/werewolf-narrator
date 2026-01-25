@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
@@ -10,7 +11,7 @@ import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-class WerewolvesTeam extends Team {
+class WerewolvesTeam extends Team implements DeathReason {
   const WerewolvesTeam._();
   static final TeamType type = TeamType<WerewolvesTeam>();
   @override
@@ -46,6 +47,10 @@ class WerewolvesTeam extends Team {
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context)!.team_werewolves_winHeadline;
 
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context)!.deathReason_werewolf;
+
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context)!;
     final gameState = Provider.of<GameState>(context, listen: false);
@@ -63,7 +68,7 @@ class WerewolvesTeam extends Team {
       selectionCount: 1,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(selectedPlayers.first, DeathReason.werewolf);
+        gameState.markPlayerDead(selectedPlayers.first, this);
         onComplete();
       },
     );

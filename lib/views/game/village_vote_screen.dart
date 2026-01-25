@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/village.dart';
 
 class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
@@ -86,7 +86,10 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                     widget.onPhaseComplete();
                   }
                 } else {
-                  gameState.markPlayerDead(_selectedPlayer!, DeathReason.vote);
+                  gameState.markPlayerDead(
+                    _selectedPlayer!,
+                    (gameState.teams[VillageTeam.type] as VillageTeam),
+                  );
                   widget.onPhaseComplete();
                 }
               },

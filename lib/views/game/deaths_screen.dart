@@ -70,7 +70,7 @@ class DeathsScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         subtitle: Text(
-                          '${player.role?.name(context) ?? localizations.role_unknown_name} - ${deathInformation.reason.name(context)}',
+                          '${player.role?.name(context) ?? localizations.role_unknown_name} - ${deathInformation.reason.deathReasonDescription(context)}',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       );

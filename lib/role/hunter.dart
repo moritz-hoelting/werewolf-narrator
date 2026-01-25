@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
@@ -9,7 +10,7 @@ import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-class HunterRole extends Role {
+class HunterRole extends Role implements DeathReason {
   const HunterRole._();
   static final RoleType type = RoleType<HunterRole>();
   @override
@@ -45,21 +46,30 @@ class HunterRole extends Role {
   }
 
   @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context)!.deathReason_hunter;
+
+  @override
   bool hasDeathScreen(GameState gameState) => true;
   @override
   WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) {
-    return (context) =>
-        HunterScreen(onPhaseComplete: onComplete, playerIndex: playerIndex);
+    return (context) => HunterScreen(
+      playerIndex: playerIndex,
+      hunterRole: this,
+      onPhaseComplete: onComplete,
+    );
   }
 }
 
 class HunterScreen extends StatelessWidget {
   final int playerIndex;
+  final HunterRole hunterRole;
   final VoidCallback onPhaseComplete;
 
   const HunterScreen({
     super.key,
     required this.playerIndex,
+    required this.hunterRole,
     required this.onPhaseComplete,
   });
 
@@ -82,7 +92,7 @@ class HunterScreen extends StatelessWidget {
               selectedPlayers.length == 1,
               'Hunter must select exactly one player to shoot.',
             );
-            gameState.markPlayerDead(selectedPlayers.first, DeathReason.hunter);
+            gameState.markPlayerDead(selectedPlayers.first, hunterRole);
             onPhaseComplete();
           },
         );

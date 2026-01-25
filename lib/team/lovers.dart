@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 
-class LoversTeam extends Team {
+class LoversTeam extends Team implements DeathReason {
   const LoversTeam._() : lovers = null;
   const LoversTeam.withLovers(this.lovers);
   static final TeamType type = TeamType<LoversTeam>();
@@ -28,13 +29,13 @@ class LoversTeam extends Team {
     super.initialize(gameState);
 
     gameState.deathHooks.add((gameState, playerIndex, reason) {
-      if (reason != DeathReason.lover &&
+      if (reason is! LoversTeam &&
           lovers != null &&
           (playerIndex == lovers!.$1 || playerIndex == lovers!.$2)) {
         final int otherLoverIndex = playerIndex == lovers!.$1
             ? lovers!.$2
             : lovers!.$1;
-        gameState.markPlayerDead(otherLoverIndex, DeathReason.lover);
+        gameState.markPlayerDead(otherLoverIndex, this);
       }
 
       return false;
@@ -74,6 +75,10 @@ class LoversTeam extends Team {
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context)!.team_lovers_winHeadline;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context)!.deathReason_lover;
 
   @override
   bool hasWon(GameState gameState) =>

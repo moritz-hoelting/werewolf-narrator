@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
@@ -12,7 +13,7 @@ import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
-class WitchRole extends Role {
+class WitchRole extends Role implements DeathReason {
   WitchRole._();
   static final RoleType type = RoleType<WitchRole>();
   @override
@@ -62,12 +63,15 @@ class WitchRole extends Role {
     return localizations.screen_checkRoles_instruction_witch(count);
   }
 
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context)!.deathReason_witch;
+
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(
+        witchRole: this,
         playerIndex: playerIndex,
         onPhaseComplete: onComplete,
-        healPotions: healPotions,
-        killPotions: killPotions,
         useUpPotions: ({heal = 0, kill = 0}) {
           healPotions -= heal;
           killPotions -= kill;
@@ -79,18 +83,16 @@ class WitchRole extends Role {
 }
 
 class WitchScreen extends StatefulWidget {
-  final VoidCallback onPhaseComplete;
-  final int healPotions;
-  final int killPotions;
+  final WitchRole witchRole;
   final int playerIndex;
+  final VoidCallback onPhaseComplete;
   final void Function({int heal, int kill}) useUpPotions;
 
   const WitchScreen({
     super.key,
+    required this.witchRole,
     required this.playerIndex,
     required this.onPhaseComplete,
-    required this.healPotions,
-    required this.killPotions,
     required this.useUpPotions,
   });
 
@@ -102,7 +104,7 @@ class _WitchScreenState extends State<WitchScreen> {
   final Set<int> _selectedKillPlayers = {};
   final Set<int> _selectedHealPlayers = {};
 
-  late bool _killModeActive = widget.healPotions == 0;
+  late bool _killModeActive = widget.witchRole.healPotions == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -113,10 +115,10 @@ class _WitchScreenState extends State<WitchScreen> {
         title: Text(localizations.role_witch_name),
         automaticallyImplyLeading: false,
       ),
-      body: widget.healPotions > 0 || widget.killPotions > 0
+      body: widget.witchRole.healPotions > 0 || widget.witchRole.killPotions > 0
           ? HasPotionsBody(
-              healPotions: widget.healPotions,
-              killPotions: widget.killPotions,
+              healPotions: widget.witchRole.healPotions,
+              killPotions: widget.witchRole.killPotions,
               killModeActive: _killModeActive,
               enableKillMode: () {
                 setState(() {
@@ -153,7 +155,7 @@ class _WitchScreenState extends State<WitchScreen> {
           }
           if (_selectedKillPlayers.isNotEmpty) {
             for (final killIndex in _selectedKillPlayers) {
-              gameState.markPlayerDead(killIndex, DeathReason.witch);
+              gameState.markPlayerDead(killIndex, widget.witchRole);
             }
           }
           widget.useUpPotions(
@@ -169,7 +171,7 @@ class _WitchScreenState extends State<WitchScreen> {
   bool playerEnabled(GameState gameState, int index) {
     final killedByWerewolves =
         gameState.currentCycleDeaths.containsKey(index) &&
-        gameState.currentCycleDeaths[index] == DeathReason.werewolf;
+        gameState.currentCycleDeaths[index] is WerewolvesTeam;
     return gameState.playerAliveOrKilledThisCycle(index) &&
         (_killModeActive
             ? (index != widget.playerIndex &&
@@ -178,12 +180,19 @@ class _WitchScreenState extends State<WitchScreen> {
             : (killedByWerewolves));
   }
 
-  VoidCallback? onTapKill(GameState gameState, int index) =>
-      handleOnTap(gameState, index, _selectedKillPlayers, widget.killPotions);
+  VoidCallback? onTapKill(GameState gameState, int index) => handleOnTap(
+    gameState,
+    index,
+    _selectedKillPlayers,
+    widget.witchRole.killPotions,
+  );
 
-  VoidCallback? onTapHeal(GameState gameState, int index) =>
-      handleOnTap(gameState, index, _selectedHealPlayers, widget.healPotions);
-
+  VoidCallback? onTapHeal(GameState gameState, int index) => handleOnTap(
+    gameState,
+    index,
+    _selectedHealPlayers,
+    widget.witchRole.healPotions,
+  );
   VoidCallback? handleOnTap(
     GameState gameState,
     int index,
