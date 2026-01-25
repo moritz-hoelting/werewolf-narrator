@@ -36,10 +36,13 @@ class WerewolvesTeam extends Team {
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context)!;
-    final werewolvesOrDead = Provider.of<GameState>(context, listen: false)
-        .players
-        .indexed
-        .where((player) => player.$2.role is WerewolfRole || !player.$2.isAlive)
+    final gameState = Provider.of<GameState>(context, listen: false);
+    final werewolvesOrDead = gameState.players.indexed
+        .where(
+          (player) =>
+              player.$2.role?.team(gameState) == WerewolvesTeam.type ||
+              !player.$2.isAlive,
+        )
         .map((player) => player.$1)
         .toList();
     return ActionScreen(

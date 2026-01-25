@@ -24,8 +24,17 @@ jobs:
           cache: true
           flutter-version: "3.38.1"
 
+      - name: Set up Just
+        uses: extractions/setup-just@v3
+
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Run code generation
+        run: just generate
+
+      - name: Run tests
+        run: flutter test
 
       - name: Build Flutter web
         run: flutter build web --release --wasm

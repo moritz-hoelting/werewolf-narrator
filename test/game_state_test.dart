@@ -22,10 +22,10 @@ void main() {
       },
     );
 
-    state.players[0].role = RoleManager.instantiateRole(SeerRole.type);
-    state.players[1].role = RoleManager.instantiateRole(HunterRole.type);
-    state.players[2].role = RoleManager.instantiateRole(CupidRole.type);
-    state.players[3].role = RoleManager.instantiateRole(WerewolfRole.type);
+    state.setPlayersRole(SeerRole.type, [0]);
+    state.setPlayersRole(HunterRole.type, [1]);
+    state.setPlayersRole(CupidRole.type, [2]);
+    state.setPlayersRole(WerewolfRole.type, [3]);
 
     state.nightActionManager.ensureOrdered();
 

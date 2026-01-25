@@ -21,7 +21,8 @@ class SeerRole extends Role {
     gameState.nightActionManager.registerAction(
       SeerRole.type,
       (gameState, onComplete) =>
-          (context) => SeerScreen(onPhaseComplete: onComplete),
+          (context) =>
+              SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: [CupidRole.type],
     );
@@ -50,9 +51,14 @@ class SeerRole extends Role {
 }
 
 class SeerScreen extends StatefulWidget {
+  final int playerIndex;
   final VoidCallback onPhaseComplete;
 
-  const SeerScreen({super.key, required this.onPhaseComplete});
+  const SeerScreen({
+    super.key,
+    required this.playerIndex,
+    required this.onPhaseComplete,
+  });
 
   @override
   State<SeerScreen> createState() => _SeerScreenState();
@@ -101,9 +107,8 @@ class _SeerScreenState extends State<SeerScreen> {
                       },
                       selected: _selectedPlayer == index,
                       enabled:
-                          gameState.players[index].isAlive &&
-                          gameState.players[index].role?.objectType !=
-                              SeerRole.type,
+                          gameState.playerAliveUntilDawn(index) &&
+                          index != widget.playerIndex,
                       selectedTileColor: Theme.of(
                         context,
                       ).colorScheme.primary.withValues(alpha: 0.2),

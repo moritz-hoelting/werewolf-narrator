@@ -100,7 +100,7 @@ class _CupidScreenState extends State<CupidScreen> {
   Widget build(BuildContext context) {
     if (widget.cupidRole.lovers == null) {
       return ActionScreen(
-        appBarTitle: Text(CupidRole.instance.name(context)),
+        appBarTitle: Text(widget.cupidRole.name(context)),
         selectionCount: 2,
         onConfirm: (selectedIndices, gameState) {
           assert(

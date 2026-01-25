@@ -38,5 +38,6 @@ sealed class Role {
   String checkRoleInstruction(BuildContext context, int count);
 
   bool hasDeathScreen(GameState gameState) => false;
-  WidgetBuilder? deathActionScreen(VoidCallback onComplete) => null;
+  WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) =>
+      null;
 }

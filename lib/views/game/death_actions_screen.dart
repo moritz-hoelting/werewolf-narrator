@@ -31,7 +31,7 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
           deathActions.add((
             index,
             (VoidCallback onComplete) =>
-                player.role!.deathActionScreen(onComplete)!,
+                player.role!.deathActionScreen(onComplete, index)!,
           ));
         });
   }

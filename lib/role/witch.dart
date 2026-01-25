@@ -20,7 +20,7 @@ class WitchRole extends Role {
 
     gameState.nightActionManager.registerAction(
       WitchRole.type,
-      (gameState, onComplete) => nightActionScreen(onComplete),
+      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: [WerewolvesTeam.type, CupidRole.type],
     );
@@ -50,8 +50,9 @@ class WitchRole extends Role {
     return localizations.screen_checkRoles_instruction_witch(count);
   }
 
-  WidgetBuilder nightActionScreen(VoidCallback onComplete) =>
+  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(
+        playerIndex: playerIndex,
         onPhaseComplete: onComplete,
         healPotions: healPotions,
         killPotions: killPotions,
@@ -69,11 +70,12 @@ class WitchScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
   final int healPotions;
   final int killPotions;
-
+  final int playerIndex;
   final void Function({int heal, int kill}) useUpPotions;
 
   const WitchScreen({
     super.key,
+    required this.playerIndex,
     required this.onPhaseComplete,
     required this.healPotions,
     required this.killPotions,
@@ -246,7 +248,7 @@ class _WitchScreenState extends State<WitchScreen> {
         gameState.currentCycleDeaths[index] == DeathReason.werewolf;
     return gameState.playerAliveOrKilledThisCycle(index) &&
         (_killModeActive
-            ? (gameState.players[index].role?.objectType != WitchRole.type &&
+            ? (index != widget.playerIndex &&
                   gameState.playerAliveOrKilledThisCycle(index) &&
                   !killedByWerewolves)
             : (killedByWerewolves));

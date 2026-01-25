@@ -38,25 +38,27 @@ class HunterRole extends Role {
   @override
   bool hasDeathScreen(GameState gameState) => true;
   @override
-  WidgetBuilder? deathActionScreen(VoidCallback onComplete) {
-    return (context) => HunterScreen(onPhaseComplete: onComplete);
+  WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) {
+    return (context) =>
+        HunterScreen(onPhaseComplete: onComplete, playerIndex: playerIndex);
   }
 }
 
 class HunterScreen extends StatelessWidget {
+  final int playerIndex;
   final VoidCallback onPhaseComplete;
 
-  const HunterScreen({super.key, required this.onPhaseComplete});
+  const HunterScreen({
+    super.key,
+    required this.playerIndex,
+    required this.onPhaseComplete,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
         final localizations = AppLocalizations.of(context)!;
-
-        final playerIndex = gameState.players.indexWhere(
-          (player) => player.role?.objectType == HunterRole.type,
-        );
 
         return ActionScreen(
           appBarTitle: Text(localizations.role_hunter_name),

@@ -53,6 +53,7 @@ class NightActionManager {
     _phases = [...beforeAllActions, ...order]
         .map(
           (reg) => NightActionEntry(
+            identifier: reg.identifier,
             builder: reg.builder,
             conditioned: reg.conditioned,
           ),
@@ -96,8 +97,14 @@ class NightActionRegistration {
 }
 
 class NightActionEntry {
+  final Object identifier;
+
   final NightActionBuilder builder;
   final bool Function(GameState gameState) conditioned;
 
-  const NightActionEntry({required this.builder, required this.conditioned});
+  const NightActionEntry({
+    required this.identifier,
+    required this.builder,
+    required this.conditioned,
+  });
 }
