@@ -1,4 +1,14 @@
-part of 'team.dart';
+import 'package:flutter/foundation.dart' show setEquals;
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/team.dart';
+import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class WerewolvesTeam extends Team {
   const WerewolvesTeam._();
@@ -46,14 +56,14 @@ class WerewolvesTeam extends Team {
               !player.$2.isAlive,
         )
         .map((player) => player.$1)
-        .toList();
+        .toSet();
     return ActionScreen(
       appBarTitle: Text(localizations.role_werewolf_name),
       instruction: Text(localizations.screen_roleAction_instruction_werewolf),
       selectionCount: 1,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(selectedPlayers[0], DeathReason.werewolf);
+        gameState.markPlayerDead(selectedPlayers.first, DeathReason.werewolf);
         onComplete();
       },
     );

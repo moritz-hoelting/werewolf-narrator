@@ -13,12 +13,11 @@ class SheriffElectionScreen extends StatelessWidget {
 
     return ActionScreen(
       appBarTitle: Text(localizations.screen_sheriffElection_instruction),
-      disabledPlayerIndices: [],
       selectionCount: 1,
       allowSelectLess: true,
       onConfirm: (selectedPlayers, gameState) {
         if (selectedPlayers.length == 1) {
-          gameState.sheriff = selectedPlayers[0];
+          gameState.sheriff = selectedPlayers.first;
         }
         onPhaseComplete();
       },

@@ -1,4 +1,14 @@
-part of 'role.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
+import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class ThiefRole extends Role {
   const ThiefRole._();
@@ -176,23 +186,15 @@ class _ThiefScreenState extends State<ThiefScreen> {
               ),
             ],
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-              ),
-              onPressed:
-                  _selected == _ThiefSelectedRole.none &&
-                      roleA.instance.team(gameState) == WerewolvesTeam.type &&
-                      roleB.instance.team(gameState) == WerewolvesTeam.type
-                  ? null
-                  : () {
-                      submit(gameState, roleA, roleB);
-                    },
-              label: Text(localizations.button_continueLabel),
-              icon: const Icon(Icons.arrow_forward),
-            ),
+          bottomNavigationBar: BottomContinueButton(
+            onPressed:
+                _selected == _ThiefSelectedRole.none &&
+                    roleA.instance.team(gameState) == WerewolvesTeam.type &&
+                    roleB.instance.team(gameState) == WerewolvesTeam.type
+                ? null
+                : () {
+                    submit(gameState, roleA, roleB);
+                  },
           ),
         );
       },

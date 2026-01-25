@@ -1,4 +1,13 @@
-part of 'role.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class SeerRole extends Role {
   const SeerRole._();
@@ -91,48 +100,66 @@ class _SeerScreenState extends State<SeerScreen> {
                 child: ListView.builder(
                   itemCount: gameState.playerCount,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(gameState.players[index].name),
-                      subtitle: _selectedPlayer == index
-                          ? Text(
-                              gameState.players[index].role?.name(context) ??
-                                  localizations.role_unknown_name,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            )
-                          : null,
+                    return PlayerListTile(
+                      playerName: gameState.players[index].name,
+                      roleName: gameState.players[index].role?.name(context),
+                      enabled:
+                          gameState.playerAliveUntilDawn(index) &&
+                          index != widget.playerIndex,
+                      selected: _selectedPlayer == index,
                       onTap: () {
                         setState(() {
                           _selectedPlayer = index;
                         });
                       },
-                      selected: _selectedPlayer == index,
-                      enabled:
-                          gameState.playerAliveUntilDawn(index) &&
-                          index != widget.playerIndex,
-                      selectedTileColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
                     );
                   },
                 ),
               ),
             ],
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-              ),
-              onPressed: _selectedPlayer != null
-                  ? widget.onPhaseComplete
-                  : null,
-              label: Text(localizations.button_continueLabel),
-              icon: const Icon(Icons.arrow_forward),
-            ),
+          bottomNavigationBar: BottomContinueButton(
+            onPressed: _selectedPlayer != null ? widget.onPhaseComplete : null,
           ),
         );
       },
+    );
+  }
+}
+
+class PlayerListTile extends StatelessWidget {
+  const PlayerListTile({
+    super.key,
+    required this.playerName,
+    this.roleName,
+    required this.enabled,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String playerName;
+  final String? roleName;
+  final bool enabled;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return ListTile(
+      title: Text(playerName),
+      subtitle: selected
+          ? Text(
+              roleName ?? localizations.role_unknown_name,
+              style: Theme.of(context).textTheme.bodyLarge,
+            )
+          : null,
+      onTap: onTap,
+      selected: selected,
+      enabled: enabled,
+      selectedTileColor: Theme.of(
+        context,
+      ).colorScheme.primary.withValues(alpha: 0.2),
     );
   }
 }

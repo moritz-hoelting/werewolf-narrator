@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/util/set.dart';
+import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class ActionScreen extends StatefulWidget {
   final Widget appBarTitle;
   final Widget? instruction;
 
-  final List<int> disabledPlayerIndices;
+  final Set<int> disabledPlayerIndices;
 
   final int selectionCount;
   final bool allowSelectLess;
 
-  final void Function(List<int> playerIds, GameState gameState) onConfirm;
+  final void Function(Set<int> playerIds, GameState gameState) onConfirm;
 
   const ActionScreen({
     super.key,
     required this.appBarTitle,
     this.instruction,
-    this.disabledPlayerIndices = const [],
+    this.disabledPlayerIndices = const {},
     required this.selectionCount,
     this.allowSelectLess = false,
     required this.onConfirm,
@@ -29,26 +31,12 @@ class ActionScreen extends StatefulWidget {
 }
 
 class _ActionScreenState extends State<ActionScreen> {
-  late final List<bool> _selectedPlayers;
-
-  int get selectedCount =>
-      _selectedPlayers.where((isSelected) => isSelected).length;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedPlayers = List.filled(
-      Provider.of<GameState>(context, listen: false).playerCount,
-      false,
-    );
-  }
+  final Set<int> _selectedPlayers = {};
 
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
-
         return Scaffold(
           appBar: AppBar(
             title: widget.appBarTitle,
@@ -68,7 +56,7 @@ class _ActionScreenState extends State<ActionScreen> {
                     return ListTile(
                       title: Text(gameState.players[index].name),
                       onTap: getOnTapPlayer(index, gameState),
-                      selected: _selectedPlayers[index],
+                      selected: _selectedPlayers.contains(index),
                       enabled:
                           gameState.players[index].isAlive &&
                           !widget.disabledPlayerIndices.contains(index),
@@ -81,64 +69,8 @@ class _ActionScreenState extends State<ActionScreen> {
               ),
             ],
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-              ),
-              onPressed:
-                  (selectedCount == widget.selectionCount ||
-                      (widget.allowSelectLess &&
-                          selectedCount < widget.selectionCount))
-                  ? () {
-                      final selectedPlayers = _selectedPlayers.indexed
-                          .where((entry) => entry.$2)
-                          .map((entry) => entry.$1)
-                          .toList();
-                      if (selectedCount < widget.selectionCount) {
-                        final answer = showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            final localizations = AppLocalizations.of(context)!;
-                            return AlertDialog(
-                              title: Text(
-                                localizations.dialog_fewerSelectionsTitle,
-                              ),
-                              content: Text(
-                                localizations.dialog_fewerSelectionsMessage(
-                                  selectedCount,
-                                  widget.selectionCount,
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: Text(localizations.button_noLabel),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: Text(localizations.button_yesLabel),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        answer.then((continueWithLess) {
-                          if (continueWithLess == true) {
-                            widget.onConfirm(selectedPlayers, gameState);
-                          }
-                        });
-                      } else {
-                        widget.onConfirm(selectedPlayers, gameState);
-                      }
-                    }
-                  : null,
-              label: Text(localizations.button_continueLabel),
-              icon: const Icon(Icons.arrow_forward),
-            ),
+          bottomNavigationBar: BottomContinueButton(
+            onPressed: getOnContinue(gameState),
           ),
         );
       },
@@ -157,21 +89,62 @@ class _ActionScreenState extends State<ActionScreen> {
     if (widget.selectionCount == 1) {
       return () {
         setState(() {
-          for (int i = 0; i < _selectedPlayers.length; i++) {
-            _selectedPlayers[i] = false;
-          }
-          _selectedPlayers[index] = true;
+          _selectedPlayers.clear();
+          _selectedPlayers.add(index);
         });
       };
     }
 
-    return (_selectedPlayers[index] ||
-            (!_selectedPlayers[index] && selectedCount < widget.selectionCount))
+    return (_selectedPlayers.contains(index) ||
+            (!_selectedPlayers.contains(index) &&
+                _selectedPlayers.length < widget.selectionCount))
         ? () {
             setState(() {
-              _selectedPlayers[index] = !_selectedPlayers[index];
+              _selectedPlayers.toggle(index);
             });
           }
         : null;
   }
+
+  VoidCallback? getOnContinue(GameState gameState) =>
+      (_selectedPlayers.length == widget.selectionCount ||
+          (widget.allowSelectLess &&
+              _selectedPlayers.length < widget.selectionCount))
+      ? () {
+          if (_selectedPlayers.length < widget.selectionCount) {
+            final answer = showDialog<bool>(
+              context: context,
+              builder: (context) {
+                final localizations = AppLocalizations.of(context)!;
+                return AlertDialog(
+                  title: Text(localizations.dialog_fewerSelectionsTitle),
+                  content: Text(
+                    localizations.dialog_fewerSelectionsMessage(
+                      _selectedPlayers.length,
+                      widget.selectionCount,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(localizations.button_noLabel),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(localizations.button_yesLabel),
+                    ),
+                  ],
+                );
+              },
+            );
+            answer.then((continueWithLess) {
+              if (continueWithLess == true) {
+                widget.onConfirm(_selectedPlayers, gameState);
+              }
+            });
+          } else {
+            widget.onConfirm(_selectedPlayers, gameState);
+          }
+        }
+      : null;
 }

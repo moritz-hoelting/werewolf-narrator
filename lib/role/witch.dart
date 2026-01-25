@@ -1,4 +1,16 @@
-part of 'role.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
+import 'package:werewolf_narrator/util/set.dart';
+import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class WitchRole extends Role {
   WitchRole._();
@@ -87,162 +99,74 @@ class WitchScreen extends StatefulWidget {
 }
 
 class _WitchScreenState extends State<WitchScreen> {
-  int? _selectedKillPlayer;
-  int? _selectedHealPlayer;
+  final Set<int> _selectedKillPlayers = {};
+  final Set<int> _selectedHealPlayers = {};
 
   late bool _killModeActive = widget.healPotions == 0;
 
   @override
   Widget build(BuildContext context) {
-    final modeButtonStyle = TextButton.styleFrom(
-      foregroundColor: Theme.of(context).colorScheme.onSurface,
-    );
-    final selectedModeButtonStyle = TextButton.styleFrom(
-      disabledForegroundColor: Theme.of(context).colorScheme.primary,
-    );
+    final localizations = AppLocalizations.of(context)!;
 
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(localizations.role_witch_name),
-            automaticallyImplyLeading: false,
-          ),
-          body: widget.healPotions > 0 || widget.killPotions > 0
-              ? Column(
-                  children: [
-                    TextButton.icon(
-                      style: !_killModeActive
-                          ? selectedModeButtonStyle
-                          : modeButtonStyle,
-                      onPressed: _killModeActive && widget.healPotions > 0
-                          ? () {
-                              setState(() {
-                                _killModeActive = false;
-                              });
-                            }
-                          : null,
-                      label: Text(
-                        localizations.screen_roleAction_instruction_witch_heal,
-                      ),
-                      icon: const Icon(Icons.healing),
-                    ),
-                    TextButton.icon(
-                      style: _killModeActive
-                          ? selectedModeButtonStyle
-                          : modeButtonStyle,
-                      onPressed: !_killModeActive && widget.killPotions > 0
-                          ? () {
-                              setState(() {
-                                _killModeActive = true;
-                              });
-                            }
-                          : null,
-                      label: Text(
-                        localizations.screen_roleAction_instruction_witch_kill,
-                      ),
-                      icon: const Icon(Icons.science),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        localizations.screen_roleAction_instruction_witch,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: gameState.playerCount,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(gameState.players[index].name),
-                            trailing: _selectedHealPlayer == index
-                                ? const Icon(Icons.healing)
-                                : (_selectedKillPlayer == index
-                                      ? const Icon(Icons.science)
-                                      : null),
-                            onTap: playerTapEnabled(index, gameState)
-                                ? () {
-                                    setState(() {
-                                      if (_killModeActive) {
-                                        if (_selectedKillPlayer == index) {
-                                          _selectedKillPlayer = null;
-                                        } else {
-                                          _selectedKillPlayer = index;
-                                        }
-                                      } else {
-                                        if (_selectedHealPlayer == index) {
-                                          _selectedHealPlayer = null;
-                                        } else {
-                                          _selectedHealPlayer = index;
-                                        }
-                                      }
-                                    });
-                                  }
-                                : null,
-                            selected:
-                                (_selectedKillPlayer == index &&
-                                    _killModeActive) ||
-                                (_selectedHealPlayer == index &&
-                                    !_killModeActive),
-                            enabled: playerTapEnabled(index, gameState),
-                            selectedTileColor: _killModeActive
-                                ? Colors.red.withAlpha(50)
-                                : Colors.green.withAlpha(50),
-                            tileColor: _killModeActive
-                                ? (_selectedHealPlayer == index
-                                      ? Colors.green.withAlpha(30)
-                                      : null)
-                                : (_selectedKillPlayer == index
-                                      ? Colors.red.withAlpha(30)
-                                      : null),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : Center(
-                  child: Text(
-                    localizations
-                        .screen_roleAction_instruction_witch_noPotionsLeft,
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-              ),
-              onPressed: () {
-                if (_selectedHealPlayer != null) {
-                  gameState.markPlayerRevived(_selectedHealPlayer!);
-                }
-                if (_selectedKillPlayer != null) {
-                  gameState.markPlayerDead(
-                    _selectedKillPlayer!,
-                    DeathReason.witch,
-                  );
-                }
-                widget.useUpPotions(
-                  heal: _selectedHealPlayer != null ? 1 : 0,
-                  kill: _selectedKillPlayer != null ? 1 : 0,
-                );
-                widget.onPhaseComplete();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(localizations.role_witch_name),
+        automaticallyImplyLeading: false,
+      ),
+      body: widget.healPotions > 0 || widget.killPotions > 0
+          ? HasPotionsBody(
+              healPotions: widget.healPotions,
+              killPotions: widget.killPotions,
+              killModeActive: _killModeActive,
+              enableKillMode: () {
+                setState(() {
+                  _killModeActive = true;
+                });
               },
-              label: Text(localizations.button_continueLabel),
-              icon: const Icon(Icons.arrow_forward),
+              disableKillMode: () {
+                setState(() {
+                  _killModeActive = false;
+                });
+              },
+              playerEnabled: playerEnabled,
+              selectedHealPlayers: _selectedHealPlayers,
+              selectedKillPlayers: _selectedKillPlayers,
+              onTapHeal: onTapHeal,
+              onTapKill: onTapKill,
+            )
+          : Center(
+              child: Text(
+                localizations.screen_roleAction_instruction_witch_noPotionsLeft,
+                style: TextStyle(fontSize: 18),
+              ),
             ),
-          ),
-        );
-      },
+      bottomNavigationBar: BottomContinueButton(
+        onPressed: () {
+          final GameState gameState = Provider.of<GameState>(
+            context,
+            listen: false,
+          );
+          if (_selectedHealPlayers.isNotEmpty) {
+            for (final healIndex in _selectedHealPlayers) {
+              gameState.markPlayerRevived(healIndex);
+            }
+          }
+          if (_selectedKillPlayers.isNotEmpty) {
+            for (final killIndex in _selectedKillPlayers) {
+              gameState.markPlayerDead(killIndex, DeathReason.witch);
+            }
+          }
+          widget.useUpPotions(
+            heal: _selectedHealPlayers.length,
+            kill: _selectedKillPlayers.length,
+          );
+          widget.onPhaseComplete();
+        },
+      ),
     );
   }
 
-  bool playerTapEnabled(int index, GameState gameState) {
+  bool playerEnabled(GameState gameState, int index) {
     final killedByWerewolves =
         gameState.currentCycleDeaths.containsKey(index) &&
         gameState.currentCycleDeaths[index] == DeathReason.werewolf;
@@ -252,5 +176,150 @@ class _WitchScreenState extends State<WitchScreen> {
                   gameState.playerAliveOrKilledThisCycle(index) &&
                   !killedByWerewolves)
             : (killedByWerewolves));
+  }
+
+  VoidCallback? onTapKill(GameState gameState, int index) =>
+      handleOnTap(gameState, index, _selectedKillPlayers, widget.killPotions);
+
+  VoidCallback? onTapHeal(GameState gameState, int index) =>
+      handleOnTap(gameState, index, _selectedHealPlayers, widget.healPotions);
+
+  VoidCallback? handleOnTap(
+    GameState gameState,
+    int index,
+    Set<int> selectedSet,
+    int maxSelectable,
+  ) {
+    if (!playerEnabled(gameState, index)) return null;
+
+    if (maxSelectable == 1) {
+      if (selectedSet.contains(index)) {
+        return () {
+          setState(() {
+            selectedSet.remove(index);
+          });
+        };
+      } else {
+        return () {
+          setState(() {
+            selectedSet.clear();
+            selectedSet.add(index);
+          });
+        };
+      }
+    }
+
+    if (maxSelectable <= selectedSet.length && !selectedSet.contains(index)) {
+      return null;
+    }
+
+    return () {
+      setState(() {
+        selectedSet.toggle(index);
+      });
+    };
+  }
+}
+
+class HasPotionsBody extends StatelessWidget {
+  const HasPotionsBody({
+    super.key,
+    required this.killModeActive,
+    required this.healPotions,
+    required this.killPotions,
+    required this.enableKillMode,
+    required this.disableKillMode,
+    required this.playerEnabled,
+    required this.selectedHealPlayers,
+    required this.selectedKillPlayers,
+    required this.onTapHeal,
+    required this.onTapKill,
+  });
+
+  final bool killModeActive;
+  final int healPotions;
+  final int killPotions;
+  final VoidCallback enableKillMode;
+  final VoidCallback disableKillMode;
+  final bool Function(GameState, int) playerEnabled;
+  final Set<int> selectedHealPlayers;
+  final Set<int> selectedKillPlayers;
+  final VoidCallback? Function(GameState, int) onTapHeal;
+  final VoidCallback? Function(GameState, int) onTapKill;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
+    final modeButtonStyle = TextButton.styleFrom(
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
+    );
+    final selectedModeButtonStyle = TextButton.styleFrom(
+      disabledForegroundColor: Theme.of(context).colorScheme.primary,
+    );
+
+    return Column(
+      children: [
+        TextButton.icon(
+          style: !killModeActive ? selectedModeButtonStyle : modeButtonStyle,
+          onPressed: killModeActive && healPotions > 0 ? disableKillMode : null,
+          label: Text(
+            localizations.screen_roleAction_instruction_witch_heal +
+                (healPotions > 1 ? ' ($healPotions)' : ''),
+          ),
+          icon: const Icon(Icons.healing),
+        ),
+        TextButton.icon(
+          style: killModeActive ? selectedModeButtonStyle : modeButtonStyle,
+          onPressed: !killModeActive && killPotions > 0 ? enableKillMode : null,
+          label: Text(
+            localizations.screen_roleAction_instruction_witch_kill +
+                (killPotions > 1 ? ' ($killPotions)' : ''),
+          ),
+          icon: const Icon(Icons.science),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            localizations.screen_roleAction_instruction_witch,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ),
+        Consumer<GameState>(
+          builder: (context, gameState, child) => Expanded(
+            child: ListView.builder(
+              itemCount: gameState.playerCount,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(gameState.players[index].name),
+                  trailing: selectedHealPlayers.contains(index)
+                      ? const Icon(Icons.healing)
+                      : (selectedKillPlayers.contains(index)
+                            ? const Icon(Icons.science)
+                            : null),
+                  onTap: killModeActive
+                      ? onTapKill(gameState, index)
+                      : onTapHeal(gameState, index),
+                  selected:
+                      (selectedKillPlayers.contains(index) && killModeActive) ||
+                      (selectedHealPlayers.contains(index) && !killModeActive),
+                  enabled: playerEnabled(gameState, index),
+                  selectedTileColor: killModeActive
+                      ? Colors.red.withAlpha(50)
+                      : Colors.green.withAlpha(50),
+                  tileColor: killModeActive
+                      ? (selectedHealPlayers.contains(index)
+                            ? Colors.green.withAlpha(30)
+                            : null)
+                      : (selectedKillPlayers.contains(index)
+                            ? Colors.red.withAlpha(30)
+                            : null),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -1,4 +1,13 @@
-part of 'role.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/lovers.dart' show LoversTeam;
+import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class CupidRole extends Role {
   CupidRole._();
@@ -77,6 +86,10 @@ class _CupidScreenState extends State<CupidScreen> {
     if (loversTeam == null) {
       return ActionScreen(
         appBarTitle: Text(widget.cupidRole.name(context)),
+        instruction: Text(
+          AppLocalizations.of(context)!.screen_roleAction_instruction_cupid,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         selectionCount: 2,
         onConfirm: onAssignLovers,
       );
@@ -88,16 +101,13 @@ class _CupidScreenState extends State<CupidScreen> {
     }
   }
 
-  void onAssignLovers(List<int> selectedIndices, GameState gameState) {
+  void onAssignLovers(Set<int> selectedIndices, GameState gameState) {
     assert(
       selectedIndices.length == 2,
       'Cupid must select exactly two players as lovers.',
     );
-    selectedIndices.sort();
-    final team = LoversTeam.withLovers((
-      selectedIndices[0],
-      selectedIndices[1],
-    ));
+    final selectedList = selectedIndices.toList()..sort();
+    final team = LoversTeam.withLovers((selectedList[0], selectedList[1]));
     loversTeam = team;
     gameState.teams[LoversTeam.type] = team;
     team.initialize(gameState);

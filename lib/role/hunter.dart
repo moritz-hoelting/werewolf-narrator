@@ -1,4 +1,13 @@
-part of 'role.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/role.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class HunterRole extends Role {
   const HunterRole._();
@@ -66,14 +75,14 @@ class HunterScreen extends StatelessWidget {
             localizations.screen_roleAction_instruction_hunter,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          disabledPlayerIndices: [playerIndex],
+          disabledPlayerIndices: {playerIndex},
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
             assert(
               selectedPlayers.length == 1,
               'Hunter must select exactly one player to shoot.',
             );
-            gameState.markPlayerDead(selectedPlayers[0], DeathReason.hunter);
+            gameState.markPlayerDead(selectedPlayers.first, DeathReason.hunter);
             onPhaseComplete();
           },
         );

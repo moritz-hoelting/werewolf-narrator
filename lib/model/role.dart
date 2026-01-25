@@ -1,7 +1,15 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/role/hunter.dart' show HunterRole;
+import 'package:werewolf_narrator/role/little_girl.dart' show LittleGirlRole;
 import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/role/thief.dart' show ThiefRole;
+import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
+import 'package:werewolf_narrator/role/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/state/game.dart';
 
 class RoleType<T extends Role> {

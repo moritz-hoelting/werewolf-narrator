@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
+import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
 import 'package:werewolf_narrator/state/game_phase.dart';
 import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/state/night_actions.dart';

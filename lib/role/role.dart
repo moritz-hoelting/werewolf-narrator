@@ -1,23 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:meta/meta.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/team/team.dart';
-import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-part 'cupid.dart';
-part 'hunter.dart';
-part 'little_girl.dart';
-part 'seer.dart';
-part 'thief.dart';
-part 'villager.dart';
-part 'werewolf.dart';
-part 'witch.dart';
-
-sealed class Role {
+@sealed
+abstract class Role {
   const Role();
 
   @override

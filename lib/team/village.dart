@@ -1,4 +1,9 @@
-part of 'team.dart';
+import 'package:flutter/foundation.dart' show setEquals;
+import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/team/team.dart';
 
 class VillageTeam extends Team {
   const VillageTeam._();
