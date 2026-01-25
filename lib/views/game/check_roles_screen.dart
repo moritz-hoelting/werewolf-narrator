@@ -1,3 +1,5 @@
+import 'dart:math' show max;
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,7 @@ class CheckRolesScreen extends StatefulWidget {
 
 class _CheckRolesScreenState extends State<CheckRolesScreen> {
   late final QueueList<RoleType> _remainingRoles;
+  int _missingAssignments = 0;
 
   @override
   void initState() {
@@ -42,16 +45,18 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
       key: UniqueKey(),
       role: _remainingRoles[0],
       onComplete: onComplete,
+      missingAssignments: _missingAssignments,
     );
   }
 
-  void onComplete() {
+  void onComplete(int missing) {
     if (_remainingRoles.length == 1) {
       executeHooks();
       widget.onPhaseComplete();
     } else {
       setState(() {
         _remainingRoles.removeFirst();
+        _missingAssignments += missing;
       });
     }
   }
@@ -75,12 +80,14 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
 
 class CheckRoleScreen extends StatefulWidget {
   final RoleType role;
-  final VoidCallback onComplete;
+  final void Function(int missing) onComplete;
+  final int missingAssignments;
 
   const CheckRoleScreen({
     super.key,
     required this.role,
     required this.onComplete,
+    required this.missingAssignments,
   });
 
   @override
@@ -109,9 +116,18 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         final localizations = AppLocalizations.of(context)!;
 
         final maxSelection = gameState.roleCounts[widget.role] ?? 0;
-        final minSelection = gameState.hasRoleType<ThiefRole>()
-            ? maxSelection - (2 * gameState.roleCounts[ThiefRole.type]!)
-            : maxSelection;
+        final minSelection =
+            maxSelection -
+            max(
+              0,
+              gameState.roleCounts.entries
+                      .map(
+                        (e) =>
+                            (e.key.instance.addedRoleCardAmount - 1) * e.value,
+                      )
+                      .sum -
+                  widget.missingAssignments,
+            );
 
         return Scaffold(
           appBar: AppBar(
@@ -163,9 +179,16 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
     if ((gameState.roleCounts[widget.role] ?? 0) == 1) {
       return () {
-        final hasThiefRole = gameState.hasRoleType<ThiefRole>();
+        final hasMissingRoles =
+            (gameState.roleCounts.entries
+                    .map(
+                      (e) => (e.key.instance.addedRoleCardAmount - 1) * e.value,
+                    )
+                    .sum -
+                widget.missingAssignments) >
+            0;
         setState(() {
-          if (hasThiefRole) {
+          if (hasMissingRoles) {
             for (int i = 0; i < _selectedPlayers.length; i++) {
               if (i != index) {
                 _selectedPlayers[i] = false;
@@ -199,7 +222,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         .map((entry) => entry.$1)
         .toList();
     gameState.setPlayersRole(widget.role, selectedIndices);
+    final missing =
+        (gameState.roleCounts[widget.role] ?? 0) - selectedIndices.length;
 
-    widget.onComplete();
+    widget.onComplete(max(0, missing));
   }
 }

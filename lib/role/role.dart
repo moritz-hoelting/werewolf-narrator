@@ -30,6 +30,7 @@ sealed class Role {
   void onAssign(GameState gameState, int playerIndex) {}
 
   bool get isUnique;
+  int get addedRoleCardAmount => 1;
   TeamType get initialTeam;
   TeamType team(GameState gameState) => initialTeam;
 

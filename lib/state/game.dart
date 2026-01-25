@@ -59,7 +59,7 @@ class GameState extends ChangeNotifier {
             (sum, entry) =>
                 sum +
                 entry.value +
-                (entry.key == ThiefRole.type ? entry.value * -2 : 0),
+                (entry.value * (1 - entry.key.instance.addedRoleCardAmount)),
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );

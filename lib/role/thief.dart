@@ -10,7 +10,22 @@ class ThiefRole extends Role {
 
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
-      RegisterRoleInformation(ThiefRole._, instance, initialize: initialize),
+      RegisterRoleInformation(
+        ThiefRole._,
+        instance,
+        initialize: initialize,
+        roleCountAdjuster: (roleCounts, playerCount) {
+          final thiefRoleType = ThiefRole.type;
+          final villagerRoleType = VillagerRole.type;
+
+          if (roleCounts[thiefRoleType] != null &&
+              roleCounts[thiefRoleType]! > 0) {
+            roleCounts[villagerRoleType] =
+                (roleCounts[villagerRoleType] ?? 0) +
+                (2 * roleCounts[thiefRoleType]!);
+          }
+        },
+      ),
     );
   }
 
@@ -40,6 +55,8 @@ class ThiefRole extends Role {
 
   @override
   bool get isUnique => true;
+  @override
+  int get addedRoleCardAmount => 3;
   @override
   TeamType get initialTeam => VillageTeam.type;
 

@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/role.dart';
 
 class SelectRolesView extends StatefulWidget {
   final int playerCount;
@@ -107,14 +106,11 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   void _submit() {
     final modifiedRoles = Map<RoleType, int>.from(_selectedRoles);
 
-    final thiefRoleType = ThiefRole.type;
-    final villagerRoleType = VillagerRole.type;
-
-    if (_selectedRoles[thiefRoleType] != null &&
-        _selectedRoles[thiefRoleType]! > 0) {
-      modifiedRoles[villagerRoleType] =
-          (modifiedRoles[villagerRoleType] ?? 0) +
-          (2 * _selectedRoles[thiefRoleType]!);
+    for (final role in modifiedRoles.keys) {
+      final adjuster = RoleManager.getRoleCountAdjuster(role);
+      if (adjuster != null) {
+        adjuster(modifiedRoles, widget.playerCount);
+      }
     }
 
     widget.onSubmit(modifiedRoles);

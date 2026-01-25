@@ -88,6 +88,12 @@ abstract class RoleManager {
     final info = _roleInformation[role];
     return info?.initialize;
   }
+
+  static void Function(Map<RoleType, int> roleCounts, int playerCount)?
+  getRoleCountAdjuster(RoleType role) {
+    final info = _roleInformation[role];
+    return info?.roleCountAdjuster;
+  }
 }
 
 class RegisterRoleInformation<T extends Role> {
@@ -95,6 +101,13 @@ class RegisterRoleInformation<T extends Role> {
   final Role instance;
 
   final void Function(GameState gameState)? initialize;
+  final void Function(Map<RoleType, int> roleCounts, int playerCount)?
+  roleCountAdjuster;
 
-  RegisterRoleInformation(this.constructor, this.instance, {this.initialize});
+  RegisterRoleInformation(
+    this.constructor,
+    this.instance, {
+    this.initialize,
+    this.roleCountAdjuster,
+  });
 }
