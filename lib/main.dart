@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
@@ -23,6 +24,7 @@ class WerewolfNarratorApp extends StatelessWidget {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       theme: Themes.lightTheme,
+      darkTheme: Themes.darkTheme,
       localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -49,21 +51,32 @@ class HomePage extends StatelessWidget {
         title: Text(localizations.appTitle),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () => _startNewGame(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            fixedSize: const Size(250, 250),
-            textStyle: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 50,
+          children: [
+            SvgPicture.asset('assets/icon/icon.svg', width: 200, height: 200),
+            ElevatedButton(
+              onPressed: () => _startNewGame(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 50,
+                ),
+                tapTargetSize: MaterialTapTargetSize.padded,
+                textStyle: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(localizations.button_newGameLabel),
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: Text(localizations.button_newGameLabel),
+          ],
         ),
       ),
     );
