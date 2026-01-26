@@ -158,10 +158,11 @@ packages:
   flutter_native_splash:
     dependency: "direct dev"
     description:
-      name: flutter_native_splash
-      sha256: "4fb9f4113350d3a80841ce05ebf1976a36de622af7d19aca0ca9a9911c7ff002"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ae571def5116a77ba1cffa58eb77620717072677
+      resolved-ref: ae571def5116a77ba1cffa58eb77620717072677
+      url: "https://github.com/moritz-hoelting/flutter_native_splash.git"
+    source: git
     version: "2.4.7"
   flutter_svg:
     dependency: "direct main"
