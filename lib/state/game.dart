@@ -22,22 +22,46 @@ typedef PlayerWinHook =
     bool? Function(GameState gameState, Team winningTeam, int playerIndex);
 
 class GameState extends ChangeNotifier {
+  /// Handles night actions for this game state.
   final NightActionManager nightActionManager = NightActionManager();
 
+  /// The list of players in this game.
   final List<Player> players;
+
+  /// The teams present in this game.
   final Map<TeamType, Team> teams;
+
+  /// The counts of roles present in this game (initialized during setup).
   final Map<RoleType, int> roleCounts;
 
+  /// Hooks when a player is marked dead.
+  ///
+  /// Can prevent death by returning true.
   final List<DeathHook> deathHooks = [];
+
+  /// Hooks when a player is marked revived.
+  ///
+  /// Can prevent revival by returning true.
   final List<ReviveHook> reviveHooks = [];
+
+  /// Hooks for remaining roles at the end of role assignment.
+  ///
+  /// Called with the count of remaining roles for each role type.
   final Map<RoleType, List<RemainingRoleHook>> remainingRoleHooks = {};
+
+  /// Hooks to determine if a player has won alongside the winning team.
+  ///
+  /// Returning true adds the player as a winner, false excludes them,
+  /// and null has no effect.
   final List<PlayerWinHook> playerWinHooks = [];
 
-  int dayCounter = 0;
+  int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
-  GamePhase get phase => _phase;
+
+  /// The index of the current sheriff, if any.
   int? sheriff;
 
+  // Guards against recursive calls in markPlayerDead and markPlayerRevived.
   final List<int> _markDeadRecursionGuard = [];
   final List<int> _markRevivedRecursionGuard = [];
 
@@ -75,14 +99,27 @@ class GameState extends ChangeNotifier {
     }
   }
 
+  /// Notifies listeners of updates to the game state.
   void notifyUpdate() {
     notifyListeners();
   }
 
+  /// The current day counter.
+  int get dayCounter => _dayCounter;
+
+  /// The current phase of the game.
+  GamePhase get phase => _phase;
+
+  /// Whether the game is currently in a night phase.
   bool get isNight => phase.isNight;
+
+  /// The total number of players in the game.
   int get playerCount => players.length;
+
+  /// The number of alive players in the game.
   int get alivePlayerCount => players.where((player) => player.isAlive).length;
 
+  /// Returns a map of player indices to their death reasons for the given cycle.
   Map<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
       Map.unmodifiable(
         players.asMap().entries.fold({}, (acc, entry) {
@@ -97,12 +134,15 @@ class GameState extends ChangeNotifier {
         }),
       );
 
+  /// Returns a map of player indices to their death reasons for the current cycle (day/night).
   Map<int, DeathReason> get currentCycleDeaths =>
       deathsInCycle(dayCounter, isNight);
 
+  /// Returns a map of player indices to their death reasons for the previous cycle (day/night).
   Map<int, DeathReason> get previousCycleDeaths =>
       deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
+  /// Returns a map of player indices to their unannounced death information.
   Map<int, DeathInformation> get unannouncedDeaths => Map.unmodifiable(
     players.asMap().entries.fold({}, (acc, entry) {
       final playerIndex = entry.key;
@@ -115,10 +155,14 @@ class GameState extends ChangeNotifier {
     }),
   );
 
+  /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
       roleCounts.containsKey(role) && roleCounts[role]! > 0;
+
+  /// Checks if the game has a specific role.
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
 
+  /// Checks if the game has a specific role with at least one alive player.
   bool hasAliveRole(RoleType role) =>
       hasRole(role) &&
       players.indexed.any(
@@ -127,15 +171,22 @@ class GameState extends ChangeNotifier {
             p.$2.role!.objectType == role &&
             playerAliveUntilDawn(p.$1),
       );
+
+  /// Checks if the game has a specific role with at least one alive player.
   bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
 
+  /// Returns index and the player with a specific role, if any.
   (int, Player)? getPlayerOfRole(RoleType role) =>
       players.indexed.singleWhereOrNull(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
       );
+
+  /// Returns index and the player with a specific role, if any.
   (int, Player)? getPlayerOfRoleType<T extends Role>() =>
       getPlayerOfRole(RoleType<T>());
+
+  /// Returns index and the alive player with a specific role, if any.
   (int, Player)? getAlivePlayerOfRole(RoleType role) =>
       players.indexed.singleWhereOrNull(
         (player) =>
@@ -143,17 +194,24 @@ class GameState extends ChangeNotifier {
             player.$2.role!.objectType == role &&
             playerAliveUntilDawn(player.$1),
       );
+
+  /// Returns index and the alive player with a specific role, if any.
   (int, Player)? getAlivePlayerOfRoleType<T extends Role>() =>
       getAlivePlayerOfRole(RoleType<T>());
 
+  /// Returns a list of indices and players with a specific role.
   List<(int, Player)> getPlayersOfRole(RoleType role) => players.indexed
       .where(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
       )
       .toList();
+
+  /// Returns a list of indices and players with a specific role.
   List<(int, Player)> getPlayersOfRoleType<T extends Role>() =>
       getPlayersOfRole(RoleType<T>());
+
+  /// Returns a list of indices and alive players with a specific role.
   List<(int, Player)> getAlivePlayersOfRole(RoleType role) => players.indexed
       .where(
         (player) =>
@@ -162,30 +220,44 @@ class GameState extends ChangeNotifier {
             playerAliveUntilDawn(player.$1),
       )
       .toList();
+
+  /// Returns a list of indices and alive players with a specific role.
   List<(int, Player)> getAlivePlayersOfRoleType<T extends Role>() =>
       getAlivePlayersOfRole(RoleType<T>());
 
+  /// Checks if the game has a specific team.
   bool hasPlayerOfTeam(TeamType team) => players.any(
     (player) => player.role != null && player.role!.team(this) == team,
   );
+
+  /// Checks if the game has a specific team.
   bool hasPlayerOfTeamType<T extends Team>() => hasPlayerOfTeam(TeamType<T>());
+
+  /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeam(TeamType team) => players.indexed.any(
     (player) =>
         playerAliveUntilDawn(player.$1) &&
         player.$2.role != null &&
         player.$2.role!.team(this) == team,
   );
+
+  /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeamType<T extends Team>() =>
       hasAlivePlayerOfTeam(TeamType<T>());
 
+  /// Returns a list of indices and players belonging to a specific team.
   List<(int, Player)> getPlayersOfTeam(TeamType team) => players.indexed
       .where(
         (player) =>
             player.$2.role != null && player.$2.role!.team(this) == team,
       )
       .toList();
+
+  /// Returns a list of indices and players belonging to a specific team.
   List<(int, Player)> getPlayersOfTeamType<T extends Team>() =>
       getPlayersOfTeam(TeamType<T>());
+
+  /// Returns a list of indices and alive players belonging to a specific team.
   List<(int, Player)> getAlivePlayersOfTeam(TeamType team) => players.indexed
       .where(
         (player) =>
@@ -194,9 +266,12 @@ class GameState extends ChangeNotifier {
             playerAliveUntilDawn(player.$1),
       )
       .toList();
+
+  /// Returns a list of indices and alive players belonging to a specific team.
   List<(int, Player)> getAlivePlayersOfTeamType<T extends Team>() =>
       getAlivePlayersOfTeam(TeamType<T>());
 
+  /// Assigns the specified role to the players at the given indices.
   void setPlayersRole(RoleType role, List<int> playerIndices) {
     for (final index in playerIndices) {
       final Role playerRole = RoleManager.instantiateRole(role);
@@ -206,6 +281,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fills all unassigned players with the Villager role.
   void fillVillagerRoles() {
     final unassignedPlayers = players
         .asMap()
@@ -216,6 +292,7 @@ class GameState extends ChangeNotifier {
     setPlayersRole(VillagerRole.type, unassignedPlayers);
   }
 
+  /// Returns a list of unassigned roles in the game.
   List<RoleType> get unassignedRoles {
     final assignedRoles = players.map((player) => player.role).fold(
       <RoleType, int>{},
@@ -240,6 +317,7 @@ class GameState extends ChangeNotifier {
         });
   }
 
+  /// Removes unassigned roles from the role counts.
   void removeUnassignedRoles() {
     final unassignedRoles = this.unassignedRoles.fold(<RoleType, int>{}, (
       acc,
@@ -257,12 +335,8 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void markPlayerDead(
-    int playerIndex,
-    DeathReason deathReason, {
-    bool? atNight,
-    int? day,
-  }) {
+  /// Marks a player as dead with the given death reason.
+  void markPlayerDead(int playerIndex, DeathReason deathReason) {
     if (_markDeadRecursionGuard.contains(playerIndex)) {
       return;
     }
@@ -277,8 +351,8 @@ class GameState extends ChangeNotifier {
       players[playerIndex].markDead(
         DeathInformation(
           reason: deathReason,
-          day: day ?? dayCounter,
-          atNight: atNight ?? isNight,
+          day: dayCounter,
+          atNight: isNight,
         ),
       );
     }
@@ -286,6 +360,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marks a player as revived.
   void markPlayerRevived(int playerIndex) {
     if (_markRevivedRecursionGuard.contains(playerIndex)) {
       return;
@@ -304,11 +379,13 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Marks that a player has used their death action.
   void markPlayerUsedDeathAction(int playerIndex) {
     players[playerIndex].usedDeathAction = true;
     notifyListeners();
   }
 
+  /// Marks all deaths as announced and checks for game over conditions.
   void markDeathsAnnounced() {
     for (var playerIndex in unannouncedDeaths.keys) {
       players[playerIndex].deathAnnounced = true;
@@ -319,20 +396,25 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Checks if a player is alive or killed in the current cycle.
   bool playerAliveOrKilledThisCycle(int playerIndex) =>
       players[playerIndex].isAlive ||
       currentCycleDeaths.containsKey(playerIndex);
 
+  /// Checks if a player is alive or will remain alive until dawn.
   bool playerAliveUntilDawn(int playerIndex) =>
       players[playerIndex].isAlive ||
       (isNight && currentCycleDeaths.containsKey(playerIndex));
 
+  /// Whether there are pending death actions to be resolved.
   bool get pendingDeathActions =>
       players.any((player) => player.waitForDeathAction(this));
 
+  /// Whether there are pending death announcements to be made.
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
+  /// Checks if any team has met its win conditions.
   Team? checkWinConditions() {
     for (final team in teams.values) {
       if (team.hasWon(this)) {
@@ -342,6 +424,7 @@ class GameState extends ChangeNotifier {
     return null;
   }
 
+  /// Returns the list of winning players if there is a winning team.
   List<(int, Player)>? winningPlayers() {
     final Team? winningTeam = checkWinConditions();
     if (winningTeam == null) return null;
@@ -371,6 +454,7 @@ class GameState extends ChangeNotifier {
         .toList();
   }
 
+  /// Transitions to the next valid phase, if any.
   bool transitionToNextPhase() {
     final next = nextPhase;
     if (next != null) {
@@ -381,7 +465,7 @@ class GameState extends ChangeNotifier {
       }
       _phase = next;
       if (next == GamePhase.dawn) {
-        dayCounter += 1;
+        _dayCounter += 1;
       }
       notifyListeners();
       return true;
@@ -389,6 +473,7 @@ class GameState extends ChangeNotifier {
     return false;
   }
 
+  /// Gets the next valid phase, if any.
   GamePhase? get nextPhase {
     for (int i = 1; i < GamePhase.values.length; i++) {
       final next = GamePhase.values.elementAt(
@@ -401,6 +486,7 @@ class GameState extends ChangeNotifier {
     return null;
   }
 
+  /// Checks if the given phase is a valid next phase.
   bool isValidNextPhase(GamePhase next) {
     if (phase == GamePhase.gameOver) {
       return false;

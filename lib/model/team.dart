@@ -18,6 +18,7 @@ class TeamType<T extends Team> {
     return _teamMap[T] as TeamType<T>;
   }
 
+  /// The unique type of this team.
   Type get type => T;
 
   @override
@@ -25,8 +26,10 @@ class TeamType<T extends Team> {
   @override
   int get hashCode => T.hashCode;
 
+  /// The static instance of this team.
   Team get instance => TeamManager.getTeamInstance(this);
 
+  /// The display name of this team.
   String name(BuildContext context) {
     return instance.name(context);
   }
@@ -40,6 +43,7 @@ abstract class TeamManager {
   _teamInformation = LinkedHashMap();
   static bool _registered = false;
 
+  /// Ensures that all teams are registered.
   static void ensureRegistered() {
     if (!_registered) {
       _registerTeams();
@@ -53,6 +57,7 @@ abstract class TeamManager {
     LoversTeam.registerTeam();
   }
 
+  /// Registers a team with the given information.
   static void registerTeam<T extends Team>(RegisterTeamInformation<T> info) {
     if (_teamInformation.containsKey(TeamType<T>())) {
       throw Exception('Team of type $T is already registered');
@@ -60,6 +65,7 @@ abstract class TeamManager {
     _teamInformation[TeamType<T>()] = info;
   }
 
+  /// Instantiates a new team of the given type.
   static Team instantiateTeam(TeamType team) {
     final info = _teamInformation[team];
     if (info != null) {
@@ -69,6 +75,7 @@ abstract class TeamManager {
     }
   }
 
+  /// Gets the static instance of the given team type.
   static Team getTeamInstance(TeamType team) {
     final info = _teamInformation[team];
     if (info != null) {
@@ -78,12 +85,16 @@ abstract class TeamManager {
     }
   }
 
+  /// The list of all registered team types.
   static List<TeamType> get registeredTeams =>
       List.unmodifiable(_teamInformation.keys.toList());
 }
 
 class RegisterTeamInformation<T extends Team> {
+  /// The constructor function for this team.
   final Team Function() constructor;
+
+  /// The static instance of this team.
   final Team instance;
 
   RegisterTeamInformation(this.constructor, this.instance);

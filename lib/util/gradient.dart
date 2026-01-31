@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A gradient transform that scales the gradient by the given factors
 class ScaleGradient extends GradientTransform {
   const ScaleGradient({required this.scaleX, required this.scaleY});
 

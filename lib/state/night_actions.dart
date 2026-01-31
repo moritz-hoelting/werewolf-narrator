@@ -12,6 +12,7 @@ class NightActionManager {
 
   bool _ordered = false;
 
+  /// Registers a night action with the given configuration and constraints.
   void registerAction(
     Object identifier,
     NightActionBuilder builder, {
@@ -35,6 +36,7 @@ class NightActionManager {
     );
   }
 
+  /// Orders the registered actions based on their constraints.
   void orderActions() {
     assert(!_ordered, 'Actions have already been ordered.');
     _ordered = true;
@@ -61,12 +63,14 @@ class NightActionManager {
         .toList();
   }
 
+  /// Ensures that the actions are ordered.
   void ensureOrdered() {
     if (!_ordered) {
       orderActions();
     }
   }
 
+  /// The ordered list of night actions.
   List<NightActionEntry> get nightActions {
     assert(_ordered, 'Actions must be ordered before accessing them.');
     return _phases;
@@ -74,12 +78,19 @@ class NightActionManager {
 }
 
 class NightActionRegistration {
+  /// The unique identifier for this night action.
   final Object identifier;
 
+  /// The builder function for this night action screen.
   final NightActionBuilder builder;
+
+  /// The condition under which this night action is shown.
   final bool Function(GameState gameState) conditioned;
 
+  /// The list of identifiers that this action must come after.
   final List<Object> after;
+
+  /// Whether this action should come before all others.
   final bool beforeAll;
 
   NightActionRegistration(
@@ -97,9 +108,13 @@ class NightActionRegistration {
 }
 
 class NightActionEntry {
+  /// The unique identifier for this night action.
   final Object identifier;
 
+  /// The builder function for this night action screen.
   final NightActionBuilder builder;
+
+  /// The condition under which this night action is shown.
   final bool Function(GameState gameState) conditioned;
 
   const NightActionEntry({

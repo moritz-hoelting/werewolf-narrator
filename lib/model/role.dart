@@ -24,6 +24,7 @@ class RoleType<T extends Role> {
     return _roleMap[T] as RoleType<T>;
   }
 
+  /// The unique type of this role.
   Type get type => T;
 
   @override
@@ -31,8 +32,10 @@ class RoleType<T extends Role> {
   @override
   int get hashCode => T.hashCode;
 
+  /// The static instance of this role.
   Role get instance => RoleManager.getRoleInstance(this);
 
+  /// The display name of this role.
   String name(BuildContext context) {
     return instance.name(context);
   }
@@ -46,6 +49,7 @@ abstract class RoleManager {
   _roleInformation = LinkedHashMap();
   static bool _registered = false;
 
+  /// Ensures that all roles are registered.
   static void ensureRegistered() {
     if (!_registered) {
       _registerRoles();
@@ -64,6 +68,7 @@ abstract class RoleManager {
     ThiefRole.registerRole();
   }
 
+  /// Registers a role with the given information.
   static void registerRole<T extends Role>(RegisterRoleInformation<T> info) {
     if (_roleInformation.containsKey(RoleType<T>())) {
       throw Exception('Role of type $T is already registered');
@@ -71,6 +76,7 @@ abstract class RoleManager {
     _roleInformation[RoleType<T>()] = info;
   }
 
+  /// Instantiates a new role of the given type.
   static Role instantiateRole(RoleType role) {
     final info = _roleInformation[role];
     if (info != null) {
@@ -80,6 +86,7 @@ abstract class RoleManager {
     }
   }
 
+  /// Gets the static instance of the given role type.
   static Role getRoleInstance(RoleType role) {
     final info = _roleInformation[role];
     if (info != null) {
@@ -89,14 +96,17 @@ abstract class RoleManager {
     }
   }
 
+  /// The list of all registered role types.
   static List<RoleType> get registeredRoles =>
       List.unmodifiable(_roleInformation.keys.toList());
 
+  /// Gets the initializer function for the given role type.
   static void Function(GameState gameState)? getInitializer(RoleType role) {
     final info = _roleInformation[role];
     return info?.initialize;
   }
 
+  /// Gets the role count adjuster function for the given role type.
   static void Function(Map<RoleType, int> roleCounts, int playerCount)?
   getRoleCountAdjuster(RoleType role) {
     final info = _roleInformation[role];
@@ -105,10 +115,16 @@ abstract class RoleManager {
 }
 
 class RegisterRoleInformation<T extends Role> {
+  /// The constructor function for this role.
   final Role Function() constructor;
+
+  /// The static instance of this role.
   final Role instance;
 
+  /// The initializer function for this role.
   final void Function(GameState gameState)? initialize;
+
+  /// The role count adjuster function for this role.
   final void Function(Map<RoleType, int> roleCounts, int playerCount)?
   roleCountAdjuster;
 
