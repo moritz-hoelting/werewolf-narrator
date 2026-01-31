@@ -26,12 +26,12 @@ class VillagerRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_villager_name;
+    return AppLocalizations.of(context).role_villager_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_villager_description;
+    return AppLocalizations.of(context).role_villager_description;
   }
 
   @override

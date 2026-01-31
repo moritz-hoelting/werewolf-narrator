@@ -302,7 +302,7 @@
     "@role_littleGirl_name": {
         "description": "Name of the Little Girl role"
     },
-    "role_littleGirl_description": "Can secretly peek during the Werewolves' turn.",
+    "role_littleGirl_description": "Can secretly peek during the Werewolves'' turn.",
     "@role_littleGirl_description": {
         "description": "Description of the Little Girl role"
     },

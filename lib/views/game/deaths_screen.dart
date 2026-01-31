@@ -26,7 +26,7 @@ class DeathsScreen extends StatelessWidget {
           return DeathActionsScreen(onPhaseComplete: onPhaseComplete);
         }
 
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
         final unannouncedDeaths = gameState.unannouncedDeaths;
 
         return Scaffold(
@@ -65,7 +65,7 @@ class DeathsScreen extends StatelessWidget {
                       return ListTile(
                         title: Text(
                           localizations.screen_deaths_playerHasDied(
-                            player.name,
+                            playerName: player.name,
                           ),
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),

@@ -115,13 +115,13 @@ class _ActionScreenState extends State<ActionScreen> {
             final answer = showDialog<bool>(
               context: context,
               builder: (context) {
-                final localizations = AppLocalizations.of(context)!;
+                final localizations = AppLocalizations.of(context);
                 return AlertDialog(
                   title: Text(localizations.dialog_fewerSelectionsTitle),
                   content: Text(
                     localizations.dialog_fewerSelectionsMessage(
-                      _selectedPlayers.length,
-                      widget.selectionCount,
+                      selectedCount: _selectedPlayers.length,
+                      maxCount: widget.selectionCount,
                     ),
                   ),
                   actions: [

@@ -26,17 +26,17 @@ class LittleGirlRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_littleGirl_name;
+    return AppLocalizations.of(context).role_littleGirl_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_littleGirl_description;
+    return AppLocalizations.of(context).role_littleGirl_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_littleGirl_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_littleGirl_checkInstruction(count: count);
   }
 }

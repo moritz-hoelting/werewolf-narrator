@@ -44,18 +44,18 @@ class SeerRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_seer_name;
+    return AppLocalizations.of(context).role_seer_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_seer_description;
+    return AppLocalizations.of(context).role_seer_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_seer_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_seer_checkInstruction(count: count);
   }
 }
 
@@ -80,7 +80,7 @@ class _SeerScreenState extends State<SeerScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
 
         return Scaffold(
           appBar: AppBar(
@@ -145,7 +145,7 @@ class PlayerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     return ListTile(
       title: Text(playerName),
       subtitle: selected

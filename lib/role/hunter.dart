@@ -31,23 +31,23 @@ class HunterRole extends Role implements DeathReason {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_hunter_name;
+    return AppLocalizations.of(context).role_hunter_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_hunter_description;
+    return AppLocalizations.of(context).role_hunter_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_hunter_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_hunter_checkInstruction(count: count);
   }
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.role_hunter_deathReason;
+      AppLocalizations.of(context).role_hunter_deathReason;
 
   @override
   bool hasDeathScreen(GameState gameState) => true;
@@ -77,7 +77,7 @@ class HunterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
 
         return ActionScreen(
           appBarTitle: Text(localizations.role_hunter_name),

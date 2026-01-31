@@ -41,18 +41,18 @@ class WerewolvesTeam extends Team implements DeathReason {
 
   @override
   String name(BuildContext context) =>
-      AppLocalizations.of(context)!.team_werewolves_name;
+      AppLocalizations.of(context).team_werewolves_name;
 
   @override
   String winningHeadline(BuildContext context) =>
-      AppLocalizations.of(context)!.team_werewolves_winHeadline;
+      AppLocalizations.of(context).team_werewolves_winHeadline;
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.team_werewolves_deathReason;
+      AppLocalizations.of(context).team_werewolves_deathReason;
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     final gameState = Provider.of<GameState>(context, listen: false);
     final werewolvesOrDead = gameState.players.indexed
         .where(

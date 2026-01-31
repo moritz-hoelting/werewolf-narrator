@@ -49,23 +49,23 @@ class WitchRole extends Role implements DeathReason {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_witch_name;
+    return AppLocalizations.of(context).role_witch_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_witch_description;
+    return AppLocalizations.of(context).role_witch_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_witch_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_witch_checkInstruction(count: count);
   }
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context)!.role_witch_deathReason;
+      AppLocalizations.of(context).role_witch_deathReason;
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(
@@ -108,7 +108,7 @@ class _WitchScreenState extends State<WitchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -258,7 +258,7 @@ class HasPotionsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     final modeButtonStyle = TextButton.styleFrom(
       foregroundColor: Theme.of(context).colorScheme.onSurface,

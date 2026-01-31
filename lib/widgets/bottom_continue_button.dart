@@ -8,7 +8,7 @@ class BottomContinueButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

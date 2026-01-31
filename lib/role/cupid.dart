@@ -45,18 +45,18 @@ class CupidRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_cupid_name;
+    return AppLocalizations.of(context).role_cupid_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_cupid_description;
+    return AppLocalizations.of(context).role_cupid_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_cupid_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_cupid_checkInstruction(count: count);
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) {
@@ -87,7 +87,7 @@ class _CupidScreenState extends State<CupidScreen> {
       return ActionScreen(
         appBarTitle: Text(widget.cupidRole.name(context)),
         instruction: Text(
-          AppLocalizations.of(context)!.screen_roleAction_instruction_cupid,
+          AppLocalizations.of(context).screen_roleAction_instruction_cupid,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         selectionCount: 2,
@@ -130,7 +130,7 @@ class WakeLoversScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
         return Scaffold(
           appBar: AppBar(
             title: Text(localizations.screen_wakeLovers_title),
@@ -141,13 +141,14 @@ class WakeLoversScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 spacing: 16.0,
                 children: [
                   const Icon(Icons.favorite, color: Colors.red, size: 160),
                   Text(
                     localizations.screen_wakeLovers_instructions(
-                      gameState.players[lovers.$1].name,
-                      gameState.players[lovers.$2].name,
+                      playerA: gameState.players[lovers.$1].name,
+                      playerB: gameState.players[lovers.$2].name,
                     ),
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),

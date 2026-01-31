@@ -113,7 +113,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
 
         final maxSelection = gameState.roleCounts[widget.role] ?? 0;
         final minSelection =

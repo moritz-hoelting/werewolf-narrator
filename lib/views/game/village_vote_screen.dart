@@ -18,7 +18,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Consumer<GameState>(
       builder: (context, gameState, _) {

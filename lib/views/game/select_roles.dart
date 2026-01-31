@@ -39,7 +39,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     final int missingRoles = widget.playerCount - totalSelected;
     final Set<RoleType> selectedRoleSet = _selectedRoles.entries

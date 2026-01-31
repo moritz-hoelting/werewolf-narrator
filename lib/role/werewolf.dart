@@ -26,17 +26,17 @@ class WerewolfRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_werewolf_name;
+    return AppLocalizations.of(context).role_werewolf_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_werewolf_description;
+    return AppLocalizations.of(context).role_werewolf_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.team_werewolves_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.team_werewolves_checkInstruction(count: count);
   }
 }

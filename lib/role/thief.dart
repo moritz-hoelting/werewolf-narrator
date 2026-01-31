@@ -72,18 +72,18 @@ class ThiefRole extends Role {
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context)!.role_thief_name;
+    return AppLocalizations.of(context).role_thief_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context)!.role_thief_description;
+    return AppLocalizations.of(context).role_thief_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context)!;
-    return localizations.role_thief_checkInstruction(count);
+    final localizations = AppLocalizations.of(context);
+    return localizations.role_thief_checkInstruction(count: count);
   }
 }
 
@@ -103,7 +103,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
-        final localizations = AppLocalizations.of(context)!;
+        final localizations = AppLocalizations.of(context);
 
         final missingRoles = gameState.unassignedRoles;
 

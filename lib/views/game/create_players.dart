@@ -43,7 +43,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
       });
     }
 
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -231,14 +231,14 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return TextField(
       autocorrect: false,
       maxLength: 25,
       decoration: InputDecoration(
         labelText: localizations.screen_createPlayers_playerNumberInputLabel(
-          widget.idx + 1,
+          number: widget.idx + 1,
         ),
         errorText: (_touched && !_focusNode.hasFocus && widget.isInvalid)
             ? localizations.screen_createPlayers_error_invalidOrDuplicateName

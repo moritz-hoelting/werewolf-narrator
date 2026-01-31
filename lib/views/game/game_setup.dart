@@ -67,7 +67,7 @@ enum GameSetupStep {
   selectRoles;
 
   String title(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     switch (this) {
       case GameSetupStep.createPlayers:

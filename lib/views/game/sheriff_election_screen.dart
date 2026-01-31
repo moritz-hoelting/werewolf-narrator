@@ -9,7 +9,7 @@ class SheriffElectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return ActionScreen(
       appBarTitle: Text(localizations.screen_sheriffElection_instruction),

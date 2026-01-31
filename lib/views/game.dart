@@ -83,7 +83,7 @@ class LeaveGameDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     return AlertDialog(
       icon: const Icon(Icons.exit_to_app),
       title: Text(localizations.alert_leaveGame_title),
