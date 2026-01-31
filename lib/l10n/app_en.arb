@@ -20,6 +20,14 @@
     "@button_noLabel": {
         "description": "Cancel button label"
     },
+    "alert_leaveGame_title": "Leave Game",
+    "@alert_leaveGame_title": {
+        "description": "Title for the alert dialog when leaving a game"
+    },
+    "alert_leaveGame_message": "Are you sure you want to leave the current game? Your progress will be lost.",
+    "@alert_leaveGame_message": {
+        "description": "Message in the alert dialog when leaving a game"
+    },
     "screen_gameSetup_createPlayers_title": "Create Players",
     "@screen_gameSetup_createPlayers_title": {
         "description": "Title for the game setup step where players are created"

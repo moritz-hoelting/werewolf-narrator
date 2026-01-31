@@ -5,6 +5,8 @@
     "button_continueLabel": "Weiter",
     "button_yesLabel": "Ja",
     "button_noLabel": "Nein",
+    "alert_leaveGame_title": "Spiel verlassen",
+    "alert_leaveGame_message": "Möchtest du das aktuelle Spiel wirklich verlassen? Dein Fortschritt geht verloren.",
     "screen_gameSetup_createPlayers_title": "Spieler erstellen",
     "screen_gameSetup_selectRoles_title": "Rollen auswählen",
     "screen_createPlayers_addPlayer": "Spieler hinzufügen",
