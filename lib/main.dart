@@ -6,6 +6,7 @@ import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game.dart';
+import 'package:werewolf_narrator/widgets/app_settings_button.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: colorScheme.inversePrimary,
         title: Text(localizations.appTitle),
+        actions: [const AppSettingsButton()],
       ),
       body: Center(
         child: Column(

@@ -1,0 +1,8 @@
+builders:
+  pubspec_info_builder:
+    import: "./tool/builder.dart"
+    builder_factories: ["pubspecInfoBuilder"]
+    build_extensions: { r"$package$": ["lib/pubspec_info.g.dart"] }
+    auto_apply: root_package
+    build_to: source
+    runs_before: []

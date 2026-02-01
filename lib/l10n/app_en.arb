@@ -28,6 +28,42 @@
     "@alert_leaveGame_message": {
         "description": "Message in the alert dialog when leaving a game"
     },
+    "screen_settings_title": "Settings",
+    "@screen_settings_title": {
+        "description": "Title for the settings screen"
+    },
+    "screen_settings_supportAuthor": "Support the Author",
+    "@screen_settings_supportAuthor": {
+        "description": "Label for the button to support the author"
+    },
+    "screen_settings_viewRepository": "View Repository",
+    "@screen_settings_viewRepository": {
+        "description": "Label for the button to view the source code repository"
+    },
+    "screen_settings_contactAuthor": "Contact the Author",
+    "@screen_settings_contactAuthor": {
+        "description": "Label for the button to contact the author via email"
+    },
+    "screen_settings_version": "Version: {version}",
+    "@screen_settings_version": {
+        "description": "Label showing the app version",
+        "placeholders": {
+            "version": {
+                "type": "String",
+                "example": "1.0.0"
+            }
+        }
+    },
+    "screen_settings_madeBy": "Made with ❤️ by {author}",
+    "@screen_settings_madeBy": {
+        "description": "Message showing that the app was made with love by the author",
+        "placeholders": {
+            "author": {
+                "type": "String",
+                "example": "Moritz"
+            }
+        }
+    },
     "screen_gameSetup_createPlayers_title": "Create Players",
     "@screen_gameSetup_createPlayers_title": {
         "description": "Title for the game setup step where players are created"
