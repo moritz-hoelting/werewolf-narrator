@@ -26,34 +26,34 @@ class _GameViewState extends State<GameView> {
           players: setupResult!.players,
           roleCounts: setupResult!.selectedRoles,
         ),
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) async {
-            if (didPop) return;
-
-            final answer = await showDialog<bool>(
-              context: context,
-              builder: (dialogContext) => LeaveGameDialog(),
-            );
-
-            if (answer == true && context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          child: Consumer<GameState>(
-            builder: (context, gameState, child) {
-              void onPhaseComplete() {
-                if (gameState.pendingDeathAnnouncements && !gameState.isNight) {
-                  showDeathAnnouncement = true;
-                } else {
-                  showDeathAnnouncement = false;
-                  if (gameState.phase != GamePhase.gameOver) {
-                    gameState.transitionToNextPhase();
-                  }
+        child: Consumer<GameState>(
+          builder: (context, gameState, child) {
+            void onPhaseComplete() {
+              if (gameState.pendingDeathAnnouncements && !gameState.isNight) {
+                showDeathAnnouncement = true;
+              } else {
+                showDeathAnnouncement = false;
+                if (gameState.phase != GamePhase.gameOver) {
+                  gameState.transitionToNextPhase();
                 }
               }
+            }
 
-              return Theme(
+            return PopScope(
+              canPop: gameState.phase == GamePhase.gameOver,
+              onPopInvokedWithResult: (didPop, result) async {
+                if (didPop) return;
+
+                final answer = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => LeaveGameDialog(),
+                );
+
+                if (answer == true && context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Theme(
                 data: gameState.isNight ? ThemeData.dark() : ThemeData.light(),
                 child: showDeathAnnouncement
                     ? DeathsScreen(onPhaseComplete: onPhaseComplete)
@@ -61,9 +61,9 @@ class _GameViewState extends State<GameView> {
                         phase: gameState.phase,
                         onPhaseComplete: onPhaseComplete,
                       ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       );
     } else {

@@ -30,23 +30,20 @@ void main() {
     state.setPlayersRole(CupidRole.type, [2]);
     state.setPlayersRole(WerewolfRole.type, [3]);
 
-    state.nightActionManager.ensureOrdered();
-
     final List<GamePhase> expectedOrder = [
       GamePhase.dusk,
       GamePhase.checkRoles,
       GamePhase.nightActions,
       GamePhase.dawn,
-      GamePhase.sheriffElection,
-      GamePhase.voting,
+      GamePhase.dayActions,
       GamePhase.dusk,
       GamePhase.nightActions,
       GamePhase.dawn,
-      GamePhase.voting,
+      GamePhase.dayActions,
       GamePhase.dusk,
       GamePhase.nightActions,
       GamePhase.dawn,
-      GamePhase.voting,
+      GamePhase.dayActions,
     ];
 
     for (int i = 0; i < expectedOrder.length; i++) {
@@ -55,9 +52,6 @@ void main() {
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
-      if (state.phase == GamePhase.sheriffElection) {
-        state.sheriff = 0; // Assign a sheriff to proceed
-      }
       final bool successful = state.transitionToNextPhase();
       expect(
         successful,

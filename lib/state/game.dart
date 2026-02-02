@@ -4,26 +4,21 @@ import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/phases/sheriff.dart';
+import 'package:werewolf_narrator/phases/voting.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
 import 'package:werewolf_narrator/state/game_phase.dart';
+import 'package:werewolf_narrator/state/hooks.dart';
 import 'package:werewolf_narrator/team/team.dart';
-import 'package:werewolf_narrator/state/night_actions.dart';
-
-typedef DeathHook =
-    bool Function(GameState gameState, int playerIndex, DeathReason reason);
-
-typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
-
-typedef RemainingRoleHook =
-    void Function(GameState gameState, int remainingCount);
-
-typedef PlayerWinHook =
-    bool? Function(GameState gameState, Team winningTeam, int playerIndex);
+import 'package:werewolf_narrator/state/dynamic_actions.dart';
 
 class GameState extends ChangeNotifier {
   /// Handles night actions for this game state.
-  final NightActionManager nightActionManager = NightActionManager();
+  final DynamicActionManager nightActionManager = DynamicActionManager();
+
+  /// Handles day actions for this game state.
+  final DynamicActionManager dayActionManager = DynamicActionManager();
 
   /// The list of players in this game.
   final List<Player> players;
@@ -44,6 +39,9 @@ class GameState extends ChangeNotifier {
   /// Can prevent revival by returning true.
   final List<ReviveHook> reviveHooks = [];
 
+  /// Hooks when a player is displayed.
+  final List<PlayerDisplayHook> playerDisplayHooks = [];
+
   /// Hooks for remaining roles at the end of role assignment.
   ///
   /// Called with the count of remaining roles for each role type.
@@ -57,9 +55,6 @@ class GameState extends ChangeNotifier {
 
   int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
-
-  /// The index of the current sheriff, if any.
-  int? sheriff;
 
   // Guards against recursive calls in markPlayerDead and markPlayerRevived.
   final List<int> _markDeadRecursionGuard = [];
@@ -88,6 +83,8 @@ class GameState extends ChangeNotifier {
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
+    VillageVoteScreen.registerAction(this);
+    SheriffVoteAction.registerAction(this);
     for (final team in teams.values) {
       team.initialize(this);
     }
@@ -499,14 +496,18 @@ class GameState extends ChangeNotifier {
         if (dayCounter > 0 || !hasAnyRoleOtherThanVillager) return false;
         break;
       case GamePhase.nightActions:
-        if (nightActionManager.nightActions.none(
+        if (nightActionManager.orderedActions.none(
           (phaseInfo) => phaseInfo.conditioned(this),
         )) {
           return false;
         }
         break;
-      case GamePhase.sheriffElection:
-        if (sheriff != null && players[sheriff!].isAlive) return false;
+      case GamePhase.dayActions:
+        if (dayActionManager.orderedActions.none(
+          (phaseInfo) => phaseInfo.conditioned(this),
+        )) {
+          return false;
+        }
         break;
       case GamePhase.gameOver:
         if (checkWinConditions() == null) return false;

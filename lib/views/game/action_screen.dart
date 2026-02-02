@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/state/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class ActionScreen extends StatefulWidget {
   final Widget appBarTitle;
   final Widget? instruction;
+  final Object? actionIdentifier;
 
   final Set<int> disabledPlayerIndices;
 
@@ -20,6 +22,7 @@ class ActionScreen extends StatefulWidget {
     super.key,
     required this.appBarTitle,
     this.instruction,
+    this.actionIdentifier,
     this.disabledPlayerIndices = const {},
     required this.selectionCount,
     this.allowSelectLess = false,
@@ -37,6 +40,8 @@ class _ActionScreenState extends State<ActionScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final playerDisplayHooks = gameState.playerDisplayHooks;
+
         return Scaffold(
           appBar: AppBar(
             title: widget.appBarTitle,
@@ -53,12 +58,28 @@ class _ActionScreenState extends State<ActionScreen> {
                 child: ListView.builder(
                   itemCount: gameState.playerCount,
                   itemBuilder: (context, index) {
+                    final playerDisplayData = PlayerDisplayData.merge(
+                      playerDisplayHooks
+                          .map(
+                            (hook) =>
+                                hook(gameState, widget.actionIdentifier, index),
+                          )
+                          .nonNulls,
+                    );
+
                     return ListTile(
                       title: Text(gameState.players[index].name),
+                      subtitle: playerDisplayData.subtitle != null
+                          ? playerDisplayData.subtitle!(context)
+                          : null,
+                      trailing: playerDisplayData.trailing != null
+                          ? playerDisplayData.trailing!(context)
+                          : null,
                       onTap: getOnTapPlayer(index, gameState),
                       selected: _selectedPlayers.contains(index),
                       enabled:
                           gameState.players[index].isAlive &&
+                          !playerDisplayData.disabled &&
                           !widget.disabledPlayerIndices.contains(index),
                       selectedTileColor: Theme.of(
                         context,

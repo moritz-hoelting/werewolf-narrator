@@ -6,7 +6,7 @@ import 'package:werewolf_narrator/role/hunter.dart' show HunterRole;
 import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
 import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/night_actions.dart';
+import 'package:werewolf_narrator/state/dynamic_actions.dart';
 import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
 
 void main() {
@@ -31,11 +31,9 @@ void main() {
     state.setPlayersRole(CupidRole.type, [2]);
     state.setPlayersRole(WerewolfRole.type, [3]);
 
-    NightActionManager nightActionManager = state.nightActionManager;
+    DynamicActionManager nightActionManager = state.nightActionManager;
 
-    nightActionManager.ensureOrdered();
-
-    final List<Object> actions = nightActionManager.nightActions
+    final List<Object> actions = nightActionManager.orderedActions
         .map((action) => action.identifier)
         .toList();
 

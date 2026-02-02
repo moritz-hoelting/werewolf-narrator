@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/state/hooks.dart';
 import 'package:werewolf_narrator/team/village.dart';
 
 class VillageVoteScreen extends StatefulWidget {
-  final VoidCallback onPhaseComplete;
+  final VoidCallback onComplete;
 
-  const VillageVoteScreen({super.key, required this.onPhaseComplete});
+  const VillageVoteScreen({super.key, required this.onComplete});
 
   @override
   State<VillageVoteScreen> createState() => _VillageVoteScreenState();
+
+  static void registerAction(GameState gameState) {
+    gameState.dayActionManager.registerAction(
+      VillageVoteScreen,
+      (gameState, onComplete) =>
+          (context) => VillageVoteScreen(onComplete: onComplete),
+      conditioned: (gameState) => gameState.alivePlayerCount > 1,
+    );
+  }
 }
 
 class _VillageVoteScreenState extends State<VillageVoteScreen> {
@@ -22,6 +32,8 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
 
     return Consumer<GameState>(
       builder: (context, gameState, _) {
+        final playerDisplayHooks = gameState.playerDisplayHooks;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(localizations.screen_villageVote_title),
@@ -32,10 +44,19 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
             itemBuilder: (context, index) {
               final player = gameState.players[index];
 
+              final playerDisplayData = PlayerDisplayData.merge(
+                playerDisplayHooks
+                    .map((hook) => hook(gameState, VillageVoteScreen, index))
+                    .nonNulls,
+              );
+
               return ListTile(
                 title: Text(player.name),
-                trailing: index == gameState.sheriff
-                    ? const Icon(Icons.local_police_outlined)
+                subtitle: playerDisplayData.subtitle != null
+                    ? playerDisplayData.subtitle!(context)
+                    : null,
+                trailing: playerDisplayData.trailing != null
+                    ? playerDisplayData.trailing!(context)
                     : null,
                 onTap: player.isAlive
                     ? () {
@@ -47,7 +68,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                       }
                     : null,
                 selected: _selectedPlayer == index,
-                enabled: player.isAlive,
+                enabled: player.isAlive && !playerDisplayData.disabled,
                 selectedTileColor: Theme.of(
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.2),
@@ -83,14 +104,14 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                   );
 
                   if (continueWithoutVote == true) {
-                    widget.onPhaseComplete();
+                    widget.onComplete();
                   }
                 } else {
                   gameState.markPlayerDead(
                     _selectedPlayer!,
                     (gameState.teams[VillageTeam.type] as VillageTeam),
                   );
-                  widget.onPhaseComplete();
+                  widget.onComplete();
                 }
               },
             ),

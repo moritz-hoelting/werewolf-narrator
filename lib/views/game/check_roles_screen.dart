@@ -7,6 +7,8 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
 import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/state/game_phase.dart';
+import 'package:werewolf_narrator/state/hooks.dart';
 
 class CheckRolesScreen extends StatefulWidget {
   const CheckRolesScreen({super.key, required this.onPhaseComplete});
@@ -129,6 +131,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                   widget.missingAssignments,
             );
 
+        final playerDisplayHooks = gameState.playerDisplayHooks;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -142,11 +146,30 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
           body: ListView.builder(
             itemCount: gameState.playerCount,
             itemBuilder: (context, index) {
+              final playerDisplayData = PlayerDisplayData.merge(
+                playerDisplayHooks
+                    .map(
+                      (hook) => hook(gameState, (
+                        GamePhase.checkRoles,
+                        widget.role,
+                      ), index),
+                    )
+                    .nonNulls,
+              );
+
               return ListTile(
                 title: Text(gameState.players[index].name),
+                subtitle: playerDisplayData.subtitle != null
+                    ? playerDisplayData.subtitle!(context)
+                    : null,
+                trailing: playerDisplayData.trailing != null
+                    ? playerDisplayData.trailing!(context)
+                    : null,
                 onTap: getOnTapPlayer(index, gameState),
                 selected: _selectedPlayers[index],
-                enabled: gameState.players[index].role == null,
+                enabled:
+                    gameState.players[index].role == null &&
+                    !playerDisplayData.disabled,
                 selectedTileColor: Theme.of(
                   context,
                 ).colorScheme.primary.withValues(alpha: 0.2),

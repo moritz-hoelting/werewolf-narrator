@@ -3,8 +3,7 @@ enum GamePhase {
   checkRoles,
   nightActions,
   dawn,
-  sheriffElection,
-  voting,
+  dayActions,
 
   gameOver;
 
