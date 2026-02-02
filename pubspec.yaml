@@ -2,6 +2,7 @@ name: werewolf_narrator
 description: "Helping you narrate your games of Werewolf."
 homepage: https://werewolf-narrator.hoelting.dev
 repository: https://github.com/moritz-hoelting/werewolf-narrator
+issue_tracker: https://github.com/moritz-hoelting/werewolf-narrator/issues
 
 app_author:
   name: Moritz Hölting

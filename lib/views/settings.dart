@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -66,6 +67,15 @@ class SettingsScreen extends StatelessWidget {
                           .toList(),
                     ),
 
+                  if (PubspecInfo.issueTrackerUrl != null)
+                    TextButton.icon(
+                      onPressed: () {
+                        launchUrl(Uri.parse(PubspecInfo.issueTrackerUrl!));
+                      },
+                      icon: const Icon(Icons.bug_report),
+                      label: Text(localizations.screen_settings_reportIssue),
+                    ),
+
                   if (PubspecInfo.authorEmail != null)
                     TextButton.icon(
                       onPressed: () {
@@ -76,6 +86,32 @@ class SettingsScreen extends StatelessWidget {
                       icon: const Icon(Icons.email),
                       label: Text(localizations.screen_settings_contactAuthor),
                     ),
+
+                  TextButton.icon(
+                    onPressed: () {
+                      showAboutDialog(
+                        context: context,
+                        applicationIcon: SvgPicture.asset(
+                          'assets/icon/icon.svg',
+                          width: 64,
+                          height: 64,
+                        ),
+                        applicationName: localizations.appTitle,
+                        applicationVersion: packageInfo.version,
+                        children: [
+                          const SizedBox(height: 8),
+                          if (PubspecInfo.authorName != null)
+                            Text(
+                              localizations.screen_settings_madeBy(
+                                author: PubspecInfo.authorName!,
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                    label: Text(localizations.screen_settings_about),
+                    icon: const Icon(Icons.info),
+                  ),
                 ],
               ),
             );

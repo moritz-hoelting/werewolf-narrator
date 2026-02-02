@@ -13,6 +13,8 @@
     "screen_settings_viewRepository": "Repository ansehen",
     "screen_settings_version": "Version: {version}",
     "screen_settings_madeBy": "Mit viel Herzblut entwickelt von {author}",
+    "screen_settings_reportIssue": "Problem melden",
+    "screen_settings_about": "Über die App",
     "screen_gameSetup_createPlayers_title": "Spieler erstellen",
     "screen_gameSetup_selectRoles_title": "Rollen auswählen",
     "screen_createPlayers_addPlayer": "Spieler hinzufügen",

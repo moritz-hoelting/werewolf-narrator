@@ -44,6 +44,10 @@
     "@screen_settings_contactAuthor": {
         "description": "Label for the button to contact the author via email"
     },
+    "screen_settings_reportIssue": "Report an Issue",
+    "@screen_settings_reportIssue": {
+        "description": "Label for the button to report an issue"
+    },
     "screen_settings_version": "Version: {version}",
     "@screen_settings_version": {
         "description": "Label showing the app version",
@@ -54,7 +58,7 @@
             }
         }
     },
-    "screen_settings_madeBy": "Made with ❤️ by {author}",
+    "screen_settings_madeBy": "Made with passion by {author}",
     "@screen_settings_madeBy": {
         "description": "Message showing that the app was made with love by the author",
         "placeholders": {
@@ -63,6 +67,10 @@
                 "example": "Moritz"
             }
         }
+    },
+    "screen_settings_about": "About",
+    "@screen_settings_about": {
+        "description": "Label for the button to show the about dialog"
     },
     "screen_gameSetup_createPlayers_title": "Create Players",
     "@screen_gameSetup_createPlayers_title": {

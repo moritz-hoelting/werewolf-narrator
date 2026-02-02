@@ -22,6 +22,7 @@ class PubspecInfoBuilder implements Builder {
     final yamlMap = loadYaml(content);
 
     final String? repository = yamlMap['repository'] as String?;
+    final String? issueTracker = yamlMap['issue_tracker'] as String?;
     final List<String>? funding = (yamlMap['funding'] as YamlList?)
         ?.cast<String>();
     final appAuthor = yamlMap['app_author'] as YamlMap?;
@@ -42,6 +43,7 @@ class PubspecInfoBuilder implements Builder {
 
 final class PubspecInfo {
   static const String? repositoryUrl = ${repository != null ? "'$repository'" : 'null'};
+  static const String? issueTrackerUrl = ${issueTracker != null ? "'$issueTracker'" : 'null'};
   static const List<String>? fundingUrls = ${funding != null ? funding.map((e) => "'$e'").toList().toString() : 'null'};
   static const String? authorName = ${authorName != null ? "'$authorName'" : 'null'};
   static const String? authorEmail = ${authorEmail != null ? "'$authorEmail'" : 'null'};
@@ -50,8 +52,6 @@ final class PubspecInfo {
 
     final outId = AssetId(buildStep.inputId.package, 'lib/pubspec_info.g.dart');
     await buildStep.writeAsString(outId, output);
-    log.info(
-      'Generated lib/pubspec_info.g.dart with repository URL: $repository',
-    );
+    log.info('Generated lib/pubspec_info.g.dart');
   }
 }
