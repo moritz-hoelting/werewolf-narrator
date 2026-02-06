@@ -32,6 +32,38 @@
     "@screen_settings_title": {
         "description": "Title for the settings screen"
     },
+    "screen_settings_themeMode": "Theme Mode",
+    "@screen_settings_themeMode": {
+        "description": "Label for the theme mode setting"
+    },
+    "screen_settings_themeMode_system": "System Default",
+    "@screen_settings_themeMode_system": {
+        "description": "Option for theme mode: system default"
+    },
+    "screen_settings_themeMode_light": "Light",
+    "@screen_settings_themeMode_light": {
+        "description": "Option for theme mode: light"
+    },
+    "screen_settings_themeMode_dark": "Dark",
+    "@screen_settings_themeMode_dark": {
+        "description": "Option for theme mode: dark"
+    },
+    "screen_settings_dynamicGameTheme": "Dynamic Game Theme",
+    "@screen_settings_dynamicGameTheme": {
+        "description": "Label for the setting to enable or disable dynamic game theme"
+    },
+    "screen_settings_dynamicGameTheme_description": "Automatically switch between day and night themes based on the game phase.",
+    "@screen_settings_dynamicGameTheme_description": {
+        "description": "Description for the dynamic game theme setting"
+    },
+    "screen_settings_language": "Language",
+    "@screen_settings_language": {
+        "description": "Label for the language setting"
+    },
+    "screen_settings_language_default": "System Default",
+    "@screen_settings_language_default": {
+        "description": "Option for language setting: system default"
+    },
     "screen_settings_supportAuthor": "Support the Author",
     "@screen_settings_supportAuthor": {
         "description": "Label for the button to support the author"

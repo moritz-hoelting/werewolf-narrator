@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/state/game_phase.dart';
+import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart';
 import 'package:werewolf_narrator/views/game/phase_manager_screen.dart';
@@ -54,7 +55,9 @@ class _GameViewState extends State<GameView> {
                 }
               },
               child: Theme(
-                data: gameState.isNight ? ThemeData.dark() : ThemeData.light(),
+                data: gameState.isNight
+                    ? Themes.nighttimeTheme(context)
+                    : Themes.daytimeTheme(context),
                 child: showDeathAnnouncement
                     ? DeathsScreen(onPhaseComplete: onPhaseComplete)
                     : GamePhaseScreen(

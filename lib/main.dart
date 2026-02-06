@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/themes.dart';
+import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/widgets/app_settings_button.dart';
 
@@ -22,18 +24,24 @@ class WerewolfNarratorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      theme: Themes.lightTheme,
-      darkTheme: Themes.darkTheme,
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: const HomePage(),
+    return ChangeNotifierProvider(
+      create: (context) => AppSettings.instance,
+      child: Consumer<AppSettings>(
+        builder: (context, settings, child) => MaterialApp(
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          theme: Themes.lightThemeForMaterialApp(settings),
+          darkTheme: Themes.darkThemeForMaterialApp(settings),
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: settings.locale,
+          home: const HomePage(),
+        ),
+      ),
     );
   }
 }
