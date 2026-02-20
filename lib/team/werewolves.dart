@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart'
     show DeathReason;
+import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
@@ -40,8 +42,17 @@ class WerewolvesTeam extends Team implements DeathReason {
   }
 
   @override
+  RoleType? get roleCheckTogether => WerewolfRole.type;
+
+  @override
   String name(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_name;
+
+  @override
+  String checkTeamInstruction(BuildContext context, int count) {
+    final localizations = AppLocalizations.of(context);
+    return localizations.team_werewolves_checkInstruction(count: count);
+  }
 
   @override
   String winningHeadline(BuildContext context) =>
@@ -63,8 +74,8 @@ class WerewolvesTeam extends Team implements DeathReason {
         .map((player) => player.$1)
         .toSet();
     return ActionScreen(
-      appBarTitle: Text(localizations.role_werewolf_name),
-      instruction: Text(localizations.screen_roleAction_instruction_werewolf),
+      appBarTitle: Text(localizations.team_werewolves_name),
+      instruction: Text(localizations.screen_roleAction_instruction_werewolves),
       selectionCount: 1,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {

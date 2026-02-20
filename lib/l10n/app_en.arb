@@ -148,6 +148,10 @@
             }
         }
     },
+    "screen_selectRoles_noPlayersInTeam": "No players assigned to team",
+    "@screen_selectRoles_noPlayersInTeam": {
+        "description": "Error message shown when no players are assigned to a team"
+    },
     "screen_wakeLovers_title": "Wake the Lovers",
     "@screen_wakeLovers_title": {
         "description": "Title for the screen where the narrator wakes the lovers"
@@ -266,8 +270,8 @@
     "@screen_roleAction_instruction_cupid": {
         "description": "Instruction for the Cupid role action"
     },
-    "screen_roleAction_instruction_werewolf": "Choose a player to kill.",
-    "@screen_roleAction_instruction_werewolf": {
+    "screen_roleAction_instruction_werewolves": "Choose a player to kill.",
+    "@screen_roleAction_instruction_werewolves": {
         "description": "Instruction for the Werewolf role action"
     },
     "screen_roleAction_instruction_thief": "Choose one of the two remaining roles to take.",

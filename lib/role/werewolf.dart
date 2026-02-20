@@ -36,7 +36,6 @@ class WerewolfRole extends Role {
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context);
-    return localizations.team_werewolves_checkInstruction(count: count);
+    throw UnimplementedError('Werewolf has no individual check role screen');
   }
 }
