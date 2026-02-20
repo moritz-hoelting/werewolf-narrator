@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
 import 'package:werewolf_narrator/widgets/settings/funding_button.dart';
+import 'package:werewolf_narrator/widgets/settings/version_display.dart';
 
 class AppInfoDisplay extends StatelessWidget {
   const AppInfoDisplay({super.key});
@@ -24,39 +25,19 @@ class AppInfoDisplay extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 16),
-                  const Icon(Icons.info_outline),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          localizations.appTitle,
-                          style: Theme.of(context).textTheme.bodyLarge,
+              ListTile(
+                leading: const Icon(Icons.widgets),
+                title: Text(localizations.appTitle),
+                subtitle: PubspecInfo.authorName != null
+                    ? Text(
+                        localizations.screen_settings_madeBy(
+                          author: PubspecInfo.authorName!,
                         ),
-                        Text(
-                          localizations.screen_settings_version(
-                            version: packageInfo.version,
-                          ),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-
-                        if (PubspecInfo.authorName != null)
-                          Text(
-                            localizations.screen_settings_madeBy(
-                              author: PubspecInfo.authorName!,
-                            ),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                      )
+                    : null,
               ),
+
+              VersionDisplay(packageInfo: packageInfo),
 
               const SizedBox(height: 24),
 

@@ -6,6 +6,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/themes.dart';
+import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/widgets/app_settings_button.dart';
@@ -24,8 +25,11 @@ class WerewolfNarratorApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AppSettings.instance,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AppSettings.instance),
+        ChangeNotifierProvider(create: (context) => DeveloperSettings.instance),
+      ],
       child: Consumer<AppSettings>(
         builder: (context, settings, child) => MaterialApp(
           onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,

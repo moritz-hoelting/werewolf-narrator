@@ -4,40 +4,41 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
 import 'package:werewolf_narrator/util/settings.dart';
-import 'package:werewolf_narrator/widgets/settings/developer_settings.dart';
-import 'package:werewolf_narrator/widgets/settings/info_display.dart';
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+// At this point of time there is no incentive to add localization to developer
+// settings, as they are not intended to be used by regular users.
+class DeveloperSettingsScreen extends StatelessWidget {
+  const DeveloperSettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.screen_settings_title)),
+      appBar: AppBar(title: const Text("Developer Settings")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            Consumer<AppSettings>(
-              builder: (context, settings, child) =>
-                  SettingsDisplay(settings: settings),
-            ),
-            if (Provider.of<DeveloperSettings>(context).enabled)
-              ListTile(
-                title: const Text("Developer Settings"),
-                leading: const Icon(Icons.developer_board),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DeveloperSettingsScreen(),
-                  ),
-                ),
+        child: Consumer<DeveloperSettings>(
+          builder: (context, developerSettings, child) => ListView(
+            children: [
+              CheckboxListTile(
+                title: const Text("Enable"),
+                value: developerSettings.enabled,
+                onChanged: (value) {
+                  if (value != null) {
+                    developerSettings.enabled = value;
+                  }
+                },
               ),
-
-            Divider(height: 32),
-            const AppInfoDisplay(),
-          ],
+              CheckboxListTile(
+                title: const Text("Autofill default player names"),
+                value: developerSettings.fillPlayerNames,
+                onChanged: (value) {
+                  if (value != null) {
+                    developerSettings.fillPlayerNames = value;
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -19,7 +19,7 @@
     "screen_settings_supportAuthor": "Autor unterstützen",
     "screen_settings_contactAuthor": "Autor kontaktieren",
     "screen_settings_viewRepository": "Repository ansehen",
-    "screen_settings_version": "Version: {version}",
+    "screen_settings_version": "Version",
     "screen_settings_madeBy": "Mit viel Herzblut entwickelt von {author}",
     "screen_settings_reportIssue": "Problem melden",
     "screen_settings_about": "Über die App",
