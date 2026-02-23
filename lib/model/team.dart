@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
-import 'package:werewolf_narrator/team/lovers.dart' show LoversTeam;
 import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
@@ -54,7 +53,6 @@ abstract class TeamManager {
   static void _registerTeams() {
     VillageTeam.registerTeam();
     WerewolvesTeam.registerTeam();
-    LoversTeam.registerTeam();
   }
 
   /// Registers a team with the given information.

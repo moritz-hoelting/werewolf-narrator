@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/model/death_information.dart';
+import 'package:werewolf_narrator/model/win_condition.dart' show WinCondition;
 import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/team/team.dart';
 
 typedef DeathHook =
     bool Function(GameState gameState, int playerIndex, DeathReason reason);
@@ -19,7 +19,7 @@ typedef RemainingRoleHook =
     void Function(GameState gameState, int remainingCount);
 
 typedef PlayerWinHook =
-    bool? Function(GameState gameState, Team winningTeam, int playerIndex);
+    bool? Function(GameState gameState, WinCondition winner, int playerIndex);
 
 class PlayerDisplayData {
   PlayerDisplayData({this.disabled = false, this.trailing, this.subtitle});

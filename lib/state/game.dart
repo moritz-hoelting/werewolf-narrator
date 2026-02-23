@@ -4,6 +4,7 @@ import 'package:werewolf_narrator/model/death_information.dart';
 import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/model/win_condition.dart';
 import 'package:werewolf_narrator/phases/sheriff.dart';
 import 'package:werewolf_narrator/phases/voting.dart';
 import 'package:werewolf_narrator/role/role.dart';
@@ -28,6 +29,8 @@ class GameState extends ChangeNotifier {
 
   /// The counts of roles present in this game (initialized during setup).
   final Map<RoleType, int> roleCounts;
+
+  final List<WinCondition> winConditions = [];
 
   /// Hooks when a player is marked dead.
   ///
@@ -412,10 +415,10 @@ class GameState extends ChangeNotifier {
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
   /// Checks if any team has met its win conditions.
-  Team? checkWinConditions() {
-    for (final team in teams.values) {
-      if (team.hasWon(this)) {
-        return team;
+  WinCondition? checkWinConditions() {
+    for (final cond in winConditions) {
+      if (cond.hasWon(this)) {
+        return cond;
       }
     }
     return null;
@@ -423,10 +426,10 @@ class GameState extends ChangeNotifier {
 
   /// Returns the list of winning players if there is a winning team.
   List<(int, Player)>? winningPlayers() {
-    final Team? winningTeam = checkWinConditions();
-    if (winningTeam == null) return null;
+    final WinCondition? winner = checkWinConditions();
+    if (winner == null) return null;
 
-    final List<(int, Player)> winners = winningTeam.winningPlayers(this);
+    final List<(int, Player)> winners = winner.winningPlayers(this);
 
     final nonWinningPlayers = List.generate(
       playerCount,
@@ -434,7 +437,7 @@ class GameState extends ChangeNotifier {
     ).toSet().difference(winners.map((player) => player.$1).toSet());
     for (final playerIndex in nonWinningPlayers) {
       for (final playerWinHook in playerWinHooks) {
-        final bool? result = playerWinHook(this, winningTeam, playerIndex);
+        final bool? result = playerWinHook(this, winner, playerIndex);
         if (result == true) {
           winners.add((playerIndex, players[playerIndex]));
         }
@@ -444,8 +447,7 @@ class GameState extends ChangeNotifier {
     return winners
         .where(
           (player) => playerWinHooks.none(
-            (playerWinHook) =>
-                playerWinHook(this, winningTeam, player.$1) == false,
+            (playerWinHook) => playerWinHook(this, winner, player.$1) == false,
           ),
         )
         .toList();

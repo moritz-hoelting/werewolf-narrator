@@ -5,7 +5,7 @@ import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/role/role.dart';
 import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/team/lovers.dart' show LoversTeam;
+import 'package:werewolf_narrator/team/lovers.dart' show Lovers;
 import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
@@ -33,7 +33,7 @@ class CupidRole extends Role {
         return nightActionScreen(onComplete);
       },
       conditioned: (gameState) =>
-          !gameState.teams.containsKey(LoversTeam.type) &&
+          gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
           gameState.playerAliveUntilDawn(playerIndex),
     );
   }
@@ -79,11 +79,11 @@ class CupidScreen extends StatefulWidget {
 }
 
 class _CupidScreenState extends State<CupidScreen> {
-  LoversTeam? loversTeam;
+  Lovers? lovers;
 
   @override
   Widget build(BuildContext context) {
-    if (loversTeam == null) {
+    if (lovers == null) {
       return ActionScreen(
         appBarTitle: Text(widget.cupidRole.name(context)),
         instruction: Text(
@@ -96,7 +96,7 @@ class _CupidScreenState extends State<CupidScreen> {
     } else {
       return WakeLoversScreen(
         onPhaseComplete: widget.onComplete,
-        lovers: loversTeam!.lovers!,
+        lovers: lovers!.lovers,
       );
     }
   }
@@ -107,10 +107,10 @@ class _CupidScreenState extends State<CupidScreen> {
       'Cupid must select exactly two players as lovers.',
     );
     final selectedList = selectedIndices.toList()..sort();
-    final team = LoversTeam.withLovers((selectedList[0], selectedList[1]));
-    loversTeam = team;
-    gameState.teams[LoversTeam.type] = team;
-    team.initialize(gameState);
+    final lovers_ = Lovers((selectedList[0], selectedList[1]));
+    lovers = lovers_;
+    gameState.winConditions.add(lovers_);
+    lovers_.initialize(gameState);
 
     gameState.notifyUpdate();
   }

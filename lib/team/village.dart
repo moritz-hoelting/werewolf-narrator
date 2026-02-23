@@ -3,11 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart'
     show DeathReason;
+import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/model/win_condition.dart'
+    show WinCondition, teamWinningPlayers;
 import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 
-class VillageTeam extends Team implements DeathReason {
+class VillageTeam extends Team implements DeathReason, WinCondition {
   const VillageTeam._();
   static final TeamType type = TeamType<VillageTeam>();
   @override
@@ -18,6 +21,13 @@ class VillageTeam extends Team implements DeathReason {
     TeamManager.registerTeam<VillageTeam>(
       RegisterTeamInformation(VillageTeam._, instance),
     );
+  }
+
+  @override
+  void initialize(GameState gameState) {
+    super.initialize(gameState);
+
+    gameState.winConditions.add(this);
   }
 
   @override
@@ -40,4 +50,8 @@ class VillageTeam extends Team implements DeathReason {
         .toSet(),
     {VillageTeam.type},
   );
+
+  @override
+  List<(int, Player)> winningPlayers(GameState gameState) =>
+      teamWinningPlayers(gameState, objectType);
 }

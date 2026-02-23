@@ -4,8 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/model/death_information.dart'
     show DeathReason;
+import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/model/win_condition.dart'
+    show WinCondition, teamWinningPlayers;
 import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
@@ -13,7 +16,7 @@ import 'package:werewolf_narrator/state/game.dart';
 import 'package:werewolf_narrator/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-class WerewolvesTeam extends Team implements DeathReason {
+class WerewolvesTeam extends Team implements DeathReason, WinCondition {
   const WerewolvesTeam._();
   static final TeamType type = TeamType<WerewolvesTeam>();
   @override
@@ -29,6 +32,8 @@ class WerewolvesTeam extends Team implements DeathReason {
   @override
   void initialize(GameState gameState) {
     super.initialize(gameState);
+
+    gameState.winConditions.add(this);
 
     gameState.nightActionManager.registerAction(
       WerewolvesTeam.type,
@@ -93,4 +98,8 @@ class WerewolvesTeam extends Team implements DeathReason {
         .toSet(),
     {WerewolvesTeam.type},
   );
+
+  @override
+  List<(int, Player)> winningPlayers(GameState gameState) =>
+      teamWinningPlayers(gameState, objectType);
 }

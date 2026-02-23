@@ -89,7 +89,6 @@
     "team_werewolves_winHeadline": "Die Werwölfe haben gewonnen!",
     "team_werewolves_checkInstruction": "Wecke und wähle {count, plural, =1{den Werwolf} other{alle Werwölfe}} aus",
     "team_werewolves_deathReason": "Von den Werwölfen getötet",
-    "team_lovers_name": "Verliebte",
     "team_lovers_winHeadline": "Die Verliebten haben gewonnen!",
     "team_lovers_deathReason": "An gebrochenem Herzen gestorben"
 }

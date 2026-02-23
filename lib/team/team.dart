@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:werewolf_narrator/model/player.dart';
 import 'package:werewolf_narrator/model/role.dart';
 import 'package:werewolf_narrator/model/team.dart';
 import 'package:werewolf_narrator/state/game.dart';
@@ -28,17 +27,4 @@ abstract class Team {
   String checkTeamInstruction(BuildContext context, int count) {
     throw UnimplementedError('This team has no check team instruction');
   }
-
-  /// The headline displayed when this team wins.
-  String winningHeadline(BuildContext context);
-
-  /// Whether this team has won the game at the current state.
-  bool hasWon(GameState gameState);
-
-  /// The players that belong to this team and have won the game.
-  List<(int, Player)> winningPlayers(GameState gameState) => gameState
-      .players
-      .indexed
-      .where((player) => player.$2.role?.team(gameState) == objectType)
-      .toList();
 }

@@ -442,10 +442,6 @@
     "@team_werewolves_deathReason": {
         "description": "Reason for death: killed by werewolves"
     },
-    "team_lovers_name": "Lovers",
-    "@team_lovers_name": {
-        "description": "Name of the Lovers' team"
-    },
     "team_lovers_winHeadline": "The Lovers have won!",
     "@team_lovers_winHeadline": {
         "description": "Headline shown when the Lovers' team wins"
