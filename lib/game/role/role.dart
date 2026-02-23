@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 
 @sealed
 abstract class Role {

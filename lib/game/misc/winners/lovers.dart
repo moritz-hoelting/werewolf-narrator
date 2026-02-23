@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart'
+import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
-import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/win_condition.dart' show WinCondition;
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/win_condition.dart'
+    show WinCondition;
+import 'package:werewolf_narrator/game/game_state.dart';
 
 class Lovers implements DeathReason, WinCondition {
   const Lovers(this.lovers);

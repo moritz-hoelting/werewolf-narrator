@@ -1,13 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/role/hunter.dart' show HunterRole;
-import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
-import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/dynamic_actions.dart';
-import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/hunter.dart' show HunterRole;
+import 'package:werewolf_narrator/game/role/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/game/role/werewolf.dart' show WerewolfRole;
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
+import 'package:werewolf_narrator/game/team/werewolves.dart'
+    show WerewolvesTeam;
 
 void main() {
   setUpAll(() {

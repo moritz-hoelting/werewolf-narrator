@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/role.dart';
-import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class LittleGirlRole extends Role {
   const LittleGirlRole._();

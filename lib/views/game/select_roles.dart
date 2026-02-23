@@ -3,8 +3,8 @@ import 'dart:math' show min;
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
 
 class SelectRolesView extends StatefulWidget {
   final int playerCount;

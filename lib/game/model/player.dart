@@ -1,6 +1,6 @@
-import 'package:werewolf_narrator/model/death_information.dart';
-import 'package:werewolf_narrator/role/role.dart';
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 
 /// A player in the game.
 class Player {

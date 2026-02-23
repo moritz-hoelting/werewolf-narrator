@@ -5,12 +5,11 @@ import 'package:dart_either/dart_either.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/game_phase.dart';
-import 'package:werewolf_narrator/state/hooks.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart';
 
 class CheckRolesScreen extends StatefulWidget {
   const CheckRolesScreen({super.key, required this.onPhaseComplete});

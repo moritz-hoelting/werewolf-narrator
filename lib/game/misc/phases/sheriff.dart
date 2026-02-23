@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/phases/voting.dart';
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/hooks.dart' show PlayerDisplayData;
+import 'package:werewolf_narrator/game/misc/phases/voting.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class SheriffVoteAction {

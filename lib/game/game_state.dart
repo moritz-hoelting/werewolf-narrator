@@ -1,18 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/model/death_information.dart';
-import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/model/win_condition.dart';
-import 'package:werewolf_narrator/phases/sheriff.dart';
-import 'package:werewolf_narrator/phases/voting.dart';
-import 'package:werewolf_narrator/role/role.dart';
-import 'package:werewolf_narrator/role/villager.dart' show VillagerRole;
-import 'package:werewolf_narrator/state/game_phase.dart';
-import 'package:werewolf_narrator/state/hooks.dart';
-import 'package:werewolf_narrator/team/team.dart';
-import 'package:werewolf_narrator/state/dynamic_actions.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart';
+import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/model/win_condition.dart';
+import 'package:werewolf_narrator/game/misc/phases/sheriff.dart';
+import 'package:werewolf_narrator/game/misc/phases/voting.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/game/team/team.dart';
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 
 class GameState extends ChangeNotifier {
   /// Handles night actions for this game state.
@@ -519,4 +518,29 @@ class GameState extends ChangeNotifier {
     }
     return true;
   }
+}
+
+/// Current phase of the game.
+enum GamePhase {
+  /// Phase starting the night.
+  dusk,
+
+  /// Phase for checking roles in the first night.
+  checkRoles,
+
+  /// Phase for performing night actions.
+  nightActions,
+
+  /// Phase starting the day.
+  dawn,
+
+  /// Phase for performing day actions.
+  dayActions,
+
+  /// Phase when the game has ended.
+  gameOver;
+
+  /// Whether the phase is a night phase.
+  bool get isNight =>
+      index >= GamePhase.dusk.index && index < GamePhase.dawn.index;
 }

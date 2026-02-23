@@ -2,18 +2,18 @@ import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/death_information.dart'
+import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
-import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/model/win_condition.dart'
+import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
-import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/role/seer.dart' show SeerRole;
-import 'package:werewolf_narrator/role/werewolf.dart' show WerewolfRole;
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/team/team.dart';
+import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/game/role/werewolf.dart' show WerewolfRole;
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class WerewolvesTeam extends Team implements DeathReason, WinCondition {

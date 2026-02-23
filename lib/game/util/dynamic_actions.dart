@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:graphs/graphs.dart';
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 
 typedef DynamicActionBuilder =
     WidgetBuilder? Function(GameState gameState, VoidCallback onComplete);

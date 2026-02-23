@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/role/role.dart';
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class SeerRole extends Role {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/model/role.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/role/role.dart';
-import 'package:werewolf_narrator/team/werewolves.dart' show WerewolvesTeam;
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/team/werewolves.dart'
+    show WerewolvesTeam;
 
 class WerewolfRole extends Role {
   const WerewolfRole._();

@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/dynamic_actions.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 
 class DynamicActionsScreen extends StatefulWidget {
   const DynamicActionsScreen({

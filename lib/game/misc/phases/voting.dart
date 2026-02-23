@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/state/game.dart';
-import 'package:werewolf_narrator/state/hooks.dart';
-import 'package:werewolf_narrator/team/village.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/game/team/village.dart';
 
 class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onComplete;

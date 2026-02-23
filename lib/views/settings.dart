@@ -4,7 +4,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
 import 'package:werewolf_narrator/util/settings.dart';
-import 'package:werewolf_narrator/widgets/settings/developer_settings.dart';
+import 'package:werewolf_narrator/views/settings/developer_settings.dart';
 import 'package:werewolf_narrator/widgets/settings/info_display.dart';
 
 class SettingsScreen extends StatelessWidget {

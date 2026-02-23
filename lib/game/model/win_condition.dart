@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/model/player.dart';
-import 'package:werewolf_narrator/model/team.dart';
-import 'package:werewolf_narrator/state/game.dart';
+import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 
 abstract interface class WinCondition {
   /// The headline displayed when having won.
