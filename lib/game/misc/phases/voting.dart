@@ -86,6 +86,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
               onPressed: () async {
                 if (_selectedPlayer == null) {
                   final continueWithoutVote = await showDialog<bool>(
+                    useRootNavigator: false,
                     context: context,
                     builder: (context) => AlertDialog(
                       title: Text(localizations.dialog_noVote_title),

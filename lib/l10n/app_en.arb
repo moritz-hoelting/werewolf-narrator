@@ -236,42 +236,6 @@
             }
         }
     },
-    "screen_roleAction_instruction_witch": "Choose a player to poison or save.",
-    "@screen_roleAction_instruction_witch": {
-        "description": "Instruction for the Witch role action"
-    },
-    "screen_roleAction_instruction_witch_heal": "Heal",
-    "@screen_roleAction_instruction_witch_heal": {
-        "description": "Label for the Witch's heal action"
-    },
-    "screen_roleAction_instruction_witch_kill": "Poison",
-    "@screen_roleAction_instruction_witch_kill": {
-        "description": "Label for the Witch's poison action"
-    },
-    "screen_roleAction_instruction_witch_noPotionsLeft": "No potions left to use.",
-    "@screen_roleAction_instruction_witch_noPotionsLeft": {
-        "description": "Message shown when the Witch has no potions left"
-    },
-    "screen_roleAction_instruction_seer": "Choose a player to reveal their role.",
-    "@screen_roleAction_instruction_seer": {
-        "description": "Instruction for the Seer role action"
-    },
-    "screen_roleAction_instruction_hunter": "Choose a player to shoot.",
-    "@screen_roleAction_instruction_hunter": {
-        "description": "Instruction for the Hunter role action"
-    },
-    "screen_roleAction_instruction_cupid": "Choose two players you want to fall in love.",
-    "@screen_roleAction_instruction_cupid": {
-        "description": "Instruction for the Cupid role action"
-    },
-    "screen_roleAction_instruction_werewolves": "Choose a player to kill.",
-    "@screen_roleAction_instruction_werewolves": {
-        "description": "Instruction for the Werewolf role action"
-    },
-    "screen_roleAction_instruction_thief": "Choose one of the two remaining roles to take.",
-    "@screen_roleAction_instruction_thief": {
-        "description": "Instruction for the Thief role action"
-    },
     "role_unknown_name": "Unknown role",
     "@role_unknown_name": {
         "description": "Display text when the role is unknown"
@@ -292,6 +256,38 @@
     "@role_werewolf_description": {
         "description": "Description of the Werewolf role"
     },
+    "role_ancientWerewolf_name": "Ancient Werewolf",
+    "@role_ancientWerewolf_name": {
+        "description": "Name of the Ancient Werewolf role"
+    },
+    "role_ancientWerewolf_description": "The oldest and most powerful of the werewolves. Can convert the attacked player into a werewolf instead of killing them once per game.",
+    "@role_ancientWerewolf_description": {
+        "description": "Description of the Ancient Werewolf role"
+    },
+    "role_ancientWerewolf_checkInstruction": "Wake and select {count, plural, =1{the Ancient Werewolf} other{all Ancient Werewolves}}",
+    "@role_ancientWerewolf_checkInstruction": {
+        "description": "Instruction to wake and select ancient werewolf roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_ancientWerewolf_nightAction_instruction": "Do you want to convert the attacked player ({playerName}) into a werewolf instead of killing them?",
+    "@role_ancientWerewolf_nightAction_instruction": {
+        "description": "Instruction for the Ancient Werewolf night action screen",
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "Alice"
+            }
+        }
+    },
+    "role_ancientWerewolf_nightAction_hasUsedAbility": "You have already used your ability this game.",
+    "@role_ancientWerewolf_nightAction_hasUsedAbility": {
+        "description": "Message shown on the Ancient Werewolf night action screen when the ability has already been used"
+    },
     "role_seer_name": "Seer",
     "@role_seer_name": {
         "description": "Name of the Seer role"
@@ -310,6 +306,10 @@
             }
         }
     },
+    "role_seer_nightAction_instruction": "Choose a player to reveal their role.",
+    "@role_seer_nightAction_instruction": {
+        "description": "Instruction for the Seer night action"
+    },
     "role_witch_name": "Witch",
     "@role_witch_name": {
         "description": "Name of the Witch role"
@@ -327,6 +327,22 @@
                 "example": "1"
             }
         }
+    },
+    "role_witch_nightAction_instruction": "Choose a player to poison or save.",
+    "@role_witch_nightAction_instruction": {
+        "description": "Instruction for the Witch night action"
+    },
+    "role_witch_nightAction_instruction_heal": "Heal",
+    "@role_witch_nightAction_instruction_heal": {
+        "description": "Label for the Witch's heal action"
+    },
+    "role_witch_nightAction_instruction_kill": "Poison",
+    "@role_witch_nightAction_instruction_kill": {
+        "description": "Label for the Witch's poison action"
+    },
+    "role_witch_nightAction_instruction_noPotionsLeft": "No potions left to use.",
+    "@role_witch_nightAction_instruction_noPotionsLeft": {
+        "description": "Message shown when the Witch has no potions left"
     },
     "role_witch_deathReason": "Poisoned by the Witch",
     "@role_witch_deathReason": {
@@ -350,6 +366,10 @@
             }
         }
     },
+    "role_hunter_deathAction_instruction": "Choose a player to shoot.",
+    "@role_hunter_deathAction_instruction": {
+        "description": "Instruction for the Hunter death action"
+    },
     "role_hunter_deathReason": "Shot by the Hunter",
     "@role_hunter_deathReason": {
         "description": "Reason for death: shot by the hunter"
@@ -371,6 +391,10 @@
                 "example": "1"
             }
         }
+    },
+    "role_cupid_nightAction_instruction": "Choose two players you want to fall in love.",
+    "@role_cupid_nightAction_instruction": {
+        "description": "Instruction for the Cupid night action"
     },
     "role_littleGirl_name": "Little Girl",
     "@role_littleGirl_name": {
@@ -408,6 +432,10 @@
             }
         }
     },
+    "role_thief_nightAction_instruction": "Choose one of the two remaining roles to take.",
+    "@role_thief_nightAction_instruction": {
+        "description": "Instruction for the Thief night action"
+    },
     "team_village_name": "Village",
     "@team_village_name": {
         "description": "Name of the Village team"
@@ -438,16 +466,20 @@
             }
         }
     },
+    "team_werewolves_nightAction_instruction": "Choose a player to kill.",
+    "@team_werewolves_nightAction_instruction": {
+        "description": "Instruction for the Werewolves night action"
+    },
     "team_werewolves_deathReason": "Killed by Werewolves",
     "@team_werewolves_deathReason": {
         "description": "Reason for death: killed by werewolves"
     },
-    "team_lovers_winHeadline": "The Lovers have won!",
-    "@team_lovers_winHeadline": {
+    "lovers_winHeadline": "The Lovers have won!",
+    "@lovers_winHeadline": {
         "description": "Headline shown when the Lovers' team wins"
     },
-    "team_lovers_deathReason": "Died of a Broken Heart",
-    "@team_lovers_deathReason": {
+    "lovers_deathReason": "Died of a Broken Heart",
+    "@lovers_deathReason": {
         "description": "Reason for death: died because their lover died"
     }
 }

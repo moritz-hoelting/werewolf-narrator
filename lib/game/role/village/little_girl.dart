@@ -6,12 +6,12 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class LittleGirlRole extends Role {
-  const LittleGirlRole._();
+  LittleGirlRole._();
   static final RoleType type = RoleType<LittleGirlRole>();
   @override
   RoleType get objectType => type;
 
-  static const Role instance = LittleGirlRole._();
+  static final Role instance = LittleGirlRole._();
 
   static void registerRole() {
     RoleManager.registerRole<LittleGirlRole>(

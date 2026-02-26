@@ -11,12 +11,12 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class HunterRole extends Role implements DeathReason {
-  const HunterRole._();
+  HunterRole._();
   static final RoleType type = RoleType<HunterRole>();
   @override
   RoleType get objectType => type;
 
-  static const Role instance = HunterRole._();
+  static final Role instance = HunterRole._();
 
   static void registerRole() {
     RoleManager.registerRole<HunterRole>(
@@ -82,7 +82,7 @@ class HunterScreen extends StatelessWidget {
         return ActionScreen(
           appBarTitle: Text(localizations.role_hunter_name),
           instruction: Text(
-            localizations.screen_roleAction_instruction_hunter,
+            localizations.role_hunter_deathAction_instruction,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           disabledPlayerIndices: {playerIndex},

@@ -6,7 +6,9 @@ import 'package:werewolf_narrator/game/game_state.dart';
 
 @sealed
 abstract class Role {
-  const Role();
+  Role();
+
+  TeamType? overrideTeam;
 
   @override
   String toString() {
@@ -29,7 +31,7 @@ abstract class Role {
   TeamType get initialTeam;
 
   /// The team of this role in the current game state.
-  TeamType team(GameState gameState) => initialTeam;
+  TeamType team(GameState gameState) => overrideTeam ?? initialTeam;
 
   /// The display name of this role.
   String name(BuildContext context);

@@ -19,6 +19,9 @@ class Player {
   /// Whether the player's death has been announced.
   bool deathAnnounced = false;
 
+  /// Tags associated with the player, used for various game mechanics.
+  final Set<Object> tags = {};
+
   Player({required this.name, this.role, DeathInformation? deathInformation})
     : _deathInformation = deathInformation;
 

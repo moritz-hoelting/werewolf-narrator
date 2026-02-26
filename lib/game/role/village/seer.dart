@@ -3,19 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class SeerRole extends Role {
-  const SeerRole._();
+  SeerRole._();
   static final RoleType type = RoleType<SeerRole>();
   @override
   RoleType get objectType => type;
 
-  static const Role instance = SeerRole._();
+  static final Role instance = SeerRole._();
 
   static void registerRole() {
     RoleManager.registerRole<SeerRole>(
@@ -92,7 +92,7 @@ class _SeerScreenState extends State<SeerScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  localizations.screen_roleAction_instruction_seer,
+                  localizations.role_seer_nightAction_instruction,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),

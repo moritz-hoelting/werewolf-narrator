@@ -8,7 +8,8 @@ import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/game/role/village/villager.dart'
+    show VillagerRole;
 import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart';

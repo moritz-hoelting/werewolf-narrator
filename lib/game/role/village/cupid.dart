@@ -87,7 +87,7 @@ class _CupidScreenState extends State<CupidScreen> {
       return ActionScreen(
         appBarTitle: Text(widget.cupidRole.name(context)),
         instruction: Text(
-          AppLocalizations.of(context).screen_roleAction_instruction_cupid,
+          AppLocalizations.of(context).role_cupid_nightAction_instruction,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         selectionCount: 2,

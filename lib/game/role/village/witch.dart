@@ -5,7 +5,7 @@ import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -139,7 +139,7 @@ class _WitchScreenState extends State<WitchScreen> {
             )
           : Center(
               child: Text(
-                localizations.screen_roleAction_instruction_witch_noPotionsLeft,
+                localizations.role_witch_nightAction_instruction_noPotionsLeft,
                 style: TextStyle(fontSize: 18),
               ),
             ),
@@ -274,7 +274,7 @@ class HasPotionsBody extends StatelessWidget {
           style: !killModeActive ? selectedModeButtonStyle : modeButtonStyle,
           onPressed: killModeActive && healPotions > 0 ? disableKillMode : null,
           label: Text(
-            localizations.screen_roleAction_instruction_witch_heal +
+            localizations.role_witch_nightAction_instruction_heal +
                 (healPotions > 1 ? ' ($healPotions)' : ''),
           ),
           icon: const Icon(Icons.healing),
@@ -283,7 +283,7 @@ class HasPotionsBody extends StatelessWidget {
           style: killModeActive ? selectedModeButtonStyle : modeButtonStyle,
           onPressed: !killModeActive && killPotions > 0 ? enableKillMode : null,
           label: Text(
-            localizations.screen_roleAction_instruction_witch_kill +
+            localizations.role_witch_nightAction_instruction_kill +
                 (killPotions > 1 ? ' ($killPotions)' : ''),
           ),
           icon: const Icon(Icons.science),
@@ -291,7 +291,7 @@ class HasPotionsBody extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
-            localizations.screen_roleAction_instruction_witch,
+            localizations.role_witch_nightAction_instruction,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),

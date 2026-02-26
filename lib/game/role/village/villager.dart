@@ -3,40 +3,39 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
-class WerewolfRole extends Role {
-  const WerewolfRole._();
-  static final RoleType type = RoleType<WerewolfRole>();
+class VillagerRole extends Role {
+  VillagerRole._();
+  static final RoleType type = RoleType<VillagerRole>();
   @override
   RoleType get objectType => type;
 
-  static const Role instance = WerewolfRole._();
+  static final Role instance = VillagerRole._();
 
   static void registerRole() {
-    RoleManager.registerRole<WerewolfRole>(
-      RegisterRoleInformation(WerewolfRole._, instance),
+    RoleManager.registerRole<VillagerRole>(
+      RegisterRoleInformation(VillagerRole._, instance),
     );
   }
 
   @override
   bool get isUnique => false;
   @override
-  TeamType get initialTeam => WerewolvesTeam.type;
+  TeamType get initialTeam => VillageTeam.type;
 
   @override
   String name(BuildContext context) {
-    return AppLocalizations.of(context).role_werewolf_name;
+    return AppLocalizations.of(context).role_villager_name;
   }
 
   @override
   String description(BuildContext context) {
-    return AppLocalizations.of(context).role_werewolf_description;
+    return AppLocalizations.of(context).role_villager_description;
   }
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    throw UnimplementedError('Werewolf has no individual check role screen');
+    throw UnimplementedError('Villager has no check role screen');
   }
 }

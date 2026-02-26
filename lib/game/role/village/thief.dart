@@ -4,7 +4,8 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/role/villager.dart' show VillagerRole;
+import 'package:werewolf_narrator/game/role/village/villager.dart'
+    show VillagerRole;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
@@ -12,12 +13,12 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class ThiefRole extends Role {
-  const ThiefRole._();
+  ThiefRole._();
   static final RoleType type = RoleType<ThiefRole>();
   @override
   RoleType get objectType => type;
 
-  static const Role instance = ThiefRole._();
+  static final Role instance = ThiefRole._();
 
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
@@ -126,7 +127,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  localizations.screen_roleAction_instruction_thief,
+                  localizations.role_thief_nightAction_instruction,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),

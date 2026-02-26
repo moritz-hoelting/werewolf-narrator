@@ -9,9 +9,10 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
-import 'package:werewolf_narrator/game/role/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/seer.dart' show SeerRole;
-import 'package:werewolf_narrator/game/role/werewolf.dart' show WerewolfRole;
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
+import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
+    show WerewolfRole;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
@@ -80,7 +81,7 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
         .toSet();
     return ActionScreen(
       appBarTitle: Text(localizations.team_werewolves_name),
-      instruction: Text(localizations.screen_roleAction_instruction_werewolves),
+      instruction: Text(localizations.team_werewolves_nightAction_instruction),
       selectionCount: 1,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {

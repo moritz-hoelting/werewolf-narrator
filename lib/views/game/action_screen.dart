@@ -134,6 +134,7 @@ class _ActionScreenState extends State<ActionScreen> {
       ? () {
           if (_selectedPlayers.length < widget.selectionCount) {
             final answer = showDialog<bool>(
+              useRootNavigator: false,
               context: context,
               builder: (context) {
                 final localizations = AppLocalizations.of(context);

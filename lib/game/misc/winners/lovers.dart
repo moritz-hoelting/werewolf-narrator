@@ -52,11 +52,11 @@ class Lovers implements DeathReason, WinCondition {
 
   @override
   String winningHeadline(BuildContext context) =>
-      AppLocalizations.of(context).team_lovers_winHeadline;
+      AppLocalizations.of(context).lovers_winHeadline;
 
   @override
   String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context).team_lovers_deathReason;
+      AppLocalizations.of(context).lovers_deathReason;
 
   @override
   bool hasWon(GameState gameState) => setEquals(

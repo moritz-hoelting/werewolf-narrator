@@ -45,6 +45,7 @@ class _GameViewState extends State<GameView> {
                 if (didPop) return;
 
                 final answer = await showDialog<bool>(
+                  useRootNavigator: false,
                   context: context,
                   builder: (dialogContext) => LeaveGameDialog(),
                 );
