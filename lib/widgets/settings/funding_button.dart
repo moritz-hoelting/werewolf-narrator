@@ -14,7 +14,7 @@ class FundingButton extends StatelessWidget {
     return TextButton.icon(
       onPressed: () {
         if (fundingUrls.length == 1) {
-          launchUrl(fundingUrls.first);
+          launchUrl(fundingUrls.single);
         } else {
           showDialog(
             context: context,

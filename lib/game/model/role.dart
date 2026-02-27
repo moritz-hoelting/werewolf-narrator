@@ -9,6 +9,7 @@ import 'package:werewolf_narrator/game/role/village/little_girl.dart'
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/village/thief.dart' show ThiefRole;
+import 'package:werewolf_narrator/game/role/village/two_sisters.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
@@ -65,16 +66,20 @@ abstract class RoleManager {
   }
 
   static void _registerRoles() {
+    // Village roles
     VillagerRole.registerRole();
     SeerRole.registerRole();
     WitchRole.registerRole();
     HunterRole.registerRole();
     CupidRole.registerRole();
     LittleGirlRole.registerRole();
+    TwoSistersRole.registerRole();
+    ThiefRole.registerRole();
+
+    // Werewolf roles
     WerewolfRole.registerRole();
     AncientWerewolfRole.registerRole();
     BigBadWolfRole.registerRole();
-    ThiefRole.registerRole();
   }
 
   /// Registers a role with the given information.

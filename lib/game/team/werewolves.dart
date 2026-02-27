@@ -91,7 +91,7 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
       currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(selectedPlayers.first, this);
+        gameState.markPlayerDead(selectedPlayers.single, this);
         onComplete();
       },
     );

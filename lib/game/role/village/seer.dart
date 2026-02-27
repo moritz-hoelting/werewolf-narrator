@@ -40,7 +40,7 @@ class SeerRole extends Role {
   }
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   TeamType get initialTeam => VillageTeam.type;
 

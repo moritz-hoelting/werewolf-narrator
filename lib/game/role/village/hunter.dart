@@ -25,7 +25,7 @@ class HunterRole extends Role implements DeathReason {
   }
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   TeamType get initialTeam => VillageTeam.type;
 
@@ -89,11 +89,7 @@ class HunterScreen extends StatelessWidget {
           disabledPlayerIndices: {playerIndex},
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
-            assert(
-              selectedPlayers.length == 1,
-              'Hunter must select exactly one player to shoot.',
-            );
-            gameState.markPlayerDead(selectedPlayers.first, hunterRole);
+            gameState.markPlayerDead(selectedPlayers.single, hunterRole);
             onPhaseComplete();
           },
         );

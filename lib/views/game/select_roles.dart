@@ -1,5 +1,3 @@
-import 'dart:math' show min;
-
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -21,18 +19,18 @@ class SelectRolesView extends StatefulWidget {
 }
 
 class _SelectRolesViewState extends State<SelectRolesView> {
-  final Map<RoleType, int> _selectedRoles = {};
+  final Map<RoleType, (int index, int count)> _selectedRoles = {};
 
   int get totalSelected =>
-      _selectedRoles.values.fold(0, (sum, count) => sum + count);
+      _selectedRoles.values.fold(0, (sum, entry) => sum + entry.$2);
   bool canAdd(int amount) => (totalSelected + amount) <= widget.playerCount;
 
-  void setCount(RoleType role, int count) {
+  void setCount(RoleType role, int index, int count) {
     setState(() {
       if (count == 0) {
         _selectedRoles.remove(role);
       } else {
-        _selectedRoles[role] = count;
+        _selectedRoles[role] = (index, count);
       }
     });
   }
@@ -43,7 +41,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
     final int missingRoles = widget.playerCount - totalSelected;
     final Set<RoleType> selectedRoleSet = _selectedRoles.entries
-        .where((entry) => entry.value > 0)
+        .where((entry) => entry.value.$2 > 0)
         .map((entry) => entry.key)
         .toSet();
     final Set<TeamType> selectedTeams = selectedRoleSet
@@ -60,22 +58,22 @@ class _SelectRolesViewState extends State<SelectRolesView> {
             child: ListView(
               children:
                   groupBy(
-                        RoleManager.registeredRoles,
-                        (role) => role.instance.initialTeam,
-                      ).values.flattened
-                      .map(
-                        (role) => RoleSelectorCard(
-                          role: role,
-                          count: _selectedRoles[role] ?? 0,
-                          maxCount: role.instance.isUnique
-                              ? ((_selectedRoles[role] ?? 0) == 0
-                                    ? min(1, missingRoles)
-                                    : 0)
-                              : missingRoles + (_selectedRoles[role] ?? 0),
-                          onChanged: (count) => setCount(role, count),
-                        ),
-                      )
-                      .toList(),
+                    RoleManager.registeredRoles,
+                    (role) => role.instance.initialTeam,
+                  ).values.flattened.map((role) {
+                    final maxCountIndex = findMaxCountIndexOfRole(
+                      role,
+                      missingRoles + (_selectedRoles[role]?.$2 ?? 0),
+                    );
+
+                    return RoleSelectorCard(
+                      role: role,
+                      count: _selectedRoles[role]?.$2 ?? 0,
+                      countIndex: _selectedRoles[role]?.$1 ?? -1,
+                      maxCountIndex: maxCountIndex,
+                      onChanged: (index, count) => setCount(role, index, count),
+                    );
+                  }).toList(),
             ),
           ),
 
@@ -104,7 +102,9 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   }
 
   void _submit() {
-    final modifiedRoles = Map<RoleType, int>.from(_selectedRoles);
+    final modifiedRoles = Map<RoleType, int>.from(
+      _selectedRoles.map((key, value) => MapEntry(key, value.$2)),
+    );
 
     for (final role in modifiedRoles.keys) {
       final adjuster = RoleManager.getRoleCountAdjuster(role);
@@ -115,19 +115,38 @@ class _SelectRolesViewState extends State<SelectRolesView> {
 
     widget.onSubmit(modifiedRoles);
   }
+
+  int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
+    final Iterable<int> validRoleCounts = role.instance.validRoleCounts;
+    final indexList = validRoleCounts.take(upperLimit + 1).toList();
+    assert(
+      indexList.isSorted((a, b) => a.compareTo(b)),
+      'validRoleCounts should be sorted in ascending order',
+    );
+    final lb = lowerBound(indexList, upperLimit);
+    if (indexList.length >= lb + 1 && indexList[lb] == upperLimit) {
+      return lb;
+    }
+    if (lb == 0) {
+      return -1;
+    }
+    return lb - 1;
+  }
 }
 
 class RoleSelectorCard extends StatefulWidget {
   final RoleType role;
   final int count;
-  final int maxCount;
-  final ValueChanged<int> onChanged;
+  final int countIndex;
+  final int maxCountIndex;
+  final void Function(int index, int count) onChanged;
 
   const RoleSelectorCard({
     super.key,
     required this.role,
     required this.count,
-    required this.maxCount,
+    required this.countIndex,
+    required this.maxCountIndex,
     required this.onChanged,
   });
 
@@ -143,6 +162,13 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
     final theme = Theme.of(context);
     final role = widget.role.instance;
     final description = role.description(context);
+
+    final maxCount = widget.maxCountIndex == -1
+        ? 0
+        : widget.role.instance.validRoleCounts.elementAt(widget.maxCountIndex);
+    final validCounts = widget.role.instance.validRoleCounts.take(
+      widget.maxCountIndex + 1,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -193,7 +219,9 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
                 // Counter
                 _Counter(
                   value: widget.count,
-                  maxValue: widget.maxCount,
+                  valueIndex: widget.countIndex,
+                  validCounts: validCounts,
+                  maxValue: maxCount,
                   setValue: widget.onChanged,
                 ),
               ],
@@ -212,11 +240,15 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
 
 class _Counter extends StatelessWidget {
   final int value;
+  final int valueIndex;
   final int maxValue;
-  final void Function(int) setValue;
+  final Iterable<int> validCounts;
+  final void Function(int index, int value) setValue;
 
   const _Counter({
     required this.value,
+    required this.valueIndex,
+    required this.validCounts,
     required this.maxValue,
     required this.setValue,
   });
@@ -228,10 +260,15 @@ class _Counter extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.remove),
-          onPressed: value > 0 ? () => setValue(value - 1) : null,
+          onPressed: value > 0
+              ? () => setValue(
+                  valueIndex - 1,
+                  valueIndex == 0 ? 0 : validCounts.elementAt(valueIndex - 1),
+                )
+              : null,
           onLongPress: value > 0
               ? () {
-                  setValue(0);
+                  setValue(-1, 0);
                 }
               : null,
         ),
@@ -247,10 +284,15 @@ class _Counter extends StatelessWidget {
         ),
         IconButton(
           icon: const Icon(Icons.add),
-          onPressed: value < maxValue ? () => setValue(value + 1) : null,
+          onPressed: value < maxValue
+              ? () => setValue(
+                  valueIndex + 1,
+                  validCounts.elementAt(valueIndex + 1),
+                )
+              : null,
           onLongPress: value < maxValue
               ? () {
-                  setValue(maxValue);
+                  setValue(validCounts.length, maxValue);
                 }
               : null,
         ),

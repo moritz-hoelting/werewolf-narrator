@@ -109,7 +109,7 @@ class PlayerListTile extends StatelessWidget {
       selected: selected,
       enabled: tileEnabled,
       tileColor: currentActor
-          ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2)
+          ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
           : playerDisplayData.tileColor,
       selectedTileColor:
           playerDisplayData.selectedTileColor ??

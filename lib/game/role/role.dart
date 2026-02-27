@@ -21,8 +21,11 @@ abstract class Role {
   /// Called when this role is assigned to a player.
   void onAssign(GameState gameState, int playerIndex) {}
 
-  /// Whether this role is unique in the game.
-  bool get isUnique;
+  /// Valid role counts for this role.
+  ///
+  /// 0 is assumed implicitly, so it should not be included in this list.
+  /// Should be sorted in ascending order.
+  Iterable<int> get validRoleCounts;
 
   /// How many role cards are added to the game when this role is included.
   int get addedRoleCardAmount => 1;

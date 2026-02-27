@@ -46,7 +46,7 @@ class WitchRole extends Role implements DeathReason {
   int killPotions = 1;
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   TeamType get initialTeam => VillageTeam.type;
 

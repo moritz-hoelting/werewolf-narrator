@@ -71,7 +71,7 @@ class PlayerDisplayData {
       trailing: trailing.isEmpty
           ? null
           : (trailing.length == 1
-                ? trailing.first
+                ? trailing.single
                 : (context) {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
@@ -83,7 +83,7 @@ class PlayerDisplayData {
       subtitle: subtitle.isEmpty
           ? null
           : (subtitle.length == 1
-                ? subtitle.first
+                ? subtitle.single
                 : (context) {
                     return Column(
                       mainAxisSize: MainAxisSize.min,

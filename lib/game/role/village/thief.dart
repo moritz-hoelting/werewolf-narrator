@@ -66,7 +66,7 @@ class ThiefRole extends Role {
   }
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   int get addedRoleCardAmount => 3;
   @override

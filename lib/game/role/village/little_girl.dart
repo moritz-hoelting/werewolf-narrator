@@ -20,7 +20,7 @@ class LittleGirlRole extends Role {
   }
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   TeamType get initialTeam => VillageTeam.type;
 
@@ -36,7 +36,8 @@ class LittleGirlRole extends Role {
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context);
-    return localizations.role_littleGirl_checkInstruction(count: count);
+    return AppLocalizations.of(
+      context,
+    ).role_littleGirl_checkInstruction(count: count);
   }
 }

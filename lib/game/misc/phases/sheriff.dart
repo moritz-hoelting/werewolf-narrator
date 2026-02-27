@@ -61,9 +61,7 @@ class SheriffElectionScreen extends StatelessWidget {
       selectionCount: 1,
       allowSelectLess: true,
       onConfirm: (selectedPlayers, gameState) {
-        if (selectedPlayers.length == 1) {
-          sheriffVoteAction.sheriffIndex = selectedPlayers.first;
-        }
+        sheriffVoteAction.sheriffIndex = selectedPlayers.single;
         onComplete();
       },
     );

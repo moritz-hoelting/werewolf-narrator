@@ -396,6 +396,24 @@
     "@role_thief_nightAction_instruction": {
         "description": "Instruction for the Thief night action"
     },
+    "role_twoSisters_name": "Two Sisters",
+    "@role_twoSisters_name": {
+        "description": "Name of the Two Sisters role"
+    },
+    "role_twoSisters_description": "Two sisters that are always together.",
+    "@role_twoSisters_description": {
+        "description": "Description of the Two Sisters role"
+    },
+    "role_twoSisters_checkInstruction": "Wake and select {count, plural, =2{the Two Sisters} other{all Sisters}}",
+    "@role_twoSisters_checkInstruction": {
+        "description": "Instruction to wake and select two sisters roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"

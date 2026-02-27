@@ -38,7 +38,7 @@ class BigBadWolfRole extends Role {
   }
 
   @override
-  bool get isUnique => true;
+  Iterable<int> get validRoleCounts => const [1];
   @override
   TeamType get initialTeam => WerewolvesTeam.type;
 
@@ -83,7 +83,7 @@ class BigBadWolfRole extends Role {
       selectionCount: 1,
       onConfirm: (selectedPlayers, gameState) {
         gameState.markPlayerDead(
-          selectedPlayers.first,
+          selectedPlayers.single,
           (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam),
         );
         onComplete();

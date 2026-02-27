@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
+import 'package:werewolf_narrator/util/iterable.dart';
 
 class WerewolfRole extends Role {
   WerewolfRole._();
@@ -21,7 +22,7 @@ class WerewolfRole extends Role {
   }
 
   @override
-  bool get isUnique => false;
+  Iterable<int> get validRoleCounts => infiniteIterableStartingAt(1);
   @override
   TeamType get initialTeam => WerewolvesTeam.type;
 
