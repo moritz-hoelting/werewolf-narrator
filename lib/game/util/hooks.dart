@@ -4,6 +4,8 @@ import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/game_state.dart';
 
+typedef DawnHook = void Function(GameState gameState, int dayCount);
+
 typedef DeathHook =
     bool Function(GameState gameState, int playerIndex, DeathReason reason);
 

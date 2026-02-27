@@ -30,7 +30,11 @@ class GameState extends ChangeNotifier {
   /// The counts of roles present in this game (initialized during setup).
   final Map<RoleType, int> roleCounts;
 
+  /// Conditions under which the game is considered to be won.
   final List<WinCondition> winConditions = [];
+
+  /// Hooks run at dawn.
+  final List<DawnHook> dawnHooks = [];
 
   /// Hooks when a player is marked dead.
   ///
@@ -406,10 +410,17 @@ class GameState extends ChangeNotifier {
       players[playerIndex].isAlive ||
       (isNight && currentCycleDeaths.containsKey(playerIndex));
 
+  /// Player indices that are known to be dead based on the current game state (until dawn).
   Set<int> get knownDeadPlayerIndices => List.generate(
     players.length,
     (i) => i,
   ).where((index) => !playerAliveUntilDawn(index)).toSet();
+
+  /// Player indices that are known to be alive based on the current game state (until dawn).
+  Set<int> get knownAlivePlayerIndices => List.generate(
+    players.length,
+    (i) => i,
+  ).where((index) => playerAliveUntilDawn(index)).toSet();
 
   /// Whether there are pending death actions to be resolved.
   bool get pendingDeathActions =>
@@ -491,6 +502,9 @@ class GameState extends ChangeNotifier {
       _phase = next;
       if (next == GamePhase.dawn) {
         _dayCounter += 1;
+        for (final hook in dawnHooks) {
+          hook(this, dayCounter);
+        }
       }
       notifyListeners();
       return true;

@@ -2,20 +2,24 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/village/fox.dart';
+import 'package:werewolf_narrator/game/role/village/fox.dart' show FoxRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
     show HunterRole;
+import 'package:werewolf_narrator/game/role/village/knight_of_the_rusty_sword.dart'
+    show KnightOfTheRustySwordRole;
 import 'package:werewolf_narrator/game/role/village/little_girl.dart'
     show LittleGirlRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/village/thief.dart' show ThiefRole;
-import 'package:werewolf_narrator/game/role/village/two_sisters.dart';
+import 'package:werewolf_narrator/game/role/village/two_sisters.dart'
+    show TwoSistersRole;
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
     show AncientWerewolfRole;
-import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart';
+import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
+    show BigBadWolfRole;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
@@ -76,6 +80,7 @@ abstract class RoleManager {
     LittleGirlRole.registerRole();
     TwoSistersRole.registerRole();
     FoxRole.registerRole();
+    KnightOfTheRustySwordRole.registerRole();
     ThiefRole.registerRole();
 
     // Werewolf roles

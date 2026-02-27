@@ -448,6 +448,28 @@
     "@role_fox_nightAction_result_noWerewolf": {
         "description": "Message shown on the Fox night action result screen when no werewolves are found"
     },
+    "role_knightOfTheRustySword_name": "Knight of the Rusty Sword",
+    "@role_knightOfTheRustySword_name": {
+        "description": "Name of the Knight of the Rusty Sword role"
+    },
+    "role_knightOfTheRustySword_description": "When killed by the werewolves, the knight poisons the nearest werewolf in clockwise direction.",
+    "@role_knightOfTheRustySword_description": {
+        "description": "Description of the Knight of the Rusty Sword role"
+    },
+    "role_knightOfTheRustySword_checkInstruction": "Wake and select {count, plural, =1{the Knight of the Rusty Sword} other{all Knights of the Rusty Sword}}",
+    "@role_knightOfTheRustySword_checkInstruction": {
+        "description": "Instruction to wake and select knight of the rusty sword roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_knightOfTheRustySword_deathReason": "Poisoned by the Knight of the Rusty Sword",
+    "@role_knightOfTheRustySword_deathReason": {
+        "description": "Reason for death: poisoned by the Knight of the Rusty Sword"
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"
