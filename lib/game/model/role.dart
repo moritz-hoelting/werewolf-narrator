@@ -13,6 +13,7 @@ import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
     show AncientWerewolfRole;
+import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart';
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
@@ -72,6 +73,7 @@ abstract class RoleManager {
     LittleGirlRole.registerRole();
     WerewolfRole.registerRole();
     AncientWerewolfRole.registerRole();
+    BigBadWolfRole.registerRole();
     ThiefRole.registerRole();
   }
 

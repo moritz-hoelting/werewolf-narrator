@@ -248,46 +248,6 @@
     "@role_villager_description": {
         "description": "Description of the Villager role"
     },
-    "role_werewolf_name": "Werewolf",
-    "@role_werewolf_name": {
-        "description": "Name of the Werewolf role"
-    },
-    "role_werewolf_description": "A fearsome creature that wakes as a pack and hunts villagers at night.",
-    "@role_werewolf_description": {
-        "description": "Description of the Werewolf role"
-    },
-    "role_ancientWerewolf_name": "Ancient Werewolf",
-    "@role_ancientWerewolf_name": {
-        "description": "Name of the Ancient Werewolf role"
-    },
-    "role_ancientWerewolf_description": "The oldest and most powerful of the werewolves. Can convert the attacked player into a werewolf instead of killing them once per game.",
-    "@role_ancientWerewolf_description": {
-        "description": "Description of the Ancient Werewolf role"
-    },
-    "role_ancientWerewolf_checkInstruction": "Wake and select {count, plural, =1{the Ancient Werewolf} other{all Ancient Werewolves}}",
-    "@role_ancientWerewolf_checkInstruction": {
-        "description": "Instruction to wake and select ancient werewolf roles",
-        "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "1"
-            }
-        }
-    },
-    "role_ancientWerewolf_nightAction_instruction": "Do you want to convert the attacked player ({playerName}) into a werewolf instead of killing them?",
-    "@role_ancientWerewolf_nightAction_instruction": {
-        "description": "Instruction for the Ancient Werewolf night action screen",
-        "placeholders": {
-            "playerName": {
-                "type": "String",
-                "example": "Alice"
-            }
-        }
-    },
-    "role_ancientWerewolf_nightAction_hasUsedAbility": "You have already used your ability this game.",
-    "@role_ancientWerewolf_nightAction_hasUsedAbility": {
-        "description": "Message shown on the Ancient Werewolf night action screen when the ability has already been used"
-    },
     "role_seer_name": "Seer",
     "@role_seer_name": {
         "description": "Name of the Seer role"
@@ -435,6 +395,68 @@
     "role_thief_nightAction_instruction": "Choose one of the two remaining roles to take.",
     "@role_thief_nightAction_instruction": {
         "description": "Instruction for the Thief night action"
+    },
+    "role_werewolf_name": "Werewolf",
+    "@role_werewolf_name": {
+        "description": "Name of the Werewolf role"
+    },
+    "role_werewolf_description": "A fearsome creature that wakes as a pack and hunts villagers at night.",
+    "@role_werewolf_description": {
+        "description": "Description of the Werewolf role"
+    },
+    "role_ancientWerewolf_name": "Ancient Werewolf",
+    "@role_ancientWerewolf_name": {
+        "description": "Name of the Ancient Werewolf role"
+    },
+    "role_ancientWerewolf_description": "The oldest and most powerful of the werewolves. Can convert the attacked player into a werewolf instead of killing them once per game.",
+    "@role_ancientWerewolf_description": {
+        "description": "Description of the Ancient Werewolf role"
+    },
+    "role_ancientWerewolf_checkInstruction": "Wake and select {count, plural, =1{the Ancient Werewolf} other{all Ancient Werewolves}}",
+    "@role_ancientWerewolf_checkInstruction": {
+        "description": "Instruction to wake and select ancient werewolf roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_ancientWerewolf_nightAction_instruction": "Do you want to convert the attacked player ({playerName}) into a werewolf instead of killing them?",
+    "@role_ancientWerewolf_nightAction_instruction": {
+        "description": "Instruction for the Ancient Werewolf night action screen",
+        "placeholders": {
+            "playerName": {
+                "type": "String",
+                "example": "Alice"
+            }
+        }
+    },
+    "role_ancientWerewolf_nightAction_hasUsedAbility": "You have already used your ability this game.",
+    "@role_ancientWerewolf_nightAction_hasUsedAbility": {
+        "description": "Message shown on the Ancient Werewolf night action screen when the ability has already been used"
+    },
+    "role_bigBadWolf_name": "Big Bad Wolf",
+    "@role_bigBadWolf_name": {
+        "description": "Name of the Big Bad Wolf role"
+    },
+    "role_bigBadWolf_description": "A werewolf that can kill a second player during the night as long as no werewolf has been eliminated.",
+    "@role_bigBadWolf_description": {
+        "description": "Description of the Big Bad Wolf role"
+    },
+    "role_bigBadWolf_checkInstruction": "Wake and select {count, plural, =1{the Big Bad Wolf} other{all Big Bad Wolves}}",
+    "@role_bigBadWolf_checkInstruction": {
+        "description": "Instruction to wake and select big bad wolf roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_bigBadWolf_nightAction_instruction": "Select a player to kill.",
+    "@role_bigBadWolf_nightAction_instruction": {
+        "description": "Instruction for the Big Bad Wolf night action"
     },
     "team_village_name": "Village",
     "@team_village_name": {

@@ -38,9 +38,7 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
 
     gameState.nightActionManager.registerAction(
       WerewolvesTeam.type,
-      (gameState, onComplete) {
-        return nightActionScreen(onComplete);
-      },
+      (gameState, onComplete) => nightActionScreen(onComplete),
       conditioned: (gameState) =>
           gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>(),
       after: [CupidRole.type, SeerRole.type],
@@ -87,7 +85,7 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
     final werewolvesOrDead = werewolfIndices.union(deadIndices);
 
     return ActionScreen(
-      appBarTitle: Text(localizations.team_werewolves_name),
+      appBarTitle: Text(name(context)),
       instruction: Text(localizations.team_werewolves_nightAction_instruction),
       selectionCount: 1,
       currentActorIndices: werewolfIndices,
