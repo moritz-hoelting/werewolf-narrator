@@ -414,6 +414,40 @@
             }
         }
     },
+    "role_fox_name": "Fox",
+    "@role_fox_name": {
+        "description": "Name of the Fox role"
+    },
+    "role_fox_description": "Each night, the player may check whether they or either of the two alive adjacent players is a werewolf. If none of them is a werewolf, the fox loses its ability.",
+    "@role_fox_description": {
+        "description": "Description of the Fox role"
+    },
+    "role_fox_checkInstruction": "Wake and select {count, plural, =1{the Fox} other{all Foxes}}",
+    "@role_fox_checkInstruction": {
+        "description": "Instruction to wake and select fox roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_fox_nightAction_instruction": "Select a player to check them and their neightbors for werewolves.",
+    "@role_fox_nightAction_instruction": {
+        "description": "Instruction for the Fox night action"
+    },
+    "role_fox_nightAction_skip": "Do you want to skip your ability this round?",
+    "@role_fox_nightAction_skip":{
+        "description": "Title for the Fox night action skip dialog."
+    },
+    "role_fox_nightAction_result_werewolf": "A werewolf was found.",
+    "@role_fox_nightAction_result_werewolf": {
+        "description": "Message shown on the Fox night action result screen when a werewolf is found"
+    },
+    "role_fox_nightAction_result_noWerewolf": "No werewolves found. You lose your powers.",
+    "@role_fox_nightAction_result_noWerewolf": {
+        "description": "Message shown on the Fox night action result screen when no werewolves are found"
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"

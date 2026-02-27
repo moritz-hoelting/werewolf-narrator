@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/fox.dart';
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
     show HunterRole;
 import 'package:werewolf_narrator/game/role/village/little_girl.dart'
@@ -74,6 +75,7 @@ abstract class RoleManager {
     CupidRole.registerRole();
     LittleGirlRole.registerRole();
     TwoSistersRole.registerRole();
+    FoxRole.registerRole();
     ThiefRole.registerRole();
 
     // Werewolf roles

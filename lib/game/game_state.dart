@@ -419,6 +419,27 @@ class GameState extends ChangeNotifier {
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
 
+  (int, int) getAliveNeighbors(int playerIndex) {
+    final livingIndices = List.generate(
+      players.length,
+      (i) => i,
+    ).where((i) => playerAliveUntilDawn(i)).toList();
+    final lb = lowerBound(livingIndices, playerIndex);
+
+    final leftNeighborLivingIndex = lb == 0 ? livingIndices.length - 1 : lb - 1;
+    final leftNeighbor = livingIndices[leftNeighborLivingIndex];
+
+    final rightNeighborLivingIndexProposal =
+        (leftNeighborLivingIndex + 1) % livingIndices.length;
+    final rightNeighborLivingIndex =
+        livingIndices[rightNeighborLivingIndexProposal] == playerIndex
+        ? (rightNeighborLivingIndexProposal + 1) % livingIndices.length
+        : rightNeighborLivingIndexProposal;
+    final rightNeighbor = livingIndices[rightNeighborLivingIndex];
+
+    return (leftNeighbor, rightNeighbor);
+  }
+
   /// Checks if any team has met its win conditions.
   WinCondition? checkWinConditions() {
     for (final cond in winConditions) {

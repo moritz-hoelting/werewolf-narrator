@@ -62,8 +62,9 @@ class WitchRole extends Role implements DeathReason {
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context);
-    return localizations.role_witch_checkInstruction(count: count);
+    return AppLocalizations.of(
+      context,
+    ).role_witch_checkInstruction(count: count);
   }
 
   @override

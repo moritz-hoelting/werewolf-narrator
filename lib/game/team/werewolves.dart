@@ -54,8 +54,9 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
 
   @override
   String checkTeamInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context);
-    return localizations.team_werewolves_checkInstruction(count: count);
+    return AppLocalizations.of(
+      context,
+    ).team_werewolves_checkInstruction(count: count);
   }
 
   @override

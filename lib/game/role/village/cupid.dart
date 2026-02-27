@@ -55,8 +55,9 @@ class CupidRole extends Role {
 
   @override
   String checkRoleInstruction(BuildContext context, int count) {
-    final localizations = AppLocalizations.of(context);
-    return localizations.role_cupid_checkInstruction(count: count);
+    return AppLocalizations.of(
+      context,
+    ).role_cupid_checkInstruction(count: count);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) {
