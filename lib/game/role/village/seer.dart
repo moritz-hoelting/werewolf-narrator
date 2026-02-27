@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
@@ -8,6 +9,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class SeerRole extends Role {
   SeerRole._();
@@ -97,22 +99,30 @@ class _SeerScreenState extends State<SeerScreen> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: gameState.playerCount,
-                  itemBuilder: (context, index) {
-                    return PlayerListTile(
-                      playerName: gameState.players[index].name,
-                      roleName: gameState.players[index].role?.name(context),
-                      enabled:
-                          gameState.playerAliveUntilDawn(index) &&
-                          index != widget.playerIndex,
-                      selected: _selectedPlayer == index,
-                      onTap: () {
-                        setState(() {
-                          _selectedPlayer = index;
-                        });
-                      },
-                    );
+                child: PlayerList(
+                  phaseIdentifier: SeerScreen,
+                  selectedPlayers: {_selectedPlayer}.nonNulls.toSet(),
+                  disabledPlayers: gameState.knownDeadPlayerIndices.union({
+                    widget.playerIndex,
+                  }),
+                  currentActorIndices: {widget.playerIndex},
+                  playerSpecificDisplayData: _selectedPlayer != null
+                      ? {
+                          _selectedPlayer!: PlayerDisplayData(
+                            subtitle: (context) => Text(
+                              gameState.players[_selectedPlayer!].role?.name(
+                                    context,
+                                  ) ??
+                                  localizations.role_unknown_name,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                        }
+                      : {},
+                  onPlayerTap: (index) => () {
+                    setState(() {
+                      _selectedPlayer = index;
+                    });
                   },
                 ),
               ),
@@ -123,43 +133,6 @@ class _SeerScreenState extends State<SeerScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class PlayerListTile extends StatelessWidget {
-  const PlayerListTile({
-    super.key,
-    required this.playerName,
-    this.roleName,
-    required this.enabled,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String playerName;
-  final String? roleName;
-  final bool enabled;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
-    return ListTile(
-      title: Text(playerName),
-      subtitle: selected
-          ? Text(
-              roleName ?? localizations.role_unknown_name,
-              style: Theme.of(context).textTheme.bodyLarge,
-            )
-          : null,
-      onTap: onTap,
-      selected: selected,
-      enabled: enabled,
-      selectedTileColor: Theme.of(
-        context,
-      ).colorScheme.primary.withValues(alpha: 0.2),
     );
   }
 }

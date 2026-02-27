@@ -30,7 +30,7 @@ class CupidRole extends Role {
     gameState.nightActionManager.registerAction(
       CupidRole.type,
       (gameState, onComplete) {
-        return nightActionScreen(onComplete);
+        return nightActionScreen(playerIndex, onComplete);
       },
       conditioned: (gameState) =>
           gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
@@ -59,8 +59,12 @@ class CupidRole extends Role {
     return localizations.role_cupid_checkInstruction(count: count);
   }
 
-  WidgetBuilder nightActionScreen(VoidCallback onComplete) {
-    return (context) => CupidScreen(onComplete: onComplete, cupidRole: this);
+  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) {
+    return (context) => CupidScreen(
+      onComplete: onComplete,
+      cupidIndex: playerIndex,
+      cupidRole: this,
+    );
   }
 }
 
@@ -69,9 +73,11 @@ class CupidScreen extends StatefulWidget {
     super.key,
     required this.onComplete,
     required this.cupidRole,
+    required this.cupidIndex,
   });
 
   final CupidRole cupidRole;
+  final int cupidIndex;
   final VoidCallback onComplete;
 
   @override
@@ -90,6 +96,7 @@ class _CupidScreenState extends State<CupidScreen> {
           AppLocalizations.of(context).role_cupid_nightAction_instruction,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        currentActorIndices: {widget.cupidIndex},
         selectionCount: 2,
         onConfirm: onAssignLovers,
       );

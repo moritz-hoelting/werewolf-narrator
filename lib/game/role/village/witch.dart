@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
@@ -13,6 +14,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class WitchRole extends Role implements DeathReason {
   WitchRole._();
@@ -118,6 +120,7 @@ class _WitchScreenState extends State<WitchScreen> {
       ),
       body: widget.witchRole.healPotions > 0 || widget.witchRole.killPotions > 0
           ? HasPotionsBody(
+              playerIndex: widget.playerIndex,
               healPotions: widget.witchRole.healPotions,
               killPotions: widget.witchRole.killPotions,
               killModeActive: _killModeActive,
@@ -234,6 +237,7 @@ class _WitchScreenState extends State<WitchScreen> {
 class HasPotionsBody extends StatelessWidget {
   const HasPotionsBody({
     super.key,
+    required this.playerIndex,
     required this.killModeActive,
     required this.healPotions,
     required this.killPotions,
@@ -246,6 +250,7 @@ class HasPotionsBody extends StatelessWidget {
     required this.onTapKill,
   });
 
+  final int playerIndex;
   final bool killModeActive;
   final int healPotions;
   final int killPotions;
@@ -297,34 +302,32 @@ class HasPotionsBody extends StatelessWidget {
         ),
         Consumer<GameState>(
           builder: (context, gameState, child) => Expanded(
-            child: ListView.builder(
-              itemCount: gameState.playerCount,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(gameState.players[index].name),
-                  trailing: selectedHealPlayers.contains(index)
-                      ? const Icon(Icons.healing)
-                      : (selectedKillPlayers.contains(index)
-                            ? const Icon(Icons.science)
-                            : null),
-                  onTap: killModeActive
-                      ? onTapKill(gameState, index)
-                      : onTapHeal(gameState, index),
-                  selected:
-                      (selectedKillPlayers.contains(index) && killModeActive) ||
-                      (selectedHealPlayers.contains(index) && !killModeActive),
-                  enabled: playerEnabled(gameState, index),
-                  selectedTileColor: killModeActive
-                      ? Colors.red.withAlpha(50)
-                      : Colors.green.withAlpha(50),
-                  tileColor: killModeActive
-                      ? (selectedHealPlayers.contains(index)
-                            ? Colors.green.withAlpha(30)
-                            : null)
-                      : (selectedKillPlayers.contains(index)
-                            ? Colors.red.withAlpha(30)
-                            : null),
-                );
+            child: PlayerList(
+              phaseIdentifier: WitchScreen,
+              onPlayerTap: (index) => killModeActive
+                  ? onTapKill(gameState, index)
+                  : onTapHeal(gameState, index),
+              selectedPlayers: killModeActive
+                  ? selectedKillPlayers
+                  : selectedHealPlayers,
+              disabledPlayers: List.generate(
+                gameState.playerCount,
+                (i) => i,
+              ).where((index) => !playerEnabled(gameState, index)).toSet(),
+              currentActorIndices: {playerIndex},
+              playerSpecificDisplayData: {
+                for (final index in selectedHealPlayers)
+                  index: PlayerDisplayData(
+                    trailing: (context) => const Icon(Icons.healing),
+                    selectedTileColor: Colors.green.withAlpha(50),
+                    tileColor: Colors.green.withAlpha(30),
+                  ),
+                for (final index in selectedKillPlayers)
+                  index: PlayerDisplayData(
+                    trailing: (context) => const Icon(Icons.science),
+                    selectedTileColor: Colors.red.withAlpha(50),
+                    tileColor: Colors.red.withAlpha(30),
+                  ),
               },
             ),
           ),

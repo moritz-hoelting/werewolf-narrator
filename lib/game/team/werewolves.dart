@@ -71,18 +71,26 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context);
     final gameState = Provider.of<GameState>(context, listen: false);
-    final werewolvesOrDead = gameState.players.indexed
+
+    final werewolfIndices = gameState.players.indexed
         .where(
-          (player) =>
-              player.$2.role?.team(gameState) == WerewolvesTeam.type ||
-              !player.$2.isAlive,
+          (player) => player.$2.role?.team(gameState) == WerewolvesTeam.type,
         )
         .map((player) => player.$1)
         .toSet();
+
+    final deadIndices = gameState.players.indexed
+        .where((player) => !player.$2.isAlive)
+        .map((player) => player.$1)
+        .toSet();
+
+    final werewolvesOrDead = werewolfIndices.union(deadIndices);
+
     return ActionScreen(
       appBarTitle: Text(localizations.team_werewolves_name),
       instruction: Text(localizations.team_werewolves_nightAction_instruction),
       selectionCount: 1,
+      currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
         gameState.markPlayerDead(selectedPlayers.first, this);

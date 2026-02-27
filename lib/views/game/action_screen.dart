@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class ActionScreen extends StatefulWidget {
   final Widget appBarTitle;
   final Widget? instruction;
   final Object? actionIdentifier;
 
+  final Set<int> currentActorIndices;
   final Set<int> disabledPlayerIndices;
 
   final int selectionCount;
@@ -23,6 +24,7 @@ class ActionScreen extends StatefulWidget {
     required this.appBarTitle,
     this.instruction,
     this.actionIdentifier,
+    this.currentActorIndices = const {},
     this.disabledPlayerIndices = const {},
     required this.selectionCount,
     this.allowSelectLess = false,
@@ -39,62 +41,35 @@ class _ActionScreenState extends State<ActionScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final playerDisplayHooks = gameState.playerDisplayHooks;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: widget.appBarTitle,
-            automaticallyImplyLeading: false,
-          ),
-          body: Column(
-            children: [
-              if (widget.instruction != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: widget.instruction!,
-                ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: gameState.playerCount,
-                  itemBuilder: (context, index) {
-                    final playerDisplayData = PlayerDisplayData.merge(
-                      playerDisplayHooks
-                          .map(
-                            (hook) =>
-                                hook(gameState, widget.actionIdentifier, index),
-                          )
-                          .nonNulls,
-                    );
-
-                    return ListTile(
-                      title: Text(gameState.players[index].name),
-                      subtitle: playerDisplayData.subtitle != null
-                          ? playerDisplayData.subtitle!(context)
-                          : null,
-                      trailing: playerDisplayData.trailing != null
-                          ? playerDisplayData.trailing!(context)
-                          : null,
-                      onTap: getOnTapPlayer(index, gameState),
-                      selected: _selectedPlayers.contains(index),
-                      enabled:
-                          gameState.players[index].isAlive &&
-                          !playerDisplayData.disabled &&
-                          !widget.disabledPlayerIndices.contains(index),
-                      selectedTileColor: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.2),
-                    );
-                  },
-                ),
+      builder: (context, gameState, _) => Scaffold(
+        appBar: AppBar(
+          title: widget.appBarTitle,
+          automaticallyImplyLeading: false,
+        ),
+        body: Column(
+          children: [
+            if (widget.instruction != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: widget.instruction!,
               ),
-            ],
-          ),
-          bottomNavigationBar: BottomContinueButton(
-            onPressed: getOnContinue(gameState),
-          ),
-        );
-      },
+            Expanded(
+              child: PlayerList(
+                phaseIdentifier: widget.actionIdentifier,
+                onPlayerTap: (index) => getOnTapPlayer(index, gameState),
+                selectedPlayers: _selectedPlayers,
+                disabledPlayers: widget.disabledPlayerIndices.union(
+                  gameState.knownDeadPlayerIndices,
+                ),
+                currentActorIndices: widget.currentActorIndices,
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomContinueButton(
+          onPressed: getOnContinue(gameState),
+        ),
+      ),
     );
   }
 

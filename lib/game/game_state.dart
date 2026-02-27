@@ -406,6 +406,11 @@ class GameState extends ChangeNotifier {
       players[playerIndex].isAlive ||
       (isNight && currentCycleDeaths.containsKey(playerIndex));
 
+  Set<int> get knownDeadPlayerIndices => List.generate(
+    players.length,
+    (i) => i,
+  ).where((index) => !playerAliveUntilDawn(index)).toSet();
+
   /// Whether there are pending death actions to be resolved.
   bool get pendingDeathActions =>
       players.any((player) => player.waitForDeathAction(this));

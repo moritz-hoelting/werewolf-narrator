@@ -10,7 +10,7 @@ import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class CheckRolesScreen extends StatefulWidget {
   const CheckRolesScreen({super.key, required this.onPhaseComplete});
@@ -202,7 +202,6 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   }) {
     final localizations = AppLocalizations.of(context);
     final minSelection = maxSelection - missingRoleCount(gameState);
-    final playerDisplayHooks = gameState.playerDisplayHooks;
     final teamAssignedPlayers =
         widget.assignedPlayersByTeam.values.flattenedToList;
 
@@ -215,43 +214,29 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             )
-          : ListView.builder(
-              itemCount: gameState.playerCount,
-              itemBuilder: (context, index) {
-                final playerDisplayData = PlayerDisplayData.merge(
-                  playerDisplayHooks
-                      .map(
-                        (hook) => hook(gameState, (
-                          GamePhase.checkRoles,
-                          widget.current,
-                        ), index),
-                      )
-                      .nonNulls,
-                );
-
-                return ListTile(
-                  title: Text(gameState.players[index].name),
-                  subtitle: playerDisplayData.subtitle?.call(context),
-                  trailing: playerDisplayData.trailing?.call(context),
-                  onTap: getOnTapPlayer(
-                    index: index,
-                    gameState: gameState,
-                    maxSelection: maxSelection,
-                    teamAssignedPlayers: teamAssignedPlayers,
-                    teamConstraints: teamConstraints,
-                  ),
-                  selected: _selectedPlayers[index],
-                  enabled:
-                      gameState.players[index].role == null &&
-                      (teamConstraints != null
-                          ? teamConstraints.contains(index)
-                          : !teamAssignedPlayers.contains(index)) &&
-                      !playerDisplayData.disabled,
-                  selectedTileColor: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.2),
-                );
-              },
+          : PlayerList(
+              phaseIdentifier: (GamePhase.checkRoles, widget.current),
+              onPlayerTap: (index) => getOnTapPlayer(
+                index: index,
+                gameState: gameState,
+                maxSelection: maxSelection,
+                teamAssignedPlayers: teamAssignedPlayers,
+                teamConstraints: teamConstraints,
+              ),
+              selectedPlayers: _selectedPlayers
+                  .mapIndexed((index, isSelected) => isSelected ? index : null)
+                  .nonNulls
+                  .toSet(),
+              disabledPlayers: List.generate(gameState.playerCount, (i) => i)
+                  .where(
+                    (index) =>
+                        gameState.players[index].role != null ||
+                        (teamConstraints != null
+                            ? !teamConstraints.contains(index)
+                            : teamAssignedPlayers.contains(index)) ||
+                        gameState.knownDeadPlayerIndices.contains(index),
+                  )
+                  .toSet(),
             ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),

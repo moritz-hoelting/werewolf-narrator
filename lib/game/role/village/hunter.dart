@@ -85,6 +85,7 @@ class HunterScreen extends StatelessWidget {
             localizations.role_hunter_deathAction_instruction,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
+          currentActorIndices: {playerIndex},
           disabledPlayerIndices: {playerIndex},
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {

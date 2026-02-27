@@ -39,31 +39,33 @@ class _GameViewState extends State<GameView> {
               }
             }
 
-            return PopScope(
-              canPop: gameState.phase == GamePhase.gameOver,
-              onPopInvokedWithResult: (didPop, result) async {
-                if (didPop) return;
+            return Theme(
+              data: gameState.isNight
+                  ? Themes.nighttimeTheme(context)
+                  : Themes.daytimeTheme(context),
+              child: Builder(
+                builder: (context) => PopScope(
+                  canPop: gameState.phase == GamePhase.gameOver,
+                  onPopInvokedWithResult: (didPop, result) async {
+                    if (didPop) return;
 
-                final answer = await showDialog<bool>(
-                  useRootNavigator: false,
-                  context: context,
-                  builder: (dialogContext) => LeaveGameDialog(),
-                );
+                    final answer = await showDialog<bool>(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (dialogContext) => LeaveGameDialog(),
+                    );
 
-                if (answer == true && context.mounted) {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Theme(
-                data: gameState.isNight
-                    ? Themes.nighttimeTheme(context)
-                    : Themes.daytimeTheme(context),
-                child: showDeathAnnouncement
-                    ? DeathsScreen(onPhaseComplete: onPhaseComplete)
-                    : GamePhaseScreen(
-                        phase: gameState.phase,
-                        onPhaseComplete: onPhaseComplete,
-                      ),
+                    if (answer == true && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: showDeathAnnouncement
+                      ? DeathsScreen(onPhaseComplete: onPhaseComplete)
+                      : GamePhaseScreen(
+                          phase: gameState.phase,
+                          onPhaseComplete: onPhaseComplete,
+                        ),
+                ),
               ),
             );
           },

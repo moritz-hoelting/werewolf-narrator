@@ -23,16 +23,27 @@ typedef PlayerWinHook =
     bool? Function(GameState gameState, WinCondition winner, int playerIndex);
 
 class PlayerDisplayData {
-  PlayerDisplayData({this.disabled = false, this.trailing, this.subtitle});
+  PlayerDisplayData({
+    this.disabled = false,
+    this.trailing,
+    this.subtitle,
+    this.selectedTileColor,
+    this.tileColor,
+  });
 
   final bool disabled;
   final WidgetBuilder? trailing;
   final WidgetBuilder? subtitle;
 
+  final Color? selectedTileColor;
+  final Color? tileColor;
+
   static PlayerDisplayData merge(Iterable<PlayerDisplayData> list) {
     bool disabled = false;
     List<WidgetBuilder> trailing = [];
     List<WidgetBuilder> subtitle = [];
+    Color? selectedTileColor;
+    Color? tileColor;
 
     for (final data in list) {
       // disabled
@@ -47,6 +58,12 @@ class PlayerDisplayData {
       if (data.subtitle != null) {
         subtitle.add(data.subtitle!);
       }
+
+      // selectedTileColor
+      selectedTileColor ??= data.selectedTileColor;
+
+      // tileColor
+      tileColor ??= data.tileColor;
     }
 
     return PlayerDisplayData(
@@ -75,6 +92,8 @@ class PlayerDisplayData {
                           .toList(),
                     );
                   }),
+      selectedTileColor: selectedTileColor,
+      tileColor: tileColor,
     );
   }
 }
