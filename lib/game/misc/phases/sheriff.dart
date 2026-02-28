@@ -27,6 +27,7 @@ class SheriffVoteAction {
           (sheriffVoteAction.sheriffIndex == null ||
               !gameState.players[sheriffVoteAction.sheriffIndex!].isAlive),
       before: [VillageVoteScreen],
+      players: {},
     );
 
     gameState.playerDisplayHooks.add((gameState, phaseIdentifier, playerIndex) {
@@ -61,7 +62,9 @@ class SheriffElectionScreen extends StatelessWidget {
       selectionCount: 1,
       allowSelectLess: true,
       onConfirm: (selectedPlayers, gameState) {
-        sheriffVoteAction.sheriffIndex = selectedPlayers.single;
+        if (selectedPlayers.isNotEmpty) {
+          sheriffVoteAction.sheriffIndex = selectedPlayers.single;
+        }
         onComplete();
       },
     );

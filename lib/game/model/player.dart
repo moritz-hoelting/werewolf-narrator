@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -36,7 +37,16 @@ class Player {
     if (isAlive || usedDeathAction || role == null) {
       return false;
     }
-    return role!.hasDeathScreen(gameState);
+    if (role!.hasDeathScreen(gameState)) {
+      return gameState.deathActionHooks.none(
+        (hook) => hook(
+          gameState,
+          (this, deathInformation!),
+          {gameState.players.indexOf(this)},
+        ),
+      );
+    }
+    return false;
   }
 
   /// Marks the player as dead with the given death information.

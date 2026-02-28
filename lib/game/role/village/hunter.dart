@@ -18,10 +18,19 @@ class HunterRole extends Role implements DeathReason {
 
   static final Role instance = HunterRole._();
 
+  int? playerIndex;
+
   static void registerRole() {
     RoleManager.registerRole<HunterRole>(
       RegisterRoleInformation(HunterRole._, instance),
     );
+  }
+
+  @override
+  void onAssign(GameState gameState, int playerIndex) {
+    super.onAssign(gameState, playerIndex);
+
+    this.playerIndex = playerIndex;
   }
 
   @override
@@ -49,6 +58,9 @@ class HunterRole extends Role implements DeathReason {
   @override
   String deathReasonDescription(BuildContext context) =>
       AppLocalizations.of(context).role_hunter_deathReason;
+
+  @override
+  Set<int> get responsiblePlayerIndices => {playerIndex!};
 
   @override
   bool hasDeathScreen(GameState gameState) => true;

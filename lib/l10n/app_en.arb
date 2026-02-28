@@ -470,6 +470,24 @@
     "@role_knightOfTheRustySword_deathReason": {
         "description": "Reason for death: poisoned by the Knight of the Rusty Sword"
     },
+    "role_elder_name": "Elder",
+    "@role_elder_name": {
+        "description": "Name of the Elder role"
+    },
+    "role_elder_description": "An old and wise villager. Has to be attacked twice by werewolves to die. When killed by a villager, that villager loses their ability.",
+    "@role_elder_description": {
+        "description": "Description of the Elder role"
+    },
+    "role_elder_checkInstruction": "Wake and select {count, plural, =1{the Elder} other{all Elders}}",
+    "@role_elder_checkInstruction": {
+        "description": "Instruction to wake and select elder roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"

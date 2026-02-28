@@ -42,6 +42,7 @@ class FoxRole extends Role {
       conditioned: (gameState) =>
           !hasLostPowers && gameState.playerAliveUntilDawn(playerIndex),
       after: [CupidRole.type],
+      players: {playerIndex},
     );
   }
 

@@ -49,6 +49,22 @@ class GameState extends ChangeNotifier {
   /// Hooks when a player is displayed.
   final List<PlayerDisplayHook> playerDisplayHooks = [];
 
+  /// Hooks when a night action is displayed.
+  ///
+  /// Can prevent the action from being displayed for the given players by returning true.
+  final List<ActionHook> nightActionHooks = [];
+
+  /// Hooks when a day action is displayed.
+  ///
+  /// Can prevent the action from being displayed for the given players by returning true.
+  final List<ActionHook> dayActionHooks = [];
+
+  /// Hooks when a death action is displayed.
+  ///
+  /// Can prevent the action from being displayed for the given players by returning true.
+  /// Will be called multiple times per death for determining whether to show the action. The answer must be consistent.
+  final List<ActionHook> deathActionHooks = [];
+
   /// Hooks for remaining roles at the end of role assignment.
   ///
   /// Called with the count of remaining roles for each role type.

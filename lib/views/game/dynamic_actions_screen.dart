@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart' show ActionHook;
 
 class DynamicActionsScreen extends StatefulWidget {
   const DynamicActionsScreen({
     super.key,
     required this.actionManager,
+    required this.actionHooks,
     required this.onAllActionsComplete,
   });
 
   final DynamicActionManager actionManager;
   final VoidCallback onAllActionsComplete;
+  final List<ActionHook> actionHooks;
 
   @override
   State<DynamicActionsScreen> createState() => _DynamicActionsScreenState();
@@ -27,15 +30,29 @@ class _DynamicActionsScreenState extends State<DynamicActionsScreen> {
     super.initState();
 
     final gameState = Provider.of<GameState>(context, listen: false);
-    _actions = widget.actionManager.orderedActions;
+    _actions = widget.actionManager.orderedActions
+        .where(
+          (entry) => widget.actionHooks.none(
+            (hook) => hook(gameState, entry.identifier, entry.players),
+          ),
+        )
+        .toList();
 
-    _currentActionIndex = _actions.indexed
-        .firstWhere((element) => element.$2.conditioned(gameState))
-        .$1;
+    _currentActionIndex =
+        _actions.indexed
+            .firstWhereOrNull((element) => element.$2.conditioned(gameState))
+            ?.$1 ??
+        -1;
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_currentActionIndex == -1) {
+      // No actions to perform, complete immediately
+      Future.microtask(widget.onAllActionsComplete);
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final currentPhase = _actions[_currentActionIndex];
     return Consumer<GameState>(
       builder: (context, gameState, _) =>

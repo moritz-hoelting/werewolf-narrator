@@ -18,6 +18,7 @@ class DynamicActionManager {
   void registerAction(
     Object identifier,
     DynamicActionBuilder builder, {
+    required Set<int> players,
     bool Function(GameState gameState)? conditioned,
     List<Object> before = const [],
     List<Object> after = const [],
@@ -27,10 +28,13 @@ class DynamicActionManager {
     _ordered = false;
     _registrations.add(
       DynamicActionRegistration(
-        identifier,
-        builder,
-        conditioned:
-            conditioned ?? (gameState) => builder(gameState, () {}) != null,
+        DynamicActionEntry(
+          identifier: identifier,
+          builder: builder,
+          conditioned:
+              conditioned ?? (gameState) => builder(gameState, () {}) != null,
+          players: players,
+        ),
         before: before,
         after: after,
         beforeAll: beforeAll,
@@ -77,15 +81,11 @@ class DynamicActionManager {
       order = unorderedRegistrations.toList();
     }
 
-    _actions = [...beforeAllActions, ...order, ...afterAllActions]
-        .map(
-          (reg) => DynamicActionEntry(
-            identifier: reg.identifier,
-            builder: reg.builder,
-            conditioned: reg.conditioned,
-          ),
-        )
-        .toList();
+    _actions = [
+      ...beforeAllActions,
+      ...order,
+      ...afterAllActions,
+    ].map((reg) => reg.entry).toList();
   }
 
   /// The ordered list of night actions.
@@ -98,14 +98,8 @@ class DynamicActionManager {
 }
 
 class DynamicActionRegistration {
-  /// The unique identifier for this dynamic action.
-  final Object identifier;
-
-  /// The builder function for this action screen.
-  final DynamicActionBuilder builder;
-
-  /// The condition under which this action is shown.
-  final bool Function(GameState gameState) conditioned;
+  /// The entry for this registration.
+  final DynamicActionEntry entry;
 
   /// The list of identifiers that this action must come before.
   final List<Object> before;
@@ -119,10 +113,10 @@ class DynamicActionRegistration {
   /// Whether this action should come after all others.
   final bool afterAll;
 
-  DynamicActionRegistration(
-    this.identifier,
-    this.builder, {
-    required this.conditioned,
+  Object get identifier => entry.identifier;
+
+  const DynamicActionRegistration(
+    this.entry, {
     required this.before,
     required this.after,
     required this.beforeAll,
@@ -131,7 +125,7 @@ class DynamicActionRegistration {
 
   @override
   String toString() {
-    return 'DynamicActionRegistration(identifier: $identifier, before: $before, after: $after, beforeAll: $beforeAll, afterAll: $afterAll)';
+    return 'DynamicActionRegistration(entry: $entry, before: $before, after: $after, beforeAll: $beforeAll, afterAll: $afterAll)';
   }
 }
 
@@ -145,9 +139,18 @@ class DynamicActionEntry {
   /// The condition under which this dynamic action is shown.
   final bool Function(GameState gameState) conditioned;
 
+  /// The player indices that this action belongs to.
+  final Set<int> players;
+
   const DynamicActionEntry({
     required this.identifier,
     required this.builder,
     required this.conditioned,
+    required this.players,
   });
+
+  @override
+  String toString() {
+    return 'DynamicActionEntry(identifier: $identifier, players: $players)';
+  }
 }

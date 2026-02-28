@@ -11,7 +11,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam;
+    show WerewolvesTeam, WerewolvesDeathReason;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -24,6 +24,11 @@ class WitchRole extends Role implements DeathReason {
 
   static final Role instance = WitchRole._();
 
+  int? playerIndex;
+
+  int healPotions = 1;
+  int killPotions = 1;
+
   static void registerRole() {
     RoleManager.registerRole<WitchRole>(
       RegisterRoleInformation(WitchRole._, instance),
@@ -34,16 +39,16 @@ class WitchRole extends Role implements DeathReason {
   void onAssign(GameState gameState, int playerIndex) {
     super.onAssign(gameState, playerIndex);
 
+    this.playerIndex = playerIndex;
+
     gameState.nightActionManager.registerAction(
       WitchRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: [WerewolvesTeam.type, CupidRole.type],
+      players: {playerIndex},
     );
   }
-
-  int healPotions = 1;
-  int killPotions = 1;
 
   @override
   Iterable<int> get validRoleCounts => const [1];
@@ -70,6 +75,9 @@ class WitchRole extends Role implements DeathReason {
   @override
   String deathReasonDescription(BuildContext context) =>
       AppLocalizations.of(context).role_witch_deathReason;
+
+  @override
+  Set<int> get responsiblePlayerIndices => {playerIndex!};
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(
@@ -176,7 +184,7 @@ class _WitchScreenState extends State<WitchScreen> {
   bool playerEnabled(GameState gameState, int index) {
     final killedByWerewolves =
         gameState.currentCycleDeaths.containsKey(index) &&
-        gameState.currentCycleDeaths[index] is WerewolvesTeam;
+        gameState.currentCycleDeaths[index] is WerewolvesDeathReason;
     return gameState.playerAliveOrKilledThisCycle(index) &&
         (_killModeActive
             ? (index != widget.playerIndex &&

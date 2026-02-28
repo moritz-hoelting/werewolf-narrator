@@ -17,7 +17,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-class WerewolvesTeam extends Team implements DeathReason, WinCondition {
+class WerewolvesTeam extends Team implements WinCondition {
   const WerewolvesTeam._();
   static final TeamType type = TeamType<WerewolvesTeam>();
   @override
@@ -36,14 +36,28 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
 
     gameState.winConditions.add(this);
 
+    final nightActionPlayerIndices = werewolfPlayerIndices(gameState);
+
     gameState.nightActionManager.registerAction(
       WerewolvesTeam.type,
       (gameState, onComplete) => nightActionScreen(onComplete),
-      conditioned: (gameState) =>
-          gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>(),
+      conditioned: (gameState) {
+        nightActionPlayerIndices
+          ..clear()
+          ..addAll(werewolfPlayerIndices(gameState));
+        return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
+      },
       after: [CupidRole.type, SeerRole.type],
+      players: nightActionPlayerIndices,
     );
   }
+
+  static Set<int> werewolfPlayerIndices(GameState gameState) => gameState
+      .players
+      .indexed
+      .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
+      .map((entry) => entry.$1)
+      .toSet();
 
   @override
   RoleType? get roleCheckTogether => WerewolfRole.type;
@@ -63,20 +77,11 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_winHeadline;
 
-  @override
-  String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context).team_werewolves_deathReason;
-
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
     final localizations = AppLocalizations.of(context);
     final gameState = Provider.of<GameState>(context, listen: false);
 
-    final werewolfIndices = gameState.players.indexed
-        .where(
-          (player) => player.$2.role?.team(gameState) == WerewolvesTeam.type,
-        )
-        .map((player) => player.$1)
-        .toSet();
+    final werewolfIndices = werewolfPlayerIndices(gameState);
 
     final deadIndices = gameState.players.indexed
         .where((player) => !player.$2.isAlive)
@@ -92,7 +97,12 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
       currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(selectedPlayers.single, this);
+        gameState.markPlayerDead(
+          selectedPlayers.single,
+          WerewolvesDeathReason(
+            werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
+          ),
+        );
         onComplete();
       },
     );
@@ -110,4 +120,17 @@ class WerewolvesTeam extends Team implements DeathReason, WinCondition {
   @override
   List<(int, Player)> winningPlayers(GameState gameState) =>
       teamWinningPlayers(gameState, objectType);
+}
+
+class WerewolvesDeathReason implements DeathReason {
+  WerewolvesDeathReason(this.responsiblePlayers);
+
+  final Set<int> responsiblePlayers;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).team_werewolves_deathReason;
+
+  @override
+  Set<int> get responsiblePlayerIndices => responsiblePlayers;
 }

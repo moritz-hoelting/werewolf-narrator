@@ -37,21 +37,19 @@ class GamePhaseScreen extends StatelessWidget {
           },
         );
       case GamePhase.nightActions:
+        final gameState = Provider.of<GameState>(context, listen: false);
         return DynamicActionsScreen(
-          actionManager: Provider.of<GameState>(
-            context,
-            listen: false,
-          ).nightActionManager,
+          actionManager: gameState.nightActionManager,
+          actionHooks: gameState.nightActionHooks,
           onAllActionsComplete: onPhaseComplete,
         );
       case GamePhase.dawn:
         return DawnScreen(onPhaseComplete: onPhaseComplete);
       case GamePhase.dayActions:
+        final gameState = Provider.of<GameState>(context, listen: false);
         return DynamicActionsScreen(
-          actionManager: Provider.of<GameState>(
-            context,
-            listen: false,
-          ).dayActionManager,
+          actionManager: gameState.dayActionManager,
+          actionHooks: gameState.dayActionHooks,
           onAllActionsComplete: onPhaseComplete,
         );
       case GamePhase.gameOver:

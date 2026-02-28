@@ -6,7 +6,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam;
+    show WerewolvesTeam, WerewolvesDeathReason;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class BigBadWolfRole extends Role {
@@ -29,11 +29,12 @@ class BigBadWolfRole extends Role {
 
     gameState.nightActionManager.registerAction(
       BigBadWolfRole.type,
-      (gameState, onComplete) => nightActionScreen(onComplete),
+      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
           !werewolfHasDied(gameState),
       after: [WerewolvesTeam.type],
+      players: {playerIndex},
     );
   }
 
@@ -59,38 +60,37 @@ class BigBadWolfRole extends Role {
     ).role_bigBadWolf_checkInstruction(count: count);
   }
 
-  WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
-    final localizations = AppLocalizations.of(context);
-    final gameState = Provider.of<GameState>(context, listen: false);
+  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
+      (context) {
+        final localizations = AppLocalizations.of(context);
+        final gameState = Provider.of<GameState>(context, listen: false);
 
-    final werewolfIndices = gameState.players.indexed
-        .where(
-          (player) => player.$2.role?.team(gameState) == WerewolvesTeam.type,
-        )
-        .map((player) => player.$1)
-        .toSet();
+        final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
 
-    final deadIndices = gameState.players.indexed
-        .where((player) => !player.$2.isAlive)
-        .map((player) => player.$1)
-        .toSet();
+        final deadIndices = gameState.players.indexed
+            .where((player) => !player.$2.isAlive)
+            .map((player) => player.$1)
+            .toSet();
 
-    final werewolvesOrDead = werewolfIndices.union(deadIndices);
+        final werewolvesOrDead = werewolfIndices.union(deadIndices);
 
-    return ActionScreen(
-      appBarTitle: Text(BigBadWolfRole.instance.name(context)),
-      instruction: Text(localizations.role_bigBadWolf_nightAction_instruction),
-      selectionCount: 1,
-      onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(
-          selectedPlayers.single,
-          (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam),
+        return ActionScreen(
+          appBarTitle: Text(BigBadWolfRole.instance.name(context)),
+          instruction: Text(
+            localizations.role_bigBadWolf_nightAction_instruction,
+          ),
+          selectionCount: 1,
+          onConfirm: (selectedPlayers, gameState) {
+            gameState.markPlayerDead(
+              selectedPlayers.single,
+              WerewolvesDeathReason({playerIndex}),
+            );
+            onComplete();
+          },
+          disabledPlayerIndices: werewolvesOrDead,
+          currentActorIndices: {playerIndex},
         );
-        onComplete();
-      },
-      disabledPlayerIndices: werewolvesOrDead,
-    );
-  };
+      };
 }
 
 bool werewolfHasDied(GameState gameState) => gameState.players.indexed

@@ -11,6 +11,13 @@ typedef DeathHook =
 
 typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
 
+typedef ActionHook =
+    bool Function(
+      GameState gameState,
+      Object? phaseIdentifier,
+      Set<int> players,
+    );
+
 typedef PlayerDisplayHook =
     PlayerDisplayData? Function(
       GameState gameState,

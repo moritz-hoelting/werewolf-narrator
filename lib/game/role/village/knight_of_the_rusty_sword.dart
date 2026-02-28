@@ -17,6 +17,8 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
 
   static final Role instance = KnightOfTheRustySwordRole._();
 
+  int? playerIndex;
+
   static void registerRole() {
     RoleManager.registerRole<KnightOfTheRustySwordRole>(
       RegisterRoleInformation(KnightOfTheRustySwordRole._, instance),
@@ -50,11 +52,16 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_knightOfTheRustySword_deathReason;
 
   @override
+  Set<int> get responsiblePlayerIndices => {playerIndex!};
+
+  @override
   void onAssign(GameState gameState, int playerIndex) {
     super.onAssign(gameState, playerIndex);
 
+    this.playerIndex = playerIndex;
+
     gameState.deathHooks.add((deathGameState, deathPlayerIndex, reason) {
-      if (playerIndex == deathPlayerIndex && reason is WerewolvesTeam) {
+      if (playerIndex == deathPlayerIndex && reason is WerewolvesDeathReason) {
         final int playerCount = deathGameState.players.length;
 
         final int? clockwiseNearestWerewolfIndex =

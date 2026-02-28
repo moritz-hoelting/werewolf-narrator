@@ -20,4 +20,6 @@ class DeathInformation {
 
 abstract interface class DeathReason {
   String deathReasonDescription(BuildContext context);
+
+  Set<int> get responsiblePlayerIndices;
 }

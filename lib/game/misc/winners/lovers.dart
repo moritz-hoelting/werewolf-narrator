@@ -59,6 +59,9 @@ class Lovers implements DeathReason, WinCondition {
       AppLocalizations.of(context).lovers_deathReason;
 
   @override
+  Set<int> get responsiblePlayerIndices => {lovers.$1, lovers.$2};
+
+  @override
   bool hasWon(GameState gameState) => setEquals(
     gameState.players.indexed
         .where((player) => player.$2.isAlive)

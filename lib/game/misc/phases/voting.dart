@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class VillageVoteScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class VillageVoteScreen extends StatefulWidget {
       (gameState, onComplete) =>
           (context) => VillageVoteScreen(onComplete: onComplete),
       conditioned: (gameState) => gameState.alivePlayerCount > 1,
+      players: {},
     );
   }
 }
@@ -81,7 +83,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
               } else {
                 gameState.markPlayerDead(
                   _selectedPlayer!,
-                  (gameState.teams[VillageTeam.type] as VillageTeam),
+                  VillageVoteDeathReason(gameState.knownAlivePlayerIndices),
                 );
                 widget.onComplete();
               }
@@ -91,4 +93,17 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
       ),
     );
   }
+}
+
+class VillageVoteDeathReason implements DeathReason {
+  const VillageVoteDeathReason(this.responsiblePlayers);
+
+  final Set<int> responsiblePlayers;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).team_village_deathReason;
+
+  @override
+  Set<int> get responsiblePlayerIndices => responsiblePlayers;
 }

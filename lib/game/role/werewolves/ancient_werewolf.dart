@@ -40,6 +40,7 @@ class AncientWerewolfRole extends Role {
           ),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: [WerewolvesTeam.type],
+      players: {playerIndex},
     );
   }
 

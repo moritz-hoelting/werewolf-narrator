@@ -36,6 +36,7 @@ class SeerRole extends Role {
               SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: [CupidRole.type],
+      players: {playerIndex},
     );
   }
 

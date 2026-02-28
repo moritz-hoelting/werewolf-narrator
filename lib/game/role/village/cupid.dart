@@ -35,6 +35,7 @@ class CupidRole extends Role {
       conditioned: (gameState) =>
           gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
           gameState.playerAliveUntilDawn(playerIndex),
+      players: {playerIndex},
     );
   }
 

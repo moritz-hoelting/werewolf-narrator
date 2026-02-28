@@ -62,6 +62,7 @@ class ThiefRole extends Role {
           gameState.dayCounter == 0 &&
           gameState.playerAliveUntilDawn(playerIndex),
       beforeAll: true,
+      players: {playerIndex},
     );
   }
 
