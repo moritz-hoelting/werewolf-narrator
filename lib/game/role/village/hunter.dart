@@ -4,7 +4,6 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -16,13 +15,21 @@ class HunterRole extends Role implements DeathReason {
   @override
   RoleType get objectType => type;
 
-  static final Role instance = HunterRole._();
-
   int? playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<HunterRole>(
-      RegisterRoleInformation(HunterRole._, instance),
+      RegisterRoleInformation(
+        constructor: HunterRole._,
+        name: (context) => AppLocalizations.of(context).role_hunter_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_hunter_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) => AppLocalizations.of(
+          context,
+        ).role_hunter_checkInstruction(count: count),
+        validRoleCounts: const [1],
+      ),
     );
   }
 
@@ -31,28 +38,6 @@ class HunterRole extends Role implements DeathReason {
     super.onAssign(gameState, playerIndex);
 
     this.playerIndex = playerIndex;
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => const [1];
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_hunter_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_hunter_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(
-      context,
-    ).role_hunter_checkInstruction(count: count);
   }
 
   @override

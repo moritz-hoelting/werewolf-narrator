@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
@@ -18,13 +17,19 @@ class ThiefRole extends Role {
   @override
   RoleType get objectType => type;
 
-  static final Role instance = ThiefRole._();
-
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
       RegisterRoleInformation(
-        ThiefRole._,
-        instance,
+        constructor: ThiefRole._,
+        name: (context) => AppLocalizations.of(context).role_thief_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_thief_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) => AppLocalizations.of(
+          context,
+        ).role_thief_checkInstruction(count: count),
+        validRoleCounts: const [1],
+        addedRoleCardAmount: 3,
         initialize: initialize,
         roleCountAdjuster: (roleCounts, playerCount) {
           final thiefRoleType = ThiefRole.type;
@@ -64,30 +69,6 @@ class ThiefRole extends Role {
       beforeAll: true,
       players: {playerIndex},
     );
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => const [1];
-  @override
-  int get addedRoleCardAmount => 3;
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_thief_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_thief_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(
-      context,
-    ).role_thief_checkInstruction(count: count);
   }
 }
 
@@ -160,7 +141,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(roleA.name(context)),
+                    child: Text(roleA.information.name(context)),
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -184,7 +165,7 @@ class _ThiefScreenState extends State<ThiefScreen> {
                           : null,
                       elevation: 4,
                     ),
-                    child: Text(roleB.name(context)),
+                    child: Text(roleB.information.name(context)),
                   ),
                 ],
               ),
@@ -193,8 +174,8 @@ class _ThiefScreenState extends State<ThiefScreen> {
           bottomNavigationBar: BottomContinueButton(
             onPressed:
                 _selected == _ThiefSelectedRole.none &&
-                    roleA.instance.team(gameState) == WerewolvesTeam.type &&
-                    roleB.instance.team(gameState) == WerewolvesTeam.type
+                    roleA.information.initialTeam == WerewolvesTeam.type &&
+                    roleB.information.initialTeam == WerewolvesTeam.type
                 ? null
                 : () {
                     submit(gameState, roleA, roleB);

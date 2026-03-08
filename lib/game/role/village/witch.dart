@@ -5,7 +5,6 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -22,8 +21,6 @@ class WitchRole extends Role implements DeathReason {
   @override
   RoleType get objectType => type;
 
-  static final Role instance = WitchRole._();
-
   int? playerIndex;
 
   int healPotions = 1;
@@ -31,7 +28,17 @@ class WitchRole extends Role implements DeathReason {
 
   static void registerRole() {
     RoleManager.registerRole<WitchRole>(
-      RegisterRoleInformation(WitchRole._, instance),
+      RegisterRoleInformation(
+        constructor: WitchRole._,
+        name: (context) => AppLocalizations.of(context).role_witch_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_witch_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) => AppLocalizations.of(
+          context,
+        ).role_witch_checkInstruction(count: count),
+        validRoleCounts: const [1],
+      ),
     );
   }
 
@@ -48,28 +55,6 @@ class WitchRole extends Role implements DeathReason {
       after: [WerewolvesTeam.type, CupidRole.type],
       players: {playerIndex},
     );
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => const [1];
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_witch_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_witch_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(
-      context,
-    ).role_witch_checkInstruction(count: count);
   }
 
   @override

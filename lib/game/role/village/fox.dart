@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -17,13 +16,21 @@ class FoxRole extends Role {
   @override
   RoleType get objectType => type;
 
-  static final Role instance = FoxRole._();
-
   bool hasLostPowers = false;
 
   static void registerRole() {
     RoleManager.registerRole<FoxRole>(
-      RegisterRoleInformation(FoxRole._, instance),
+      RegisterRoleInformation(
+        constructor: FoxRole._,
+        name: (context) => AppLocalizations.of(context).role_fox_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_fox_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) => AppLocalizations.of(
+          context,
+        ).role_fox_checkInstruction(count: count),
+        validRoleCounts: const [1],
+      ),
     );
   }
 
@@ -44,26 +51,6 @@ class FoxRole extends Role {
       after: [CupidRole.type],
       players: {playerIndex},
     );
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => const [1];
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_fox_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_fox_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(context).role_fox_checkInstruction(count: count);
   }
 }
 

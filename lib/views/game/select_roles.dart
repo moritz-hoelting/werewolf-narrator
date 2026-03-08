@@ -45,7 +45,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .map((entry) => entry.key)
         .toSet();
     final Set<TeamType> selectedTeams = selectedRoleSet
-        .map((role) => role.instance.initialTeam)
+        .map((role) => role.information.initialTeam)
         .toSet();
 
     return Container(
@@ -59,7 +59,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
               children:
                   groupBy(
                     RoleManager.registeredRoles,
-                    (role) => role.instance.initialTeam,
+                    (role) => role.information.initialTeam,
                   ).values.flattened.map((role) {
                     final maxCountIndex = findMaxCountIndexOfRole(
                       role,
@@ -117,7 +117,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   }
 
   int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
-    final Iterable<int> validRoleCounts = role.instance.validRoleCounts;
+    final Iterable<int> validRoleCounts = role.information.validRoleCounts;
     final indexList = validRoleCounts.take(upperLimit + 1).toList();
     assert(
       indexList.isSorted((a, b) => a.compareTo(b)),
@@ -160,13 +160,13 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final role = widget.role.instance;
-    final description = role.description(context);
+    final roleInformation = widget.role.information;
+    final description = roleInformation.description(context);
 
     final maxCount = widget.maxCountIndex == -1
         ? 0
-        : widget.role.instance.validRoleCounts.elementAt(widget.maxCountIndex);
-    final validCounts = widget.role.instance.validRoleCounts.take(
+        : roleInformation.validRoleCounts.elementAt(widget.maxCountIndex);
+    final validCounts = roleInformation.validRoleCounts.take(
       widget.maxCountIndex + 1,
     );
 
@@ -207,7 +207,7 @@ class _RoleSelectorCardState extends State<RoleSelectorCard> {
                         ),
                       ),
                       Text(
-                        role.name(context),
+                        roleInformation.name(context),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

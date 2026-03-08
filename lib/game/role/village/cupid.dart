@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/misc/winners/lovers.dart' show Lovers;
@@ -12,14 +11,23 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 class CupidRole extends Role {
   CupidRole._();
 
-  static final Role instance = CupidRole._();
   static final RoleType type = RoleType<CupidRole>();
   @override
   RoleType get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<CupidRole>(
-      RegisterRoleInformation(CupidRole._, instance),
+      RegisterRoleInformation(
+        constructor: CupidRole._,
+        name: (context) => AppLocalizations.of(context).role_cupid_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_cupid_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) => AppLocalizations.of(
+          context,
+        ).role_cupid_checkInstruction(count: count),
+        validRoleCounts: const [1],
+      ),
     );
   }
 
@@ -37,28 +45,6 @@ class CupidRole extends Role {
           gameState.playerAliveUntilDawn(playerIndex),
       players: {playerIndex},
     );
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => const [1];
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_cupid_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_cupid_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(
-      context,
-    ).role_cupid_checkInstruction(count: count);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) {

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart' show BuildContext;
+import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/village/elder.dart' show ElderRole;
 import 'package:werewolf_narrator/game/role/village/fox.dart' show FoxRole;
@@ -46,13 +47,9 @@ class RoleType<T extends Role> {
   @override
   int get hashCode => T.hashCode;
 
-  /// The static instance of this role.
-  Role get instance => RoleManager.getRoleInstance(this);
-
-  /// The display name of this role.
-  String name(BuildContext context) {
-    return instance.name(context);
-  }
+  /// The registered role information for this role type.
+  RegisterRoleInformation<T> get information =>
+      RoleManager.getRoleInformation(this) as RegisterRoleInformation<T>;
 
   @override
   String toString() => 'Role<$T>';
@@ -109,14 +106,13 @@ abstract class RoleManager {
     }
   }
 
-  /// Gets the static instance of the given role type.
-  static Role getRoleInstance(RoleType role) {
+  /// Gets the information registered for the given role type.
+  static RegisterRoleInformation? getRoleInformation(RoleType role) {
     final info = _roleInformation[role];
-    if (info != null) {
-      return info.instance;
-    } else {
-      throw Exception('No instance registered for role type $role');
+    if (info == null) {
+      throw Exception('No information registered for role type $role');
     }
+    return info;
   }
 
   /// The list of all registered role types.
@@ -141,20 +137,43 @@ class RegisterRoleInformation<T extends Role> {
   /// The constructor function for this role.
   final Role Function() constructor;
 
-  /// The static instance of this role.
-  final Role instance;
+  /// The name of this role.
+  final String Function(BuildContext context) name;
+
+  /// The description of this role.
+  final String Function(BuildContext context) description;
+
+  /// The initial team for this role.
+  final TeamType initialTeam;
+
+  /// Valid counts for this role. Must be a sorted iterable of positive integers.
+  ///
+  /// 0 is assumed implicitly, so it should not be included in this list.
+  /// Should be sorted in ascending order.
+  final Iterable<int> validRoleCounts;
 
   /// The initializer function for this role.
   final void Function(GameState gameState)? initialize;
+
+  /// The instruction for checking this role, given the current count of this role in the game.
+  final String Function(BuildContext context, int count) checkRoleInstruction;
+
+  /// The amount of additional role cards this role adds to the game.
+  final int addedRoleCardAmount;
 
   /// The role count adjuster function for this role.
   final void Function(Map<RoleType, int> roleCounts, int playerCount)?
   roleCountAdjuster;
 
-  RegisterRoleInformation(
-    this.constructor,
-    this.instance, {
+  RegisterRoleInformation({
+    required this.constructor,
+    required this.name,
+    required this.description,
+    required this.initialTeam,
+    required this.checkRoleInstruction,
+    required this.validRoleCounts,
     this.initialize,
+    this.addedRoleCardAmount = 1,
     this.roleCountAdjuster,
   });
 }

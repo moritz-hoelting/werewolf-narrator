@@ -8,15 +8,13 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 class SheriffVoteAction {
   SheriffVoteAction._();
 
-  static final SheriffVoteAction instance = SheriffVoteAction._();
-
   int? sheriffIndex;
 
   static void registerAction(GameState gameState) {
     final sheriffVoteAction = SheriffVoteAction._();
 
     gameState.dayActionManager.registerAction(
-      SheriffVoteAction.instance,
+      SheriffVoteAction,
       (gameState, onComplete) =>
           (context) => SheriffElectionScreen(
             sheriffVoteAction: sheriffVoteAction,

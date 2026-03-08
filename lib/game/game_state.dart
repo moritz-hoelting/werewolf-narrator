@@ -88,7 +88,7 @@ class GameState extends ChangeNotifier {
       teams = Map.fromEntries(
         roleCounts.entries
             .where((entry) => entry.value > 0)
-            .map((entry) => entry.key.instance.initialTeam)
+            .map((entry) => entry.key.information.initialTeam)
             .toSet()
             .map(
               (teamType) =>
@@ -102,7 +102,7 @@ class GameState extends ChangeNotifier {
             (sum, entry) =>
                 sum +
                 entry.value +
-                (entry.value * (1 - entry.key.instance.addedRoleCardAmount)),
+                (entry.value * (1 - entry.key.information.addedRoleCardAmount)),
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );

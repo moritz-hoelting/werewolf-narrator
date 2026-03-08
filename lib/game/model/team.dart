@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
@@ -26,12 +27,12 @@ class TeamType<T extends Team> {
   @override
   int get hashCode => T.hashCode;
 
-  /// The static instance of this team.
-  Team get instance => TeamManager.getTeamInstance(this);
+  /// The registered information for this team.
+  RegisterTeamInformation get information => TeamManager.getInformation(this);
 
   /// The display name of this team.
   String name(BuildContext context) {
-    return instance.name(context);
+    return information.name(context);
   }
 
   @override
@@ -75,12 +76,12 @@ abstract class TeamManager {
   }
 
   /// Gets the static instance of the given team type.
-  static Team getTeamInstance(TeamType team) {
+  static RegisterTeamInformation getInformation(TeamType team) {
     final info = _teamInformation[team];
     if (info != null) {
-      return info.instance;
+      return info;
     } else {
-      throw Exception('No instance registered for team type $team');
+      throw Exception('No information registered for team type $team');
     }
   }
 
@@ -93,8 +94,25 @@ class RegisterTeamInformation<T extends Team> {
   /// The constructor function for this team.
   final Team Function() constructor;
 
-  /// The static instance of this team.
-  final Team instance;
+  /// The name of this team.
+  String Function(BuildContext context) name;
 
-  RegisterTeamInformation(this.constructor, this.instance);
+  /// The check instruction for this team.
+  TeamRoleCheckTogetherInformation? checkTeamTogether;
+
+  RegisterTeamInformation({
+    required this.constructor,
+    required this.name,
+    this.checkTeamTogether,
+  });
+}
+
+class TeamRoleCheckTogetherInformation {
+  RoleType defaultRole;
+  String Function(BuildContext context, int count) checkInstruction;
+
+  TeamRoleCheckTogetherInformation({
+    required this.defaultRole,
+    required this.checkInstruction,
+  });
 }

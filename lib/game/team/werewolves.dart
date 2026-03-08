@@ -5,7 +5,6 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/player.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
@@ -22,11 +21,19 @@ class WerewolvesTeam extends Team implements WinCondition {
   static final TeamType type = TeamType<WerewolvesTeam>();
   @override
   TeamType get objectType => type;
-  static const Team instance = WerewolvesTeam._();
 
   static void registerTeam() {
     TeamManager.registerTeam<WerewolvesTeam>(
-      RegisterTeamInformation(WerewolvesTeam._, instance),
+      RegisterTeamInformation(
+        constructor: WerewolvesTeam._,
+        name: _name,
+        checkTeamTogether: TeamRoleCheckTogetherInformation(
+          defaultRole: WerewolfRole.type,
+          checkInstruction: (context, count) => AppLocalizations.of(
+            context,
+          ).team_werewolves_checkInstruction(count: count),
+        ),
+      ),
     );
   }
 
@@ -59,19 +66,8 @@ class WerewolvesTeam extends Team implements WinCondition {
       .map((entry) => entry.$1)
       .toSet();
 
-  @override
-  RoleType? get roleCheckTogether => WerewolfRole.type;
-
-  @override
-  String name(BuildContext context) =>
+  static String _name(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_name;
-
-  @override
-  String checkTeamInstruction(BuildContext context, int count) {
-    return AppLocalizations.of(
-      context,
-    ).team_werewolves_checkInstruction(count: count);
-  }
 
   @override
   String winningHeadline(BuildContext context) =>
@@ -91,7 +87,7 @@ class WerewolvesTeam extends Team implements WinCondition {
     final werewolvesOrDead = werewolfIndices.union(deadIndices);
 
     return ActionScreen(
-      appBarTitle: Text(name(context)),
+      appBarTitle: Text(_name(context)),
       instruction: Text(localizations.team_werewolves_nightAction_instruction),
       selectionCount: 1,
       currentActorIndices: werewolfIndices,

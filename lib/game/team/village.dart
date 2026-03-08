@@ -13,11 +13,13 @@ class VillageTeam extends Team implements WinCondition {
   static final TeamType type = TeamType<VillageTeam>();
   @override
   TeamType get objectType => type;
-  static const Team instance = VillageTeam._();
 
   static void registerTeam() {
     TeamManager.registerTeam<VillageTeam>(
-      RegisterTeamInformation(VillageTeam._, instance),
+      RegisterTeamInformation(
+        constructor: VillageTeam._,
+        name: (context) => AppLocalizations.of(context).team_village_name,
+      ),
     );
   }
 
@@ -27,10 +29,6 @@ class VillageTeam extends Team implements WinCondition {
 
     gameState.winConditions.add(this);
   }
-
-  @override
-  String name(BuildContext context) =>
-      AppLocalizations.of(context).team_village_name;
 
   @override
   String winningHeadline(BuildContext context) =>

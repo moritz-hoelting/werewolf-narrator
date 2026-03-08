@@ -22,7 +22,10 @@ class CheckRolesScreen extends StatefulWidget {
 }
 
 class _CheckRolesScreenState extends State<CheckRolesScreen> {
-  late final QueueList<Either<TeamType, RoleType>> _remainingChecks;
+  late final QueueList<
+    Either<(TeamType, TeamRoleCheckTogetherInformation), RoleType>
+  >
+  _remainingChecks;
   final Map<TeamType, List<int>> _assignedPlayersByTeam = {};
   int _missingAssignments = 0;
 
@@ -39,17 +42,39 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
         .where(
           (team) =>
               gameTeams.containsKey(team) &&
-              gameTeams[team]!.roleCheckTogether != null &&
-              gameRoles.contains(gameTeams[team]!.roleCheckTogether!),
+              team.information.checkTeamTogether != null &&
+              gameRoles.contains(
+                team.information.checkTeamTogether!.defaultRole,
+              ),
         )
-        .map((team) => Either<TeamType, RoleType>.left(team));
+        .map(
+          (team) =>
+              Either<
+                (TeamType, TeamRoleCheckTogetherInformation),
+                RoleType
+              >.left((team, team.information.checkTeamTogether!)),
+        );
     final roles = RoleManager.registeredRoles
         .where(
           (role) =>
               gameRoles.contains(role) &&
-              !gameTeams.values.any((team) => team.roleCheckTogether == role),
+              !gameTeams.values.any(
+                (team) =>
+                    team
+                        .objectType
+                        .information
+                        .checkTeamTogether
+                        ?.defaultRole ==
+                    role,
+              ),
         )
-        .map((role) => Either<TeamType, RoleType>.right(role));
+        .map(
+          (role) =>
+              Either<
+                (TeamType, TeamRoleCheckTogetherInformation),
+                RoleType
+              >.right(role),
+        );
     _remainingChecks = QueueList.from(teams.followedBy(roles));
     assert(
       _remainingChecks.isNotEmpty,
@@ -72,7 +97,8 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
     if (_remainingChecks.length == 1) {
       final gameState = Provider.of<GameState>(context, listen: false);
       for (final entry in _assignedPlayersByTeam.entries) {
-        final defaultRole = gameState.teams[entry.key]?.roleCheckTogether;
+        final defaultRole =
+            entry.key.information.checkTeamTogether?.defaultRole;
         if (defaultRole != null) {
           final noRolePlayers = entry.value
               .where((index) => gameState.players[index].role == null)
@@ -108,7 +134,7 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
 }
 
 class CheckRoleScreen extends StatefulWidget {
-  final Either<TeamType, RoleType> current;
+  final Either<(TeamType, TeamRoleCheckTogetherInformation), RoleType> current;
   final void Function(int missing) onComplete;
   final int missingAssignments;
   final Map<TeamType, List<int>> assignedPlayersByTeam;
@@ -143,7 +169,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   int missingRoleCount(GameState gameState) => max(
     0,
     gameState.roleCounts.entries
-            .map((e) => (e.key.instance.addedRoleCardAmount - 1) * e.value)
+            .map((e) => (e.key.information.addedRoleCardAmount - 1) * e.value)
             .sum -
         widget.missingAssignments,
   );
@@ -153,9 +179,12 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
         return widget.current.fold(
-          ifLeft: (team) {
+          ifLeft: (teamTuple) {
+            final team = teamTuple.$1;
+            final checkTogetherInformation = teamTuple.$2;
+
             final maxSelection = gameState.roleCounts.entries
-                .where((entry) => entry.key.instance.initialTeam == team)
+                .where((entry) => entry.key.information.initialTeam == team)
                 .map((entry) => entry.value)
                 .sum;
 
@@ -163,7 +192,10 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               context: context,
               gameState: gameState,
               maxSelection: maxSelection,
-              title: team.instance.checkTeamInstruction(context, maxSelection),
+              title: checkTogetherInformation.checkInstruction(
+                context,
+                maxSelection,
+              ),
               onCompletePressed: () =>
                   onCompleteTeam(gameState, team, maxSelection),
             );
@@ -172,14 +204,17 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
             final maxSelection = gameState.roleCounts[role] ?? 0;
 
             final teamConstraints =
-                widget.assignedPlayersByTeam[role.instance.initialTeam];
+                widget.assignedPlayersByTeam[role.information.initialTeam];
 
             return _build(
               context: context,
               gameState: gameState,
               maxSelection: maxSelection,
               teamConstraints: teamConstraints,
-              title: role.instance.checkRoleInstruction(context, maxSelection),
+              title: role.information.checkRoleInstruction(
+                context,
+                maxSelection,
+              ),
               onCompletePressed: () => onCompleteRole(
                 gameState,
                 role,

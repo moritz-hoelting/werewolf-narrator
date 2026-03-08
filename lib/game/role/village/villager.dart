@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/util/iterable.dart';
@@ -12,31 +10,18 @@ class VillagerRole extends Role {
   @override
   RoleType get objectType => type;
 
-  static final Role instance = VillagerRole._();
-
   static void registerRole() {
     RoleManager.registerRole<VillagerRole>(
-      RegisterRoleInformation(VillagerRole._, instance),
+      RegisterRoleInformation(
+        constructor: VillagerRole._,
+        name: (context) => AppLocalizations.of(context).role_villager_name,
+        description: (context) =>
+            AppLocalizations.of(context).role_villager_description,
+        initialTeam: VillageTeam.type,
+        checkRoleInstruction: (context, count) =>
+            throw UnimplementedError('Villager has no check role screen'),
+        validRoleCounts: infiniteIterableStartingAt(1),
+      ),
     );
-  }
-
-  @override
-  Iterable<int> get validRoleCounts => infiniteIterableStartingAt(1);
-  @override
-  TeamType get initialTeam => VillageTeam.type;
-
-  @override
-  String name(BuildContext context) {
-    return AppLocalizations.of(context).role_villager_name;
-  }
-
-  @override
-  String description(BuildContext context) {
-    return AppLocalizations.of(context).role_villager_description;
-  }
-
-  @override
-  String checkRoleInstruction(BuildContext context, int count) {
-    throw UnimplementedError('Villager has no check role screen');
   }
 }
