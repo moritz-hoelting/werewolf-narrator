@@ -488,6 +488,32 @@
             }
         }
     },
+    "role_bearTamer_name": "Bear Tamer",
+    "@role_bearTamer_name": {
+        "description": "Name of the Bear Tamer role"
+    },
+    "role_bearTamer_description": "The narrator growls loudly at dawn if any of the bear tamer''s neighbors is a werewolf.",
+    "@role_bearTamer_description": {
+        "description": "Description of the Bear Tamer role"
+    },
+    "role_bearTamer_checkInstruction": "Wake and select {count, plural, =1{the Bear Tamer} other{all Bear Tamers}}",
+    "@role_bearTamer_checkInstruction": {
+        "description": "Instruction to wake and select bear tamer roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_bearTamer_growl": "Growl",
+    "@role_bearTamer_growl": {
+        "description": "Instruction for the narrator to make a growling noise if a bear tamer has a werewolf neighbor"
+    },
+    "role_bearTamer_growl_subtitle": "One of the bear tamer''s neighbors is a werewolf.",
+    "@role_bearTamer_growl_subtitle": {
+        "description": "Subtitle shown when the narrator growls for the bear tamer role"
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"

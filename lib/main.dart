@@ -14,8 +14,13 @@ import 'package:werewolf_narrator/widgets/app_settings_button.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Register roles and screens
   RoleManager.ensureRegistered();
   TeamManager.ensureRegistered();
+
+  // Preload settings
+  AppSettings.instance;
+  DeveloperSettings.instance;
 
   runApp(const WerewolfNarratorApp());
 }

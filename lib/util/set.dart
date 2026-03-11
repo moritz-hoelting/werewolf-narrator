@@ -5,3 +5,11 @@ extension SetExtensions<T> on Set<T> {
     }
   }
 }
+
+extension PairToSet<T> on (T, T) {
+  Set<T> toSet() => {$1, $2};
+}
+
+extension TripleToSet<T> on (T, T, T) {
+  Set<T> toSet() => {$1, $2, $3};
+}
