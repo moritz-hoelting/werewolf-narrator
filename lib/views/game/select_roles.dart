@@ -48,6 +48,11 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .map((role) => role.information.initialTeam)
         .toSet();
 
+    final List<RoleType> roles = groupBy(
+      RoleManager.registeredRoles,
+      (role) => role.information.initialTeam,
+    ).values.flattened.toList();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -55,25 +60,29 @@ class _SelectRolesViewState extends State<SelectRolesView> {
           const SizedBox(height: 16),
 
           Expanded(
-            child: ListView(
-              children:
-                  groupBy(
-                    RoleManager.registeredRoles,
-                    (role) => role.information.initialTeam,
-                  ).values.flattened.map((role) {
-                    final maxCountIndex = findMaxCountIndexOfRole(
-                      role,
-                      missingRoles + (_selectedRoles[role]?.$2 ?? 0),
-                    );
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 250,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1,
+              ),
+              itemCount: roles.length,
+              itemBuilder: (context, index) {
+                final role = roles[index];
+                final maxCountIndex = findMaxCountIndexOfRole(
+                  role,
+                  missingRoles + (_selectedRoles[role]?.$2 ?? 0),
+                );
 
-                    return RoleSelectorCard(
-                      role: role,
-                      count: _selectedRoles[role]?.$2 ?? 0,
-                      countIndex: _selectedRoles[role]?.$1 ?? -1,
-                      maxCountIndex: maxCountIndex,
-                      onChanged: (index, count) => setCount(role, index, count),
-                    );
-                  }).toList(),
+                return RoleSelectorCard(
+                  role: role,
+                  count: _selectedRoles[role]?.$2 ?? 0,
+                  countIndex: _selectedRoles[role]?.$1 ?? -1,
+                  maxCountIndex: maxCountIndex,
+                  onChanged: (index, count) => setCount(role, index, count),
+                );
+              },
             ),
           ),
 
@@ -134,7 +143,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
   }
 }
 
-class RoleSelectorCard extends StatefulWidget {
+class RoleSelectorCard extends StatelessWidget {
   final RoleType role;
   final int count;
   final int countIndex;
@@ -151,88 +160,58 @@ class RoleSelectorCard extends StatefulWidget {
   });
 
   @override
-  State<RoleSelectorCard> createState() => _RoleSelectorCardState();
-}
-
-class _RoleSelectorCardState extends State<RoleSelectorCard> {
-  bool _descriptionExpanded = false;
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final roleInformation = widget.role.information;
-    final description = roleInformation.description(context);
+    final roleInformation = role.information;
 
-    final maxCount = widget.maxCountIndex == -1
+    final maxCount = maxCountIndex == -1
         ? 0
-        : roleInformation.validRoleCounts.elementAt(widget.maxCountIndex);
-    final validCounts = roleInformation.validRoleCounts.take(
-      widget.maxCountIndex + 1,
-    );
+        : roleInformation.validRoleCounts.elementAt(maxCountIndex);
+    final validCounts = roleInformation.validRoleCounts.take(maxCountIndex + 1);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: widget.count > 0
-                ? theme.colorScheme.primary
-                : theme.dividerColor,
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: count > 0 ? theme.colorScheme.primary : theme.dividerColor,
         ),
-        padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Role name and description
-                Expanded(
-                  child: Row(
-                    children: [
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          setState(() {
-                            _descriptionExpanded = !_descriptionExpanded;
-                          });
-                        },
-                        icon: Icon(
-                          _descriptionExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                        ),
-                      ),
-                      Text(
-                        roleInformation.name(context),
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Counter
-                _Counter(
-                  value: widget.count,
-                  valueIndex: widget.countIndex,
-                  validCounts: validCounts,
-                  maxValue: maxCount,
-                  setValue: widget.onChanged,
-                ),
-              ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            roleInformation.name(context),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            if (_descriptionExpanded)
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(description, style: theme.textTheme.bodyMedium),
+          ),
+          _Counter(
+            value: count,
+            valueIndex: countIndex,
+            validCounts: validCounts,
+            maxValue: maxCount,
+            setValue: onChanged,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.info_outline),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => RoleInfoDialog(role: role),
+                  );
+                },
               ),
-          ],
-        ),
+              IconButton(icon: Icon(Icons.settings_outlined), onPressed: null),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -289,6 +268,28 @@ class _Counter extends StatelessWidget {
           onLongPress: value < maxValue
               ? () => setValue(validCounts.length - 1, maxValue)
               : null,
+        ),
+      ],
+    );
+  }
+}
+
+class RoleInfoDialog extends StatelessWidget {
+  const RoleInfoDialog({super.key, required this.role});
+
+  final RoleType role;
+
+  @override
+  Widget build(BuildContext context) {
+    final roleInformation = role.information;
+
+    return AlertDialog(
+      title: Text(roleInformation.name(context)),
+      content: Text(roleInformation.description(context)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(MaterialLocalizations.of(context).closeButtonLabel),
         ),
       ],
     );
