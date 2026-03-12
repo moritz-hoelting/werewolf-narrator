@@ -31,6 +31,9 @@ class GameState extends ChangeNotifier {
   /// The counts of roles present in this game (initialized during setup).
   final Map<RoleType, int> roleCounts;
 
+  /// Whether the game starts with a day phase (instead of night).
+  final bool startGameWithDay;
+
   /// Conditions under which the game is considered to be won.
   final List<WinCondition> winConditions = [];
 
@@ -96,6 +99,10 @@ class GameState extends ChangeNotifier {
               (teamType) =>
                   MapEntry(teamType, TeamManager.instantiateTeam(teamType)),
             ),
+      ),
+      startGameWithDay = roleCounts.entries.any(
+        (entry) =>
+            entry.value > 0 && entry.key.information.requireStartGameWithDay,
       ) {
     assert(
       players.length ==
@@ -521,6 +528,7 @@ class GameState extends ChangeNotifier {
   /// Transitions to the next valid phase, if any.
   bool transitionToNextPhase() {
     final next = nextPhase;
+    final previous = _phase;
     if (next != null) {
       if (dayCounter == 0 &&
           phase.index < GamePhase.nightActions.index &&
@@ -529,7 +537,9 @@ class GameState extends ChangeNotifier {
       }
       _phase = next;
       if (next == GamePhase.dawn) {
-        _dayCounter += 1;
+        if (!(startGameWithDay && previous == GamePhase.checkRoles)) {
+          _dayCounter += 1;
+        }
         for (final hook in dawnHooks) {
           hook(this, dayCounter);
         }
@@ -560,15 +570,17 @@ class GameState extends ChangeNotifier {
     }
     switch (next) {
       case GamePhase.checkRoles:
-        final bool hasAnyRoleOtherThanVillager = roleCounts.entries.any(
-          (entry) => entry.value > 0 && entry.key != VillagerRole.type,
-        );
-        if (dayCounter > 0 || !hasAnyRoleOtherThanVillager) return false;
+        if (dayCounter > 0 || players.any((player) => player.role != null)) {
+          return false;
+        }
         break;
       case GamePhase.nightActions:
-        if (nightActionManager.orderedActions.none(
-          (phaseInfo) => phaseInfo.conditioned(this),
-        )) {
+        if ((phase == GamePhase.checkRoles &&
+                startGameWithDay &&
+                dayCounter == 0) ||
+            nightActionManager.orderedActions.none(
+              (phaseInfo) => phaseInfo.conditioned(this),
+            )) {
           return false;
         }
         break;

@@ -698,6 +698,28 @@
     "@role_piper_winHeadline": {
         "description": "Headline shown when the Piper wins"
     },
+    "role_angel_name": "Angel",
+    "@role_angel_name": {
+        "description": "Name of the Angel role"
+    },
+    "role_angel_description": "The Angel wins if they get killed in the first day or night. When this role is in play, the game begins with a day.",
+    "@role_angel_description": {
+        "description": "Description of the Angel role"
+    },
+    "role_angel_checkInstruction": "Wake and select {count, plural, =1{the Angel} other{all Angels}}",
+    "@role_angel_checkInstruction": {
+        "description": "Instruction to wake and select the Angel role",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_angel_winHeadline": "The Angel has won!",
+    "@role_angel_winHeadline": {
+        "description": "Headline shown when the Angel wins"
+    },
     "team_village_name": "Village",
     "@team_village_name": {
         "description": "Name of the Village team"

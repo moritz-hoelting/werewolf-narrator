@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
     show WildChildRole;
 import 'package:werewolf_narrator/game/role/misc/wolf_hound.dart'
     show WolfHoundRole;
+import 'package:werewolf_narrator/game/role/solo/angel.dart' show AngelRole;
 import 'package:werewolf_narrator/game/role/solo/piper.dart';
 import 'package:werewolf_narrator/game/role/solo/white_wolf.dart'
     show WhiteWolfRole;
@@ -105,6 +106,7 @@ abstract class RoleManager {
     // Solo roles
     WhiteWolfRole.registerRole();
     PiperRole.registerRole();
+    AngelRole.registerRole();
   }
 
   /// Registers a role with the given information.
@@ -183,6 +185,9 @@ class RegisterRoleInformation<T extends Role> {
   final void Function(Map<RoleType, int> roleCounts, int playerCount)?
   roleCountAdjuster;
 
+  /// Whether this role requires the game to start with a day phase.
+  bool requireStartGameWithDay;
+
   RegisterRoleInformation({
     required this.constructor,
     required this.name,
@@ -193,5 +198,6 @@ class RegisterRoleInformation<T extends Role> {
     this.initialize,
     this.addedRoleCardAmount = 1,
     this.roleCountAdjuster,
+    this.requireStartGameWithDay = false,
   });
 }
