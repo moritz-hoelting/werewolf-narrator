@@ -266,11 +266,7 @@ class _Counter extends StatelessWidget {
                   valueIndex == 0 ? 0 : validCounts.elementAt(valueIndex - 1),
                 )
               : null,
-          onLongPress: value > 0
-              ? () {
-                  setValue(-1, 0);
-                }
-              : null,
+          onLongPress: value > 0 ? () => setValue(-1, 0) : null,
         ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -291,9 +287,7 @@ class _Counter extends StatelessWidget {
                 )
               : null,
           onLongPress: value < maxValue
-              ? () {
-                  setValue(validCounts.length, maxValue);
-                }
+              ? () => setValue(validCounts.length - 1, maxValue)
               : null,
         ),
       ],
