@@ -8,47 +8,50 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
-import 'package:werewolf_narrator/views/game/action_screen.dart';
+import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
-class WildChildRole extends Role {
-  WildChildRole._();
+class WolfHoundRole extends Role {
+  WolfHoundRole._();
 
-  static final RoleType type = RoleType<WildChildRole>();
+  static final RoleType type = RoleType<WolfHoundRole>();
   @override
   RoleType get objectType => type;
 
-  int? roleModel;
-  bool turned = false;
+  bool? selectedWerewolf;
 
   @override
   String name(BuildContext context) {
-    if (turned) {
-      return AppLocalizations.of(context).role_wildChild_name_turned;
+    final localizations = AppLocalizations.of(context);
+    if (selectedWerewolf == null) {
+      return super.name(context);
+    } else if (selectedWerewolf!) {
+      return localizations.role_wolfHound_name_werewolf;
+    } else {
+      return localizations.role_wolfHound_name_dog;
     }
-    return super.name(context);
   }
 
   @override
   TeamType<Team> team(GameState gameState) {
     if (overrideTeam != null) {
       return overrideTeam!;
-    } else if (turned) {
+    } else if (selectedWerewolf == true) {
       return WerewolvesTeam.type;
     }
     return super.team(gameState);
   }
 
   static void registerRole() {
-    RoleManager.registerRole<WildChildRole>(
+    RoleManager.registerRole<WolfHoundRole>(
       RegisterRoleInformation(
-        constructor: WildChildRole._,
-        name: (context) => AppLocalizations.of(context).role_wildChild_name,
+        constructor: WolfHoundRole._,
+        name: (context) => AppLocalizations.of(context).role_wolfHound_name,
         description: (context) =>
-            AppLocalizations.of(context).role_wildChild_description,
+            AppLocalizations.of(context).role_wolfHound_description,
         initialTeam: VillageTeam.type,
         checkRoleInstruction: (context, count) => AppLocalizations.of(
           context,
-        ).role_wildChild_checkInstruction(count: count),
+        ).role_wolfHound_checkInstruction(count: count),
         validRoleCounts: const [1],
       ),
     );
@@ -59,44 +62,33 @@ class WildChildRole extends Role {
     super.onAssign(gameState, playerIndex);
 
     gameState.nightActionManager.registerAction(
-      WildChildRole.type,
+      WolfHoundRole.type,
       (gameState, onComplete) {
         return nightActionScreen(playerIndex, onComplete);
       },
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) && roleModel == null,
+          gameState.playerAliveUntilDawn(playerIndex) &&
+          selectedWerewolf == null,
       players: {playerIndex},
+      before: [WerewolvesTeam.type],
     );
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) {
         final localizations = AppLocalizations.of(context);
-        return ActionScreen(
+        return BinarySelectionScreen(
           key: UniqueKey(),
-          appBarTitle: Text(localizations.role_wildChild_name),
+          appBarTitle: Text(localizations.role_wolfHound_name),
           instruction: Text(
-            localizations.role_wildChild_nightAction_instruction,
+            localizations.role_wolfHound_nightAction_instruction,
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
           ),
-          actionIdentifier: WildChildRole,
-          selectionCount: 1,
-          currentActorIndices: {playerIndex},
-          disabledPlayerIndices: {playerIndex},
-          onConfirm: (selectedIndices, gameState) {
-            roleModel = selectedIndices.single;
-
-            if (!gameState.players[roleModel!].isAlive) {
-              turned = true;
-            } else {
-              gameState.deathHooks.add((gameState, index, reason) {
-                if (index == roleModel) {
-                  turned = true;
-                }
-
-                return false;
-              });
-            }
-
+          firstOption: Text(localizations.team_village_name),
+          secondOption: Text(localizations.team_werewolves_name),
+          onComplete: (selectedFirst) {
+            selectedWerewolf = !selectedFirst!;
             onComplete();
           },
         );

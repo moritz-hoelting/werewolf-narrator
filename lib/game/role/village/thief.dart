@@ -9,7 +9,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
-import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 class ThiefRole extends Role {
   ThiefRole._();
@@ -72,17 +72,10 @@ class ThiefRole extends Role {
   }
 }
 
-class ThiefScreen extends StatefulWidget {
+class ThiefScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
 
   const ThiefScreen({super.key, required this.onPhaseComplete});
-
-  @override
-  State<ThiefScreen> createState() => _ThiefScreenState();
-}
-
-class _ThiefScreenState extends State<ThiefScreen> {
-  _ThiefSelectedRole _selected = _ThiefSelectedRole.none;
 
   @override
   Widget build(BuildContext context) {
@@ -99,98 +92,30 @@ class _ThiefScreenState extends State<ThiefScreen> {
 
         final (roleA, roleB) = (missingRoles[0], missingRoles[1]);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(localizations.role_thief_name),
-            automaticallyImplyLeading: false,
+        return BinarySelectionScreen(
+          key: UniqueKey(),
+          appBarTitle: Text(localizations.role_thief_name),
+          instruction: Text(
+            localizations.role_thief_nightAction_instruction,
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
           ),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  localizations.role_thief_nightAction_instruction,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_selected == _ThiefSelectedRole.roleA) {
-                          _selected = _ThiefSelectedRole.none;
-                        } else {
-                          _selected = _ThiefSelectedRole.roleA;
-                        }
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(150, 150),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      backgroundColor: _selected == _ThiefSelectedRole.roleA
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.5)
-                          : null,
-                      elevation: 4,
-                    ),
-                    child: Text(roleA.information.name(context)),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_selected == _ThiefSelectedRole.roleB) {
-                          _selected = _ThiefSelectedRole.none;
-                        } else {
-                          _selected = _ThiefSelectedRole.roleB;
-                        }
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(150, 150),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                      backgroundColor: _selected == _ThiefSelectedRole.roleB
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.5)
-                          : null,
-                      elevation: 4,
-                    ),
-                    child: Text(roleB.information.name(context)),
-                  ),
-                ],
-              ),
-            ],
+          firstOption: Text(roleA.information.name(context)),
+          secondOption: Text(roleB.information.name(context)),
+          onComplete: (selectedFirst) => submit(
+            gameState,
+            selectedFirst != null ? (selectedFirst ? roleA : roleB) : null,
           ),
-          bottomNavigationBar: BottomContinueButton(
-            onPressed:
-                _selected == _ThiefSelectedRole.none &&
-                    roleA.information.initialTeam == WerewolvesTeam.type &&
-                    roleB.information.initialTeam == WerewolvesTeam.type
-                ? null
-                : () {
-                    submit(gameState, roleA, roleB);
-                  },
-          ),
+          allowSelectNone:
+              roleA.information.initialTeam != WerewolvesTeam.type ||
+              roleB.information.initialTeam != WerewolvesTeam.type,
         );
       },
     );
   }
 
-  void submit(GameState gameState, RoleType roleA, RoleType roleB) {
-    if (_selected != _ThiefSelectedRole.none) {
-      final selectedRole = _selected == _ThiefSelectedRole.roleA
-          ? roleA
-          : roleB;
+  void submit(GameState gameState, RoleType? selectedRole) {
+    if (selectedRole != null) {
       gameState.setPlayersRole(
         selectedRole,
         gameState.players.indexed
@@ -200,8 +125,6 @@ class _ThiefScreenState extends State<ThiefScreen> {
       );
     }
     gameState.removeUnassignedRoles();
-    widget.onPhaseComplete();
+    onPhaseComplete();
   }
 }
-
-enum _ThiefSelectedRole { none, roleA, roleB }

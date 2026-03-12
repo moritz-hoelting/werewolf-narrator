@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam, WerewolvesDeathReason;
+import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class AncientWerewolfRole extends Role {
@@ -53,7 +54,7 @@ class AncientWerewolfRole extends Role {
   }
 }
 
-class AncientWerewolfScreen extends StatefulWidget {
+class AncientWerewolfScreen extends StatelessWidget {
   const AncientWerewolfScreen({
     super.key,
     required this.ancientWerewolfRole,
@@ -66,121 +67,59 @@ class AncientWerewolfScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
   @override
-  State<AncientWerewolfScreen> createState() => _AncientWerewolfScreenState();
-}
-
-class _AncientWerewolfScreenState extends State<AncientWerewolfScreen> {
-  bool? _selectionFirst;
-
-  @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
         final localizations = AppLocalizations.of(context);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(localizations.role_ancientWerewolf_name),
-            automaticallyImplyLeading: false,
+        if (ancientWerewolfRole.convertedPlayerIndex != null) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(localizations.role_ancientWerewolf_name),
+              automaticallyImplyLeading: false,
+            ),
+            body: Center(
+              child: Text(
+                localizations.role_ancientWerewolf_nightAction_hasUsedAbility,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            bottomNavigationBar: BottomContinueButton(
+              onPressed: () {
+                submit(gameState, false);
+              },
+            ),
+          );
+        }
+
+        return BinarySelectionScreen(
+          key: UniqueKey(),
+          appBarTitle: Text(localizations.role_ancientWerewolf_name),
+          instruction: Text(
+            localizations.role_ancientWerewolf_nightAction_instruction(
+              playerName: findLastAttackedPlayer(gameState)?.$2.name ?? "?",
+            ),
+            style: Theme.of(context).textTheme.bodyLarge,
+            textAlign: TextAlign.center,
           ),
-          body: widget.ancientWerewolfRole.convertedPlayerIndex != null
-              ? Center(
-                  child: Text(
-                    localizations
-                        .role_ancientWerewolf_nightAction_hasUsedAbility,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        localizations
-                            .role_ancientWerewolf_nightAction_instruction(
-                              playerName:
-                                  findLastAttackedPlayer(gameState)?.$2.name ??
-                                  "?",
-                            ),
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectionFirst = true;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(150, 150),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                            ),
-                            backgroundColor: _selectionFirst == true
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.5)
-                                : null,
-                            elevation: 4,
-                          ),
-                          child: Text(localizations.button_yesLabel),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectionFirst = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(150, 150),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(12),
-                              ),
-                            ),
-                            backgroundColor: _selectionFirst == false
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.5)
-                                : null,
-                            elevation: 4,
-                          ),
-                          child: Text(localizations.button_noLabel),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-          bottomNavigationBar: BottomContinueButton(
-            onPressed:
-                _selectionFirst != null ||
-                    widget.ancientWerewolfRole.convertedPlayerIndex != null
-                ? () {
-                    submit(gameState);
-                  }
-                : null,
-          ),
+          firstOption: Text(localizations.button_yesLabel),
+          secondOption: Text(localizations.button_noLabel),
+          onComplete: (selectedFirst) {
+            submit(gameState, selectedFirst!);
+          },
         );
       },
     );
   }
 
-  void submit(GameState gameState) {
-    if (_selectionFirst == true) {
+  void submit(GameState gameState, bool selectedFirst) {
+    if (selectedFirst) {
       final lastAttackedPlayer = findLastAttackedPlayer(gameState);
       if (lastAttackedPlayer != null) {
         useAbilityOn(gameState, lastAttackedPlayer.$1, lastAttackedPlayer.$2);
       }
     }
-    widget.onPhaseComplete();
+    onPhaseComplete();
   }
 
   (int, Player)? findLastAttackedPlayer(GameState gameState) {
@@ -198,6 +137,6 @@ class _AncientWerewolfScreenState extends State<AncientWerewolfScreen> {
   void useAbilityOn(GameState gameState, int playerIndex, Player player) {
     gameState.markPlayerRevived(playerIndex);
     player.role?.overrideTeam = WerewolvesTeam.type;
-    widget.ancientWerewolfRole.convertedPlayerIndex = playerIndex;
+    ancientWerewolfRole.convertedPlayerIndex = playerIndex;
   }
 }

@@ -1,9 +1,3 @@
-extension IterableExt<T> on Iterable<T> {
-  InfiniteIterable<T> generateInfinite(T Function(int) generator) {
-    return InfiniteIterable(generator);
-  }
-}
-
 class InfiniteIterable<T> extends Iterable<T> {
   const InfiniteIterable(this.generator);
 

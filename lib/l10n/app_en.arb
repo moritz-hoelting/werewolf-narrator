@@ -540,6 +540,36 @@
     "@role_wildChild_nightAction_instruction": {
         "description": "Instruction for the Wild Child night action"
     },
+    "role_wolfHound_name": "Wolf Hound",
+    "@role_wolfHound_name": {
+        "description": "Name of the Wolf Hound role"
+    },
+    "role_wolfHound_name_werewolf": "Wolf Hound (Werewolf)",
+    "@role_wolfHound_name_werewolf": {
+        "description": "Name of the Wolf Hound role when it has chosen to be a werewolf"
+    },
+    "role_wolfHound_name_dog": "Wolf Hound (Dog)",
+    "@role_wolfHound_name_dog": {
+        "description": "Name of the Wolf Hound role when it has chosen to be a dog"
+    },
+    "role_wolfHound_description": "The wolf hound can choose in the first night whether they want to be part of the village or the werewolves.",
+    "@role_wolfHound_description": {
+        "description": "Description of the Wolf Hound role"
+    },
+    "role_wolfHound_checkInstruction": "Wake and select {count, plural, =1{the Wolf Hound} other{all Wolf Hounds}}",
+    "@role_wolfHound_checkInstruction": {
+        "description": "Instruction to wake and select wolf hound roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_wolfHound_nightAction_instruction": "Do you want to side with the werewolves or the village?",
+    "@role_wolfHound_nightAction_instruction": {
+        "description": "Instruction for the Wolf Hound night action"
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"

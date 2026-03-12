@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart' show setEquals;
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
@@ -105,13 +106,16 @@ class WerewolvesTeam extends Team implements WinCondition {
   };
 
   @override
-  bool hasWon(GameState gameState) => setEquals(
-    gameState.players
-        .where((player) => player.isAlive)
-        .map((player) => player.role?.team(gameState))
-        .toSet(),
-    {WerewolvesTeam.type},
-  );
+  bool hasWon(GameState gameState) {
+    final teamPlayers = gameState.players
+        .where((player) => player.isAlive && player.role != null)
+        .groupSetsBy((player) => player.role!.team(gameState));
+    final werewolfCount = teamPlayers[WerewolvesTeam.type]?.length ?? 0;
+    final teams = teamPlayers.keys.toSet();
+
+    return (werewolfCount >= gameState.alivePlayerCount / 2 &&
+        teams.difference({WerewolvesTeam.type, VillageTeam.type}).isEmpty);
+  }
 
   @override
   List<(int, Player)> winningPlayers(GameState gameState) =>

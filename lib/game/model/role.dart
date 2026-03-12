@@ -4,6 +4,8 @@ import 'package:flutter/material.dart' show BuildContext;
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
     show WildChildRole;
+import 'package:werewolf_narrator/game/role/misc/wolf_hound.dart'
+    show WolfHoundRole;
 import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
     show BearTamerRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
@@ -85,8 +87,11 @@ abstract class RoleManager {
     KnightOfTheRustySwordRole.registerRole();
     ElderRole.registerRole();
     BearTamerRole.registerRole();
-    WildChildRole.registerRole();
     ThiefRole.registerRole();
+
+    // Miscellanious roles
+    WildChildRole.registerRole();
+    WolfHoundRole.registerRole();
 
     // Werewolf roles
     WerewolfRole.registerRole();
