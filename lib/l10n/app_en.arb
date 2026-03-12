@@ -632,6 +632,36 @@
     "@role_bigBadWolf_nightAction_instruction": {
         "description": "Instruction for the Big Bad Wolf night action"
     },
+    "role_whiteWolf_name": "White Wolf",
+    "@role_whiteWolf_name": {
+        "description": "Name of the White Wolf role"
+    },
+    "role_whiteWolf_description": "The White Wolf wakes every second night and can kill a werewolf. The White Wolf wins if he is the only survivor.",
+    "@role_whiteWolf_description": {
+        "description": "Description of the White Wolf role"
+    },
+    "role_whiteWolf_checkInstruction": "Wake and select {count, plural, =1{the White Wolf} other{all White Wolves}}",
+    "@role_whiteWolf_checkInstruction": {
+        "description": "Instruction to wake and select the White Wolf role",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_whiteWolf_nightAction_instruction": "Choose a werewolf to kill.",
+    "@role_whiteWolf_nightAction_instruction": {
+        "description": "Instruction for the White Wolf night action"
+    },
+    "role_whiteWolf_winHeadline": "The White Wolf has won!",
+    "@role_whiteWolf_winHeadline": {
+        "description": "Headline shown when the White Wolf wins"
+    },
+    "role_whiteWolf_deathReason": "Killed by the White Wolf",
+    "@role_whiteWolf_deathReason": {
+        "description": "Reason for death: killed by the White Wolf"
+    },
     "team_village_name": "Village",
     "@team_village_name": {
         "description": "Name of the Village team"

@@ -6,6 +6,8 @@ import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
     show WildChildRole;
 import 'package:werewolf_narrator/game/role/misc/wolf_hound.dart'
     show WolfHoundRole;
+import 'package:werewolf_narrator/game/role/solo/white_wolf.dart'
+    show WhiteWolfRole;
 import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
     show BearTamerRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
@@ -97,6 +99,9 @@ abstract class RoleManager {
     WerewolfRole.registerRole();
     AncientWerewolfRole.registerRole();
     BigBadWolfRole.registerRole();
+
+    // Solo roles
+    WhiteWolfRole.registerRole();
   }
 
   /// Registers a role with the given information.

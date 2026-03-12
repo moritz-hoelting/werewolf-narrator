@@ -88,6 +88,7 @@ class WerewolvesTeam extends Team implements WinCondition {
     final werewolvesOrDead = werewolfIndices.union(deadIndices);
 
     return ActionScreen(
+      key: UniqueKey(),
       appBarTitle: Text(_name(context)),
       instruction: Text(localizations.team_werewolves_nightAction_instruction),
       selectionCount: 1,
