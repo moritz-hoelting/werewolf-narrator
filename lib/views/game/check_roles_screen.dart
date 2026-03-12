@@ -1,8 +1,9 @@
 import 'dart:math' show max;
 
 import 'package:collection/collection.dart';
-import 'package:dart_either/dart_either.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -179,7 +180,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     return Consumer<GameState>(
       builder: (context, gameState, _) {
         return widget.current.fold(
-          ifLeft: (teamTuple) {
+          (teamTuple) {
             final team = teamTuple.$1;
             final checkTogetherInformation = teamTuple.$2;
 
@@ -200,7 +201,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                   onCompleteTeam(gameState, team, maxSelection),
             );
           },
-          ifRight: (role) {
+          (role) {
             final maxSelection = gameState.roleCounts[role] ?? 0;
 
             final teamConstraints =
@@ -261,7 +262,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
               selectedPlayers: _selectedPlayers
                   .mapIndexed((index, isSelected) => isSelected ? index : null)
                   .nonNulls
-                  .toSet(),
+                  .toISet(),
               disabledPlayers: List.generate(gameState.playerCount, (i) => i)
                   .where(
                     (index) =>
@@ -271,7 +272,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                             : teamAssignedPlayers.contains(index)) ||
                         gameState.knownDeadPlayerIndices.contains(index),
                   )
-                  .toSet(),
+                  .toISet(),
             ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),

@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 
 /// Information about a player's death.
@@ -21,5 +22,5 @@ class DeathInformation {
 abstract interface class DeathReason {
   String deathReasonDescription(BuildContext context);
 
-  Set<int> get responsiblePlayerIndices;
+  ISet<int> get responsiblePlayerIndices;
 }

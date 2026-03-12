@@ -1,4 +1,6 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart' show Player;
@@ -48,7 +50,7 @@ class AncientWerewolfRole extends Role {
             onPhaseComplete: onComplete,
           ),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: [WerewolvesTeam.type],
+      after: IList([WerewolvesTeam.type]),
       players: {playerIndex},
     );
   }
@@ -136,7 +138,7 @@ class AncientWerewolfScreen extends StatelessWidget {
 
   void useAbilityOn(GameState gameState, int playerIndex, Player player) {
     gameState.markPlayerRevived(playerIndex);
-    player.role?.overrideTeam = WerewolvesTeam.type;
+    player.role?.overrideTeam = Option.of(WerewolvesTeam.type);
     ancientWerewolfRole.convertedPlayerIndex = playerIndex;
   }
 }

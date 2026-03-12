@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
@@ -15,7 +16,7 @@ typedef ActionHook =
     bool Function(
       GameState gameState,
       Object? phaseIdentifier,
-      Set<int> players,
+      ISet<int> players,
     );
 
 typedef PlayerDisplayHook =

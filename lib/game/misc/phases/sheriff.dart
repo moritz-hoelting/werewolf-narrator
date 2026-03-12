@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart';
@@ -24,8 +25,8 @@ class SheriffVoteAction {
           gameState.alivePlayerCount > 1 &&
           (sheriffVoteAction.sheriffIndex == null ||
               !gameState.players[sheriffVoteAction.sheriffIndex!].isAlive),
-      before: [VillageVoteScreen],
-      players: {},
+      before: IList([VillageVoteScreen]),
+      players: const {},
     );
 
     gameState.playerDisplayHooks.add((gameState, phaseIdentifier, playerIndex) {

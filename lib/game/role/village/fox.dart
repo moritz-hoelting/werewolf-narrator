@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
@@ -48,7 +49,7 @@ class FoxRole extends Role {
           ),
       conditioned: (gameState) =>
           !hasLostPowers && gameState.playerAliveUntilDawn(playerIndex),
-      after: [CupidRole.type],
+      after: IList([CupidRole.type]),
       players: {playerIndex},
     );
   }
@@ -176,9 +177,9 @@ class _SelectPlayer extends StatelessWidget {
         Expanded(
           child: PlayerList(
             phaseIdentifier: FoxScreen,
-            selectedPlayers: {},
+            selectedPlayers: const ISet.empty(),
             disabledPlayers: gameState.knownDeadPlayerIndices,
-            currentActorIndices: {playerIndex},
+            currentActorIndices: ISet({playerIndex}),
             onPlayerTap: (index) =>
                 () => onPlayerSelected(index),
           ),

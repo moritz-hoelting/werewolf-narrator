@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
@@ -132,8 +133,7 @@ abstract class RoleManager {
   }
 
   /// The list of all registered role types.
-  static List<RoleType> get registeredRoles =>
-      List.unmodifiable(_roleInformation.keys.toList());
+  static IList<RoleType> get registeredRoles => _roleInformation.keys.toIList();
 
   /// Gets the initializer function for the given role type.
   static void Function(GameState gameState)? getInitializer(RoleType role) {
@@ -160,7 +160,7 @@ class RegisterRoleInformation<T extends Role> {
   final String Function(BuildContext context) description;
 
   /// The initial team for this role.
-  final TeamType initialTeam;
+  final TeamType? initialTeam;
 
   /// Valid counts for this role. Must be a sorted iterable of positive integers.
   ///

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -15,7 +16,7 @@ class DynamicActionsScreen extends StatefulWidget {
 
   final DynamicActionManager actionManager;
   final VoidCallback onAllActionsComplete;
-  final List<ActionHook> actionHooks;
+  final IList<ActionHook> actionHooks;
 
   @override
   State<DynamicActionsScreen> createState() => _DynamicActionsScreenState();
@@ -30,13 +31,12 @@ class _DynamicActionsScreenState extends State<DynamicActionsScreen> {
     super.initState();
 
     final gameState = Provider.of<GameState>(context, listen: false);
-    _actions = widget.actionManager.orderedActions
-        .where(
-          (entry) => widget.actionHooks.none(
-            (hook) => hook(gameState, entry.identifier, entry.players),
-          ),
-        )
-        .toList();
+    _actions = widget.actionManager.orderedActions.where((entry) {
+      final players = entry.players.lock;
+      return widget.actionHooks.none(
+        (hook) => hook(gameState, entry.identifier, players),
+      );
+    }).toList();
 
     _currentActionIndex =
         _actions.indexed

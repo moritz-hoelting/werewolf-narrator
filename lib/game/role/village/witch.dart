@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart';
@@ -11,7 +12,6 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam, WerewolvesDeathReason;
-import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
@@ -52,7 +52,7 @@ class WitchRole extends Role implements DeathReason {
       WitchRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: [WerewolvesTeam.type, CupidRole.type],
+      after: IList([WerewolvesTeam.type, CupidRole.type]),
       players: {playerIndex},
     );
   }
@@ -62,7 +62,7 @@ class WitchRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_witch_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => {playerIndex!};
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
       (context) => WitchScreen(
@@ -129,8 +129,8 @@ class _WitchScreenState extends State<WitchScreen> {
                 });
               },
               playerEnabled: playerEnabled,
-              selectedHealPlayers: _selectedHealPlayers,
-              selectedKillPlayers: _selectedKillPlayers,
+              selectedHealPlayers: _selectedHealPlayers.lock,
+              selectedKillPlayers: _selectedKillPlayers.lock,
               onTapHeal: onTapHeal,
               onTapKill: onTapKill,
             )
@@ -251,8 +251,8 @@ class HasPotionsBody extends StatelessWidget {
   final VoidCallback enableKillMode;
   final VoidCallback disableKillMode;
   final bool Function(GameState, int) playerEnabled;
-  final Set<int> selectedHealPlayers;
-  final Set<int> selectedKillPlayers;
+  final ISet<int> selectedHealPlayers;
+  final ISet<int> selectedKillPlayers;
   final VoidCallback? Function(GameState, int) onTapHeal;
   final VoidCallback? Function(GameState, int) onTapKill;
 
@@ -307,8 +307,8 @@ class HasPotionsBody extends StatelessWidget {
               disabledPlayers: List.generate(
                 gameState.playerCount,
                 (i) => i,
-              ).where((index) => !playerEnabled(gameState, index)).toSet(),
-              currentActorIndices: {playerIndex},
+              ).where((index) => !playerEnabled(gameState, index)).toISet(),
+              currentActorIndices: ISet({playerIndex}),
               playerSpecificDisplayData: {
                 for (final index in selectedHealPlayers)
                   index: PlayerDisplayData(
@@ -322,7 +322,7 @@ class HasPotionsBody extends StatelessWidget {
                     selectedTileColor: Colors.red.withAlpha(50),
                     tileColor: Colors.red.withAlpha(30),
                   ),
-              },
+              }.lock,
             ),
           ),
         ),

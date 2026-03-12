@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
@@ -44,13 +45,13 @@ class BearTamerRole extends Role {
               BearGruntScreen(playerIndex: playerIndex, onComplete: onComplete),
       conditioned: (gameState) => gameState
           .getAliveNeighbors(playerIndex)
-          .toSet()
-          .union({playerIndex})
+          .toISet()
+          .union(ISet({playerIndex}))
           .intersection(WerewolvesTeam.werewolfPlayerIndices(gameState))
           .isNotEmpty,
       players: {playerIndex},
       beforeAll: true,
-      before: [VillageVoteScreen],
+      before: IList([VillageVoteScreen]),
     );
   }
 }

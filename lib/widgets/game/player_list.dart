@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -7,27 +8,27 @@ class PlayerList extends StatelessWidget {
   const PlayerList({
     super.key,
     required this.phaseIdentifier,
-    this.selectedPlayers = const {},
-    this.disabledPlayers = const {},
-    this.currentActorIndices = const {},
+    this.selectedPlayers = const ISet.empty(),
+    this.disabledPlayers = const ISet.empty(),
+    this.currentActorIndices = const ISet.empty(),
     this.playerDisplayData,
-    this.playerSpecificDisplayData = const {},
+    this.playerSpecificDisplayData = const IMap.empty(),
     this.onPlayerTap,
   });
 
   final Object? phaseIdentifier;
-  final Set<int> selectedPlayers;
-  final Set<int> disabledPlayers;
-  final Set<int> currentActorIndices;
+  final ISet<int> selectedPlayers;
+  final ISet<int> disabledPlayers;
+  final ISet<int> currentActorIndices;
   final PlayerDisplayData? playerDisplayData;
-  final Map<int, PlayerDisplayData> playerSpecificDisplayData;
+  final IMap<int, PlayerDisplayData> playerSpecificDisplayData;
   final VoidCallback? Function(int index)? onPlayerTap;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
-        final playerDisplayHooks = gameState.playerDisplayHooks;
+        final playerDisplayHooks = gameState.playerDisplayHooks.lock;
 
         return ListView.builder(
           itemCount: gameState.playerCount,
@@ -74,7 +75,7 @@ class PlayerListTile extends StatelessWidget {
   final bool selected;
   final bool enabled;
   final VoidCallback? onTap;
-  final List<PlayerDisplayHook> playerDisplayHooks;
+  final IList<PlayerDisplayHook> playerDisplayHooks;
   final Object? phaseIdentifier;
   final PlayerDisplayData? playerDisplayData;
 

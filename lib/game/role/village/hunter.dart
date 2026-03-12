@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -45,7 +46,7 @@ class HunterRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_hunter_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => {playerIndex!};
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
 
   @override
   bool hasDeathScreen(GameState gameState) => true;
@@ -83,8 +84,8 @@ class HunterScreen extends StatelessWidget {
             localizations.role_hunter_deathAction_instruction,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          currentActorIndices: {playerIndex},
-          disabledPlayerIndices: {playerIndex},
+          currentActorIndices: ISet({playerIndex}),
+          disabledPlayerIndices: ISet({playerIndex}),
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
             gameState.markPlayerDead(selectedPlayers.single, hunterRole);

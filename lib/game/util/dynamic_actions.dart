@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:graphs/graphs.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -20,8 +21,8 @@ class DynamicActionManager {
     DynamicActionBuilder builder, {
     required Set<int> players,
     bool Function(GameState gameState)? conditioned,
-    List<Object> before = const [],
-    List<Object> after = const [],
+    IList<Object> before = const IList.empty(),
+    IList<Object> after = const IList.empty(),
     bool beforeAll = false,
     bool afterAll = false,
   }) {
@@ -89,11 +90,11 @@ class DynamicActionManager {
   }
 
   /// The ordered list of night actions.
-  List<DynamicActionEntry> get orderedActions {
+  IList<DynamicActionEntry> get orderedActions {
     if (!_ordered) {
       orderActions();
     }
-    return _actions;
+    return _actions.lock;
   }
 }
 
@@ -102,10 +103,10 @@ class DynamicActionRegistration {
   final DynamicActionEntry entry;
 
   /// The list of identifiers that this action must come before.
-  final List<Object> before;
+  final IList<Object> before;
 
   /// The list of identifiers that this action must come after.
-  final List<Object> after;
+  final IList<Object> after;
 
   /// Whether this action should come before all others.
   final bool beforeAll;

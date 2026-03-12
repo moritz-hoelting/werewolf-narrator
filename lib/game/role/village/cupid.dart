@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -84,7 +85,7 @@ class _CupidScreenState extends State<CupidScreen> {
           AppLocalizations.of(context).role_cupid_nightAction_instruction,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
-        currentActorIndices: {widget.cupidIndex},
+        currentActorIndices: ISet({widget.cupidIndex}),
         selectionCount: 2,
         onConfirm: onAssignLovers,
       );
@@ -96,7 +97,7 @@ class _CupidScreenState extends State<CupidScreen> {
     }
   }
 
-  void onAssignLovers(Set<int> selectedIndices, GameState gameState) {
+  void onAssignLovers(ISet<int> selectedIndices, GameState gameState) {
     assert(
       selectedIndices.length == 2,
       'Cupid must select exactly two players as lovers.',

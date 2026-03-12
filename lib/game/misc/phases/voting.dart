@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -20,7 +21,7 @@ class VillageVoteScreen extends StatefulWidget {
       (gameState, onComplete) =>
           (context) => VillageVoteScreen(onComplete: onComplete),
       conditioned: (gameState) => gameState.alivePlayerCount > 1,
-      players: {},
+      players: const {},
     );
   }
 }
@@ -41,7 +42,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
         body: PlayerList(
           phaseIdentifier: VillageVoteScreen,
           disabledPlayers: gameState.knownDeadPlayerIndices,
-          selectedPlayers: {_selectedPlayer}.nonNulls.toSet(),
+          selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
           onPlayerTap: (index) => () {
             setState(() {
               _selectedPlayer = _selectedPlayer == index ? null : index;
@@ -98,12 +99,12 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
 class VillageVoteDeathReason implements DeathReason {
   const VillageVoteDeathReason(this.responsiblePlayers);
 
-  final Set<int> responsiblePlayers;
+  final ISet<int> responsiblePlayers;
 
   @override
   String deathReasonDescription(BuildContext context) =>
       AppLocalizations.of(context).team_village_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => responsiblePlayers;
+  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
 }

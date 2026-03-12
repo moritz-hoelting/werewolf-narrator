@@ -1,8 +1,8 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
@@ -11,21 +11,21 @@ class ActionScreen extends StatefulWidget {
   final Widget? instruction;
   final Object? actionIdentifier;
 
-  final Set<int> currentActorIndices;
-  final Set<int> disabledPlayerIndices;
+  final ISet<int> currentActorIndices;
+  final ISet<int> disabledPlayerIndices;
 
   final int selectionCount;
   final bool allowSelectLess;
 
-  final void Function(Set<int> playerIds, GameState gameState) onConfirm;
+  final void Function(ISet<int> playerIds, GameState gameState) onConfirm;
 
   const ActionScreen({
     super.key,
     required this.appBarTitle,
     this.instruction,
     this.actionIdentifier,
-    this.currentActorIndices = const {},
-    this.disabledPlayerIndices = const {},
+    this.currentActorIndices = const ISet.empty(),
+    this.disabledPlayerIndices = const ISet.empty(),
     required this.selectionCount,
     this.allowSelectLess = false,
     required this.onConfirm,
@@ -57,7 +57,7 @@ class _ActionScreenState extends State<ActionScreen> {
               child: PlayerList(
                 phaseIdentifier: widget.actionIdentifier,
                 onPlayerTap: (index) => getOnTapPlayer(index, gameState),
-                selectedPlayers: _selectedPlayers,
+                selectedPlayers: _selectedPlayers.lock,
                 disabledPlayers: widget.disabledPlayerIndices.union(
                   gameState.knownDeadPlayerIndices,
                 ),
@@ -136,11 +136,11 @@ class _ActionScreenState extends State<ActionScreen> {
             );
             answer.then((continueWithLess) {
               if (continueWithLess == true) {
-                widget.onConfirm(_selectedPlayers, gameState);
+                widget.onConfirm(_selectedPlayers.lock, gameState);
               }
             });
           } else {
-            widget.onConfirm(_selectedPlayers, gameState);
+            widget.onConfirm(_selectedPlayers.lock, gameState);
           }
         }
       : null;

@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
@@ -38,7 +39,7 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_knightOfTheRustySword_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => {playerIndex!};
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
 
   @override
   void onAssign(GameState gameState, int playerIndex) {

@@ -1,4 +1,6 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
@@ -32,14 +34,12 @@ class WolfHoundRole extends Role {
   }
 
   @override
-  TeamType<Team> team(GameState gameState) {
-    if (overrideTeam != null) {
-      return overrideTeam!;
-    } else if (selectedWerewolf == true) {
+  TeamType<Team>? team(GameState gameState) => overrideTeam.getOrElse(() {
+    if (selectedWerewolf == true) {
       return WerewolvesTeam.type;
     }
     return super.team(gameState);
-  }
+  });
 
   static void registerRole() {
     RoleManager.registerRole<WolfHoundRole>(
@@ -70,7 +70,7 @@ class WolfHoundRole extends Role {
           gameState.playerAliveUntilDawn(playerIndex) &&
           selectedWerewolf == null,
       players: {playerIndex},
-      before: [WerewolvesTeam.type],
+      before: IList([WerewolvesTeam.type]),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:meta/meta.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
@@ -8,7 +9,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 abstract class Role {
   Role();
 
-  TeamType? overrideTeam;
+  Option<TeamType?> overrideTeam = Option.none();
 
   @override
   String toString() {
@@ -22,8 +23,8 @@ abstract class Role {
   void onAssign(GameState gameState, int playerIndex) {}
 
   /// The team of this role in the current game state.
-  TeamType team(GameState gameState) =>
-      overrideTeam ?? objectType.information.initialTeam;
+  TeamType? team(GameState gameState) =>
+      overrideTeam.getOrElse(() => objectType.information.initialTeam);
 
   /// The display name of this role.
   String name(BuildContext context) => objectType.information.name(context);

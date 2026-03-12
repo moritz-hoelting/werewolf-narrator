@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -38,12 +39,9 @@ class Player {
       return false;
     }
     if (role!.hasDeathScreen(gameState)) {
+      final thisPlayerSet = ISet({gameState.players.indexOf(this)});
       return gameState.deathActionHooks.none(
-        (hook) => hook(
-          gameState,
-          (this, deathInformation!),
-          {gameState.players.indexOf(this)},
-        ),
+        (hook) => hook(gameState, (this, deathInformation!), thisPlayerSet),
       );
     }
     return false;

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
@@ -89,6 +90,7 @@ class GameState extends ChangeNotifier {
         roleCounts.entries
             .where((entry) => entry.value > 0)
             .map((entry) => entry.key.information.initialTeam)
+            .nonNulls
             .toSet()
             .map(
               (teamType) =>
@@ -140,40 +142,37 @@ class GameState extends ChangeNotifier {
   int get alivePlayerCount => players.where((player) => player.isAlive).length;
 
   /// Returns a map of player indices to their death reasons for the given cycle.
-  Map<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
-      Map.unmodifiable(
-        players.asMap().entries.fold({}, (acc, entry) {
-          final playerIndex = entry.key;
-          final deathInfo = entry.value.deathInformation;
-          if (deathInfo != null &&
-              deathInfo.atNight == atNight &&
-              deathInfo.day == dayCounter) {
-            acc[playerIndex] = deathInfo.reason;
-          }
-          return acc;
-        }),
-      );
+  IMap<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
+      players.asMap().entries.fold(<int, DeathReason>{}, (acc, entry) {
+        final playerIndex = entry.key;
+        final deathInfo = entry.value.deathInformation;
+        if (deathInfo != null &&
+            deathInfo.atNight == atNight &&
+            deathInfo.day == dayCounter) {
+          acc[playerIndex] = deathInfo.reason;
+        }
+        return acc;
+      }).lock;
 
   /// Returns a map of player indices to their death reasons for the current cycle (day/night).
-  Map<int, DeathReason> get currentCycleDeaths =>
+  IMap<int, DeathReason> get currentCycleDeaths =>
       deathsInCycle(dayCounter, isNight);
 
   /// Returns a map of player indices to their death reasons for the previous cycle (day/night).
-  Map<int, DeathReason> get previousCycleDeaths =>
+  IMap<int, DeathReason> get previousCycleDeaths =>
       deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
   /// Returns a map of player indices to their unannounced death information.
-  Map<int, DeathInformation> get unannouncedDeaths => Map.unmodifiable(
-    players.asMap().entries.fold({}, (acc, entry) {
-      final playerIndex = entry.key;
-      final player = entry.value;
-      final deathInfo = player.deathInformation;
-      if (deathInfo != null && !player.deathAnnounced) {
-        acc[playerIndex] = deathInfo;
-      }
-      return acc;
-    }),
-  );
+  IMap<int, DeathInformation> get unannouncedDeaths =>
+      players.asMap().entries.fold(<int, DeathInformation>{}, (acc, entry) {
+        final playerIndex = entry.key;
+        final player = entry.value;
+        final deathInfo = player.deathInformation;
+        if (deathInfo != null && !player.deathAnnounced) {
+          acc[playerIndex] = deathInfo;
+        }
+        return acc;
+      }).lock;
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
@@ -220,29 +219,29 @@ class GameState extends ChangeNotifier {
       getAlivePlayerOfRole(RoleType<T>());
 
   /// Returns a list of indices and players with a specific role.
-  List<(int, Player)> getPlayersOfRole(RoleType role) => players.indexed
+  IList<(int, Player)> getPlayersOfRole(RoleType role) => players.indexed
       .where(
         (player) =>
             player.$2.role != null && player.$2.role!.objectType == role,
       )
-      .toList();
+      .toIList();
 
   /// Returns a list of indices and players with a specific role.
-  List<(int, Player)> getPlayersOfRoleType<T extends Role>() =>
+  IList<(int, Player)> getPlayersOfRoleType<T extends Role>() =>
       getPlayersOfRole(RoleType<T>());
 
   /// Returns a list of indices and alive players with a specific role.
-  List<(int, Player)> getAlivePlayersOfRole(RoleType role) => players.indexed
+  IList<(int, Player)> getAlivePlayersOfRole(RoleType role) => players.indexed
       .where(
         (player) =>
             player.$2.role != null &&
             player.$2.role!.objectType == role &&
             playerAliveUntilDawn(player.$1),
       )
-      .toList();
+      .toIList();
 
   /// Returns a list of indices and alive players with a specific role.
-  List<(int, Player)> getAlivePlayersOfRoleType<T extends Role>() =>
+  IList<(int, Player)> getAlivePlayersOfRoleType<T extends Role>() =>
       getAlivePlayersOfRole(RoleType<T>());
 
   /// Checks if the game has a specific team.
@@ -266,29 +265,29 @@ class GameState extends ChangeNotifier {
       hasAlivePlayerOfTeam(TeamType<T>());
 
   /// Returns a list of indices and players belonging to a specific team.
-  List<(int, Player)> getPlayersOfTeam(TeamType team) => players.indexed
+  IList<(int, Player)> getPlayersOfTeam(TeamType team) => players.indexed
       .where(
         (player) =>
             player.$2.role != null && player.$2.role!.team(this) == team,
       )
-      .toList();
+      .toIList();
 
   /// Returns a list of indices and players belonging to a specific team.
-  List<(int, Player)> getPlayersOfTeamType<T extends Team>() =>
+  IList<(int, Player)> getPlayersOfTeamType<T extends Team>() =>
       getPlayersOfTeam(TeamType<T>());
 
   /// Returns a list of indices and alive players belonging to a specific team.
-  List<(int, Player)> getAlivePlayersOfTeam(TeamType team) => players.indexed
+  IList<(int, Player)> getAlivePlayersOfTeam(TeamType team) => players.indexed
       .where(
         (player) =>
             player.$2.role != null &&
             player.$2.role!.team(this) == team &&
             playerAliveUntilDawn(player.$1),
       )
-      .toList();
+      .toIList();
 
   /// Returns a list of indices and alive players belonging to a specific team.
-  List<(int, Player)> getAlivePlayersOfTeamType<T extends Team>() =>
+  IList<(int, Player)> getAlivePlayersOfTeamType<T extends Team>() =>
       getAlivePlayersOfTeam(TeamType<T>());
 
   /// Assigns the specified role to the players at the given indices.
@@ -313,7 +312,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Returns a list of unassigned roles in the game.
-  List<RoleType> get unassignedRoles {
+  IList<RoleType> get unassignedRoles {
     final assignedRoles = players.map((player) => player.role).fold(
       <RoleType, int>{},
       (acc, element) {
@@ -334,7 +333,8 @@ class GameState extends ChangeNotifier {
             acc.add(element.$1);
           }
           return acc;
-        });
+        })
+        .lock;
   }
 
   /// Removes unassigned roles from the role counts.
@@ -427,16 +427,16 @@ class GameState extends ChangeNotifier {
       (isNight && currentCycleDeaths.containsKey(playerIndex));
 
   /// Player indices that are known to be dead based on the current game state (until dawn).
-  Set<int> get knownDeadPlayerIndices => List.generate(
+  ISet<int> get knownDeadPlayerIndices => List.generate(
     players.length,
     (i) => i,
-  ).where((index) => !playerAliveUntilDawn(index)).toSet();
+  ).where((index) => !playerAliveUntilDawn(index)).toISet();
 
   /// Player indices that are known to be alive based on the current game state (until dawn).
-  Set<int> get knownAlivePlayerIndices => List.generate(
+  ISet<int> get knownAlivePlayerIndices => List.generate(
     players.length,
     (i) => i,
-  ).where((index) => playerAliveUntilDawn(index)).toSet();
+  ).where((index) => playerAliveUntilDawn(index)).toISet();
 
   /// Whether there are pending death actions to be resolved.
   bool get pendingDeathActions =>
@@ -478,7 +478,7 @@ class GameState extends ChangeNotifier {
   }
 
   /// Returns the list of winning players if there is a winning team.
-  List<(int, Player)>? winningPlayers() {
+  IList<(int, Player)>? winningPlayers() {
     final WinCondition? winner = checkWinConditions();
     if (winner == null) return null;
 
@@ -503,7 +503,7 @@ class GameState extends ChangeNotifier {
             (playerWinHook) => playerWinHook(this, winner, player.$1) == false,
           ),
         )
-        .toList();
+        .toIList();
   }
 
   /// Transitions to the next valid phase, if any.

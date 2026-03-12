@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
@@ -42,7 +43,7 @@ class SeerRole extends Role {
           (context) =>
               SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: [CupidRole.type],
+      after: IList([CupidRole.type]),
       players: {playerIndex},
     );
   }
@@ -88,13 +89,13 @@ class _SeerScreenState extends State<SeerScreen> {
               Expanded(
                 child: PlayerList(
                   phaseIdentifier: SeerScreen,
-                  selectedPlayers: {_selectedPlayer}.nonNulls.toSet(),
+                  selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
                   disabledPlayers: gameState.knownDeadPlayerIndices.union({
                     widget.playerIndex,
                   }),
-                  currentActorIndices: {widget.playerIndex},
+                  currentActorIndices: ISet({widget.playerIndex}),
                   playerSpecificDisplayData: _selectedPlayer != null
-                      ? {
+                      ? IMap({
                           _selectedPlayer!: PlayerDisplayData(
                             subtitle: (context) => Text(
                               gameState.players[_selectedPlayer!].role?.name(
@@ -104,8 +105,8 @@ class _SeerScreenState extends State<SeerScreen> {
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ),
-                        }
-                      : {},
+                        })
+                      : const IMap.empty(),
                   onPlayerTap: (index) => () {
                     setState(() {
                       _selectedPlayer = index;

@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -40,7 +41,7 @@ class BigBadWolfRole extends Role {
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
           !werewolfHasDied(gameState),
-      after: [WerewolvesTeam.type],
+      after: IList([WerewolvesTeam.type]),
       players: {playerIndex},
     );
   }
@@ -68,12 +69,12 @@ class BigBadWolfRole extends Role {
           onConfirm: (selectedPlayers, gameState) {
             gameState.markPlayerDead(
               selectedPlayers.single,
-              WerewolvesDeathReason({playerIndex}),
+              WerewolvesDeathReason(ISet({playerIndex})),
             );
             onComplete();
           },
           disabledPlayerIndices: werewolvesOrDead,
-          currentActorIndices: {playerIndex},
+          currentActorIndices: ISet({playerIndex}),
         );
       };
 }
@@ -81,6 +82,6 @@ class BigBadWolfRole extends Role {
 bool werewolfHasDied(GameState gameState) => gameState.players.indexed
     .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
     .map((entry) => entry.$1)
-    .toSet()
+    .toISet()
     .intersection(gameState.knownDeadPlayerIndices)
     .isNotEmpty;

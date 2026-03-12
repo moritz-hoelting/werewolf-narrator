@@ -46,6 +46,7 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .toSet();
     final Set<TeamType> selectedTeams = selectedRoleSet
         .map((role) => role.information.initialTeam)
+        .nonNulls
         .toSet();
 
     return Container(

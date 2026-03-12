@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -44,7 +45,7 @@ class WerewolvesTeam extends Team implements WinCondition {
 
     gameState.winConditions.add(this);
 
-    final nightActionPlayerIndices = werewolfPlayerIndices(gameState);
+    final nightActionPlayerIndices = werewolfPlayerIndices(gameState).unlock;
 
     gameState.nightActionManager.registerAction(
       WerewolvesTeam.type,
@@ -55,17 +56,17 @@ class WerewolvesTeam extends Team implements WinCondition {
           ..addAll(werewolfPlayerIndices(gameState));
         return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
       },
-      after: [CupidRole.type, SeerRole.type],
+      after: IList([CupidRole.type, SeerRole.type]),
       players: nightActionPlayerIndices,
     );
   }
 
-  static Set<int> werewolfPlayerIndices(GameState gameState) => gameState
+  static ISet<int> werewolfPlayerIndices(GameState gameState) => gameState
       .players
       .indexed
       .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
       .map((entry) => entry.$1)
-      .toSet();
+      .toISet();
 
   static String _name(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_name;
@@ -83,7 +84,7 @@ class WerewolvesTeam extends Team implements WinCondition {
     final deadIndices = gameState.players.indexed
         .where((player) => !player.$2.isAlive)
         .map((player) => player.$1)
-        .toSet();
+        .toISet();
 
     final werewolvesOrDead = werewolfIndices.union(deadIndices);
 
@@ -126,12 +127,12 @@ class WerewolvesTeam extends Team implements WinCondition {
 class WerewolvesDeathReason implements DeathReason {
   WerewolvesDeathReason(this.responsiblePlayers);
 
-  final Set<int> responsiblePlayers;
+  final ISet<int> responsiblePlayers;
 
   @override
   String deathReasonDescription(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => responsiblePlayers;
+  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
 }

@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -57,7 +58,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
           gameState.playerAliveUntilDawn(playerIndex) &&
           gameState.dayCounter % 2 == 0,
       players: {playerIndex},
-      after: [WerewolvesTeam.type],
+      after: IList([WerewolvesTeam.type]),
     );
   }
 
@@ -90,7 +91,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
         .toSet();
 
     final nonWerewolvesOrDead = List.generate(gameState.playerCount, (i) => i)
-        .toSet()
+        .toISet()
         .difference(werewolfIndices)
         .union(deadIndices)
         .union({playerIndex!});
@@ -101,7 +102,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       instruction: Text(localizations.role_whiteWolf_nightAction_instruction),
       selectionCount: 1,
       allowSelectLess: true,
-      currentActorIndices: {playerIndex!},
+      currentActorIndices: ISet({playerIndex!}),
       disabledPlayerIndices: nonWerewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
         gameState.markPlayerDead(selectedPlayers.single, this);
@@ -115,5 +116,5 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       AppLocalizations.of(context).role_whiteWolf_deathReason;
 
   @override
-  Set<int> get responsiblePlayerIndices => {playerIndex!};
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
 }
