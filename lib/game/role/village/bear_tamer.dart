@@ -38,6 +38,7 @@ class BearTamerRole extends Role {
   void onAssign(GameState gameState, int playerIndex) {
     super.onAssign(gameState, playerIndex);
 
+    // TODO: change to dawn message
     gameState.dayActionManager.registerAction(
       BearTamerRole,
       (gameState, onComplete) =>

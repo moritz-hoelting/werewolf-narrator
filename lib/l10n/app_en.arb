@@ -662,6 +662,42 @@
     "@role_whiteWolf_deathReason": {
         "description": "Reason for death: killed by the White Wolf"
     },
+    "role_piper_name": "Piper",
+    "@role_piper_name": {
+        "description": "Name of the Piper role"
+    },
+    "role_piper_description": "The Piper can charm two players each night. The piper wins if all alive players have been charmed.",
+    "@role_piper_description": {
+        "description": "Description of the Piper role"
+    },
+    "role_piper_checkInstruction": "Wake and select {count, plural, =1{the Piper} other{all Pipers}}",
+    "@role_piper_checkInstruction": {
+        "description": "Instruction to wake and select the Piper role",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_piper_nightAction_instruction": "Choose up to {count} players to charm.",
+    "@role_piper_nightAction_instruction": {
+        "description": "Instruction for the Piper night action",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "2"
+            }
+        }
+    },
+    "role_piper_nightAction_wakeCharmed_instruction": "Wake the charmed players.",
+    "@role_piper_nightAction_wakeCharmed_instruction": {
+        "description": "Instruction for the narrator to wake all charmed players."
+    },
+    "role_piper_winHeadline": "The Piper has won!",
+    "@role_piper_winHeadline": {
+        "description": "Headline shown when the Piper wins"
+    },
     "team_village_name": "Village",
     "@team_village_name": {
         "description": "Name of the Village team"

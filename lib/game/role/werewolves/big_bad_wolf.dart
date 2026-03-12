@@ -53,12 +53,9 @@ class BigBadWolfRole extends Role {
 
         final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
 
-        final deadIndices = gameState.players.indexed
-            .where((player) => !player.$2.isAlive)
-            .map((player) => player.$1)
-            .toSet();
-
-        final werewolvesOrDead = werewolfIndices.union(deadIndices);
+        final werewolvesOrDead = werewolfIndices.union(
+          gameState.knownDeadPlayerIndices,
+        );
 
         return ActionScreen(
           appBarTitle: Text(name(context)),

@@ -10,6 +10,7 @@ class PlayerList extends StatelessWidget {
     required this.phaseIdentifier,
     this.selectedPlayers = const ISet.empty(),
     this.disabledPlayers = const ISet.empty(),
+    this.hiddenPlayers = const ISet.empty(),
     this.currentActorIndices = const ISet.empty(),
     this.playerDisplayData,
     this.playerSpecificDisplayData = const IMap.empty(),
@@ -19,6 +20,7 @@ class PlayerList extends StatelessWidget {
   final Object? phaseIdentifier;
   final ISet<int> selectedPlayers;
   final ISet<int> disabledPlayers;
+  final ISet<int> hiddenPlayers;
   final ISet<int> currentActorIndices;
   final PlayerDisplayData? playerDisplayData;
   final IMap<int, PlayerDisplayData> playerSpecificDisplayData;
@@ -29,22 +31,30 @@ class PlayerList extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
         final playerDisplayHooks = gameState.playerDisplayHooks.lock;
+        final showPlayers = List.generate(
+          gameState.playerCount,
+          (i) => i,
+        ).where((index) => !hiddenPlayers.contains(index)).toIList();
 
         return ListView.builder(
-          itemCount: gameState.playerCount,
+          itemCount: showPlayers.length,
           itemBuilder: (context, index) {
-            final VoidCallback? onTap = onPlayerTap?.call(index);
+            int playerIndex = showPlayers[index];
+            final VoidCallback? onTap = onPlayerTap?.call(playerIndex);
 
             return PlayerListTile(
-              index: index,
-              name: gameState.players[index].name,
+              index: playerIndex,
+              name: gameState.players[playerIndex].name,
               playerDisplayHooks: playerDisplayHooks,
               phaseIdentifier: phaseIdentifier,
-              selected: selectedPlayers.contains(index),
-              enabled: !disabledPlayers.contains(index),
-              currentActor: currentActorIndices.contains(index),
+              selected: selectedPlayers.contains(playerIndex),
+              enabled: !disabledPlayers.contains(playerIndex),
+              currentActor: currentActorIndices.contains(playerIndex),
               playerDisplayData: PlayerDisplayData.merge(
-                [playerSpecificDisplayData[index], playerDisplayData].nonNulls,
+                [
+                  playerSpecificDisplayData[playerIndex],
+                  playerDisplayData,
+                ].nonNulls,
               ),
               onTap: onTap,
             );

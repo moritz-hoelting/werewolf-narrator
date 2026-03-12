@@ -81,12 +81,9 @@ class WerewolvesTeam extends Team implements WinCondition {
 
     final werewolfIndices = werewolfPlayerIndices(gameState);
 
-    final deadIndices = gameState.players.indexed
-        .where((player) => !player.$2.isAlive)
-        .map((player) => player.$1)
-        .toISet();
-
-    final werewolvesOrDead = werewolfIndices.union(deadIndices);
+    final werewolvesOrDead = werewolfIndices.union(
+      gameState.knownDeadPlayerIndices,
+    );
 
     return ActionScreen(
       key: UniqueKey(),

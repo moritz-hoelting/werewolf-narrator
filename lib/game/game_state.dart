@@ -438,6 +438,18 @@ class GameState extends ChangeNotifier {
     (i) => i,
   ).where((index) => playerAliveUntilDawn(index)).toISet();
 
+  /// Player indices that are alive.
+  ISet<int> get alivePlayerIndices => players.indexed
+      .where((player) => player.$2.isAlive)
+      .map((player) => player.$1)
+      .toISet();
+
+  /// Player indices that are dead.
+  ISet<int> get deadPlayerIndices => players.indexed
+      .where((player) => !player.$2.isAlive)
+      .map((player) => player.$1)
+      .toISet();
+
   /// Whether there are pending death actions to be resolved.
   bool get pendingDeathActions =>
       players.any((player) => player.waitForDeathAction(this));

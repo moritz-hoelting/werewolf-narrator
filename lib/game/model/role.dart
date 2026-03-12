@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
     show WildChildRole;
 import 'package:werewolf_narrator/game/role/misc/wolf_hound.dart'
     show WolfHoundRole;
+import 'package:werewolf_narrator/game/role/solo/piper.dart';
 import 'package:werewolf_narrator/game/role/solo/white_wolf.dart'
     show WhiteWolfRole;
 import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
@@ -103,6 +104,7 @@ abstract class RoleManager {
 
     // Solo roles
     WhiteWolfRole.registerRole();
+    PiperRole.registerRole();
   }
 
   /// Registers a role with the given information.

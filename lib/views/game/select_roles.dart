@@ -44,9 +44,8 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .where((entry) => entry.value.$2 > 0)
         .map((entry) => entry.key)
         .toSet();
-    final Set<TeamType> selectedTeams = selectedRoleSet
+    final Set<TeamType?> selectedTeams = selectedRoleSet
         .map((role) => role.information.initialTeam)
-        .nonNulls
         .toSet();
 
     return Container(

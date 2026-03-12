@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
@@ -16,6 +17,8 @@ class ActionScreen extends StatefulWidget {
 
   final int selectionCount;
   final bool allowSelectLess;
+  final PlayerDisplayData? playerDisplayData;
+  final IMap<int, PlayerDisplayData> playerSpecificDisplayData;
 
   final void Function(ISet<int> playerIds, GameState gameState) onConfirm;
 
@@ -29,6 +32,8 @@ class ActionScreen extends StatefulWidget {
     required this.selectionCount,
     this.allowSelectLess = false,
     required this.onConfirm,
+    this.playerDisplayData,
+    this.playerSpecificDisplayData = const IMap.empty(),
   });
 
   @override
@@ -62,6 +67,8 @@ class _ActionScreenState extends State<ActionScreen> {
                   gameState.knownDeadPlayerIndices,
                 ),
                 currentActorIndices: widget.currentActorIndices,
+                playerDisplayData: widget.playerDisplayData,
+                playerSpecificDisplayData: widget.playerSpecificDisplayData,
               ),
             ),
           ],

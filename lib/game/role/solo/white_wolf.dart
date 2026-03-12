@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
+import 'package:werewolf_narrator/game/util/solo_role.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -44,7 +45,8 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
     gameState.winConditions.add(this);
 
     gameState.playerWinHooks.add((gameState, winner, playerIndex) {
-      if (winner == (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam) &&
+      if (gameState.teams.containsKey(WerewolvesTeam.type) &&
+          winner == (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam) &&
           playerIndex == this.playerIndex) {
         return false;
       }
@@ -66,9 +68,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       AppLocalizations.of(context).role_whiteWolf_name;
 
   @override
-  bool hasWon(GameState gameState) =>
-      gameState.alivePlayerCount == 1 &&
-      gameState.players[playerIndex!].isAlive;
+  bool hasWon(GameState gameState) => soloRoleHasWon(gameState, playerIndex!);
 
   @override
   String winningHeadline(BuildContext context) =>
@@ -85,21 +85,20 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
 
     final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
 
-    final deadIndices = gameState.players.indexed
-        .where((player) => !player.$2.isAlive)
-        .map((player) => player.$1)
-        .toSet();
-
     final nonWerewolvesOrDead = List.generate(gameState.playerCount, (i) => i)
         .toISet()
         .difference(werewolfIndices)
-        .union(deadIndices)
+        .union(gameState.knownDeadPlayerIndices)
         .union({playerIndex!});
 
     return ActionScreen(
       key: UniqueKey(),
+      actionIdentifier: WhiteWolfRole,
       appBarTitle: Text(_name(context)),
-      instruction: Text(localizations.role_whiteWolf_nightAction_instruction),
+      instruction: Text(
+        localizations.role_whiteWolf_nightAction_instruction,
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
       selectionCount: 1,
       allowSelectLess: true,
       currentActorIndices: ISet({playerIndex!}),
