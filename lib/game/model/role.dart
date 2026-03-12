@@ -3,13 +3,13 @@ import 'dart:collection';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
-import 'package:werewolf_narrator/game/role/misc/wild_child.dart'
+import 'package:werewolf_narrator/game/role/ambiguous/wild_child.dart'
     show WildChildRole;
-import 'package:werewolf_narrator/game/role/misc/wolf_hound.dart'
+import 'package:werewolf_narrator/game/role/ambiguous/wolf_hound.dart'
     show WolfHoundRole;
-import 'package:werewolf_narrator/game/role/solo/angel.dart' show AngelRole;
-import 'package:werewolf_narrator/game/role/solo/piper.dart';
-import 'package:werewolf_narrator/game/role/solo/white_wolf.dart'
+import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
+import 'package:werewolf_narrator/game/role/loner/piper.dart';
+import 'package:werewolf_narrator/game/role/loner/white_wolf.dart'
     show WhiteWolfRole;
 import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
     show BearTamerRole;
@@ -37,6 +37,7 @@ import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class RoleType<T extends Role> {
   const RoleType._();
@@ -185,19 +186,62 @@ class RegisterRoleInformation<T extends Role> {
   final void Function(Map<RoleType, int> roleCounts, int playerCount)?
   roleCountAdjuster;
 
-  /// Whether this role requires the game to start with a day phase.
-  bool requireStartGameWithDay;
+  /// Information for display on choose roles screen.
+  final ChooseRolesInformation chooseRolesInformation;
 
-  RegisterRoleInformation({
+  /// Whether this role requires the game to start with a day phase.
+  final bool requireStartGameWithDay;
+
+  const RegisterRoleInformation({
     required this.constructor,
     required this.name,
     required this.description,
     required this.initialTeam,
     required this.checkRoleInstruction,
     required this.validRoleCounts,
+    required this.chooseRolesInformation,
     this.initialize,
     this.addedRoleCardAmount = 1,
     this.roleCountAdjuster,
     this.requireStartGameWithDay = false,
   });
+}
+
+class ChooseRolesInformation {
+  final ChooseRolesCategory category;
+  final int priority;
+
+  const ChooseRolesInformation({required this.category, this.priority = 0});
+}
+
+class ChooseRolesCategory {
+  final String Function(BuildContext context) name;
+  final int priority;
+
+  const ChooseRolesCategory._({required this.name, required this.priority});
+
+  static const werewolves = ChooseRolesCategory._(
+    name: _werewolvesName,
+    priority: 20,
+  );
+  static String _werewolvesName(BuildContext context) =>
+      AppLocalizations.of(context).roleCategory_werewolves_name;
+
+  static const village = ChooseRolesCategory._(
+    name: _villageName,
+    priority: 15,
+  );
+  static String _villageName(BuildContext context) =>
+      AppLocalizations.of(context).roleCategory_village_name;
+
+  static const ambiguous = ChooseRolesCategory._(
+    name: _ambiguousName,
+    priority: 10,
+  );
+  static String _ambiguousName(BuildContext context) =>
+      AppLocalizations.of(context).roleCategory_ambiguous_name;
+
+  static const loner = ChooseRolesCategory._(name: _lonerName, priority: 5);
+  static String _lonerName(BuildContext context) =>
+      AppLocalizations.of(context).roleCategory_loner_name;
 }

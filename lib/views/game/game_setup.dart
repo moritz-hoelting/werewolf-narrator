@@ -4,7 +4,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/views/game/create_players.dart';
-import 'package:werewolf_narrator/views/game/select_roles.dart';
+import 'package:werewolf_narrator/views/game/choose_roles_screen.dart';
 
 class GameSetupView extends StatefulWidget {
   final void Function(GameSetupResult) onFinished;
@@ -31,7 +31,7 @@ class _GameSetupViewState extends State<GameSetupView> {
         switch (step) {
           case GameSetupStep.createPlayers:
             break;
-          case GameSetupStep.selectRoles:
+          case GameSetupStep.chooseRoles:
             setState(() {
               step = GameSetupStep.createPlayers;
             });
@@ -45,7 +45,7 @@ class _GameSetupViewState extends State<GameSetupView> {
             onSubmit: submitCreatePlayers,
             initialPlayers: players,
           ),
-          GameSetupStep.selectRoles => SelectRolesView(
+          GameSetupStep.chooseRoles => ChooseRolesScreen(
             playerCount: players.length,
             onSubmit: (selectedRoles) => widget.onFinished(
               GameSetupResult(players: players, selectedRoles: selectedRoles),
@@ -58,7 +58,7 @@ class _GameSetupViewState extends State<GameSetupView> {
 
   void submitCreatePlayers(List<String> createdPlayers) {
     setState(() {
-      step = GameSetupStep.selectRoles;
+      step = GameSetupStep.chooseRoles;
       players = createdPlayers;
     });
   }
@@ -66,7 +66,7 @@ class _GameSetupViewState extends State<GameSetupView> {
 
 enum GameSetupStep {
   createPlayers,
-  selectRoles;
+  chooseRoles;
 
   String title(BuildContext context) {
     final localizations = AppLocalizations.of(context);
@@ -74,8 +74,8 @@ enum GameSetupStep {
     switch (this) {
       case GameSetupStep.createPlayers:
         return localizations.screen_gameSetup_createPlayers_title;
-      case GameSetupStep.selectRoles:
-        return localizations.screen_gameSetup_selectRoles_title;
+      case GameSetupStep.chooseRoles:
+        return localizations.screen_gameSetup_chooseRoles_title;
     }
   }
 }

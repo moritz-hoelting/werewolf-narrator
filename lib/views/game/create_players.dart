@@ -127,7 +127,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                     }
                   : null,
               label: Text(
-                localizations.screen_createPlayers_selectRolesButtonLabel,
+                localizations.screen_createPlayers_chooseRolesButtonLabel,
               ),
               icon: const Icon(Icons.arrow_forward),
             ),

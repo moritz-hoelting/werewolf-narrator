@@ -2,6 +2,8 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
+    show AncientWerewolfRole;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -27,6 +29,10 @@ class BigBadWolfRole extends Role {
           context,
         ).role_bigBadWolf_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.werewolves,
+          priority: 5,
+        ),
       ),
     );
   }
@@ -41,7 +47,7 @@ class BigBadWolfRole extends Role {
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
           !werewolfHasDied(gameState),
-      after: IList([WerewolvesTeam.type]),
+      after: IList([WerewolvesTeam.type, AncientWerewolfRole.type]),
       players: {playerIndex},
     );
   }

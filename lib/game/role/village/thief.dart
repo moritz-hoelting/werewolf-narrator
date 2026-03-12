@@ -42,6 +42,9 @@ class ThiefRole extends Role {
                 (2 * roleCounts[thiefRoleType]!);
           }
         },
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+        ),
       ),
     );
   }

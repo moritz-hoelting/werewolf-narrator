@@ -23,6 +23,10 @@ class WerewolfRole extends Role {
           'Werewolf has no individual check role screen',
         ),
         validRoleCounts: infiniteIterableStartingAt(1),
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.werewolves,
+          priority: 1000,
+        ),
       ),
     );
   }

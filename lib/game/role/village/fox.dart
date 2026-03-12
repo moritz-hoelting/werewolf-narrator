@@ -31,6 +31,10 @@ class FoxRole extends Role {
           context,
         ).role_fox_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 30,
+        ),
       ),
     );
   }

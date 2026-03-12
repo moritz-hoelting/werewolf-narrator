@@ -21,6 +21,10 @@ class LittleGirlRole extends Role {
           context,
         ).role_littleGirl_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 35,
+        ),
       ),
     );
   }

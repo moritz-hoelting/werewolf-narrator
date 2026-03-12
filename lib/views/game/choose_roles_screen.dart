@@ -1,24 +1,26 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:fpdart/fpdart.dart' show FpdartOnMap;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 
-class SelectRolesView extends StatefulWidget {
+class ChooseRolesScreen extends StatefulWidget {
   final int playerCount;
   final void Function(Map<RoleType, int>) onSubmit;
 
-  const SelectRolesView({
+  const ChooseRolesScreen({
     super.key,
     required this.playerCount,
     required this.onSubmit,
   });
 
   @override
-  State<SelectRolesView> createState() => _SelectRolesViewState();
+  State<ChooseRolesScreen> createState() => _ChooseRolesScreenState();
 }
 
-class _SelectRolesViewState extends State<SelectRolesView> {
+class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
   final Map<RoleType, (int index, int count)> _selectedRoles = {};
 
   int get totalSelected =>
@@ -48,41 +50,80 @@ class _SelectRolesViewState extends State<SelectRolesView> {
         .map((role) => role.information.initialTeam)
         .toSet();
 
-    final List<RoleType> roles = groupBy(
-      RoleManager.registeredRoles,
-      (role) => role.information.initialTeam,
-    ).values.flattened.toList();
+    final IList<MapEntry<ChooseRolesCategory, List<RoleType>>>
+    categorizedRoles =
+        groupBy(
+              RoleManager.registeredRoles,
+              (role) => role.information.chooseRolesInformation.category,
+            )
+            .mapValue(
+              (list) => list
+                ..sortByCompare(
+                  (role) => role.information.chooseRolesInformation.priority,
+                  (a, b) => b.compareTo(a),
+                ),
+            )
+            .entries
+            .sortedByCompare(
+              (entry) => entry.key.priority,
+              (a, b) => b.compareTo(a),
+            )
+            .toIList();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          const SizedBox(height: 16),
-
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 250,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1,
-              ),
-              itemCount: roles.length,
+            child: ListView.separated(
+              itemCount: categorizedRoles.length,
               itemBuilder: (context, index) {
-                final role = roles[index];
-                final maxCountIndex = findMaxCountIndexOfRole(
-                  role,
-                  missingRoles + (_selectedRoles[role]?.$2 ?? 0),
-                );
+                final roles = categorizedRoles[index].value;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        categorizedRoles[index].key.name(context),
+                        style: Theme.of(context).textTheme.headlineLarge,
+                        textAlign: TextAlign.start,
+                        softWrap: true,
+                      ),
+                    ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 250,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1,
+                          ),
+                      itemCount: roles.length,
+                      itemBuilder: (context, index) {
+                        final role = roles[index];
+                        final maxCountIndex = findMaxCountIndexOfRole(
+                          role,
+                          missingRoles + (_selectedRoles[role]?.$2 ?? 0),
+                        );
 
-                return RoleSelectorCard(
-                  role: role,
-                  count: _selectedRoles[role]?.$2 ?? 0,
-                  countIndex: _selectedRoles[role]?.$1 ?? -1,
-                  maxCountIndex: maxCountIndex,
-                  onChanged: (index, count) => setCount(role, index, count),
+                        return RoleSelectorCard(
+                          role: role,
+                          count: _selectedRoles[role]?.$2 ?? 0,
+                          countIndex: _selectedRoles[role]?.$1 ?? -1,
+                          maxCountIndex: maxCountIndex,
+                          onChanged: (index, count) =>
+                              setCount(role, index, count),
+                        );
+                      },
+                    ),
+                  ],
                 );
               },
+              separatorBuilder: (context, index) => const Divider(height: 32),
             ),
           ),
 
@@ -186,7 +227,7 @@ class RoleSelectorCard extends StatelessWidget {
             roleInformation.name(context),
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
           _Counter(

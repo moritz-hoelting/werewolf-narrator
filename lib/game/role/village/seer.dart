@@ -29,6 +29,10 @@ class SeerRole extends Role {
           context,
         ).role_seer_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 45,
+        ),
       ),
     );
   }

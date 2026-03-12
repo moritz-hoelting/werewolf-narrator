@@ -21,6 +21,10 @@ class VillagerRole extends Role {
         checkRoleInstruction: (context, count) =>
             throw UnimplementedError('Villager has no check role screen'),
         validRoleCounts: infiniteIterableStartingAt(1),
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 1000,
+        ),
       ),
     );
   }

@@ -38,6 +38,10 @@ class PiperRole extends Role implements WinCondition {
           context,
         ).role_piper_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.loner,
+          priority: 2,
+        ),
       ),
     );
   }

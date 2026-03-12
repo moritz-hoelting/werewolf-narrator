@@ -24,9 +24,9 @@
     "screen_settings_reportIssue": "Problem melden",
     "screen_settings_about": "Über die App",
     "screen_gameSetup_createPlayers_title": "Spieler erstellen",
-    "screen_gameSetup_selectRoles_title": "Rollen auswählen",
+    "screen_gameSetup_chooseRoles_title": "Rollen auswählen",
     "screen_createPlayers_addPlayer": "Spieler hinzufügen",
-    "screen_createPlayers_selectRolesButtonLabel": "Rollen auswählen",
+    "screen_createPlayers_chooseRolesButtonLabel": "Rollen auswählen",
     "screen_createPlayers_playerNumberInputLabel": "Spieler {number}",
     "screen_createPlayers_error_invalidOrDuplicateName": "Ungültiger oder doppelter Name",
     "screen_selectRoles_startButton": "Spiel starten!",
@@ -148,5 +148,9 @@
     "team_werewolves_nightAction_instruction": "Wähle einen Spieler zum Töten.",
     "team_werewolves_deathReason": "Von den Werwölfen getötet",
     "lovers_winHeadline": "Die Verliebten haben gewonnen!",
-    "lovers_deathReason": "An gebrochenem Herzen gestorben"
+    "lovers_deathReason": "An gebrochenem Herzen gestorben",
+    "roleCategory_werewolves_name": "Die Werwölfe",
+    "roleCategory_village_name": "Die Dorfbewohner",
+    "roleCategory_ambiguous_name": "Die Zweideutigen",
+    "roleCategory_loner_name": "Die Einzelgänger"
 }

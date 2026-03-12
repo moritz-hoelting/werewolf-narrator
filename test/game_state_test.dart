@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/role/solo/angel.dart' show AngelRole;
+import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
     show HunterRole;

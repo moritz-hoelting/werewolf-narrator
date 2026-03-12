@@ -28,6 +28,10 @@ class CupidRole extends Role {
           context,
         ).role_cupid_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 50,
+        ),
       ),
     );
   }

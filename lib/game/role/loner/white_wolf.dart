@@ -33,6 +33,10 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
           context,
         ).role_whiteWolf_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.loner,
+          priority: 3,
+        ),
       ),
     );
   }

@@ -38,6 +38,10 @@ class WitchRole extends Role implements DeathReason {
           context,
         ).role_witch_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 15,
+        ),
       ),
     );
   }

@@ -53,6 +53,10 @@ class WolfHoundRole extends Role {
           context,
         ).role_wolfHound_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.ambiguous,
+          priority: 2,
+        ),
       ),
     );
   }

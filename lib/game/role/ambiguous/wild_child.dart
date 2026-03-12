@@ -50,6 +50,10 @@ class WildChildRole extends Role {
           context,
         ).role_wildChild_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.ambiguous,
+          priority: 2,
+        ),
       ),
     );
   }

@@ -30,6 +30,10 @@ class BearTamerRole extends Role {
           context,
         ).role_bearTamer_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 10,
+        ),
       ),
     );
   }

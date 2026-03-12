@@ -102,16 +102,16 @@
     "@screen_gameSetup_createPlayers_title": {
         "description": "Title for the game setup step where players are created"
     },
-    "screen_gameSetup_selectRoles_title": "Select Roles",
-    "@screen_gameSetup_selectRoles_title": {
+    "screen_gameSetup_chooseRoles_title": "Choose Roles",
+    "@screen_gameSetup_chooseRoles_title": {
         "description": "Title for the game setup step where roles are selected"
     },
     "screen_createPlayers_addPlayer": "Add Player",
     "@screen_createPlayers_addPlayer": {
         "description": "Button label to add a new player"
     },
-    "screen_createPlayers_selectRolesButtonLabel": "Select roles",
-    "@screen_createPlayers_selectRolesButtonLabel": {
+    "screen_createPlayers_chooseRolesButtonLabel": "Choose roles",
+    "@screen_createPlayers_chooseRolesButtonLabel": {
         "description": "Button label to proceed to role selection"
     },
     "screen_createPlayers_playerNumberInputLabel": "Player {number} Name",
@@ -765,5 +765,21 @@
     "lovers_deathReason": "Died of a Broken Heart",
     "@lovers_deathReason": {
         "description": "Reason for death: died because their lover died"
+    },
+    "roleCategory_werewolves_name": "The Werewolves",
+    "@roleCategory_werewolves_name": {
+        "description": "Name of the category of werewolf roles"
+    },
+    "roleCategory_village_name": "The Village",
+    "@roleCategory_village_name": {
+        "description": "Name of the category of villager roles"
+    },
+    "roleCategory_ambiguous_name": "The Ambiguous",
+    "@roleCategory_ambiguous_name": {
+        "description": "Name of the category of ambigous roles"
+    },
+    "roleCategory_loner_name": "The Werewolves",
+    "@roleCategory_loner_name": {
+        "description": "Name of the category of loner roles"
     }
 }

@@ -28,6 +28,10 @@ class AngelRole extends Role implements WinCondition {
         ).role_angel_checkInstruction(count: count),
         validRoleCounts: const [1],
         requireStartGameWithDay: true,
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.loner,
+          priority: 1,
+        ),
       ),
     );
   }

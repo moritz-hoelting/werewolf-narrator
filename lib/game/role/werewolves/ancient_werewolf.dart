@@ -33,6 +33,10 @@ class AncientWerewolfRole extends Role {
           context,
         ).role_ancientWerewolf_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.werewolves,
+          priority: 10,
+        ),
       ),
     );
   }

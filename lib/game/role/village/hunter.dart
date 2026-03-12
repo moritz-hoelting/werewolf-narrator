@@ -30,6 +30,10 @@ class HunterRole extends Role implements DeathReason {
           context,
         ).role_hunter_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 5,
+        ),
       ),
     );
   }

@@ -25,6 +25,10 @@ class ElderRole extends Role {
           context,
         ).role_elder_checkInstruction(count: count),
         validRoleCounts: const [1],
+        chooseRolesInformation: ChooseRolesInformation(
+          category: ChooseRolesCategory.village,
+          priority: 20,
+        ),
       ),
     );
   }
