@@ -74,7 +74,7 @@ class _ActionScreenState extends State<ActionScreen> {
   }
 
   VoidCallback? getOnTapPlayer(int index, GameState gameState) {
-    if (!gameState.players[index].isAlive) {
+    if (!gameState.playerAliveUntilDawn(index)) {
       return null;
     }
 

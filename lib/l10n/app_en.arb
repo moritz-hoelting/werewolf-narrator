@@ -514,6 +514,32 @@
     "@role_bearTamer_growl_subtitle": {
         "description": "Subtitle shown when the narrator growls for the bear tamer role"
     },
+    "role_wildChild_name": "Wild Child",
+    "@role_wildChild_name": {
+        "description": "Name of the Wild Child role"
+    },
+    "role_wildChild_name_turned": "Wild Child (turned)",
+    "@role_wildChild_name_turned": {
+        "description": "Name of the Wild Child role when it has turned to a werewolf"
+    },
+    "role_wildChild_description": "The wild child picks their role model in the first night. If this role model dies, the wild child becomes a werewolf.",
+    "@role_wildChild_description": {
+        "description": "Description of the Wild Child role"
+    },
+    "role_wildChild_checkInstruction": "Wake and select {count, plural, =1{the Wild Child} other{all Wild Children}}",
+    "@role_wildChild_checkInstruction": {
+        "description": "Instruction to wake and select Wild Child roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_wildChild_nightAction_instruction": "Choose your role model.",
+    "@role_wildChild_nightAction_instruction": {
+        "description": "Instruction for the Wild Child night action"
+    },
     "role_werewolf_name": "Werewolf",
     "@role_werewolf_name": {
         "description": "Name of the Werewolf role"
