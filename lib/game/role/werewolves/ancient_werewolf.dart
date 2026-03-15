@@ -4,6 +4,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart' show Player;
+import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -13,7 +15,7 @@ import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class AncientWerewolfRole extends Role {
-  AncientWerewolfRole._();
+  AncientWerewolfRole._(RoleConfiguration config);
   static final RoleType type = RoleType<AncientWerewolfRole>();
   @override
   RoleType get objectType => type;
@@ -55,6 +57,7 @@ class AncientWerewolfRole extends Role {
           ),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       after: IList([WerewolvesTeam.type]),
+      before: IList([WitchRole.type]),
       players: {playerIndex},
     );
   }

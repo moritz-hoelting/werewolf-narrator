@@ -58,6 +58,7 @@ dependencies:
   shared_preferences: ^2.5.4
   fpdart: ^1.2.0
   fast_immutable_collections: ^11.1.0
+  deepcopy: ^1.1.2
 
 dev_dependencies:
   flutter_test:

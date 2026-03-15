@@ -34,8 +34,8 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
   void initState() {
     super.initState();
     final gameState = Provider.of<GameState>(context, listen: false);
-    final gameRoles = gameState.roleCounts.entries
-        .where((entry) => entry.value > 0 && entry.key != VillagerRole.type)
+    final gameRoles = gameState.roleConfigurations.entries
+        .where((entry) => entry.value.$1 > 0 && entry.key != VillagerRole.type)
         .map((entry) => entry.key)
         .toList();
     final gameTeams = gameState.teams;
@@ -169,8 +169,10 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
   int missingRoleCount(GameState gameState) => max(
     0,
-    gameState.roleCounts.entries
-            .map((e) => (e.key.information.addedRoleCardAmount - 1) * e.value)
+    gameState.roleConfigurations.entries
+            .map(
+              (e) => (e.key.information.addedRoleCardAmount - 1) * e.value.$1,
+            )
             .sum -
         widget.missingAssignments,
   );
@@ -184,9 +186,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
             final team = teamTuple.$1;
             final checkTogetherInformation = teamTuple.$2;
 
-            final maxSelection = gameState.roleCounts.entries
+            final maxSelection = gameState.roleConfigurations.entries
                 .where((entry) => entry.key.information.initialTeam == team)
-                .map((entry) => entry.value)
+                .map((entry) => entry.value.$1)
                 .sum;
 
             return _build(
@@ -202,7 +204,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
             );
           },
           (role) {
-            final maxSelection = gameState.roleCounts[role] ?? 0;
+            final maxSelection = gameState.roleConfigurations[role]?.$1 ?? 0;
 
             final teamConstraints =
                 widget.assignedPlayersByTeam[role.information.initialTeam];
@@ -368,7 +370,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         .map((entry) => entry.$1)
         .toList();
     gameState.setPlayersRole(role, selectedIndices);
-    final missing = (gameState.roleCounts[role] ?? 0) - selectedIndices.length;
+    final missing =
+        (gameState.roleConfigurations[role]?.$1 ?? 0) - selectedIndices.length;
 
     widget.onComplete(isTeamRole ? 0 : max(0, missing));
   }

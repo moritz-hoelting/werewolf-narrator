@@ -1,3 +1,4 @@
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -5,7 +6,7 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/util/iterable.dart';
 
 class VillagerRole extends Role {
-  VillagerRole._();
+  VillagerRole._(RoleConfiguration config);
   static final RoleType type = RoleType<VillagerRole>();
   @override
   RoleType get objectType => type;

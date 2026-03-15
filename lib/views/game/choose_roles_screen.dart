@@ -2,13 +2,19 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:fpdart/fpdart.dart' show FpdartOnMap;
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/widgets/game/role_settings.dart'
+    show RoleOptionsDialog;
 
 class ChooseRolesScreen extends StatefulWidget {
   final int playerCount;
-  final void Function(Map<RoleType, int>) onSubmit;
+  final void Function(
+    Map<RoleType, (int count, RoleConfiguration configuration)>,
+  )
+  onSubmit;
 
   const ChooseRolesScreen({
     super.key,
@@ -22,6 +28,7 @@ class ChooseRolesScreen extends StatefulWidget {
 
 class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
   final Map<RoleType, (int index, int count)> _selectedRoles = {};
+  final Map<RoleType, RoleConfiguration> _roleConfigurations = {};
 
   int get totalSelected =>
       _selectedRoles.values.fold(0, (sum, entry) => sum + entry.$2);
@@ -115,8 +122,12 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
                           count: _selectedRoles[role]?.$2 ?? 0,
                           countIndex: _selectedRoles[role]?.$1 ?? -1,
                           maxCountIndex: maxCountIndex,
-                          onChanged: (index, count) =>
+                          setCount: (index, count) =>
                               setCount(role, index, count),
+                          configuration: _roleConfigurationOrDefault(role),
+                          setConfiguration: (configuration) => setState(() {
+                            _roleConfigurations[role] = configuration;
+                          }),
                         );
                       },
                     ),
@@ -152,12 +163,16 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
   }
 
   void _submit() {
-    final modifiedRoles = Map<RoleType, int>.from(
-      _selectedRoles.map((key, value) => MapEntry(key, value.$2)),
-    );
+    final modifiedRoles =
+        Map<RoleType, (int count, RoleConfiguration configuration)>.from(
+          _selectedRoles.map(
+            (role, value) =>
+                MapEntry(role, (value.$2, _roleConfigurationOrDefault(role))),
+          ),
+        );
 
     for (final role in modifiedRoles.keys) {
-      final adjuster = RoleManager.getRoleCountAdjuster(role);
+      final adjuster = role.information.roleCountAdjuster;
       if (adjuster != null) {
         adjuster(modifiedRoles, widget.playerCount);
       }
@@ -182,6 +197,19 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
     }
     return lb - 1;
   }
+
+  RoleConfiguration _roleConfigurationOrDefault(RoleType role) {
+    final defaultConfig = role.information.options.fold<RoleConfiguration>(
+      {},
+      (config, option) => {...config, option.id: option.defaultValue},
+    );
+
+    if (_roleConfigurations[role] == null) {
+      return defaultConfig;
+    } else {
+      return {...defaultConfig, ..._roleConfigurations[role]!};
+    }
+  }
 }
 
 class RoleSelectorCard extends StatelessWidget {
@@ -189,7 +217,9 @@ class RoleSelectorCard extends StatelessWidget {
   final int count;
   final int countIndex;
   final int maxCountIndex;
-  final void Function(int index, int count) onChanged;
+  final RoleConfiguration configuration;
+  final void Function(int index, int count) setCount;
+  final void Function(RoleConfiguration configuration) setConfiguration;
 
   const RoleSelectorCard({
     super.key,
@@ -197,7 +227,9 @@ class RoleSelectorCard extends StatelessWidget {
     required this.count,
     required this.countIndex,
     required this.maxCountIndex,
-    required this.onChanged,
+    required this.setCount,
+    required this.configuration,
+    required this.setConfiguration,
   });
 
   @override
@@ -235,21 +267,31 @@ class RoleSelectorCard extends StatelessWidget {
             valueIndex: countIndex,
             validCounts: validCounts,
             maxValue: maxCount,
-            setValue: onChanged,
+            setValue: setCount,
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
                 icon: Icon(Icons.info_outline),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => RoleInfoDialog(role: role),
-                  );
-                },
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (context) => RoleInfoDialog(role: role),
+                ),
               ),
-              IconButton(icon: Icon(Icons.settings_outlined), onPressed: null),
+              IconButton(
+                icon: Icon(Icons.settings_outlined),
+                onPressed: role.information.options.isNotEmpty
+                    ? () => showDialog(
+                        context: context,
+                        builder: (context) => RoleOptionsDialog(
+                          role: role,
+                          configuration: configuration,
+                          setConfiguration: setConfiguration,
+                        ),
+                      )
+                    : null,
+              ),
             ],
           ),
         ],

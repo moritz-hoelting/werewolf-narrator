@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -16,15 +17,20 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class WitchRole extends Role implements DeathReason {
-  WitchRole._();
+  WitchRole._(RoleConfiguration config)
+    : healPotions = config[healPotionOptionId],
+      killPotions = config[killPotionOptionId];
   static final RoleType type = RoleType<WitchRole>();
   @override
   RoleType get objectType => type;
 
+  static const String healPotionOptionId = 'heal';
+  static const String killPotionOptionId = 'kill';
+
   int? playerIndex;
 
-  int healPotions = 1;
-  int killPotions = 1;
+  int healPotions;
+  int killPotions;
 
   static void registerRole() {
     RoleManager.registerRole<WitchRole>(
@@ -38,6 +44,7 @@ class WitchRole extends Role implements DeathReason {
           context,
         ).role_witch_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: options,
         chooseRolesInformation: ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 15,
@@ -45,6 +52,29 @@ class WitchRole extends Role implements DeathReason {
       ),
     );
   }
+
+  static final IList<RoleOption> options = IList([
+    IntOption(
+      id: healPotionOptionId,
+      label: (context) =>
+          AppLocalizations.of(context).role_witch_option_healPotionCount_label,
+      description: (context) => AppLocalizations.of(
+        context,
+      ).role_witch_option_healPotionCount_description,
+      min: 0,
+      defaultValue: 1,
+    ),
+    IntOption(
+      id: killPotionOptionId,
+      label: (context) =>
+          AppLocalizations.of(context).role_witch_option_killPotionCount_label,
+      description: (context) => AppLocalizations.of(
+        context,
+      ).role_witch_option_killPotionCount_description,
+      min: 0,
+      defaultValue: 1,
+    ),
+  ]);
 
   @override
   void onAssign(GameState gameState, int playerIndex) {

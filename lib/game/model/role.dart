@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/ambiguous/wild_child.dart'
     show WildChildRole;
@@ -119,10 +120,10 @@ abstract class RoleManager {
   }
 
   /// Instantiates a new role of the given type.
-  static Role instantiateRole(RoleType role) {
+  static Role instantiateRole(RoleType role, RoleConfiguration config) {
     final info = _roleInformation[role];
     if (info != null) {
-      return info.constructor();
+      return info.constructor(config);
     } else {
       throw Exception('No constructor registered for role type $role');
     }
@@ -145,18 +146,11 @@ abstract class RoleManager {
     final info = _roleInformation[role];
     return info?.initialize;
   }
-
-  /// Gets the role count adjuster function for the given role type.
-  static void Function(Map<RoleType, int> roleCounts, int playerCount)?
-  getRoleCountAdjuster(RoleType role) {
-    final info = _roleInformation[role];
-    return info?.roleCountAdjuster;
-  }
 }
 
 class RegisterRoleInformation<T extends Role> {
   /// The constructor function for this role.
-  final Role Function() constructor;
+  final Role Function(RoleConfiguration config) constructor;
 
   /// The name of this role.
   final String Function(BuildContext context) name;
@@ -173,6 +167,11 @@ class RegisterRoleInformation<T extends Role> {
   /// Should be sorted in ascending order.
   final Iterable<int> validRoleCounts;
 
+  /// List of configuration options for this role.
+  ///
+  /// This is used to display the options in the UI and to pass the selected options to the role constructor.
+  final IList<RoleOption> options;
+
   /// The initializer function for this role.
   final void Function(GameState gameState)? initialize;
 
@@ -183,7 +182,10 @@ class RegisterRoleInformation<T extends Role> {
   final int addedRoleCardAmount;
 
   /// The role count adjuster function for this role.
-  final void Function(Map<RoleType, int> roleCounts, int playerCount)?
+  final void Function(
+    Map<RoleType, (int count, RoleConfiguration configuration)> roleCounts,
+    int playerCount,
+  )?
   roleCountAdjuster;
 
   /// Information for display on choose roles screen.
@@ -200,6 +202,7 @@ class RegisterRoleInformation<T extends Role> {
     required this.checkRoleInstruction,
     required this.validRoleCounts,
     required this.chooseRolesInformation,
+    this.options = const IList.empty(),
     this.initialize,
     this.addedRoleCardAmount = 1,
     this.roleCountAdjuster,

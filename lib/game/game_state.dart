@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart'
+    show RoleConfiguration;
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart';
@@ -29,7 +31,7 @@ class GameState extends ChangeNotifier {
   final Map<TeamType, Team> teams;
 
   /// The counts of roles present in this game (initialized during setup).
-  final Map<RoleType, int> roleCounts;
+  final Map<RoleType, (int count, RoleConfiguration config)> roleConfigurations;
 
   /// Whether the game starts with a day phase (instead of night).
   final bool startGameWithDay;
@@ -87,11 +89,11 @@ class GameState extends ChangeNotifier {
   final List<int> _markDeadRecursionGuard = [];
   final List<int> _markRevivedRecursionGuard = [];
 
-  GameState({required List<String> players, required this.roleCounts})
+  GameState({required List<String> players, required this.roleConfigurations})
     : players = players.map((name) => Player(name: name)).toList(),
       teams = Map.fromEntries(
-        roleCounts.entries
-            .where((entry) => entry.value > 0)
+        roleConfigurations.entries
+            .where((entry) => entry.value.$1 > 0)
             .map((entry) => entry.key.information.initialTeam)
             .nonNulls
             .toSet()
@@ -100,18 +102,19 @@ class GameState extends ChangeNotifier {
                   MapEntry(teamType, TeamManager.instantiateTeam(teamType)),
             ),
       ),
-      startGameWithDay = roleCounts.entries.any(
+      startGameWithDay = roleConfigurations.entries.any(
         (entry) =>
-            entry.value > 0 && entry.key.information.requireStartGameWithDay,
+            entry.value.$1 > 0 && entry.key.information.requireStartGameWithDay,
       ) {
     assert(
       players.length ==
-          roleCounts.entries.fold(
+          roleConfigurations.entries.fold(
             0,
             (sum, entry) =>
                 sum +
-                entry.value +
-                (entry.value * (1 - entry.key.information.addedRoleCardAmount)),
+                entry.value.$1 +
+                (entry.value.$1 *
+                    (1 - entry.key.information.addedRoleCardAmount)),
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
@@ -120,7 +123,7 @@ class GameState extends ChangeNotifier {
     for (final team in teams.values) {
       team.initialize(this);
     }
-    for (final role in roleCounts.keys) {
+    for (final role in roleConfigurations.keys) {
       final roleInitializer = RoleManager.getInitializer(role);
       if (roleInitializer != null) {
         roleInitializer(this);
@@ -183,7 +186,7 @@ class GameState extends ChangeNotifier {
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
-      roleCounts.containsKey(role) && roleCounts[role]! > 0;
+      roleConfigurations.containsKey(role) && roleConfigurations[role]!.$1 > 0;
 
   /// Checks if the game has a specific role.
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
@@ -300,7 +303,10 @@ class GameState extends ChangeNotifier {
   /// Assigns the specified role to the players at the given indices.
   void setPlayersRole(RoleType role, List<int> playerIndices) {
     for (final index in playerIndices) {
-      final Role playerRole = RoleManager.instantiateRole(role);
+      final Role playerRole = RoleManager.instantiateRole(
+        role,
+        roleConfigurations[role]?.$2 ?? {},
+      );
       players[index].role = playerRole;
       playerRole.onAssign(this, index);
     }
@@ -330,10 +336,10 @@ class GameState extends ChangeNotifier {
       },
     );
 
-    return roleCounts.entries
+    return roleConfigurations.entries
         .map((entry) {
           final assignedCount = assignedRoles[entry.key] ?? 0;
-          return (entry.key, entry.value - assignedCount);
+          return (entry.key, entry.value.$1 - assignedCount);
         })
         .fold(<RoleType>[], (acc, element) {
           for (int i = 0; i < element.$2; i++) {
@@ -354,9 +360,12 @@ class GameState extends ChangeNotifier {
       return acc;
     });
     for (final entry in unassignedRoles.entries) {
-      roleCounts[entry.key] = (roleCounts[entry.key] ?? 0) - entry.value;
-      if (roleCounts[entry.key]! <= 0) {
-        roleCounts.remove(entry.key);
+      roleConfigurations[entry.key] = (
+        (roleConfigurations[entry.key]?.$1 ?? 0) - entry.value,
+        roleConfigurations[entry.key]?.$2 ?? {},
+      );
+      if (roleConfigurations[entry.key]!.$1 <= 0) {
+        roleConfigurations.remove(entry.key);
       }
     }
     notifyListeners();

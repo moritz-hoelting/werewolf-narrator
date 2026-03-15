@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/util/solo_role.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -14,10 +15,15 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class WhiteWolfRole extends Role implements WinCondition, DeathReason {
-  WhiteWolfRole._();
+  WhiteWolfRole._(RoleConfiguration config)
+    : wakeEveryNthNight = config[wakeEveryNthNightOptionKey];
   static final RoleType type = RoleType<WhiteWolfRole>();
   @override
   RoleType get objectType => type;
+
+  static const String wakeEveryNthNightOptionKey = 'wakeEveryNthNight';
+
+  final int wakeEveryNthNight;
 
   int? playerIndex;
 
@@ -33,6 +39,19 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
           context,
         ).role_whiteWolf_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: IList([
+          IntOption(
+            id: wakeEveryNthNightOptionKey,
+            label: (context) => AppLocalizations.of(
+              context,
+            ).role_whiteWolf_option_wakeEveryNthNight_label,
+            description: (context) => AppLocalizations.of(
+              context,
+            ).role_whiteWolf_option_wakeEveryNthNight_description,
+            defaultValue: 2,
+            min: 1,
+          ),
+        ]),
         chooseRolesInformation: ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 3,
@@ -62,7 +81,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       (gameState, onComplete) => nightActionScreen(onComplete),
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
-          gameState.dayCounter % 2 == 0,
+          gameState.dayCounter % wakeEveryNthNight == 0,
       players: {playerIndex},
       after: IList([WerewolvesTeam.type]),
     );
@@ -108,7 +127,9 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       currentActorIndices: ISet({playerIndex!}),
       disabledPlayerIndices: nonWerewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(selectedPlayers.single, this);
+        if (selectedPlayers.isNotEmpty) {
+          gameState.markPlayerDead(selectedPlayers.single, this);
+        }
         onComplete();
       },
     );

@@ -19,11 +19,11 @@ void main() {
   test("Test game phase order", () {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
-      roleCounts: {
-        SeerRole.type: 1,
-        HunterRole.type: 1,
-        CupidRole.type: 1,
-        WerewolfRole.type: 1,
+      roleConfigurations: {
+        SeerRole.type: (1, {}),
+        HunterRole.type: (1, {}),
+        CupidRole.type: (1, {}),
+        WerewolfRole.type: (1, {}),
       },
     );
 
@@ -67,11 +67,11 @@ void main() {
   test("Test game phase order with Angel role", () {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
-      roleCounts: {
-        SeerRole.type: 1,
-        AngelRole.type: 1,
-        CupidRole.type: 1,
-        WerewolfRole.type: 1,
+      roleConfigurations: {
+        SeerRole.type: (1, {}),
+        AngelRole.type: (1, {}),
+        CupidRole.type: (1, {}),
+        WerewolfRole.type: (1, {}),
       },
     );
 

@@ -2,6 +2,8 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
     show AncientWerewolfRole;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -12,7 +14,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class BigBadWolfRole extends Role {
-  BigBadWolfRole._();
+  BigBadWolfRole._(RoleConfiguration config);
   static final RoleType type = RoleType<BigBadWolfRole>();
   @override
   RoleType get objectType => type;
@@ -48,6 +50,7 @@ class BigBadWolfRole extends Role {
           gameState.playerAliveUntilDawn(playerIndex) &&
           !werewolfHasDied(gameState),
       after: IList([WerewolvesTeam.type, AncientWerewolfRole.type]),
+      before: IList([WitchRole.type]),
       players: {playerIndex},
     );
   }

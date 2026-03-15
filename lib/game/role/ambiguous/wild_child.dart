@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
@@ -13,7 +14,7 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class WildChildRole extends Role {
-  WildChildRole._();
+  WildChildRole._(RoleConfiguration config);
 
   static final RoleType type = RoleType<WildChildRole>();
   @override

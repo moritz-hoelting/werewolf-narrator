@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -16,12 +17,14 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart'
     show PlayerList;
 
 class PiperRole extends Role implements WinCondition {
-  PiperRole._();
+  PiperRole._(RoleConfiguration config)
+    : charmAmountPerNight = config[charmAmountPerNightOptionId];
   static final RoleType type = RoleType<PiperRole>();
   @override
   RoleType get objectType => type;
+  static const String charmAmountPerNightOptionId = 'charmAmountPerNight';
 
-  static const int charmAmountPerNight = 2;
+  final int charmAmountPerNight;
 
   int? playerIndex;
   Set<int> charmedPlayers = {};
@@ -38,6 +41,19 @@ class PiperRole extends Role implements WinCondition {
           context,
         ).role_piper_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: IList([
+          IntOption(
+            id: charmAmountPerNightOptionId,
+            label: (context) => AppLocalizations.of(
+              context,
+            ).role_piper_option_charmAmountPerNight_label,
+            description: (context) => AppLocalizations.of(
+              context,
+            ).role_piper_option_charmAmountPerNight_description,
+            min: 1,
+            defaultValue: 2,
+          ),
+        ]),
         chooseRolesInformation: ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 2,
@@ -60,6 +76,7 @@ class PiperRole extends Role implements WinCondition {
             playerIndex: playerIndex,
             onComplete: onComplete,
             charmedPlayers: charmedPlayers,
+            charmAmountPerNight: charmAmountPerNight,
           ),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       players: {playerIndex},
@@ -91,11 +108,13 @@ class PiperScreen extends StatefulWidget {
     super.key,
     required this.playerIndex,
     required this.charmedPlayers,
+    required this.charmAmountPerNight,
     required this.onComplete,
   });
 
   final int playerIndex;
   final Set<int> charmedPlayers;
+  final int charmAmountPerNight;
   final VoidCallback onComplete;
 
   @override
@@ -122,10 +141,10 @@ class _PiperScreenState extends State<PiperScreen> {
             appBarTitle: Text(PiperRole._name(context)),
             instruction: Text(
               localizations.role_piper_nightAction_instruction(
-                count: PiperRole.charmAmountPerNight,
+                count: widget.charmAmountPerNight,
               ),
             ),
-            selectionCount: PiperRole.charmAmountPerNight,
+            selectionCount: widget.charmAmountPerNight,
             allowSelectLess: true,
             currentActorIndices: ISet({widget.playerIndex}),
             disabledPlayerIndices: charmedOrDead,

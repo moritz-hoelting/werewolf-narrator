@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -12,7 +13,7 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class SeerRole extends Role {
-  SeerRole._();
+  SeerRole._(RoleConfiguration config);
   static final RoleType type = RoleType<SeerRole>();
   @override
   RoleType get objectType => type;

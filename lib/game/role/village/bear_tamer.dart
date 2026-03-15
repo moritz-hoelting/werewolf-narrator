@@ -2,6 +2,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -13,7 +14,7 @@ import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class BearTamerRole extends Role {
-  BearTamerRole._();
+  BearTamerRole._(RoleConfiguration config);
   static final RoleType type = RoleType<BearTamerRole>();
   @override
   RoleType get objectType => type;

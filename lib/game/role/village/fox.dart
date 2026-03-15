@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -12,10 +13,15 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class FoxRole extends Role {
-  FoxRole._();
+  FoxRole._(RoleConfiguration config)
+    : loosePowersOnWrongGuess = config[losePowersOnWrongGuessOptionId];
   static final RoleType type = RoleType<FoxRole>();
   @override
   RoleType get objectType => type;
+
+  static const String losePowersOnWrongGuessOptionId = 'losePowersOnWrongGuess';
+
+  final bool loosePowersOnWrongGuess;
 
   bool hasLostPowers = false;
 
@@ -31,6 +37,18 @@ class FoxRole extends Role {
           context,
         ).role_fox_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: IList([
+          BoolOption(
+            id: losePowersOnWrongGuessOptionId,
+            defaultValue: true,
+            label: (context) => AppLocalizations.of(
+              context,
+            ).role_fox_option_losePowersOnWrongGuess_label,
+            description: (context) => AppLocalizations.of(
+              context,
+            ).role_fox_option_losePowersOnWrongGuess_description,
+          ),
+        ]),
         chooseRolesInformation: ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 30,
@@ -115,7 +133,8 @@ class _FoxScreenState extends State<FoxScreen> {
           bottomNavigationBar: BottomContinueButton(
             onPressed: _foundWerewolf != null
                 ? () {
-                    if (!_foundWerewolf!) {
+                    if (widget.foxRole.loosePowersOnWrongGuess &&
+                        !_foundWerewolf!) {
                       widget.foxRole.hasLostPowers = true;
                     }
                     widget.onPhaseComplete();

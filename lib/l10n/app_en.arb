@@ -278,6 +278,22 @@
     "@role_witch_description": {
         "description": "Description of the Witch role"
     },
+    "role_witch_option_healPotionCount_label": "Heal potion count",
+    "@role_witch_option_healPotionCount_label": {
+        "description": "Label for the option to set the number of heal potions for the Witch role"
+    },
+    "role_witch_option_healPotionCount_description": "Number of healing potions the Witch has at the start of the game. A heal potion can be used to save a player that has been attacked by the werewolves during the night.",
+    "@role_witch_option_healPotionCount_description": {
+        "description": "Description for the option to set the number of heal potions for the Witch role"
+    },
+    "role_witch_option_killPotionCount_label": "Poison potion count",
+    "@role_witch_option_killPotionCount_label": {
+        "description": "Label for the option to set the number of poison potions for the Witch role"
+    },
+    "role_witch_option_killPotionCount_description": "Number of poison potions the Witch has at the start of the game. A poison potion can be used to kill a player that has been attacked by the werewolves during the night.",
+    "@role_witch_option_killPotionCount_description": {
+        "description": "Description for the option to set the number of poison potions for the Witch role"
+    },
     "role_witch_checkInstruction": "Wake and select {count, plural, =1{the Witch} other{all Witches}}",
     "@role_witch_checkInstruction": {
         "description": "Instruction to wake and select witch roles",
@@ -421,6 +437,14 @@
     "role_fox_description": "Each night, the player may check whether they or either of the two alive adjacent players is a werewolf. If none of them is a werewolf, the fox loses its ability.",
     "@role_fox_description": {
         "description": "Description of the Fox role"
+    },
+    "role_fox_option_losePowersOnWrongGuess_label": "Lose powers on wrong guess",
+    "@role_fox_option_losePowersOnWrongGuess_label": {
+        "description": "Label for the option to decide whether the Fox should lose its powers on a wrong guess"
+    },
+    "role_fox_option_losePowersOnWrongGuess_description": "Whether the Fox should lose its powers if it checks and finds no werewolves. If disabled, the Fox can check every night regardless of the result.",
+    "@role_fox_option_losePowersOnWrongGuess_description": {
+        "description": "Description for the option to decide whether the Fox should lose its powers on a wrong guess"
     },
     "role_fox_checkInstruction": "Wake and select {count, plural, =1{the Fox} other{all Foxes}}",
     "@role_fox_checkInstruction": {
@@ -640,6 +664,14 @@
     "@role_whiteWolf_description": {
         "description": "Description of the White Wolf role"
     },
+    "role_whiteWolf_option_wakeEveryNthNight_label": "Wake every nth night",
+    "@role_whiteWolf_option_wakeEveryNthNight_label": {
+        "description": "Label for the option to set how often the White Wolf wakes up"
+    },
+    "role_whiteWolf_option_wakeEveryNthNight_description": "The White Wolf wakes up every nth night (e.g. every 2nd night). On the nights the White Wolf wakes up, they can choose to kill a werewolf.",
+    "@role_whiteWolf_option_wakeEveryNthNight_description": {
+        "description": "Description for the option to set how often the White Wolf wakes up"
+    },
     "role_whiteWolf_checkInstruction": "Wake and select {count, plural, =1{the White Wolf} other{all White Wolves}}",
     "@role_whiteWolf_checkInstruction": {
         "description": "Instruction to wake and select the White Wolf role",
@@ -669,6 +701,14 @@
     "role_piper_description": "The Piper can charm two players each night. The piper wins if all alive players have been charmed.",
     "@role_piper_description": {
         "description": "Description of the Piper role"
+    },
+    "role_piper_option_charmAmountPerNight_label": "Charm player amount per night",
+    "@role_piper_option_charmAmountPerNight_label": {
+        "description": "Label for the option to set the amount of players the Piper can charm each night"
+    },
+    "role_piper_option_charmAmountPerNight_description": "Number of players the Piper can charm each night. The piper wins if all alive players have been charmed.",
+    "@role_piper_option_charmAmountPerNight_description": {
+        "description": "Description for the option to set the amount of players the Piper can charm each night"
     },
     "role_piper_checkInstruction": "Wake and select {count, plural, =1{the Piper} other{all Pipers}}",
     "@role_piper_checkInstruction": {

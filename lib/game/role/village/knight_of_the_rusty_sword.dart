@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -10,7 +11,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class KnightOfTheRustySwordRole extends Role implements DeathReason {
-  KnightOfTheRustySwordRole._();
+  KnightOfTheRustySwordRole._(RoleConfiguration config);
   static final RoleType type = RoleType<KnightOfTheRustySwordRole>();
   @override
   RoleType get objectType => type;

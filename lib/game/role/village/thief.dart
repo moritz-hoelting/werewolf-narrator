@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -12,7 +13,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 class ThiefRole extends Role {
-  ThiefRole._();
+  ThiefRole._(RoleConfiguration config);
   static final RoleType type = RoleType<ThiefRole>();
   @override
   RoleType get objectType => type;
@@ -36,10 +37,12 @@ class ThiefRole extends Role {
           final villagerRoleType = VillagerRole.type;
 
           if (roleCounts[thiefRoleType] != null &&
-              roleCounts[thiefRoleType]! > 0) {
-            roleCounts[villagerRoleType] =
-                (roleCounts[villagerRoleType] ?? 0) +
-                (2 * roleCounts[thiefRoleType]!);
+              roleCounts[thiefRoleType]!.$1 > 0) {
+            roleCounts[villagerRoleType] = (
+              (roleCounts[villagerRoleType]?.$1 ?? 0) +
+                  (2 * roleCounts[thiefRoleType]!.$1),
+              (roleCounts[villagerRoleType]?.$2 ?? {}),
+            );
           }
         },
         chooseRolesInformation: ChooseRolesInformation(
@@ -89,7 +92,8 @@ class ThiefScreen extends StatelessWidget {
         final missingRoles = gameState.unassignedRoles;
 
         assert(
-          missingRoles.length == 2 * gameState.roleCounts[ThiefRole.type]!,
+          missingRoles.length ==
+              2 * gameState.roleConfigurations[ThiefRole.type]!.$1,
           'Number of missing roles must match twice the number of Thief roles assigned',
         );
 

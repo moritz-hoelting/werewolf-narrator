@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -8,7 +9,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 
 class AngelRole extends Role implements WinCondition {
-  AngelRole._();
+  AngelRole._(RoleConfiguration config);
   static final RoleType type = RoleType<AngelRole>();
   @override
   RoleType get objectType => type;

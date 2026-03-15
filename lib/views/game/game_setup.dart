@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart'
+    show RoleConfiguration;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
@@ -82,7 +84,8 @@ enum GameSetupStep {
 
 class GameSetupResult {
   final List<String> players;
-  final Map<RoleType, int> selectedRoles;
+  final Map<RoleType, (int count, RoleConfiguration configuration)>
+  selectedRoles;
 
   GameSetupResult({required this.players, required this.selectedRoles});
 }
