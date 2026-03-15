@@ -130,6 +130,38 @@ class SettingsDisplay extends StatelessWidget {
             },
           ),
         ),
+        ListTile(
+          title: Text(localizations.screen_settings_clearNameCache),
+          leading: const Icon(Icons.delete),
+          onTap: () => showDialog(
+            context: context,
+            builder: (context) {
+              final materialLocalizations = MaterialLocalizations.of(context);
+              return AlertDialog(
+                title: Text(localizations.screen_settings_clearNameCache),
+                content: Text(
+                  localizations.screen_settings_clearNameCache_description,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(materialLocalizations.cancelButtonLabel),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Provider.of<AppSettings>(
+                        context,
+                        listen: false,
+                      ).nameCache = [];
+                      Navigator.pop(context);
+                    },
+                    child: Text(materialLocalizations.okButtonLabel),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ],
     );
   }

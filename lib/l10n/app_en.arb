@@ -64,6 +64,15 @@
     "@screen_settings_language_default": {
         "description": "Option for language setting: system default"
     },
+    "screen_settings_clearNameCache": "Clear Name Cache",
+    "@screen_settings_clearNameCache": {
+        "description": "Label for the button to clear the name cache"
+    },
+    "screen_settings_clearNameCache_description": "Are you sure you want to clear the name cache? This will remove all saved player names.",
+    "@screen_settings_clearNameCache_description": {
+        "description": "Description for the clear name cache setting"
+    },
+
     "screen_settings_supportAuthor": "Support the Author",
     "@screen_settings_supportAuthor": {
         "description": "Label for the button to support the author"
@@ -128,22 +137,26 @@
     "@screen_createPlayers_error_invalidOrDuplicateName": {
         "description": "Error message shown when a player's name is invalid or duplicate"
     },
-    "screen_selectRoles_startButton": "Start Game!",
-    "@screen_selectRoles_startButton": {
-        "description": "Button label to start the game after selecting roles"
+    "screen_createPlayers_deleteNameFromCacheTitle": "Delete name from cache",
+    "@screen_createPlayers_deleteNameFromCacheTitle": {
+        "description": "Title for the dialog to delete a name from the cache"
     },
-    "screen_selectRoles_missingRoles": "{count} roles left to assign",
-    "@screen_selectRoles_missingRoles": {
-        "description": "Info text showing how many roles are still missing",
+    "screen_createPlayers_deleteNameFromCacheContent": "Do you want to delete {name} from the name suggestions cache? This action cannot be undone.",
+    "@screen_createPlayers_deleteNameFromCacheContent": {
+        "description": "Content for the dialog to delete a name from the cache",
         "placeholders": {
-            "count": {
-                "type": "int",
-                "example": "3"
+            "name": {
+                "type": "String",
+                "example": "Alice"
             }
         }
     },
-    "screen_selectRoles_noPlayersInTeam": "No players assigned to team",
-    "@screen_selectRoles_noPlayersInTeam": {
+    "screen_chooseRoles_startButton": "Start Game!",
+    "@screen_chooseRoles_startButton": {
+        "description": "Button label to start the game after selecting roles"
+    },
+    "screen_checkRoles_noPlayersInTeam": "No players assigned to team",
+    "@screen_checkRoles_noPlayersInTeam": {
         "description": "Error message shown when no players are assigned to a team"
     },
     "screen_wakeLovers_title": "Wake the Lovers",

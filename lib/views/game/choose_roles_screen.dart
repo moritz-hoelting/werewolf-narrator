@@ -152,7 +152,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
                   ? _submit
                   : null,
               icon: const Icon(Icons.arrow_forward),
-              label: Text(localizations.screen_selectRoles_startButton),
+              label: Text(localizations.screen_chooseRoles_startButton),
             ),
           ),
 

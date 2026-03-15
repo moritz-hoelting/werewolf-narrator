@@ -248,7 +248,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
       body: teamConstraints != null && teamConstraints.isEmpty
           ? Center(
               child: Text(
-                localizations.screen_selectRoles_noPlayersInTeam,
+                localizations.screen_checkRoles_noPlayersInTeam,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             )

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-
-final int minPlayers = 8;
+import 'package:werewolf_narrator/util/settings.dart';
 
 class CreatePlayersScreen extends StatefulWidget {
+  static const int minPlayers = 8;
+
   final void Function(List<String>) onSubmit;
   final List<String>? initialPlayers;
 
@@ -20,7 +22,7 @@ class CreatePlayersScreen extends StatefulWidget {
 class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
   late List<String> playerNames =
       widget.initialPlayers == null || widget.initialPlayers!.isEmpty
-      ? List.filled(minPlayers, '', growable: true)
+      ? List.filled(CreatePlayersScreen.minPlayers, '', growable: true)
       : widget.initialPlayers!;
   late List<Key> playerKeys = List.generate(
     playerNames.length,
@@ -94,11 +96,13 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                     ),
                     Expanded(
                       child: PlayerNameInput(
+                        key: playerKeys[index],
                         idx: index,
                         initialText: playerNames[index],
                         isInvalid: invalidIndexes.contains(index),
                         onNameChanged: (name) => updatePlayerName(index, name),
-                        onDelete: playerNames.length > minPlayers
+                        onDelete:
+                            playerNames.length > CreatePlayersScreen.minPlayers
                             ? () => deletePlayer(index)
                             : null,
                       ),
@@ -117,15 +121,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(60),
               ),
-              onPressed: validateNames()
-                  ? () {
-                      final names = playerNames
-                          .map((name) => name.trim())
-                          .where((name) => name.isNotEmpty)
-                          .toList();
-                      widget.onSubmit(names);
-                    }
-                  : null,
+              onPressed: validateNames() ? submit : null,
               label: Text(
                 localizations.screen_createPlayers_chooseRolesButtonLabel,
               ),
@@ -164,7 +160,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
     });
 
     return (trimmedNames.where((n) => n.isNotEmpty).toSet().length >=
-        minPlayers);
+        CreatePlayersScreen.minPlayers);
   }
 
   void reorderPlayer(int oldIndex, int newIndex) {
@@ -177,6 +173,15 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
       playerNames.insert(newIndex, item);
       playerKeys.insert(newIndex, key);
     });
+  }
+
+  void submit() {
+    final names = playerNames
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty)
+        .toList();
+    Provider.of<AppSettings>(context, listen: false).addNamesToCache(names);
+    widget.onSubmit(names);
   }
 }
 
@@ -233,29 +238,111 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    return TextField(
-      autocorrect: false,
-      maxLength: 25,
-      decoration: InputDecoration(
-        labelText: localizations.screen_createPlayers_playerNumberInputLabel(
-          number: widget.idx + 1,
-        ),
-        errorText: (_touched && !_focusNode.hasFocus && widget.isInvalid)
-            ? localizations.screen_createPlayers_error_invalidOrDuplicateName
-            : null,
-        border: OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.delete),
-          iconSize: 30,
-          onPressed: widget.onDelete,
-          disabledColor: Colors.grey.shade400,
-        ),
-      ),
-      buildCounter:
-          (_, {required currentLength, required isFocused, maxLength}) => null,
-      controller: _controller,
+    return Autocomplete<String>(
+      textEditingController: _controller,
       focusNode: _focusNode,
-      onChanged: widget.onNameChanged,
+      optionsBuilder: (textEditingValue) {
+        if (textEditingValue.text == '') {
+          return const Iterable<String>.empty();
+        }
+        final appSettings = Provider.of<AppSettings>(context, listen: false);
+        return appSettings.nameCache.where(
+          (name) =>
+              name.toLowerCase().contains(
+                textEditingValue.text.toLowerCase(),
+              ) &&
+              name != textEditingValue.text,
+        );
+      },
+      onSelected: (option) {
+        _controller.text = option;
+        widget.onNameChanged(option);
+      },
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+            return TextField(
+              autocorrect: false,
+              maxLength: 25,
+              decoration: InputDecoration(
+                labelText: localizations
+                    .screen_createPlayers_playerNumberInputLabel(
+                      number: widget.idx + 1,
+                    ),
+                errorText:
+                    (_touched && !_focusNode.hasFocus && widget.isInvalid)
+                    ? localizations
+                          .screen_createPlayers_error_invalidOrDuplicateName
+                    : null,
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.delete),
+                  iconSize: 30,
+                  onPressed: widget.onDelete,
+                  disabledColor: Colors.grey.shade400,
+                ),
+              ),
+              buildCounter:
+                  (
+                    _, {
+                    required currentLength,
+                    required isFocused,
+                    maxLength,
+                  }) => null,
+              controller: _controller,
+              focusNode: _focusNode,
+              onChanged: widget.onNameChanged,
+            );
+          },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Material(
+          elevation: 4,
+          child: ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: options.length,
+            itemBuilder: (context, index) {
+              final option = options.elementAt(index);
+              return ListTile(
+                title: Text(option),
+                onTap: () => onSelected(option),
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(
+                        localizations
+                            .screen_createPlayers_deleteNameFromCacheTitle,
+                      ),
+                      content: Text(
+                        localizations
+                            .screen_createPlayers_deleteNameFromCacheContent(
+                              name: option,
+                            ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(localizations.button_noLabel),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Provider.of<AppSettings>(
+                              context,
+                              listen: false,
+                            ).deleteNameFromCache(option);
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(localizations.button_yesLabel),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
