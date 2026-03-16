@@ -14,7 +14,11 @@ import 'package:werewolf_narrator/game/role/loner/white_wolf.dart'
     show WhiteWolfRole;
 import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
     show BearTamerRole;
+import 'package:werewolf_narrator/game/role/village/bodyguard.dart'
+    show BodyguardRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/doctor.dart'
+    show DoctorRole;
 import 'package:werewolf_narrator/game/role/village/elder.dart' show ElderRole;
 import 'package:werewolf_narrator/game/role/village/fox.dart' show FoxRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
@@ -98,6 +102,8 @@ abstract class RoleManager {
     BearTamerRole.registerRole();
     ThiefRole.registerRole();
     PriestRole.registerRole();
+    DoctorRole.registerRole();
+    BodyguardRole.registerRole();
 
     // Miscellanious roles
     WildChildRole.registerRole();

@@ -30,7 +30,14 @@ class _RoleOptionsDialogState extends State<RoleOptionsDialog> {
     final size = MediaQuery.of(context).size;
 
     return AlertDialog(
-      title: Text(roleInformation.name(context)),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const Icon(Icons.settings),
+          const SizedBox(width: 8),
+          Text(roleInformation.name(context)),
+        ],
+      ),
       content: SizedBox(
         height: size.height * 0.6,
         width: size.width * 0.8,

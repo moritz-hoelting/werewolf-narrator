@@ -585,6 +585,50 @@
     "@role_priest_nightAction_noBlesses": {
         "description": "Message shown when the Priest has no blesses left"
     },
+    "role_doctor_name": "Doctor",
+    "@role_doctor_name": {
+        "description": "Name of the Doctor role"
+    },
+    "role_doctor_description": "Can protect a player each night. A protected player cannot be killed in that night.",
+    "@role_doctor_description": {
+        "description": "Description of the Doctor role"
+    },
+    "role_doctor_checkInstruction": "Wake and select {count, plural, =1{the Doctor} other{all Doctors}}",
+    "@role_doctor_checkInstruction": {
+        "description": "Instruction to wake and select doctor roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_doctor_nightAction_instruction": "Select player to protect this night.",
+    "@role_doctor_nightAction_instruction": {
+        "description": "Instruction for the Doctor night action"
+    },
+    "role_bodyguard_name": "Bodyguard",
+    "@role_bodyguard_name": {
+        "description": "Name of the Bodyguard role"
+    },
+    "role_bodyguard_description": "Can protect a player each night. A protected player cannot be killed in that night. The first attack on the protected player or the bodyguard itself will wound the bodyguard, but not kill them. The second attack on the wounded bodyguard will kill them.",
+    "@role_bodyguard_description": {
+        "description": "Description of the Bodyguard role"
+    },
+    "role_bodyguard_checkInstruction": "Wake and select {count, plural, =1{the Bodyguard} other{all Bodyguards}}",
+    "@role_bodyguard_checkInstruction": {
+        "description": "Instruction to wake and select bodyguard roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_bodyguard_nightAction_instruction": "Select player to protect this night.",
+    "@role_bodyguard_nightAction_instruction": {
+        "description": "Instruction for the Bodyguard night action"
+    },
     "role_wildChild_name": "Wild Child",
     "@role_wildChild_name": {
         "description": "Name of the Wild Child role"
