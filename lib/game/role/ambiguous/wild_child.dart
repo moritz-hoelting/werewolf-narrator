@@ -16,9 +16,9 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 class WildChildRole extends Role {
   WildChildRole._(RoleConfiguration config);
 
-  static final RoleType type = RoleType<WildChildRole>();
+  static final RoleType<WildChildRole> type = RoleType<WildChildRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<WildChildRole> get objectType => type;
 
   int? roleModel;
   bool turned = false;
@@ -41,6 +41,7 @@ class WildChildRole extends Role {
 
   static void registerRole() {
     RoleManager.registerRole<WildChildRole>(
+      type,
       RegisterRoleInformation(
         constructor: WildChildRole._,
         name: (context) => AppLocalizations.of(context).role_wildChild_name,

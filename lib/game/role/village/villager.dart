@@ -7,12 +7,13 @@ import 'package:werewolf_narrator/util/iterable.dart';
 
 class VillagerRole extends Role {
   VillagerRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<VillagerRole>();
+  static final RoleType<VillagerRole> type = RoleType<VillagerRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<VillagerRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<VillagerRole>(
+      type,
       RegisterRoleInformation(
         constructor: VillagerRole._,
         name: (context) => AppLocalizations.of(context).role_villager_name,

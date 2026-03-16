@@ -16,9 +16,9 @@ import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 class WolfHoundRole extends Role {
   WolfHoundRole._(RoleConfiguration config);
 
-  static final RoleType type = RoleType<WolfHoundRole>();
+  static final RoleType<WolfHoundRole> type = RoleType<WolfHoundRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<WolfHoundRole> get objectType => type;
 
   bool? selectedWerewolf;
 
@@ -44,6 +44,7 @@ class WolfHoundRole extends Role {
 
   static void registerRole() {
     RoleManager.registerRole<WolfHoundRole>(
+      type,
       RegisterRoleInformation(
         constructor: WolfHoundRole._,
         name: (context) => AppLocalizations.of(context).role_wolfHound_name,

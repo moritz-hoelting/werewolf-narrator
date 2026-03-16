@@ -12,14 +12,16 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class KnightOfTheRustySwordRole extends Role implements DeathReason {
   KnightOfTheRustySwordRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<KnightOfTheRustySwordRole>();
+  static final RoleType<KnightOfTheRustySwordRole> type =
+      RoleType<KnightOfTheRustySwordRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<KnightOfTheRustySwordRole> get objectType => type;
 
   int? playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<KnightOfTheRustySwordRole>(
+      type,
       RegisterRoleInformation(
         constructor: KnightOfTheRustySwordRole._,
         name: (context) =>

@@ -14,12 +14,13 @@ import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 class ThiefRole extends Role {
   ThiefRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<ThiefRole>();
+  static final RoleType<ThiefRole> type = RoleType<ThiefRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<ThiefRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
+      type,
       RegisterRoleInformation(
         constructor: ThiefRole._,
         name: (context) => AppLocalizations.of(context).role_thief_name,

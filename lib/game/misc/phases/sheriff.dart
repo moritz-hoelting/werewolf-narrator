@@ -57,7 +57,12 @@ class SheriffElectionScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context);
 
     return ActionScreen(
-      appBarTitle: Text(localizations.screen_sheriffElection_instruction),
+      appBarTitle: Text(localizations.screen_villageVote_sheriffLabel),
+      instruction: Text(
+        localizations.screen_sheriffElection_instruction,
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
+      actionIdentifier: SheriffVoteAction,
       selectionCount: 1,
       allowSelectLess: true,
       onConfirm: (selectedPlayers, gameState) {

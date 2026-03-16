@@ -6,12 +6,13 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class TwoSistersRole extends Role {
   TwoSistersRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<TwoSistersRole>();
+  static final RoleType<TwoSistersRole> type = RoleType<TwoSistersRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<TwoSistersRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<TwoSistersRole>(
+      type,
       RegisterRoleInformation(
         constructor: TwoSistersRole._,
         name: (context) => AppLocalizations.of(context).role_twoSisters_name,

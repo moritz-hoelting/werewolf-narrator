@@ -17,9 +17,9 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 class WhiteWolfRole extends Role implements WinCondition, DeathReason {
   WhiteWolfRole._(RoleConfiguration config)
     : wakeEveryNthNight = config[wakeEveryNthNightOptionKey];
-  static final RoleType type = RoleType<WhiteWolfRole>();
+  static final RoleType<WhiteWolfRole> type = RoleType<WhiteWolfRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<WhiteWolfRole> get objectType => type;
 
   static const String wakeEveryNthNightOptionKey = 'wakeEveryNthNight';
 
@@ -29,6 +29,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
 
   static void registerRole() {
     RoleManager.registerRole<WhiteWolfRole>(
+      type,
       RegisterRoleInformation(
         constructor: WhiteWolfRole._,
         name: _name,

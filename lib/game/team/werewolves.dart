@@ -89,7 +89,9 @@ class WerewolvesTeam extends Team implements WinCondition {
       key: UniqueKey(),
       appBarTitle: Text(_name(context)),
       instruction: Text(localizations.team_werewolves_nightAction_instruction),
+      actionIdentifier: WerewolvesTeam.type,
       selectionCount: 1,
+      allowSelectLess: true,
       currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {

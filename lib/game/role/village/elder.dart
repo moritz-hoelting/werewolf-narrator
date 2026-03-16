@@ -8,14 +8,15 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class ElderRole extends Role {
   ElderRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<ElderRole>();
+  static final RoleType<ElderRole> type = RoleType<ElderRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<ElderRole> get objectType => type;
 
   bool hasBeenAttackedByWerewolves = false;
 
   static void registerRole() {
     RoleManager.registerRole<ElderRole>(
+      type,
       RegisterRoleInformation(
         constructor: ElderRole._,
         name: (context) => AppLocalizations.of(context).role_elder_name,

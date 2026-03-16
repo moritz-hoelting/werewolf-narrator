@@ -24,6 +24,8 @@ import 'package:werewolf_narrator/game/role/village/knight_of_the_rusty_sword.da
 import 'package:werewolf_narrator/game/role/village/little_girl.dart'
     show LittleGirlRole;
 import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/role/village/priest.dart'
+    show PriestRole;
 import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/village/thief.dart' show ThiefRole;
 import 'package:werewolf_narrator/game/role/village/two_sisters.dart'
@@ -95,6 +97,7 @@ abstract class RoleManager {
     ElderRole.registerRole();
     BearTamerRole.registerRole();
     ThiefRole.registerRole();
+    PriestRole.registerRole();
 
     // Miscellanious roles
     WildChildRole.registerRole();
@@ -112,11 +115,14 @@ abstract class RoleManager {
   }
 
   /// Registers a role with the given information.
-  static void registerRole<T extends Role>(RegisterRoleInformation<T> info) {
-    if (_roleInformation.containsKey(RoleType<T>())) {
+  static void registerRole<T extends Role>(
+    RoleType<T> roleType,
+    RegisterRoleInformation<T> info,
+  ) {
+    if (_roleInformation.containsKey(roleType)) {
       throw Exception('Role of type $T is already registered');
     }
-    _roleInformation[RoleType<T>()] = info;
+    _roleInformation[roleType] = info;
   }
 
   /// Instantiates a new role of the given type.

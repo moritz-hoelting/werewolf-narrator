@@ -15,12 +15,13 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class BearTamerRole extends Role {
   BearTamerRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<BearTamerRole>();
+  static final RoleType<BearTamerRole> type = RoleType<BearTamerRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<BearTamerRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<BearTamerRole>(
+      type,
       RegisterRoleInformation(
         constructor: BearTamerRole._,
         name: (context) => AppLocalizations.of(context).role_bearTamer_name,

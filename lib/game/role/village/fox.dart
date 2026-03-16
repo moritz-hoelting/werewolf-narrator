@@ -15,9 +15,9 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart';
 class FoxRole extends Role {
   FoxRole._(RoleConfiguration config)
     : loosePowersOnWrongGuess = config[losePowersOnWrongGuessOptionId];
-  static final RoleType type = RoleType<FoxRole>();
+  static final RoleType<FoxRole> type = RoleType<FoxRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<FoxRole> get objectType => type;
 
   static const String losePowersOnWrongGuessOptionId = 'losePowersOnWrongGuess';
 
@@ -27,6 +27,7 @@ class FoxRole extends Role {
 
   static void registerRole() {
     RoleManager.registerRole<FoxRole>(
+      type,
       RegisterRoleInformation(
         constructor: FoxRole._,
         name: (context) => AppLocalizations.of(context).role_fox_name,

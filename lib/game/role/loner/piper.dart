@@ -19,9 +19,9 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart'
 class PiperRole extends Role implements WinCondition {
   PiperRole._(RoleConfiguration config)
     : charmAmountPerNight = config[charmAmountPerNightOptionId];
-  static final RoleType type = RoleType<PiperRole>();
+  static final RoleType<PiperRole> type = RoleType<PiperRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<PiperRole> get objectType => type;
   static const String charmAmountPerNightOptionId = 'charmAmountPerNight';
 
   final int charmAmountPerNight;
@@ -31,6 +31,7 @@ class PiperRole extends Role implements WinCondition {
 
   static void registerRole() {
     RoleManager.registerRole<PiperRole>(
+      type,
       RegisterRoleInformation(
         constructor: PiperRole._,
         name: _name,

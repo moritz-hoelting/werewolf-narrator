@@ -16,14 +16,16 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class AncientWerewolfRole extends Role {
   AncientWerewolfRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<AncientWerewolfRole>();
+  static final RoleType<AncientWerewolfRole> type =
+      RoleType<AncientWerewolfRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<AncientWerewolfRole> get objectType => type;
 
   int? convertedPlayerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<AncientWerewolfRole>(
+      type,
       RegisterRoleInformation(
         constructor: AncientWerewolfRole._,
         name: (context) =>

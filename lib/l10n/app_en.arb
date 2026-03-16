@@ -551,6 +551,40 @@
     "@role_bearTamer_growl_subtitle": {
         "description": "Subtitle shown when the narrator growls for the bear tamer role"
     },
+    "role_priest_name": "Priest",
+    "@role_priest_name": {
+        "description": "Name of the Priest role"
+    },
+    "role_priest_description": "Can bless a player at night once per game. A blessed player cannot be killed at night for the rest of the game.",
+    "@role_priest_description": {
+        "description": "Description of the Priest role"
+    },
+    "role_priest_checkInstruction": "Wake and select {count, plural, =1{the Priest} other{all Priests}}",
+    "@role_priest_checkInstruction": {
+        "description": "Instruction to wake and select priest roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_priest_option_blessCountLabel": "Bless Count",
+    "@role_priest_option_blessCountLabel": {
+        "description": "Label for the bless count option"
+    },
+    "role_priest_option_blessCountDescription": "The number of players the Priest can bless.",
+    "@role_priest_option_blessCountDescription": {
+        "description": "Description of the bless count option"
+    },
+    "role_priest_nightAction_instruction": "Select player to bless this night.",
+    "@role_priest_nightAction_instruction": {
+        "description": "Instruction for the Priest night action"
+    },
+    "role_priest_nightAction_noBlesses": "You have no blesses left to use.",
+    "@role_priest_nightAction_noBlesses": {
+        "description": "Message shown when the Priest has no blesses left"
+    },
     "role_wildChild_name": "Wild Child",
     "@role_wildChild_name": {
         "description": "Name of the Wild Child role"

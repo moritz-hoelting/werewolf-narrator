@@ -20,9 +20,9 @@ class WitchRole extends Role implements DeathReason {
   WitchRole._(RoleConfiguration config)
     : healPotions = config[healPotionOptionId],
       killPotions = config[killPotionOptionId];
-  static final RoleType type = RoleType<WitchRole>();
+  static final RoleType<WitchRole> type = RoleType<WitchRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<WitchRole> get objectType => type;
 
   static const String healPotionOptionId = 'heal';
   static const String killPotionOptionId = 'kill';
@@ -34,6 +34,7 @@ class WitchRole extends Role implements DeathReason {
 
   static void registerRole() {
     RoleManager.registerRole<WitchRole>(
+      type,
       RegisterRoleInformation(
         constructor: WitchRole._,
         name: (context) => AppLocalizations.of(context).role_witch_name,

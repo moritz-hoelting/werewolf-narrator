@@ -14,12 +14,13 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class SeerRole extends Role {
   SeerRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<SeerRole>();
+  static final RoleType<SeerRole> type = RoleType<SeerRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<SeerRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<SeerRole>(
+      type,
       RegisterRoleInformation(
         constructor: SeerRole._,
         name: (context) => AppLocalizations.of(context).role_seer_name,

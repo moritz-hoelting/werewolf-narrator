@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class BottomContinueButton extends StatelessWidget {
-  const BottomContinueButton({super.key, this.onPressed});
+  const BottomContinueButton({super.key, required this.onPressed});
 
   final VoidCallback? onPressed;
 

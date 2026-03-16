@@ -10,14 +10,15 @@ import 'package:werewolf_narrator/game/role/role.dart';
 
 class AngelRole extends Role implements WinCondition {
   AngelRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<AngelRole>();
+  static final RoleType<AngelRole> type = RoleType<AngelRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<AngelRole> get objectType => type;
 
   int? playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<AngelRole>(
+      type,
       RegisterRoleInformation(
         constructor: AngelRole._,
         name: _name,

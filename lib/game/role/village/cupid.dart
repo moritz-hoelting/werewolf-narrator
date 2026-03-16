@@ -13,12 +13,13 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 class CupidRole extends Role {
   CupidRole._(RoleConfiguration config);
 
-  static final RoleType type = RoleType<CupidRole>();
+  static final RoleType<CupidRole> type = RoleType<CupidRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<CupidRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<CupidRole>(
+      type,
       RegisterRoleInformation(
         constructor: CupidRole._,
         name: (context) => AppLocalizations.of(context).role_cupid_name,
@@ -90,6 +91,7 @@ class _CupidScreenState extends State<CupidScreen> {
           AppLocalizations.of(context).role_cupid_nightAction_instruction,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        actionIdentifier: CupidRole.type,
         currentActorIndices: ISet({widget.cupidIndex}),
         selectionCount: 2,
         onConfirm: onAssignLovers,

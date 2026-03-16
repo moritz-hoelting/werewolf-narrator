@@ -6,12 +6,13 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class LittleGirlRole extends Role {
   LittleGirlRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<LittleGirlRole>();
+  static final RoleType<LittleGirlRole> type = RoleType<LittleGirlRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<LittleGirlRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<LittleGirlRole>(
+      type,
       RegisterRoleInformation(
         constructor: LittleGirlRole._,
         name: (context) => AppLocalizations.of(context).role_littleGirl_name,

@@ -15,12 +15,13 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class BigBadWolfRole extends Role {
   BigBadWolfRole._(RoleConfiguration config);
-  static final RoleType type = RoleType<BigBadWolfRole>();
+  static final RoleType<BigBadWolfRole> type = RoleType<BigBadWolfRole>();
   @override
-  RoleType get objectType => type;
+  RoleType<BigBadWolfRole> get objectType => type;
 
   static void registerRole() {
     RoleManager.registerRole<BigBadWolfRole>(
+      type,
       RegisterRoleInformation(
         constructor: BigBadWolfRole._,
         name: (context) => AppLocalizations.of(context).role_bigBadWolf_name,
@@ -71,6 +72,7 @@ class BigBadWolfRole extends Role {
           instruction: Text(
             localizations.role_bigBadWolf_nightAction_instruction,
           ),
+          actionIdentifier: BigBadWolfRole.type,
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
             gameState.markPlayerDead(

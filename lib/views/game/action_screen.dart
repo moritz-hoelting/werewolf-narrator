@@ -26,7 +26,7 @@ class ActionScreen extends StatefulWidget {
     super.key,
     required this.appBarTitle,
     this.instruction,
-    this.actionIdentifier,
+    required this.actionIdentifier,
     this.currentActorIndices = const ISet.empty(),
     this.disabledPlayerIndices = const ISet.empty(),
     required this.selectionCount,
