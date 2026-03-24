@@ -6,7 +6,6 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
@@ -119,7 +118,7 @@ class WerewolvesTeam extends Team implements WinCondition {
   }
 
   @override
-  List<(int, Player)> winningPlayers(GameState gameState) =>
+  ISet<int> winningPlayers(GameState gameState) =>
       teamWinningPlayers(gameState, objectType);
 }
 

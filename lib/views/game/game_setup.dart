@@ -84,8 +84,7 @@ enum GameSetupStep {
 
 class GameSetupResult {
   final List<String> players;
-  final Map<RoleType, (int count, RoleConfiguration configuration)>
-  selectedRoles;
+  final Map<RoleType, ({int count, RoleConfiguration config})> selectedRoles;
 
   GameSetupResult({required this.players, required this.selectedRoles});
 }

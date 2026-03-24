@@ -35,7 +35,9 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
     super.initState();
     final gameState = Provider.of<GameState>(context, listen: false);
     final gameRoles = gameState.roleConfigurations.entries
-        .where((entry) => entry.value.$1 > 0 && entry.key != VillagerRole.type)
+        .where(
+          (entry) => entry.value.count > 0 && entry.key != VillagerRole.type,
+        )
         .map((entry) => entry.key)
         .toList();
     final gameTeams = gameState.teams;
@@ -171,7 +173,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     0,
     gameState.roleConfigurations.entries
             .map(
-              (e) => (e.key.information.addedRoleCardAmount - 1) * e.value.$1,
+              (e) =>
+                  (e.key.information.addedRoleCardAmount - 1) * e.value.count,
             )
             .sum -
         widget.missingAssignments,
@@ -188,7 +191,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
 
             final maxSelection = gameState.roleConfigurations.entries
                 .where((entry) => entry.key.information.initialTeam == team)
-                .map((entry) => entry.value.$1)
+                .map((entry) => entry.value.count)
                 .sum;
 
             return _build(
@@ -204,7 +207,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
             );
           },
           (role) {
-            final maxSelection = gameState.roleConfigurations[role]?.$1 ?? 0;
+            final maxSelection = gameState.roleConfigurations[role]?.count ?? 0;
 
             final teamConstraints =
                 widget.assignedPlayersByTeam[role.information.initialTeam];
@@ -371,7 +374,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         .toList();
     gameState.setPlayersRole(role, selectedIndices);
     final missing =
-        (gameState.roleConfigurations[role]?.$1 ?? 0) - selectedIndices.length;
+        (gameState.roleConfigurations[role]?.count ?? 0) -
+        selectedIndices.length;
 
     widget.onComplete(isTeamRole ? 0 : max(0, missing));
   }

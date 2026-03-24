@@ -31,7 +31,8 @@ class GameState extends ChangeNotifier {
   final Map<TeamType, Team> teams;
 
   /// The counts of roles present in this game (initialized during setup).
-  final Map<RoleType, (int count, RoleConfiguration config)> roleConfigurations;
+  final Map<RoleType, ({int count, RoleConfiguration config})>
+  roleConfigurations;
 
   /// Whether the game starts with a day phase (instead of night).
   final bool startGameWithDay;
@@ -93,7 +94,7 @@ class GameState extends ChangeNotifier {
     : players = players.map((name) => Player(name: name)).toList(),
       teams = Map.fromEntries(
         roleConfigurations.entries
-            .where((entry) => entry.value.$1 > 0)
+            .where((entry) => entry.value.count > 0)
             .map((entry) => entry.key.information.initialTeam)
             .nonNulls
             .toSet()
@@ -104,7 +105,8 @@ class GameState extends ChangeNotifier {
       ),
       startGameWithDay = roleConfigurations.entries.any(
         (entry) =>
-            entry.value.$1 > 0 && entry.key.information.requireStartGameWithDay,
+            entry.value.count > 0 &&
+            entry.key.information.requireStartGameWithDay,
       ) {
     assert(
       players.length ==
@@ -112,8 +114,8 @@ class GameState extends ChangeNotifier {
             0,
             (sum, entry) =>
                 sum +
-                entry.value.$1 +
-                (entry.value.$1 *
+                entry.value.count +
+                (entry.value.count *
                     (1 - entry.key.information.addedRoleCardAmount)),
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
@@ -186,7 +188,8 @@ class GameState extends ChangeNotifier {
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
-      roleConfigurations.containsKey(role) && roleConfigurations[role]!.$1 > 0;
+      roleConfigurations.containsKey(role) &&
+      roleConfigurations[role]!.count > 0;
 
   /// Checks if the game has a specific role.
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
@@ -205,53 +208,60 @@ class GameState extends ChangeNotifier {
   bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
 
   /// Returns index and the player with a specific role, if any.
-  (int, Player)? getPlayerOfRole(RoleType role) =>
-      players.indexed.singleWhereOrNull(
+  ({int index, Player player})? getPlayerOfRole(RoleType role) => players
+      .mapIndexed((index, player) => (index: index, player: player))
+      .singleWhereOrNull(
         (player) =>
-            player.$2.role != null && player.$2.role!.objectType == role,
+            player.player.role != null &&
+            player.player.role!.objectType == role,
       );
 
   /// Returns index and the player with a specific role, if any.
-  (int, Player)? getPlayerOfRoleType<T extends Role>() =>
+  ({int index, Player player})? getPlayerOfRoleType<T extends Role>() =>
       getPlayerOfRole(RoleType<T>());
 
   /// Returns index and the alive player with a specific role, if any.
-  (int, Player)? getAlivePlayerOfRole(RoleType role) =>
-      players.indexed.singleWhereOrNull(
-        (player) =>
-            player.$2.role != null &&
-            player.$2.role!.objectType == role &&
-            playerAliveUntilDawn(player.$1),
+  ({int index, Player player})? getAlivePlayerOfRole(RoleType role) => players
+      .mapIndexed((index, player) => (index: index, player: player))
+      .singleWhereOrNull(
+        (entry) =>
+            entry.player.role != null &&
+            entry.player.role!.objectType == role &&
+            playerAliveUntilDawn(entry.index),
       );
 
   /// Returns index and the alive player with a specific role, if any.
-  (int, Player)? getAlivePlayerOfRoleType<T extends Role>() =>
+  ({int index, Player player})? getAlivePlayerOfRoleType<T extends Role>() =>
       getAlivePlayerOfRole(RoleType<T>());
 
   /// Returns a list of indices and players with a specific role.
-  IList<(int, Player)> getPlayersOfRole(RoleType role) => players.indexed
+  IList<({int index, Player player})> getPlayersOfRole(RoleType role) => players
+      .mapIndexed((index, player) => (index: index, player: player))
       .where(
-        (player) =>
-            player.$2.role != null && player.$2.role!.objectType == role,
+        (entry) =>
+            entry.player.role != null && entry.player.role!.objectType == role,
       )
       .toIList();
 
   /// Returns a list of indices and players with a specific role.
-  IList<(int, Player)> getPlayersOfRoleType<T extends Role>() =>
+  IList<({int index, Player player})> getPlayersOfRoleType<T extends Role>() =>
       getPlayersOfRole(RoleType<T>());
 
   /// Returns a list of indices and alive players with a specific role.
-  IList<(int, Player)> getAlivePlayersOfRole(RoleType role) => players.indexed
-      .where(
-        (player) =>
-            player.$2.role != null &&
-            player.$2.role!.objectType == role &&
-            playerAliveUntilDawn(player.$1),
-      )
-      .toIList();
+  IList<({int index, Player player})> getAlivePlayersOfRole(RoleType role) =>
+      players
+          .mapIndexed((index, player) => (index: index, player: player))
+          .where(
+            (entry) =>
+                entry.player.role != null &&
+                entry.player.role!.objectType == role &&
+                playerAliveUntilDawn(entry.index),
+          )
+          .toIList();
 
   /// Returns a list of indices and alive players with a specific role.
-  IList<(int, Player)> getAlivePlayersOfRoleType<T extends Role>() =>
+  IList<({int index, Player player})>
+  getAlivePlayersOfRoleType<T extends Role>() =>
       getAlivePlayersOfRole(RoleType<T>());
 
   /// Checks if the game has a specific team.
@@ -275,29 +285,33 @@ class GameState extends ChangeNotifier {
       hasAlivePlayerOfTeam(TeamType<T>());
 
   /// Returns a list of indices and players belonging to a specific team.
-  IList<(int, Player)> getPlayersOfTeam(TeamType team) => players.indexed
+  IList<({int index, Player player})> getPlayersOfTeam(TeamType team) => players
+      .mapIndexed((index, player) => (index: index, player: player))
       .where(
-        (player) =>
-            player.$2.role != null && player.$2.role!.team(this) == team,
+        (entry) =>
+            entry.player.role != null && entry.player.role!.team(this) == team,
       )
       .toIList();
 
   /// Returns a list of indices and players belonging to a specific team.
-  IList<(int, Player)> getPlayersOfTeamType<T extends Team>() =>
+  IList<({int index, Player player})> getPlayersOfTeamType<T extends Team>() =>
       getPlayersOfTeam(TeamType<T>());
 
   /// Returns a list of indices and alive players belonging to a specific team.
-  IList<(int, Player)> getAlivePlayersOfTeam(TeamType team) => players.indexed
-      .where(
-        (player) =>
-            player.$2.role != null &&
-            player.$2.role!.team(this) == team &&
-            playerAliveUntilDawn(player.$1),
-      )
-      .toIList();
+  IList<({int index, Player player})> getAlivePlayersOfTeam(TeamType team) =>
+      players
+          .mapIndexed((index, player) => (index: index, player: player))
+          .where(
+            (entry) =>
+                entry.player.role != null &&
+                entry.player.role!.team(this) == team &&
+                playerAliveUntilDawn(entry.index),
+          )
+          .toIList();
 
   /// Returns a list of indices and alive players belonging to a specific team.
-  IList<(int, Player)> getAlivePlayersOfTeamType<T extends Team>() =>
+  IList<({int index, Player player})>
+  getAlivePlayersOfTeamType<T extends Team>() =>
       getAlivePlayersOfTeam(TeamType<T>());
 
   /// Assigns the specified role to the players at the given indices.
@@ -305,7 +319,7 @@ class GameState extends ChangeNotifier {
     for (final index in playerIndices) {
       final Role playerRole = RoleManager.instantiateRole(
         role,
-        roleConfigurations[role]?.$2 ?? {},
+        roleConfigurations[role]?.config ?? {},
       );
       players[index].role = playerRole;
       playerRole.onAssign(this, index);
@@ -339,7 +353,7 @@ class GameState extends ChangeNotifier {
     return roleConfigurations.entries
         .map((entry) {
           final assignedCount = assignedRoles[entry.key] ?? 0;
-          return (entry.key, entry.value.$1 - assignedCount);
+          return (entry.key, entry.value.count - assignedCount);
         })
         .fold(<RoleType>[], (acc, element) {
           for (int i = 0; i < element.$2; i++) {
@@ -361,10 +375,10 @@ class GameState extends ChangeNotifier {
     });
     for (final entry in unassignedRoles.entries) {
       roleConfigurations[entry.key] = (
-        (roleConfigurations[entry.key]?.$1 ?? 0) - entry.value,
-        roleConfigurations[entry.key]?.$2 ?? {},
+        count: (roleConfigurations[entry.key]?.count ?? 0) - entry.value,
+        config: roleConfigurations[entry.key]?.config ?? {},
       );
-      if (roleConfigurations[entry.key]!.$1 <= 0) {
+      if (roleConfigurations[entry.key]!.count <= 0) {
         roleConfigurations.remove(entry.key);
       }
     }
@@ -506,21 +520,21 @@ class GameState extends ChangeNotifier {
   }
 
   /// Returns the list of winning players if there is a winning team.
-  IList<(int, Player)>? winningPlayers() {
+  ISet<({int index, Player player})>? winningPlayers() {
     final WinCondition? winner = checkWinConditions();
     if (winner == null) return null;
 
-    final List<(int, Player)> winners = winner.winningPlayers(this);
+    final Set<int> winners = winner.winningPlayers(this).unlock;
 
     final nonWinningPlayers = List.generate(
       playerCount,
       (i) => i,
-    ).toSet().difference(winners.map((player) => player.$1).toSet());
+    ).toISet().difference(winners);
     for (final playerIndex in nonWinningPlayers) {
       for (final playerWinHook in playerWinHooks) {
         final bool? result = playerWinHook(this, winner, playerIndex);
         if (result == true) {
-          winners.add((playerIndex, players[playerIndex]));
+          winners.add(playerIndex);
         }
       }
     }
@@ -528,10 +542,13 @@ class GameState extends ChangeNotifier {
     return winners
         .where(
           (player) => playerWinHooks.none(
-            (playerWinHook) => playerWinHook(this, winner, player.$1) == false,
+            (playerWinHook) => playerWinHook(this, winner, player) == false,
           ),
         )
-        .toIList();
+        .map(
+          (playerIndex) => (index: playerIndex, player: players[playerIndex]),
+        )
+        .toISet();
   }
 
   /// Transitions to the next valid phase, if any.

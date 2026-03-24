@@ -38,11 +38,12 @@ class ThiefRole extends Role {
           final villagerRoleType = VillagerRole.type;
 
           if (roleCounts[thiefRoleType] != null &&
-              roleCounts[thiefRoleType]!.$1 > 0) {
+              roleCounts[thiefRoleType]!.count > 0) {
             roleCounts[villagerRoleType] = (
-              (roleCounts[villagerRoleType]?.$1 ?? 0) +
-                  (2 * roleCounts[thiefRoleType]!.$1),
-              (roleCounts[villagerRoleType]?.$2 ?? {}),
+              count:
+                  (roleCounts[villagerRoleType]?.count ?? 0) +
+                  (2 * roleCounts[thiefRoleType]!.count),
+              config: (roleCounts[villagerRoleType]?.config ?? {}),
             );
           }
         },
@@ -94,7 +95,7 @@ class ThiefScreen extends StatelessWidget {
 
         assert(
           missingRoles.length ==
-              2 * gameState.roleConfigurations[ThiefRole.type]!.$1,
+              2 * gameState.roleConfigurations[ThiefRole.type]!.count,
           'Number of missing roles must match twice the number of Thief roles assigned',
         );
 

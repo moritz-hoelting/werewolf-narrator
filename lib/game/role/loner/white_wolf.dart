@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/util/solo_role.dart';
@@ -99,8 +98,8 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       AppLocalizations.of(context).role_whiteWolf_winHeadline;
 
   @override
-  List<(int, Player)> winningPlayers(GameState gameState) {
-    return [(playerIndex!, gameState.players[playerIndex!])];
+  ISet<int> winningPlayers(GameState gameState) {
+    return ISet({playerIndex!});
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {

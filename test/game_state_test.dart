@@ -20,10 +20,10 @@ void main() {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
       roleConfigurations: {
-        SeerRole.type: (1, {}),
-        HunterRole.type: (1, {}),
-        CupidRole.type: (1, {}),
-        WerewolfRole.type: (1, {}),
+        SeerRole.type: (count: 1, config: {}),
+        HunterRole.type: (count: 1, config: {}),
+        CupidRole.type: (count: 1, config: {}),
+        WerewolfRole.type: (count: 1, config: {}),
       },
     );
 
@@ -68,10 +68,10 @@ void main() {
     GameState state = GameState(
       players: List.generate(4, (index) => "Player $index"),
       roleConfigurations: {
-        SeerRole.type: (1, {}),
-        AngelRole.type: (1, {}),
-        CupidRole.type: (1, {}),
-        WerewolfRole.type: (1, {}),
+        SeerRole.type: (count: 1, config: {}),
+        AngelRole.type: (count: 1, config: {}),
+        CupidRole.type: (count: 1, config: {}),
+        WerewolfRole.type: (count: 1, config: {}),
       },
     );
 

@@ -197,7 +197,7 @@ class RegisterRoleInformation<T extends Role> {
 
   /// The role count adjuster function for this role.
   final void Function(
-    Map<RoleType, (int count, RoleConfiguration configuration)> roleCounts,
+    Map<RoleType, ({int count, RoleConfiguration config})> roleCounts,
     int playerCount,
   )?
   roleCountAdjuster;

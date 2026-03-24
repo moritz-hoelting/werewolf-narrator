@@ -11,9 +11,7 @@ import 'package:werewolf_narrator/widgets/game/role_settings.dart'
 
 class ChooseRolesScreen extends StatefulWidget {
   final int playerCount;
-  final void Function(
-    Map<RoleType, (int count, RoleConfiguration configuration)>,
-  )
+  final void Function(Map<RoleType, ({int count, RoleConfiguration config})>)
   onSubmit;
 
   const ChooseRolesScreen({
@@ -164,10 +162,12 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
 
   void _submit() {
     final modifiedRoles =
-        Map<RoleType, (int count, RoleConfiguration configuration)>.from(
+        Map<RoleType, ({int count, RoleConfiguration config})>.from(
           _selectedRoles.map(
-            (role, value) =>
-                MapEntry(role, (value.$2, _roleConfigurationOrDefault(role))),
+            (role, value) => MapEntry(role, (
+              count: value.$2,
+              config: _roleConfigurationOrDefault(role),
+            )),
           ),
         );
 

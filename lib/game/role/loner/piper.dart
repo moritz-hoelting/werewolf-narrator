@@ -2,7 +2,6 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
@@ -99,9 +98,7 @@ class PiperRole extends Role implements WinCondition {
       AppLocalizations.of(context).role_piper_winHeadline;
 
   @override
-  List<(int, Player)> winningPlayers(GameState gameState) {
-    return [(playerIndex!, gameState.players[playerIndex!])];
-  }
+  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex!});
 }
 
 class PiperScreen extends StatefulWidget {

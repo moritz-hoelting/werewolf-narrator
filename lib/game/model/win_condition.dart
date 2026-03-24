@@ -1,5 +1,5 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 
@@ -11,13 +11,12 @@ abstract interface class WinCondition {
   bool hasWon(GameState gameState);
 
   /// The players that have won the game.
-  List<(int, Player)> winningPlayers(GameState gameState);
+  ISet<int> winningPlayers(GameState gameState);
 }
 
 /// Determines the winning players by team.
-List<(int, Player)> teamWinningPlayers(
-  GameState gameState,
-  TeamType teamType,
-) => gameState.players.indexed
-    .where((player) => player.$2.role?.team(gameState) == teamType)
-    .toList();
+ISet<int> teamWinningPlayers(GameState gameState, TeamType teamType) =>
+    gameState.players.indexed
+        .where((player) => player.$2.role?.team(gameState) == teamType)
+        .map((player) => player.$1)
+        .toISet();

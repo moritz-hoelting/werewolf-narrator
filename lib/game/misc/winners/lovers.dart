@@ -1,49 +1,50 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/util/set.dart';
 
 class Lovers implements DeathReason, WinCondition {
   const Lovers(this.lovers);
 
-  final (int, int) lovers;
+  final ISet<int> lovers;
 
   void initialize(GameState gameState) {
     gameState.deathHooks.add((gameState, playerIndex, reason) {
-      if (reason is! Lovers &&
-          (playerIndex == lovers.$1 || playerIndex == lovers.$2)) {
-        final int otherLoverIndex = playerIndex == lovers.$1
-            ? lovers.$2
-            : lovers.$1;
-        gameState.markPlayerDead(otherLoverIndex, this);
+      if (reason is! Lovers && lovers.contains(playerIndex)) {
+        final ISet<int> otherLovers = lovers.difference({playerIndex});
+        for (int loverIndex in otherLovers) {
+          gameState.markPlayerDead(loverIndex, this);
+        }
       }
 
       return false;
     });
 
     gameState.reviveHooks.add((gameState, playerIndex) {
-      if ((playerIndex == lovers.$1 || playerIndex == lovers.$2)) {
-        final int otherLoverIndex = playerIndex == lovers.$1
-            ? lovers.$2
-            : lovers.$1;
-        gameState.markPlayerRevived(otherLoverIndex);
+      if (lovers.contains(playerIndex)) {
+        final ISet<int> otherLovers = lovers.difference({playerIndex});
+        for (int loverIndex in otherLovers) {
+          gameState.markPlayerRevived(loverIndex);
+        }
       }
 
       return false;
     });
 
     gameState.playerWinHooks.add((gameState, winners, playerIndex) {
-      if (winners is! Lovers &&
-          (playerIndex == lovers.$1 || playerIndex == lovers.$2)) {
-        if (gameState.players[lovers.$1].role?.team(gameState) !=
-            gameState.players[lovers.$2].role?.team(gameState)) {
+      if (winners is! Lovers && lovers.contains(playerIndex)) {
+        if (lovers
+                .map(
+                  (playerIndex) =>
+                      gameState.players[playerIndex].role?.team(gameState),
+                )
+                .toISet()
+                .length >
+            1) {
           return false;
         }
       }
@@ -61,21 +62,16 @@ class Lovers implements DeathReason, WinCondition {
       AppLocalizations.of(context).lovers_deathReason;
 
   @override
-  ISet<int> get responsiblePlayerIndices => (lovers.$1, lovers.$2).toISet();
+  ISet<int> get responsiblePlayerIndices => lovers;
 
   @override
-  bool hasWon(GameState gameState) => setEquals(
+  bool hasWon(GameState gameState) => lovers.equalItems(
     gameState.players.indexed
         .where((player) => player.$2.isAlive)
         .map((player) => player.$1)
         .toSet(),
-    {lovers.$1, lovers.$2},
   );
 
   @override
-  List<(int, Player)> winningPlayers(GameState gameState) {
-    return gameState.players.indexed
-        .where((player) => player.$1 == lovers.$1 || player.$1 == lovers.$2)
-        .toList();
-  }
+  ISet<int> winningPlayers(GameState gameState) => lovers;
 }

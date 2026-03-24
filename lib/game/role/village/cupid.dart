@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -110,7 +111,7 @@ class _CupidScreenState extends State<CupidScreen> {
       'Cupid must select exactly two players as lovers.',
     );
     final selectedList = selectedIndices.toList()..sort();
-    final lovers_ = Lovers((selectedList[0], selectedList[1]));
+    final lovers_ = Lovers(selectedList.toISet());
     lovers = lovers_;
     gameState.winConditions.add(lovers_);
     lovers_.initialize(gameState);
@@ -121,7 +122,7 @@ class _CupidScreenState extends State<CupidScreen> {
 
 class WakeLoversScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
-  final (int, int) lovers;
+  final ISet<int> lovers;
 
   const WakeLoversScreen({
     super.key,
@@ -149,12 +150,15 @@ class WakeLoversScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.favorite, color: Colors.red, size: 160),
                   Text(
-                    localizations.screen_wakeLovers_instructions(
-                      playerA: gameState.players[lovers.$1].name,
-                      playerB: gameState.players[lovers.$2].name,
-                    ),
+                    localizations.screen_wakeLovers_instructions,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
+                  ...lovers
+                      .sorted((a, b) => a.compareTo(b))
+                      .map(
+                        (playerIndex) =>
+                            Text(gameState.players[playerIndex].name),
+                      ),
                 ],
               ),
             ),

@@ -1,7 +1,7 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
@@ -44,6 +44,6 @@ class VillageTeam extends Team implements WinCondition {
   );
 
   @override
-  List<(int, Player)> winningPlayers(GameState gameState) =>
+  ISet<int> winningPlayers(GameState gameState) =>
       teamWinningPlayers(gameState, objectType);
 }

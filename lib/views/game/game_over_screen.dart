@@ -25,7 +25,7 @@ class GameOverScreen extends StatelessWidget {
         final WinCondition winner = winnerOrNull!;
         List<Player> winners = gameState
             .winningPlayers()!
-            .map((entry) => entry.$2)
+            .map((entry) => entry.player)
             .toList();
 
         return Scaffold(

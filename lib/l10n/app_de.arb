@@ -38,7 +38,7 @@
     "screen_chooseRoles_startButton": "Spiel starten!",
     "screen_checkRoles_noPlayersInTeam": "Keine Spieler im Team",
     "screen_wakeLovers_title": "Verliebte wecken",
-    "screen_wakeLovers_instructions": "{playerA} und {playerB}, wacht auf und schaut euch an.",
+    "screen_wakeLovers_instructions": "Wacht auf und schaut euch an:",
     "screen_villageVote_title": "Spieler zum Rauswurf wählen",
     "screen_villageVote_sheriffLabel": "Hauptmann",
     "screen_sheriffElection_instruction": "Wähle einen Spieler als Hauptmann.",

@@ -170,19 +170,9 @@
     "@screen_wakeLovers_title": {
         "description": "Title for the screen where the narrator wakes the lovers"
     },
-    "screen_wakeLovers_instructions": "{playerA} and {playerB}, wake up and look at each other.",
+    "screen_wakeLovers_instructions": "Wake up and look at each other:",
     "@screen_wakeLovers_instructions": {
-        "description": "Instructions for the lovers to wake up and see each other",
-        "placeholders": {
-            "playerA": {
-                "type": "String",
-                "example": "Alice"
-            },
-            "playerB": {
-                "type": "String",
-                "example": "Bob"
-            }
-        }
+        "description": "Instructions for the lovers to wake up and see each other"
     },
     "screen_villageVote_title": "Select player to vote out",
     "@screen_villageVote_title": {
