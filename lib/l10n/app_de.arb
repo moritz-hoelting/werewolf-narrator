@@ -120,6 +120,8 @@
     "role_doctor_name": "Doktor",
     "role_doctor_description": "Kann einen Spieler in der Nacht schützen, welcher in dieser Nacht nicht getötet werden kann.",
     "role_doctor_checkInstruction": "Wecke und wähle {count, plural, =1{den Doktor} other{alle Doktoren}} aus",
+    "role_doctor_option_protectPlayerCooldown_label": "Spieler schützen Abklingzeit",
+    "role_doctor_option_protectPlayerCooldown_description": "Die Anzahl an Nächten bis ein Spieler erneut geschützt werden kann.",
     "role_doctor_nightAction_instruction": "Wähle einen Spieler aus, um ihn in dieser Nacht zu schützen.",
     "role_bodyguard_name": "Leibwächter",
     "role_bodyguard_description": "Kann einen Spieler jede Nacht schützen, welcher in dieser Nacht nicht getötet werden kann. Beim ersten Angriff auf den beschützten Spieler oder den Leibwächter selbst wird der Leibwächter verletzt, aber nicht getötet. Beim zweiten Angriff auf den verletzten Leibwächter wird er getötet.",

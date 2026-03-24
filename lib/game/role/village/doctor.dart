@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
@@ -14,11 +16,17 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class DoctorRole extends Role {
-  DoctorRole._(RoleConfiguration config);
+  DoctorRole._(RoleConfiguration config)
+    : protectPlayerCooldown = config[protectPlayerCooldownOptionKey];
   static final RoleType<DoctorRole> type = RoleType<DoctorRole>();
   @override
   RoleType<DoctorRole> get objectType => type;
 
+  static const String protectPlayerCooldownOptionKey = "protectPlayerCooldown";
+
+  final int protectPlayerCooldown;
+
+  Queue<int> playersInCooldown = Queue();
   int? protectionTarget;
 
   static void registerRole() {
@@ -34,6 +42,19 @@ class DoctorRole extends Role {
           context,
         ).role_doctor_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: IList([
+          IntOption(
+            id: protectPlayerCooldownOptionKey,
+            label: (context) => AppLocalizations.of(
+              context,
+            ).role_doctor_option_protectPlayerCooldown_label,
+            description: (context) => AppLocalizations.of(
+              context,
+            ).role_doctor_option_protectPlayerCooldown_description,
+            defaultValue: 0,
+            min: 0,
+          ),
+        ]),
         chooseRolesInformation: ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 5,
@@ -75,14 +96,26 @@ class DoctorRole extends Role {
           appBarTitle: Text(_name(context)),
           selectionCount: 1,
           currentActorIndices: ISet({playerIndex}),
+          disabledPlayerIndices: playersInCooldown.toISet(),
           instruction: Text(
             AppLocalizations.of(context).role_doctor_nightAction_instruction,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           onConfirm: (playerIds, gameState) {
-            protectionTarget = playerIds.singleOrNull;
+            final protectPlayerIndex = playerIds.singleOrNull;
+            if (protectPlayerIndex != null) {
+              protectionTarget = protectPlayerIndex;
+              addToCooldownList(protectPlayerIndex);
+            }
             onComplete();
           },
         );
       };
+
+  void addToCooldownList(int playerIndex) {
+    playersInCooldown.add(playerIndex);
+    while (playersInCooldown.length > protectPlayerCooldown) {
+      playersInCooldown.removeFirst();
+    }
+  }
 }

@@ -72,7 +72,6 @@
     "@screen_settings_clearNameCache_description": {
         "description": "Description for the clear name cache setting"
     },
-
     "screen_settings_supportAuthor": "Support the Author",
     "@screen_settings_supportAuthor": {
         "description": "Label for the button to support the author"
@@ -602,6 +601,14 @@
                 "example": "1"
             }
         }
+    },
+    "role_doctor_option_protectPlayerCooldown_label": "Player Protection Cooldown",
+    "@role_doctor_option_protectPlayerCooldown_label": {
+        "description": "Label for the option to set the cooldown to protect a player"
+    },
+    "role_doctor_option_protectPlayerCooldown_description": "The amount of nights the doctor has to wait before protecting the same player again.",
+    "@role_doctor_option_protectPlayerCooldown_description": {
+        "description": "Description for the option to set the cooldown to protect a player"
     },
     "role_doctor_nightAction_instruction": "Select player to protect this night.",
     "@role_doctor_nightAction_instruction": {
