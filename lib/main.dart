@@ -9,7 +9,8 @@ import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/game.dart';
-import 'package:werewolf_narrator/widgets/app_settings_button.dart';
+import 'package:werewolf_narrator/views/roles_overview.dart';
+import 'package:werewolf_narrator/views/settings.dart' show SettingsScreen;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,7 +68,6 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: colorScheme.inversePrimary,
         title: Text(localizations.appTitle),
-        actions: [const AppSettingsButton()],
       ),
       body: Center(
         child: Column(
@@ -75,25 +75,79 @@ class HomePage extends StatelessWidget {
           spacing: 50,
           children: [
             SvgPicture.asset('assets/icon/icon.svg', width: 200, height: 200),
-            ElevatedButton(
-              onPressed: () => _startNewGame(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 50,
-                ),
-                tapTargetSize: MaterialTapTargetSize.padded,
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+            SizedBox(
+              width: 200,
+              child: Column(
+                spacing: 16,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      label: Text(localizations.button_newGameLabel),
+                      icon: Icon(Icons.play_arrow),
+                      onPressed: () => _startNewGame(context),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        tapTargetSize: MaterialTapTargetSize.padded,
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      label: Text(localizations.screen_rolesOverview_title),
+                      icon: Icon(Icons.person),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const RolesOverviewScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      label: Text(localizations.screen_settings_title),
+                      icon: Icon(Icons.settings),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-              child: Text(localizations.button_newGameLabel),
             ),
           ],
         ),
@@ -104,6 +158,6 @@ class HomePage extends StatelessWidget {
   void _startNewGame(BuildContext context) {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const GameView()));
+    ).push(MaterialPageRoute(builder: (context) => const GameView()));
   }
 }

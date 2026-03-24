@@ -28,6 +28,14 @@
     "@alert_leaveGame_message": {
         "description": "Message in the alert dialog when leaving a game"
     },
+    "screen_rolesOverview_title": "Roles",
+    "@screen_rolesOverview_title": {
+        "description": "Title for the roles overview screen"
+    },
+    "screen_rolesOverview_optionsHeading": "Options:",
+    "@screen_rolesOverview_title": {
+        "description": "Heading for the options in the role info dialog"
+    },
     "screen_settings_title": "Settings",
     "@screen_settings_title": {
         "description": "Title for the settings screen"
