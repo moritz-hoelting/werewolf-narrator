@@ -2,6 +2,10 @@ import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -42,21 +46,13 @@ class WerewolvesTeam extends Team implements WinCondition {
   void initialize(GameState gameState) {
     super.initialize(gameState);
 
-    gameState.winConditions.add(this);
-
-    final nightActionPlayerIndices = werewolfPlayerIndices(gameState).unlock;
-
-    gameState.nightActionManager.registerAction(
-      WerewolvesTeam.type,
-      (gameState, onComplete) => nightActionScreen(onComplete),
-      conditioned: (gameState) {
-        nightActionPlayerIndices
-          ..clear()
-          ..addAll(werewolfPlayerIndices(gameState));
-        return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
-      },
-      after: IList([CupidRole.type, SeerRole.type]),
-      players: nightActionPlayerIndices,
+    gameState.apply(
+      CompositeGameCommand(
+        [
+          RegisterWinConditionCommand(this),
+          RegisterWerewolvesNightActionCommand(),
+        ].lock,
+      ),
     );
   }
 
@@ -73,37 +69,6 @@ class WerewolvesTeam extends Team implements WinCondition {
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_winHeadline;
-
-  WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
-    final localizations = AppLocalizations.of(context);
-    final gameState = Provider.of<GameState>(context, listen: false);
-
-    final werewolfIndices = werewolfPlayerIndices(gameState);
-
-    final werewolvesOrDead = werewolfIndices.union(
-      gameState.knownDeadPlayerIndices,
-    );
-
-    return ActionScreen(
-      key: UniqueKey(),
-      appBarTitle: Text(_name(context)),
-      instruction: Text(localizations.team_werewolves_nightAction_instruction),
-      actionIdentifier: WerewolvesTeam.type,
-      selectionCount: 1,
-      allowSelectLess: true,
-      currentActorIndices: werewolfIndices,
-      disabledPlayerIndices: werewolvesOrDead,
-      onConfirm: (selectedPlayers, gameState) {
-        gameState.markPlayerDead(
-          selectedPlayers.single,
-          WerewolvesDeathReason(
-            werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
-          ),
-        );
-        onComplete();
-      },
-    );
-  };
 
   @override
   bool hasWon(GameState gameState) {
@@ -133,4 +98,69 @@ class WerewolvesDeathReason implements DeathReason {
 
   @override
   ISet<int> get responsiblePlayerIndices => responsiblePlayers;
+}
+
+class RegisterWerewolvesNightActionCommand implements GameCommand {
+  Set<int> nightActionPlayerIndices = {};
+
+  @override
+  void apply(GameData gameData) {
+    nightActionPlayerIndices = WerewolvesTeam.werewolfPlayerIndices(
+      gameData.state,
+    ).unlock;
+
+    gameData.nightActionManager.registerAction(
+      WerewolvesTeam.type,
+      (gameState, onComplete) => nightActionScreen(onComplete),
+      conditioned: (gameState) {
+        nightActionPlayerIndices
+          ..clear()
+          ..addAll(WerewolvesTeam.werewolfPlayerIndices(gameState));
+        return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
+      },
+      after: IList([CupidRole.type, SeerRole.type]),
+      players: nightActionPlayerIndices,
+    );
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+  }
+
+  WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
+    final localizations = AppLocalizations.of(context);
+    final gameState = Provider.of<GameState>(context, listen: false);
+
+    final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
+
+    final werewolvesOrDead = werewolfIndices.union(
+      gameState.knownDeadPlayerIndices,
+    );
+
+    return ActionScreen(
+      key: UniqueKey(),
+      appBarTitle: Text(WerewolvesTeam._name(context)),
+      instruction: Text(localizations.team_werewolves_nightAction_instruction),
+      actionIdentifier: WerewolvesTeam.type,
+      selectionCount: 1,
+      allowSelectLess: true,
+      currentActorIndices: werewolfIndices,
+      disabledPlayerIndices: werewolvesOrDead,
+      onConfirm: (selectedPlayers, gameState) {
+        gameState.apply(
+          MarkDeadCommand.single(
+            player: selectedPlayers.single,
+            deathReason: WerewolvesDeathReason(
+              werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
+            ),
+          ),
+        );
+        onComplete();
+      },
+    );
+  };
 }

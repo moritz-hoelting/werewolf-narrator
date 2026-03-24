@@ -39,7 +39,9 @@ class Player {
       return false;
     }
     if (role!.hasDeathScreen(gameState)) {
-      final thisPlayerSet = ISet({gameState.players.indexOf(this)});
+      final thisPlayerSet = ISet({
+        gameState.players.indexWhere((element) => element.ofPlayer(this)),
+      });
       return gameState.deathActionHooks.none(
         (hook) => hook(gameState, (this, deathInformation!), thisPlayerSet),
       );
@@ -61,4 +63,40 @@ class Player {
   String toString() {
     return 'Player(name: $name, role: $role, isAlive: $isAlive)';
   }
+}
+
+class PlayerView {
+  const PlayerView(this._player);
+
+  final Player _player;
+
+  /// The name of the player.
+  String get name => _player.name;
+
+  /// The role assigned to the player.
+  Role? get role => _player.role;
+
+  /// Information about the player's death, if dead.
+  DeathInformation? get deathInformation => _player.deathInformation;
+
+  /// Whether the player has used their death action.
+  bool get usedDeathAction => _player.usedDeathAction;
+
+  /// Whether the player's death has been announced.
+  bool get deathAnnounced => _player.deathAnnounced;
+
+  /// Tags associated with the player, used for various game mechanics.
+  ISet<Object> get tags => _player.tags.lock;
+
+  /// Whether the player is currently alive.
+  bool get isAlive => _player.isAlive;
+
+  /// Whether the player is waiting to perform a death action.
+  bool waitForDeathAction(GameState gameState) =>
+      _player.waitForDeathAction(gameState);
+
+  bool ofPlayer(Player player) => player == _player;
+
+  @override
+  String toString() => _player.toString();
 }

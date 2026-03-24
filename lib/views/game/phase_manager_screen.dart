@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_data.dart' show GamePhase;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/views/game/dawn.dart';
 import 'package:werewolf_narrator/views/game/dusk.dart';

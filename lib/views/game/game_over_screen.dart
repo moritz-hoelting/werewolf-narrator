@@ -23,7 +23,7 @@ class GameOverScreen extends StatelessWidget {
         );
 
         final WinCondition winner = winnerOrNull!;
-        List<Player> winners = gameState
+        List<PlayerView> winners = gameState
             .winningPlayers()!
             .map((entry) => entry.player)
             .toList();

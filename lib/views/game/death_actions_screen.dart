@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
 
 class DeathActionsScreen extends StatefulWidget {
@@ -59,11 +61,31 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
 
     return deathAction(() {
       GameState gameState = Provider.of<GameState>(context, listen: false);
-      gameState.markPlayerUsedDeathAction(playerIndex);
+      gameState.apply(MarkPlayerUsedDeathActionCommand(playerIndex));
       reloadDeathActions();
       if (deathActions.isEmpty) {
         widget.onPhaseComplete();
       }
     })(context);
+  }
+}
+
+class MarkPlayerUsedDeathActionCommand implements GameCommand {
+  final int playerIndex;
+
+  MarkPlayerUsedDeathActionCommand(this.playerIndex);
+
+  @override
+  void apply(GameData gameData) {
+    gameData.markPlayerUsedDeathAction(playerIndex);
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: fix
+    throw UnimplementedError();
   }
 }

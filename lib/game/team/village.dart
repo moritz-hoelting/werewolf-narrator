@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
@@ -27,7 +28,7 @@ class VillageTeam extends Team implements WinCondition {
   void initialize(GameState gameState) {
     super.initialize(gameState);
 
-    gameState.winConditions.add(this);
+    gameState.apply(RegisterWinConditionCommand(this));
   }
 
   @override

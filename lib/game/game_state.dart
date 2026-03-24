@@ -1,653 +1,300 @@
-import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/game/model/death_information.dart';
-import 'package:werewolf_narrator/game/model/player.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart'
+    show DeathReason, DeathInformation;
+import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart'
-    show RoleConfiguration;
-import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/model/win_condition.dart';
-import 'package:werewolf_narrator/game/misc/phases/sheriff.dart';
-import 'package:werewolf_narrator/game/misc/phases/voting.dart';
+import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
+import 'package:werewolf_narrator/game/model/win_condition.dart'
+    show WinCondition;
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/role/village/villager.dart'
-    show VillagerRole;
+import 'package:werewolf_narrator/game/team/team.dart' show Team;
 import 'package:werewolf_narrator/game/util/hooks.dart';
-import 'package:werewolf_narrator/game/team/team.dart';
-import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 
 class GameState extends ChangeNotifier {
-  /// Handles night actions for this game state.
-  final DynamicActionManager nightActionManager = DynamicActionManager();
+  late final GameData _data;
 
-  /// Handles day actions for this game state.
-  final DynamicActionManager dayActionManager = DynamicActionManager();
+  final List<GameCommand> _appliedCommandStack = [];
+  final List<GameCommand> _redoCommandStack = [];
 
-  /// The list of players in this game.
-  final List<Player> players;
+  void apply(GameCommand command) {
+    command.apply(_data);
+    _appliedCommandStack.add(command);
+    _redoCommandStack.clear();
+    notifyListeners();
+  }
+
+  void undo() {
+    final GameCommand undoCommand = _appliedCommandStack.removeLast();
+    undoCommand.undo(_data);
+    _redoCommandStack.add(undoCommand);
+    notifyListeners();
+  }
+
+  void redo() {
+    final GameCommand redoCommand = _redoCommandStack.removeLast();
+    redoCommand.apply(_data);
+    _appliedCommandStack.add(redoCommand);
+    notifyListeners();
+  }
+
+  bool get canUndo => _appliedCommandStack.lastOrNull?.canBeUndone ?? false;
+
+  GameState({
+    required List<String> playerNames,
+    required Map<RoleType<Role>, ({Map<String, dynamic> config, int count})>
+    roleConfigurations,
+  }) {
+    _data = GameData(
+      state: this,
+      playerNames: playerNames,
+      roleConfigurations: roleConfigurations,
+    );
+  }
+
+  /// The current day counter.
+  int get dayCounter => _data.dayCounter;
+
+  /// The current phase of the game.
+  GamePhase get phase => _data.phase;
+
+  /// Whether the game is currently in a night phase.
+  bool get isNight => phase.isNight;
+
+  /// The players in the game.
+  IList<PlayerView> get players =>
+      _data.players.map((p) => PlayerView(p)).toIList();
 
   /// The teams present in this game.
-  final Map<TeamType, Team> teams;
+  IMap<TeamType, Team> get teams => _data.teams.lock;
 
   /// The counts of roles present in this game (initialized during setup).
-  final Map<RoleType, ({int count, RoleConfiguration config})>
-  roleConfigurations;
+  IMap<RoleType, ({int count, IMap<String, dynamic> config})>
+  get roleConfigurations => _data.roleConfigurations
+      .mapValue((value) => (config: value.config.lock, count: value.count))
+      .toIMap();
+
+  /// The total number of players in the game.
+  int get playerCount => _data.playerCount;
+
+  /// The number of alive players in the game.
+  int get alivePlayerCount => _data.alivePlayerCount;
 
   /// Whether the game starts with a day phase (instead of night).
-  final bool startGameWithDay;
+  bool get startGameWithDay => _data.startGameWithDay;
 
   /// Conditions under which the game is considered to be won.
-  final List<WinCondition> winConditions = [];
+  IList<WinCondition> get winConditions => _data.winConditions.lock;
 
   /// Hooks run at dawn.
-  final List<DawnHook> dawnHooks = [];
+  IList<DawnHook> get dawnHooks => _data.dawnHooks.lock;
 
   /// Hooks when a player is marked dead.
   ///
   /// Can prevent death by returning true.
-  final List<DeathHook> deathHooks = [];
+  IList<DeathHook> get deathHooks => _data.deathHooks.lock;
 
   /// Hooks when a player is marked revived.
   ///
   /// Can prevent revival by returning true.
-  final List<ReviveHook> reviveHooks = [];
+  IList<ReviveHook> get reviveHooks => _data.reviveHooks.lock;
 
   /// Hooks when a player is displayed.
-  final List<PlayerDisplayHook> playerDisplayHooks = [];
+  IList<PlayerDisplayHook> get playerDisplayHooks =>
+      _data.playerDisplayHooks.lock;
 
   /// Hooks when a night action is displayed.
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
-  final List<ActionHook> nightActionHooks = [];
+  IList<ActionHook> get nightActionHooks => _data.nightActionHooks.lock;
 
   /// Hooks when a day action is displayed.
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
-  final List<ActionHook> dayActionHooks = [];
+  IList<ActionHook> get dayActionHooks => _data.dayActionHooks.lock;
 
   /// Hooks when a death action is displayed.
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
   /// Will be called multiple times per death for determining whether to show the action. The answer must be consistent.
-  final List<ActionHook> deathActionHooks = [];
+  IList<ActionHook> get deathActionHooks => _data.deathActionHooks.lock;
 
   /// Hooks for remaining roles at the end of role assignment.
   ///
   /// Called with the count of remaining roles for each role type.
-  final Map<RoleType, List<RemainingRoleHook>> remainingRoleHooks = {};
+  IMap<RoleType, IList<RemainingRoleHook>> get remainingRoleHooks =>
+      _data.remainingRoleHooks.mapValue((value) => value.lock).toIMap();
 
   /// Hooks to determine if a player has won alongside the winning team.
   ///
   /// Returning true adds the player as a winner, false excludes them,
   /// and null has no effect.
-  final List<PlayerWinHook> playerWinHooks = [];
-
-  int _dayCounter = 0;
-  GamePhase _phase = GamePhase.dusk;
-
-  // Guards against recursive calls in markPlayerDead and markPlayerRevived.
-  final List<int> _markDeadRecursionGuard = [];
-  final List<int> _markRevivedRecursionGuard = [];
-
-  GameState({required List<String> players, required this.roleConfigurations})
-    : players = players.map((name) => Player(name: name)).toList(),
-      teams = Map.fromEntries(
-        roleConfigurations.entries
-            .where((entry) => entry.value.count > 0)
-            .map((entry) => entry.key.information.initialTeam)
-            .nonNulls
-            .toSet()
-            .map(
-              (teamType) =>
-                  MapEntry(teamType, TeamManager.instantiateTeam(teamType)),
-            ),
-      ),
-      startGameWithDay = roleConfigurations.entries.any(
-        (entry) =>
-            entry.value.count > 0 &&
-            entry.key.information.requireStartGameWithDay,
-      ) {
-    assert(
-      players.length ==
-          roleConfigurations.entries.fold(
-            0,
-            (sum, entry) =>
-                sum +
-                entry.value.count +
-                (entry.value.count *
-                    (1 - entry.key.information.addedRoleCardAmount)),
-          ),
-      'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
-    );
-    VillageVoteScreen.registerAction(this);
-    SheriffVoteAction.registerAction(this);
-    for (final team in teams.values) {
-      team.initialize(this);
-    }
-    for (final role in roleConfigurations.keys) {
-      final roleInitializer = RoleManager.getInitializer(role);
-      if (roleInitializer != null) {
-        roleInitializer(this);
-      }
-    }
-  }
-
-  /// Notifies listeners of updates to the game state.
-  void notifyUpdate() {
-    notifyListeners();
-  }
-
-  /// The current day counter.
-  int get dayCounter => _dayCounter;
-
-  /// The current phase of the game.
-  GamePhase get phase => _phase;
-
-  /// Whether the game is currently in a night phase.
-  bool get isNight => phase.isNight;
-
-  /// The total number of players in the game.
-  int get playerCount => players.length;
-
-  /// The number of alive players in the game.
-  int get alivePlayerCount => players.where((player) => player.isAlive).length;
+  IList<PlayerWinHook> get playerWinHooks => _data.playerWinHooks.lock;
 
   /// Returns a map of player indices to their death reasons for the given cycle.
   IMap<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
-      players.asMap().entries.fold(<int, DeathReason>{}, (acc, entry) {
-        final playerIndex = entry.key;
-        final deathInfo = entry.value.deathInformation;
-        if (deathInfo != null &&
-            deathInfo.atNight == atNight &&
-            deathInfo.day == dayCounter) {
-          acc[playerIndex] = deathInfo.reason;
-        }
-        return acc;
-      }).lock;
+      _data.deathsInCycle(dayCounter, atNight);
 
   /// Returns a map of player indices to their death reasons for the current cycle (day/night).
-  IMap<int, DeathReason> get currentCycleDeaths =>
-      deathsInCycle(dayCounter, isNight);
+  IMap<int, DeathReason> get currentCycleDeaths => _data.currentCycleDeaths;
 
   /// Returns a map of player indices to their death reasons for the previous cycle (day/night).
-  IMap<int, DeathReason> get previousCycleDeaths =>
-      deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
+  IMap<int, DeathReason> get previousCycleDeaths => _data.previousCycleDeaths;
 
   /// Returns a map of player indices to their unannounced death information.
-  IMap<int, DeathInformation> get unannouncedDeaths =>
-      players.asMap().entries.fold(<int, DeathInformation>{}, (acc, entry) {
-        final playerIndex = entry.key;
-        final player = entry.value;
-        final deathInfo = player.deathInformation;
-        if (deathInfo != null && !player.deathAnnounced) {
-          acc[playerIndex] = deathInfo;
-        }
-        return acc;
-      }).lock;
+  IMap<int, DeathInformation> get unannouncedDeaths => _data.unannouncedDeaths;
 
   /// Checks if the game has a specific role.
-  bool hasRole(RoleType role) =>
-      roleConfigurations.containsKey(role) &&
-      roleConfigurations[role]!.count > 0;
+  bool hasRole(RoleType role) => _data.hasRole(role);
 
   /// Checks if the game has a specific role.
   bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
 
   /// Checks if the game has a specific role with at least one alive player.
-  bool hasAliveRole(RoleType role) =>
-      hasRole(role) &&
-      players.indexed.any(
-        (p) =>
-            p.$2.role != null &&
-            p.$2.role!.objectType == role &&
-            playerAliveUntilDawn(p.$1),
-      );
+  bool hasAliveRole(RoleType role) => _data.hasAliveRole(role);
 
   /// Checks if the game has a specific role with at least one alive player.
   bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
 
   /// Returns index and the player with a specific role, if any.
-  ({int index, Player player})? getPlayerOfRole(RoleType role) => players
-      .mapIndexed((index, player) => (index: index, player: player))
-      .singleWhereOrNull(
-        (player) =>
-            player.player.role != null &&
-            player.player.role!.objectType == role,
-      );
+  ({int index, PlayerView player})? getPlayerOfRole(RoleType role) {
+    final p = _data.getPlayerOfRole(role);
+    if (p == null) return null;
+    return (index: p.index, player: PlayerView(p.player));
+  }
 
   /// Returns index and the player with a specific role, if any.
-  ({int index, Player player})? getPlayerOfRoleType<T extends Role>() =>
+  ({int index, PlayerView player})? getPlayerOfRoleType<T extends Role>() =>
       getPlayerOfRole(RoleType<T>());
 
   /// Returns index and the alive player with a specific role, if any.
-  ({int index, Player player})? getAlivePlayerOfRole(RoleType role) => players
-      .mapIndexed((index, player) => (index: index, player: player))
-      .singleWhereOrNull(
-        (entry) =>
-            entry.player.role != null &&
-            entry.player.role!.objectType == role &&
-            playerAliveUntilDawn(entry.index),
-      );
+  ({int index, PlayerView player})? getAlivePlayerOfRole(RoleType role) {
+    final p = _data.getAlivePlayerOfRole(role);
+    if (p == null) return null;
+    return (index: p.index, player: PlayerView(p.player));
+  }
 
   /// Returns index and the alive player with a specific role, if any.
-  ({int index, Player player})? getAlivePlayerOfRoleType<T extends Role>() =>
+  ({int index, PlayerView player})?
+  getAlivePlayerOfRoleType<T extends Role>() =>
       getAlivePlayerOfRole(RoleType<T>());
 
   /// Returns a list of indices and players with a specific role.
-  IList<({int index, Player player})> getPlayersOfRole(RoleType role) => players
-      .mapIndexed((index, player) => (index: index, player: player))
+  IList<({int index, PlayerView player})> getPlayersOfRole(
+    RoleType role,
+  ) => _data
+      .getPlayersOfRole(role)
       .where(
         (entry) =>
             entry.player.role != null && entry.player.role!.objectType == role,
       )
+      .map((entry) => (index: entry.index, player: PlayerView(entry.player)))
       .toIList();
 
   /// Returns a list of indices and players with a specific role.
-  IList<({int index, Player player})> getPlayersOfRoleType<T extends Role>() =>
-      getPlayersOfRole(RoleType<T>());
+  IList<({int index, PlayerView player})>
+  getPlayersOfRoleType<T extends Role>() => getPlayersOfRole(RoleType<T>());
 
   /// Returns a list of indices and alive players with a specific role.
-  IList<({int index, Player player})> getAlivePlayersOfRole(RoleType role) =>
-      players
-          .mapIndexed((index, player) => (index: index, player: player))
-          .where(
-            (entry) =>
-                entry.player.role != null &&
-                entry.player.role!.objectType == role &&
-                playerAliveUntilDawn(entry.index),
-          )
-          .toIList();
+  IList<({int index, PlayerView player})> getAlivePlayersOfRole(
+    RoleType role,
+  ) => _data
+      .getAlivePlayersOfRole(role)
+      .map(
+        (element) => (index: element.index, player: PlayerView(element.player)),
+      )
+      .toIList();
 
   /// Returns a list of indices and alive players with a specific role.
-  IList<({int index, Player player})>
+  IList<({int index, PlayerView player})>
   getAlivePlayersOfRoleType<T extends Role>() =>
       getAlivePlayersOfRole(RoleType<T>());
 
   /// Checks if the game has a specific team.
-  bool hasPlayerOfTeam(TeamType team) => players.any(
-    (player) => player.role != null && player.role!.team(this) == team,
-  );
+  bool hasPlayerOfTeam(TeamType team) => _data.hasPlayerOfTeam(team);
 
   /// Checks if the game has a specific team.
   bool hasPlayerOfTeamType<T extends Team>() => hasPlayerOfTeam(TeamType<T>());
 
   /// Checks if the game has an alive player of the specific team.
-  bool hasAlivePlayerOfTeam(TeamType team) => players.indexed.any(
-    (player) =>
-        playerAliveUntilDawn(player.$1) &&
-        player.$2.role != null &&
-        player.$2.role!.team(this) == team,
-  );
+  bool hasAlivePlayerOfTeam(TeamType team) => _data.hasAlivePlayerOfTeam(team);
 
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeamType<T extends Team>() =>
       hasAlivePlayerOfTeam(TeamType<T>());
 
   /// Returns a list of indices and players belonging to a specific team.
-  IList<({int index, Player player})> getPlayersOfTeam(TeamType team) => players
-      .mapIndexed((index, player) => (index: index, player: player))
-      .where(
-        (entry) =>
-            entry.player.role != null && entry.player.role!.team(this) == team,
-      )
-      .toIList();
-
-  /// Returns a list of indices and players belonging to a specific team.
-  IList<({int index, Player player})> getPlayersOfTeamType<T extends Team>() =>
-      getPlayersOfTeam(TeamType<T>());
-
-  /// Returns a list of indices and alive players belonging to a specific team.
-  IList<({int index, Player player})> getAlivePlayersOfTeam(TeamType team) =>
-      players
-          .mapIndexed((index, player) => (index: index, player: player))
-          .where(
-            (entry) =>
-                entry.player.role != null &&
-                entry.player.role!.team(this) == team &&
-                playerAliveUntilDawn(entry.index),
+  IList<({int index, PlayerView player})> getPlayersOfTeam(TeamType team) =>
+      _data
+          .getPlayersOfTeam(team)
+          .map(
+            (element) =>
+                (index: element.index, player: PlayerView(element.player)),
           )
           .toIList();
 
+  /// Returns a list of indices and players belonging to a specific team.
+  IList<({int index, PlayerView player})>
+  getPlayersOfTeamType<T extends Team>() => getPlayersOfTeam(TeamType<T>());
+
   /// Returns a list of indices and alive players belonging to a specific team.
-  IList<({int index, Player player})>
+  IList<({int index, PlayerView player})> getAlivePlayersOfTeam(
+    TeamType team,
+  ) => _data
+      .getAlivePlayersOfTeam(team)
+      .map(
+        (element) => (index: element.index, player: PlayerView(element.player)),
+      )
+      .toIList();
+
+  /// Returns a list of indices and alive players belonging to a specific team.
+  IList<({int index, PlayerView player})>
   getAlivePlayersOfTeamType<T extends Team>() =>
       getAlivePlayersOfTeam(TeamType<T>());
 
-  /// Assigns the specified role to the players at the given indices.
-  void setPlayersRole(RoleType role, List<int> playerIndices) {
-    for (final index in playerIndices) {
-      final Role playerRole = RoleManager.instantiateRole(
-        role,
-        roleConfigurations[role]?.config ?? {},
-      );
-      players[index].role = playerRole;
-      playerRole.onAssign(this, index);
-    }
-    notifyListeners();
-  }
-
-  /// Fills all unassigned players with the Villager role.
-  void fillVillagerRoles() {
-    final unassignedPlayers = players
-        .asMap()
-        .entries
-        .where((entry) => entry.value.role == null)
-        .map((entry) => entry.key)
-        .toList();
-    setPlayersRole(VillagerRole.type, unassignedPlayers);
-  }
-
   /// Returns a list of unassigned roles in the game.
-  IList<RoleType> get unassignedRoles {
-    final assignedRoles = players.map((player) => player.role).fold(
-      <RoleType, int>{},
-      (acc, element) {
-        if (element != null) {
-          acc[element.objectType] = (acc[element.objectType] ?? 0) + 1;
-        }
-        return acc;
-      },
-    );
-
-    return roleConfigurations.entries
-        .map((entry) {
-          final assignedCount = assignedRoles[entry.key] ?? 0;
-          return (entry.key, entry.value.count - assignedCount);
-        })
-        .fold(<RoleType>[], (acc, element) {
-          for (int i = 0; i < element.$2; i++) {
-            acc.add(element.$1);
-          }
-          return acc;
-        })
-        .lock;
-  }
-
-  /// Removes unassigned roles from the role counts.
-  void removeUnassignedRoles() {
-    final unassignedRoles = this.unassignedRoles.fold(<RoleType, int>{}, (
-      acc,
-      element,
-    ) {
-      acc[element] = (acc[element] ?? 0) + 1;
-      return acc;
-    });
-    for (final entry in unassignedRoles.entries) {
-      roleConfigurations[entry.key] = (
-        count: (roleConfigurations[entry.key]?.count ?? 0) - entry.value,
-        config: roleConfigurations[entry.key]?.config ?? {},
-      );
-      if (roleConfigurations[entry.key]!.count <= 0) {
-        roleConfigurations.remove(entry.key);
-      }
-    }
-    notifyListeners();
-  }
-
-  /// Marks a player as dead with the given death reason.
-  void markPlayerDead(int playerIndex, DeathReason deathReason) {
-    if (_markDeadRecursionGuard.contains(playerIndex)) {
-      return;
-    }
-    _markDeadRecursionGuard.add(playerIndex);
-    bool shouldDie = true;
-    for (final hook in deathHooks) {
-      if (hook(this, playerIndex, deathReason)) {
-        shouldDie = false;
-      }
-    }
-    if (shouldDie) {
-      players[playerIndex].markDead(
-        DeathInformation(
-          reason: deathReason,
-          day: dayCounter,
-          atNight: isNight,
-        ),
-      );
-    }
-    _markDeadRecursionGuard.remove(playerIndex);
-    notifyListeners();
-  }
-
-  /// Marks a player as revived.
-  void markPlayerRevived(int playerIndex) {
-    if (_markRevivedRecursionGuard.contains(playerIndex)) {
-      return;
-    }
-    _markRevivedRecursionGuard.add(playerIndex);
-    bool shouldRevive = true;
-    for (final hook in reviveHooks) {
-      if (hook(this, playerIndex)) {
-        shouldRevive = false;
-      }
-    }
-    if (shouldRevive) {
-      players[playerIndex].markRevived();
-    }
-    _markRevivedRecursionGuard.remove(playerIndex);
-    notifyListeners();
-  }
-
-  /// Marks that a player has used their death action.
-  void markPlayerUsedDeathAction(int playerIndex) {
-    players[playerIndex].usedDeathAction = true;
-    notifyListeners();
-  }
-
-  /// Marks all deaths as announced and checks for game over conditions.
-  void markDeathsAnnounced() {
-    for (var playerIndex in unannouncedDeaths.keys) {
-      players[playerIndex].deathAnnounced = true;
-    }
-    if (checkWinConditions() != null) {
-      _phase = GamePhase.gameOver;
-    }
-    notifyListeners();
-  }
+  IList<RoleType> get unassignedRoles => _data.unassignedRoles;
 
   /// Checks if a player is alive or killed in the current cycle.
   bool playerAliveOrKilledThisCycle(int playerIndex) =>
-      players[playerIndex].isAlive ||
-      currentCycleDeaths.containsKey(playerIndex);
+      _data.playerAliveOrKilledThisCycle(playerIndex);
 
   /// Checks if a player is alive or will remain alive until dawn.
   bool playerAliveUntilDawn(int playerIndex) =>
-      players[playerIndex].isAlive ||
-      (isNight && currentCycleDeaths.containsKey(playerIndex));
+      _data.playerAliveUntilDawn(playerIndex);
 
   /// Player indices that are known to be dead based on the current game state (until dawn).
-  ISet<int> get knownDeadPlayerIndices => List.generate(
-    players.length,
-    (i) => i,
-  ).where((index) => !playerAliveUntilDawn(index)).toISet();
+  ISet<int> get knownDeadPlayerIndices => _data.knownDeadPlayerIndices;
 
   /// Player indices that are known to be alive based on the current game state (until dawn).
-  ISet<int> get knownAlivePlayerIndices => List.generate(
-    players.length,
-    (i) => i,
-  ).where((index) => playerAliveUntilDawn(index)).toISet();
+  ISet<int> get knownAlivePlayerIndices => _data.knownDeadPlayerIndices;
 
   /// Player indices that are alive.
-  ISet<int> get alivePlayerIndices => players.indexed
-      .where((player) => player.$2.isAlive)
-      .map((player) => player.$1)
-      .toISet();
+  ISet<int> get alivePlayerIndices => _data.alivePlayerIndices;
 
   /// Player indices that are dead.
-  ISet<int> get deadPlayerIndices => players.indexed
-      .where((player) => !player.$2.isAlive)
-      .map((player) => player.$1)
-      .toISet();
+  ISet<int> get deadPlayerIndices => _data.deadPlayerIndices;
 
   /// Whether there are pending death actions to be resolved.
-  bool get pendingDeathActions =>
-      players.any((player) => player.waitForDeathAction(this));
+  bool get pendingDeathActions => _data.pendingDeathActions;
 
   /// Whether there are pending death announcements to be made.
-  bool get pendingDeathAnnouncements =>
-      players.any((player) => !player.isAlive && !player.deathAnnounced);
+  bool get pendingDeathAnnouncements => _data.pendingDeathAnnouncements;
 
-  (int, int) getAliveNeighbors(int playerIndex) {
-    final livingIndices = List.generate(
-      players.length,
-      (i) => i,
-    ).where((i) => playerAliveUntilDawn(i)).toList();
-    final lb = lowerBound(livingIndices, playerIndex);
-
-    final leftNeighborLivingIndex = lb == 0 ? livingIndices.length - 1 : lb - 1;
-    final leftNeighbor = livingIndices[leftNeighborLivingIndex];
-
-    final rightNeighborLivingIndexProposal =
-        (leftNeighborLivingIndex + 1) % livingIndices.length;
-    final rightNeighborLivingIndex =
-        livingIndices[rightNeighborLivingIndexProposal] == playerIndex
-        ? (rightNeighborLivingIndexProposal + 1) % livingIndices.length
-        : rightNeighborLivingIndexProposal;
-    final rightNeighbor = livingIndices[rightNeighborLivingIndex];
-
-    return (leftNeighbor, rightNeighbor);
-  }
+  (int, int) getAliveNeighbors(int playerIndex) =>
+      _data.getAliveNeighbors(playerIndex);
 
   /// Checks if any team has met its win conditions.
-  WinCondition? checkWinConditions() {
-    for (final cond in winConditions) {
-      if (cond.hasWon(this)) {
-        return cond;
-      }
-    }
-    return null;
-  }
+  WinCondition? checkWinConditions() => _data.checkWinConditions();
 
   /// Returns the list of winning players if there is a winning team.
-  ISet<({int index, Player player})>? winningPlayers() {
-    final WinCondition? winner = checkWinConditions();
-    if (winner == null) return null;
-
-    final Set<int> winners = winner.winningPlayers(this).unlock;
-
-    final nonWinningPlayers = List.generate(
-      playerCount,
-      (i) => i,
-    ).toISet().difference(winners);
-    for (final playerIndex in nonWinningPlayers) {
-      for (final playerWinHook in playerWinHooks) {
-        final bool? result = playerWinHook(this, winner, playerIndex);
-        if (result == true) {
-          winners.add(playerIndex);
-        }
-      }
-    }
-
-    return winners
-        .where(
-          (player) => playerWinHooks.none(
-            (playerWinHook) => playerWinHook(this, winner, player) == false,
-          ),
-        )
-        .map(
-          (playerIndex) => (index: playerIndex, player: players[playerIndex]),
-        )
-        .toISet();
-  }
-
-  /// Transitions to the next valid phase, if any.
-  bool transitionToNextPhase() {
-    final next = nextPhase;
-    final previous = _phase;
-    if (next != null) {
-      if (dayCounter == 0 &&
-          phase.index < GamePhase.nightActions.index &&
-          next.index >= GamePhase.nightActions.index) {
-        fillVillagerRoles();
-      }
-      _phase = next;
-      if (next == GamePhase.dawn) {
-        if (!(startGameWithDay && previous == GamePhase.checkRoles)) {
-          _dayCounter += 1;
-        }
-        for (final hook in dawnHooks) {
-          hook(this, dayCounter);
-        }
-      }
-      notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  /// Gets the next valid phase, if any.
-  GamePhase? get nextPhase {
-    for (int i = 1; i < GamePhase.values.length; i++) {
-      final next = GamePhase.values.elementAt(
-        (phase.index + i) % GamePhase.values.length,
-      );
-      if (isValidNextPhase(next)) {
-        return next;
-      }
-    }
-    return null;
-  }
-
-  /// Checks if the given phase is a valid next phase.
-  bool isValidNextPhase(GamePhase next) {
-    if (phase == GamePhase.gameOver) {
-      return false;
-    }
-    switch (next) {
-      case GamePhase.checkRoles:
-        if (dayCounter > 0 || players.any((player) => player.role != null)) {
-          return false;
-        }
-        break;
-      case GamePhase.nightActions:
-        if ((phase == GamePhase.checkRoles &&
-                startGameWithDay &&
-                dayCounter == 0) ||
-            nightActionManager.orderedActions.none(
-              (phaseInfo) => phaseInfo.conditioned(this),
-            )) {
-          return false;
-        }
-        break;
-      case GamePhase.dayActions:
-        if (dayActionManager.orderedActions.none(
-          (phaseInfo) => phaseInfo.conditioned(this),
-        )) {
-          return false;
-        }
-        break;
-      case GamePhase.gameOver:
-        if (checkWinConditions() == null) return false;
-        break;
-      default:
-        break;
-    }
-    return true;
-  }
-}
-
-/// Current phase of the game.
-enum GamePhase {
-  /// Phase starting the night.
-  dusk,
-
-  /// Phase for checking roles in the first night.
-  checkRoles,
-
-  /// Phase for performing night actions.
-  nightActions,
-
-  /// Phase starting the day.
-  dawn,
-
-  /// Phase for performing day actions.
-  dayActions,
-
-  /// Phase when the game has ended.
-  gameOver;
-
-  /// Whether the phase is a night phase.
-  bool get isNight =>
-      index >= GamePhase.dusk.index && index < GamePhase.dawn.index;
+  ISet<({int index, PlayerView player})>? winningPlayers() => _data
+      .winningPlayers()
+      ?.map(
+        (element) => (index: element.index, player: PlayerView(element.player)),
+      )
+      .toISet();
 }

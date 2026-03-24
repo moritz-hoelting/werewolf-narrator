@@ -20,7 +20,7 @@ void main() {
 
   test("Test night action order", () {
     GameState state = GameState(
-      players: List.generate(4, (index) => "Player $index"),
+      playerNames: List.generate(4, (index) => "Player $index"),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
         HunterRole.type: (count: 1, config: {}),

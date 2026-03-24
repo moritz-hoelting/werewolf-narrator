@@ -30,7 +30,7 @@ class PlayerList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
-        final playerDisplayHooks = gameState.playerDisplayHooks.lock;
+        final playerDisplayHooks = gameState.playerDisplayHooks;
         final showPlayers = List.generate(
           gameState.playerCount,
           (i) => i,

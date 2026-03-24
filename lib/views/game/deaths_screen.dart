@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
@@ -90,7 +92,7 @@ class DeathsScreen extends StatelessWidget {
                   context,
                   listen: false,
                 );
-                gameState.markDeathsAnnounced();
+                gameState.apply(MarkDeathsAnnouncedCommand());
 
                 if (!gameState.pendingDeathActions) {
                   onPhaseComplete();
@@ -103,5 +105,21 @@ class DeathsScreen extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class MarkDeathsAnnouncedCommand implements GameCommand {
+  @override
+  void apply(GameData gameData) {
+    gameData.markDeathsAnnounced();
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: fix
+    throw UnimplementedError();
   }
 }

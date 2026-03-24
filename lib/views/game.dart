@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_data.dart'
+    show TransitionToNextPhaseCommand, GamePhase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/themes.dart';
@@ -23,7 +25,7 @@ class _GameViewState extends State<GameView> {
     if (setupResult != null) {
       return ChangeNotifierProvider(
         create: (context) => GameState(
-          players: setupResult!.players,
+          playerNames: setupResult!.players,
           roleConfigurations: setupResult!.selectedRoles,
         ),
         child: Consumer<GameState>(
@@ -34,7 +36,7 @@ class _GameViewState extends State<GameView> {
               } else {
                 showDeathAnnouncement = false;
                 if (gameState.phase != GamePhase.gameOver) {
-                  gameState.transitionToNextPhase();
+                  gameState.apply(TransitionToNextPhaseCommand());
                 }
               }
             }

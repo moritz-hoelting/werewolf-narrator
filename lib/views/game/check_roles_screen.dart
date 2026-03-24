@@ -5,6 +5,8 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/set_players_role.dart';
+import 'package:werewolf_narrator/game/game_data.dart' show GamePhase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
@@ -105,8 +107,8 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
         if (defaultRole != null) {
           final noRolePlayers = entry.value
               .where((index) => gameState.players[index].role == null)
-              .toList();
-          gameState.setPlayersRole(defaultRole, noRolePlayers);
+              .toISet();
+          gameState.apply(SetPlayersRoleCommand(defaultRole, noRolePlayers));
         }
       }
       executeHooks();
@@ -371,8 +373,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     final selectedIndices = _selectedPlayers.indexed
         .where((entry) => entry.$2)
         .map((entry) => entry.$1)
-        .toList();
-    gameState.setPlayersRole(role, selectedIndices);
+        .toISet();
+    gameState.apply(SetPlayersRoleCommand(role, selectedIndices));
     final missing =
         (gameState.roleConfigurations[role]?.count ?? 0) -
         selectedIndices.length;

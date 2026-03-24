@@ -1,6 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -16,13 +19,7 @@ class VillageVoteScreen extends StatefulWidget {
   State<VillageVoteScreen> createState() => _VillageVoteScreenState();
 
   static void registerAction(GameState gameState) {
-    gameState.dayActionManager.registerAction(
-      VillageVoteScreen,
-      (gameState, onComplete) =>
-          (context) => VillageVoteScreen(onComplete: onComplete),
-      conditioned: (gameState) => gameState.alivePlayerCount > 1,
-      players: const {},
-    );
+    gameState.apply(RegisterVillageVoteScreenCommand());
   }
 }
 
@@ -82,9 +79,13 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                   widget.onComplete();
                 }
               } else {
-                gameState.markPlayerDead(
-                  _selectedPlayer!,
-                  VillageVoteDeathReason(gameState.knownAlivePlayerIndices),
+                gameState.apply(
+                  MarkDeadCommand.single(
+                    player: _selectedPlayer!,
+                    deathReason: VillageVoteDeathReason(
+                      gameState.knownAlivePlayerIndices,
+                    ),
+                  ),
                 );
                 widget.onComplete();
               }
@@ -107,4 +108,25 @@ class VillageVoteDeathReason implements DeathReason {
 
   @override
   ISet<int> get responsiblePlayerIndices => responsiblePlayers;
+}
+
+class RegisterVillageVoteScreenCommand implements GameCommand {
+  @override
+  void apply(GameData gameData) {
+    gameData.dayActionManager.registerAction(
+      VillageVoteScreen,
+      (gameState, onComplete) =>
+          (context) => VillageVoteScreen(onComplete: onComplete),
+      conditioned: (gameState) => gameState.alivePlayerCount > 1,
+      players: const {},
+    );
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    gameData.dayActionManager.unregisterAction(VillageVoteScreen);
+  }
 }

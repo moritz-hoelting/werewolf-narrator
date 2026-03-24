@@ -18,7 +18,7 @@ void main() {
 
   test("Test game phase order", () {
     GameState state = GameState(
-      players: List.generate(4, (index) => "Player $index"),
+      playerNames: List.generate(4, (index) => "Player $index"),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
         HunterRole.type: (count: 1, config: {}),
@@ -66,7 +66,7 @@ void main() {
 
   test("Test game phase order with Angel role", () {
     GameState state = GameState(
-      players: List.generate(4, (index) => "Player $index"),
+      playerNames: List.generate(4, (index) => "Player $index"),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
         AngelRole.type: (count: 1, config: {}),
