@@ -636,6 +636,36 @@
     "@role_bodyguard_nightAction_instruction": {
         "description": "Instruction for the Bodyguard night action"
     },
+    "role_pyjamaPal_name": "Pyjama Pal",
+    "@role_pyjamaPal_name": {
+        "description": "Name of the Pyjama Pal role"
+    },
+    "role_pyjamaPal_description": "Has a pyjama party every night at some other players place. Dies if that player is killed, cannot be killed themselves.",
+    "@role_pyjamaPal_description": {
+        "description": "Description of the Pyjama Pal role"
+    },
+    "role_pyjamaPal_checkInstruction": "Wake and select {count, plural, =1{the Pyjama Pal} other{all Pyjama Pals}}",
+    "@role_pyjamaPal_checkInstruction": {
+        "description": "Instruction to wake and select pyjama pal roles",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "role_pyjamaPal_option_dieIfAtHostile_label": "Die if at hostile",
+    "@role_pyjamaPal_option_dieIfAtHostile_label": {
+        "description": "Label for the option whether to die if staying at hostile player"
+    },
+    "role_pyjamaPal_option_dieIfAtHostile_description": "Whether to die if staying at a hostile player.",
+    "@role_pyjamaPal_option_dieIfAtHostile_description": {
+        "description": "Description for the option whether to die if staying at hostile player"
+    },
+    "role_pyjamaPal_nightAction_instruction": "Choose a player to have a pyjama party at.",
+    "@role_pyjamaPal_nightAction_instruction": {
+        "description": "Instruction for the Pyjama Pal night action"
+    },
     "role_wildChild_name": "Wild Child",
     "@role_wildChild_name": {
         "description": "Name of the Wild Child role"

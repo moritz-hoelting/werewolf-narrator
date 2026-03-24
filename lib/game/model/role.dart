@@ -30,6 +30,7 @@ import 'package:werewolf_narrator/game/role/village/little_girl.dart'
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/priest.dart'
     show PriestRole;
+import 'package:werewolf_narrator/game/role/village/pyjama_pal.dart';
 import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/village/thief.dart' show ThiefRole;
 import 'package:werewolf_narrator/game/role/village/two_sisters.dart'
@@ -104,6 +105,7 @@ abstract class RoleManager {
     PriestRole.registerRole();
     DoctorRole.registerRole();
     BodyguardRole.registerRole();
+    PyjamaPalRole.registerRole();
 
     // Miscellanious roles
     WildChildRole.registerRole();
