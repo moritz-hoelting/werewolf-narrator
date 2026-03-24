@@ -172,23 +172,17 @@ class RoleInfoSettings extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         ...options.map(
-          (option) => Row(
-            mainAxisSize: MainAxisSize.min,
+          (option) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    option.label(context),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  Text(
-                    option.description(context),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              Text(
+                option.label(context),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Text(
+                option.description(context),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),
