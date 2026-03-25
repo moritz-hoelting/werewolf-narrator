@@ -1,4 +1,9 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:werewolf_narrator/game/commands/set_players_role.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart'
+    show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
@@ -45,22 +50,23 @@ void main() {
 
     for (int i = 0; i < expectedOrder.length; i++) {
       if (state.phase == GamePhase.checkRoles) {
-        state.setPlayersRole(SeerRole.type, [0]);
-        state.setPlayersRole(HunterRole.type, [1]);
-        state.setPlayersRole(CupidRole.type, [2]);
-        state.setPlayersRole(WerewolfRole.type, [3]);
+        state.apply(
+          CompositeGameCommand(
+            [
+              SetPlayersRoleCommand(SeerRole.type, ISet({0})),
+              SetPlayersRoleCommand(HunterRole.type, ISet({1})),
+              SetPlayersRoleCommand(CupidRole.type, ISet({2})),
+              SetPlayersRoleCommand(WerewolfRole.type, ISet({3})),
+            ].lock,
+          ),
+        );
       }
       expect(
         state.phase,
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
-      final bool successful = state.transitionToNextPhase();
-      expect(
-        successful,
-        isTrue,
-        reason: "Expected successful transition at step $i",
-      );
+      state.apply(TransitionToNextPhaseCommand());
     }
   });
 
@@ -92,22 +98,23 @@ void main() {
 
     for (int i = 0; i < expectedOrder.length; i++) {
       if (state.phase == GamePhase.checkRoles) {
-        state.setPlayersRole(SeerRole.type, [0]);
-        state.setPlayersRole(AngelRole.type, [1]);
-        state.setPlayersRole(CupidRole.type, [2]);
-        state.setPlayersRole(WerewolfRole.type, [3]);
+        state.apply(
+          CompositeGameCommand(
+            [
+              SetPlayersRoleCommand(SeerRole.type, ISet({0})),
+              SetPlayersRoleCommand(AngelRole.type, ISet({1})),
+              SetPlayersRoleCommand(CupidRole.type, ISet({2})),
+              SetPlayersRoleCommand(WerewolfRole.type, ISet({3})),
+            ].lock,
+          ),
+        );
       }
       expect(
         (state.phase, state.dayCounter),
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
-      final bool successful = state.transitionToNextPhase();
-      expect(
-        successful,
-        isTrue,
-        reason: "Expected successful transition at step $i",
-      );
+      state.apply(TransitionToNextPhaseCommand());
     }
   });
 }

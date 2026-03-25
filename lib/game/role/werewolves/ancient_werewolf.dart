@@ -1,9 +1,13 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_revived.dart';
+import 'package:werewolf_narrator/game/commands/override_team.dart';
+import 'package:werewolf_narrator/game/game_command.dart'
+    show CompositeGameCommand, GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/model/player.dart' show Player;
+import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -15,7 +19,10 @@ import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class AncientWerewolfRole extends Role {
-  AncientWerewolfRole._(RoleConfiguration config);
+  AncientWerewolfRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<AncientWerewolfRole> type =
       RoleType<AncientWerewolfRole>();
   @override
@@ -46,34 +53,20 @@ class AncientWerewolfRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
-      AncientWerewolfRole.type,
-      (gameState, onComplete) =>
-          (context) => AncientWerewolfScreen(
-            ancientWerewolfRole: this,
-            playerIndex: playerIndex,
-            onPhaseComplete: onComplete,
-          ),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: IList([WerewolvesTeam.type]),
-      before: IList([WitchRole.type]),
-      players: {playerIndex},
-    );
+    gameState.apply(RegisterAncientWerewolfNightActionCommand(playerIndex));
   }
 }
 
 class AncientWerewolfScreen extends StatelessWidget {
   const AncientWerewolfScreen({
     super.key,
-    required this.ancientWerewolfRole,
     required this.playerIndex,
     required this.onPhaseComplete,
   });
 
-  final AncientWerewolfRole ancientWerewolfRole;
   final int playerIndex;
   final VoidCallback onPhaseComplete;
 
@@ -83,7 +76,9 @@ class AncientWerewolfScreen extends StatelessWidget {
       builder: (context, gameState, child) {
         final localizations = AppLocalizations.of(context);
 
-        if (ancientWerewolfRole.convertedPlayerIndex != null) {
+        if ((gameState.players[playerIndex].role as AncientWerewolfRole)
+                .convertedPlayerIndex !=
+            null) {
           return Scaffold(
             appBar: AppBar(
               title: Text(localizations.role_ancientWerewolf_name),
@@ -99,6 +94,28 @@ class AncientWerewolfScreen extends StatelessWidget {
               onPressed: () {
                 submit(gameState, false);
               },
+            ),
+          );
+        }
+
+        int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.$1;
+
+        if (lastAttackedPlayer == null) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(localizations.role_ancientWerewolf_name),
+              automaticallyImplyLeading: false,
+            ),
+            body: Center(
+              child: Text(
+                localizations
+                    .role_ancientWerewolf_nightAction_noAttackThisNight,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            bottomNavigationBar: BottomContinueButton(
+              onPressed: onPhaseComplete,
             ),
           );
         }
@@ -133,7 +150,7 @@ class AncientWerewolfScreen extends StatelessWidget {
     onPhaseComplete();
   }
 
-  (int, Player)? findLastAttackedPlayer(GameState gameState) {
+  (int, PlayerView)? findLastAttackedPlayer(GameState gameState) {
     final lastAttackedPlayerIndex = gameState.currentCycleDeaths.entries
         .where((entry) => entry.value is WerewolvesDeathReason)
         .map((entry) => entry.key)
@@ -145,9 +162,75 @@ class AncientWerewolfScreen extends StatelessWidget {
     return (lastAttackedPlayerIndex, player);
   }
 
-  void useAbilityOn(GameState gameState, int playerIndex, Player player) {
-    gameState.markPlayerRevived(playerIndex);
-    player.role?.overrideTeam = Option.of(WerewolvesTeam.type);
-    ancientWerewolfRole.convertedPlayerIndex = playerIndex;
+  void useAbilityOn(GameState gameState, int playerIndex, PlayerView player) {
+    gameState.apply(
+      CompositeGameCommand(
+        [
+          MarkRevivedCommand.single(playerIndex),
+          OverrideTeamCommand(playerIndex, WerewolvesTeam.type),
+          AncientWerewolfSaveConvertPlayerIndexCommand(
+            playerIndex: this.playerIndex,
+            convertedPlayerIndex: playerIndex,
+          ),
+        ].lock,
+      ),
+    );
+  }
+}
+
+class RegisterAncientWerewolfNightActionCommand implements GameCommand {
+  const RegisterAncientWerewolfNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      AncientWerewolfRole.type,
+      (gameState, onComplete) =>
+          (context) => AncientWerewolfScreen(
+            playerIndex: playerIndex,
+            onPhaseComplete: onComplete,
+          ),
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      after: IList([WerewolvesTeam.type]),
+      before: IList([WitchRole.type]),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    throw UnimplementedError();
+  }
+}
+
+class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
+  const AncientWerewolfSaveConvertPlayerIndexCommand({
+    required this.playerIndex,
+    required this.convertedPlayerIndex,
+  });
+
+  final int playerIndex;
+  final int convertedPlayerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    (gameData.players[playerIndex].role as AncientWerewolfRole)
+            .convertedPlayerIndex =
+        convertedPlayerIndex;
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    (gameData.players[playerIndex].role as AncientWerewolfRole)
+            .convertedPlayerIndex =
+        null;
   }
 }

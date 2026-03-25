@@ -7,7 +7,9 @@ import 'package:werewolf_narrator/game/game_state.dart';
 
 @sealed
 abstract class Role {
-  Role();
+  Role({required this.playerIndex});
+
+  final int playerIndex;
 
   Option<TeamType?> overrideTeam = Option.none();
 
@@ -20,7 +22,7 @@ abstract class Role {
   RoleType get objectType;
 
   /// Called when this role is assigned to a player.
-  void onAssign(GameState gameState, int playerIndex) {}
+  void onAssign(GameState gameState) {}
 
   /// The team of this role in the current game state.
   TeamType? team(GameState gameState) =>

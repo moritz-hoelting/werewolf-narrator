@@ -1,5 +1,10 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/remove_unassigned_roles.dart';
+import 'package:werewolf_narrator/game/commands/set_players_role.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -13,7 +18,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 class ThiefRole extends Role {
-  ThiefRole._(RoleConfiguration config);
+  ThiefRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<ThiefRole> type = RoleType<ThiefRole>();
   @override
   RoleType<ThiefRole> get objectType => type;
@@ -55,35 +60,26 @@ class ThiefRole extends Role {
   }
 
   static void initialize(GameState gameState) {
-    gameState.remainingRoleHooks.putIfAbsent(ThiefRole.type, () => []).add((
-      gameState,
-      remainingCount,
-    ) {
-      gameState.removeUnassignedRoles();
-    });
+    gameState.apply(InitializeThiefCommand());
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
-      ThiefRole.type,
-      (gameState, onComplete) =>
-          (context) => ThiefScreen(onPhaseComplete: onComplete),
-      conditioned: (gameState) =>
-          gameState.dayCounter == 0 &&
-          gameState.playerAliveUntilDawn(playerIndex),
-      beforeAll: true,
-      players: {playerIndex},
-    );
+    gameState.apply(RegisterThiefNightActionCommand(playerIndex));
   }
 }
 
 class ThiefScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
+  final int playerIndex;
 
-  const ThiefScreen({super.key, required this.onPhaseComplete});
+  const ThiefScreen({
+    super.key,
+    required this.onPhaseComplete,
+    required this.playerIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -125,15 +121,62 @@ class ThiefScreen extends StatelessWidget {
 
   void submit(GameState gameState, RoleType? selectedRole) {
     if (selectedRole != null) {
-      gameState.setPlayersRole(
-        selectedRole,
-        gameState.players.indexed
-            .where((player) => player.$2.role is ThiefRole)
-            .map((player) => player.$1)
-            .toList(),
-      );
+      gameState.apply(SetPlayersRoleCommand(selectedRole, ISet({playerIndex})));
     }
-    gameState.removeUnassignedRoles();
+    gameState.apply(RemoveUnassignedRolesCommand());
     onPhaseComplete();
+  }
+}
+
+class InitializeThiefCommand implements GameCommand {
+  @override
+  void apply(GameData gameData) {
+    gameData.remainingRoleHooks.putIfAbsent(ThiefRole.type, () => []).add((
+      gameState,
+      remainingCount,
+    ) {
+      gameState.apply(RemoveUnassignedRolesCommand());
+    });
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+}
+
+class RegisterThiefNightActionCommand implements GameCommand {
+  const RegisterThiefNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      ThiefRole.type,
+      (gameState, onComplete) =>
+          (context) => ThiefScreen(
+            playerIndex: playerIndex,
+            onPhaseComplete: onComplete,
+          ),
+      conditioned: (gameState) =>
+          gameState.dayCounter == 0 &&
+          gameState.playerAliveUntilDawn(playerIndex),
+      beforeAll: true,
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

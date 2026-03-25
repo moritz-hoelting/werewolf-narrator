@@ -6,6 +6,8 @@ import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/role/village/cupid.dart';
+import 'package:werewolf_narrator/game/role/village/seer.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -13,8 +15,8 @@ import 'package:werewolf_narrator/game/model/death_information.dart'
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, teamWinningPlayers;
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
+// import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+// import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -151,14 +153,17 @@ class RegisterWerewolvesNightActionCommand implements GameCommand {
       currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        gameState.apply(
-          MarkDeadCommand.single(
-            player: selectedPlayers.single,
-            deathReason: WerewolvesDeathReason(
-              werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
+        int? selectedPlayer = selectedPlayers.singleOrNull;
+        if (selectedPlayer != null) {
+          gameState.apply(
+            MarkDeadCommand.single(
+              player: selectedPlayer,
+              deathReason: WerewolvesDeathReason(
+                werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
+              ),
             ),
-          ),
-        );
+          );
+        }
         onComplete();
       },
     );

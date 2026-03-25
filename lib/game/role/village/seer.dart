@@ -1,6 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -13,7 +15,7 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class SeerRole extends Role {
-  SeerRole._(RoleConfiguration config);
+  SeerRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<SeerRole> type = RoleType<SeerRole>();
   @override
   RoleType<SeerRole> get objectType => type;
@@ -40,18 +42,10 @@ class SeerRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
-      SeerRole.type,
-      (gameState, onComplete) =>
-          (context) =>
-              SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: IList([CupidRole.type]),
-      players: {playerIndex},
-    );
+    gameState.apply(RegisterSeerNightActionCommand(playerIndex));
   }
 }
 
@@ -128,5 +122,33 @@ class _SeerScreenState extends State<SeerScreen> {
         );
       },
     );
+  }
+}
+
+class RegisterSeerNightActionCommand implements GameCommand {
+  const RegisterSeerNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      SeerRole.type,
+      (gameState, onComplete) =>
+          (context) =>
+              SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      after: IList([CupidRole.type]),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

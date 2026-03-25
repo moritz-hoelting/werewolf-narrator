@@ -1,5 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
@@ -11,13 +14,16 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class KnightOfTheRustySwordRole extends Role implements DeathReason {
-  KnightOfTheRustySwordRole._(RoleConfiguration config);
+  KnightOfTheRustySwordRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<KnightOfTheRustySwordRole> type =
       RoleType<KnightOfTheRustySwordRole>();
   @override
   RoleType<KnightOfTheRustySwordRole> get objectType => type;
 
-  int? playerIndex;
+  ({int deathDayCounter, int clockwiseNearestWerewolfIndex})? killHookData;
 
   static void registerRole() {
     RoleManager.registerRole<KnightOfTheRustySwordRole>(
@@ -46,44 +52,149 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_knightOfTheRustySword_deathReason;
 
   @override
-  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    this.playerIndex = playerIndex;
+    gameState.apply(RegisterKnightOfTheRustySwordDeathHookCommand(playerIndex));
+  }
 
-    gameState.deathHooks.add((deathGameState, deathPlayerIndex, reason) {
-      if (playerIndex == deathPlayerIndex && reason is WerewolvesDeathReason) {
-        final int playerCount = deathGameState.players.length;
+  bool deathHook(
+    GameState deathGameState,
+    int deathPlayerIndex,
+    DeathReason reason,
+  ) {
+    if (playerIndex == deathPlayerIndex && reason is WerewolvesDeathReason) {
+      final int playerCount = deathGameState.players.length;
 
-        final int? clockwiseNearestWerewolfIndex =
-            List.generate(
-                  deathGameState.players.length - 1,
-                  (i) => (playerIndex + i + 1) % playerCount,
-                )
-                .where(
-                  (i) =>
-                      deathGameState.players[i].role?.team(deathGameState) ==
-                          WerewolvesTeam.type &&
-                      deathGameState.playerAliveUntilDawn(i),
-                )
-                .firstOrNull;
-        if (clockwiseNearestWerewolfIndex != null) {
-          final deathDayCounter = deathGameState.dayCounter;
-          void dawnHook(dawnGameState, dayCount) {
-            if (deathDayCounter + 2 == dayCount) {
-              dawnGameState.markPlayerDead(clockwiseNearestWerewolfIndex, this);
-              dawnGameState.dawnHooks.remove(dawnHook);
-            }
-          }
-
-          deathGameState.dawnHooks.add(dawnHook);
-        }
+      final int? clockwiseNearestWerewolfIndex =
+          List.generate(
+                deathGameState.players.length - 1,
+                (i) => (playerIndex + i + 1) % playerCount,
+              )
+              .where(
+                (i) =>
+                    deathGameState.players[i].role?.team(deathGameState) ==
+                        WerewolvesTeam.type &&
+                    deathGameState.playerAliveUntilDawn(i),
+              )
+              .firstOrNull;
+      if (clockwiseNearestWerewolfIndex != null) {
+        final deathDayCounter = deathGameState.dayCounter;
+        deathGameState.apply(
+          RegisterKnightOfTheRustySwordDawnHookCommand(
+            playerIndex: playerIndex,
+            deathDayCounter: deathDayCounter,
+            clockwiseNearestWerewolfIndex: clockwiseNearestWerewolfIndex,
+          ),
+        );
       }
+    }
 
-      return false;
-    });
+    return false;
+  }
+
+  void dawnHook(GameState dawnGameState, int dayCount) {
+    if (killHookData != null) {
+      final (:deathDayCounter, :clockwiseNearestWerewolfIndex) = killHookData!;
+
+      if (deathDayCounter + 2 == dayCount) {
+        dawnGameState.apply(
+          CompositeGameCommand(
+            <GameCommand>[
+              MarkDeadCommand.single(
+                player: clockwiseNearestWerewolfIndex,
+                deathReason: this,
+              ),
+              UnregisterKnightOfTheRustySwordDawnHookCommand(playerIndex),
+            ].lock,
+          ),
+        );
+      }
+    }
+  }
+}
+
+class RegisterKnightOfTheRustySwordDeathHookCommand implements GameCommand {
+  const RegisterKnightOfTheRustySwordDeathHookCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final role =
+        gameData.players[playerIndex].role as KnightOfTheRustySwordRole;
+
+    gameData.deathHooks.add(role.deathHook);
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+}
+
+class RegisterKnightOfTheRustySwordDawnHookCommand implements GameCommand {
+  const RegisterKnightOfTheRustySwordDawnHookCommand({
+    required this.playerIndex,
+    required this.deathDayCounter,
+    required this.clockwiseNearestWerewolfIndex,
+  });
+
+  final int playerIndex;
+  final int deathDayCounter;
+  final int clockwiseNearestWerewolfIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final role =
+        gameData.players[playerIndex].role as KnightOfTheRustySwordRole;
+
+    role.killHookData = (
+      deathDayCounter: deathDayCounter,
+      clockwiseNearestWerewolfIndex: clockwiseNearestWerewolfIndex,
+    );
+
+    gameData.dawnHooks.add(role.dawnHook);
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+}
+
+class UnregisterKnightOfTheRustySwordDawnHookCommand implements GameCommand {
+  const UnregisterKnightOfTheRustySwordDawnHookCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final role =
+        gameData.players[playerIndex].role as KnightOfTheRustySwordRole;
+
+    gameData.dawnHooks.remove(role.dawnHook);
+
+    role.killHookData = null;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

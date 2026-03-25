@@ -1,5 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
@@ -15,7 +17,7 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class PriestRole extends Role {
-  PriestRole._(RoleConfiguration config)
+  PriestRole._({required RoleConfiguration config, required super.playerIndex})
     : blessAmountRemaining = config[PriestRole.blessCountOptionId];
 
   static final RoleType<PriestRole> type = RoleType<PriestRole>();
@@ -64,47 +66,74 @@ class PriestRole extends Role {
       AppLocalizations.of(context).role_priest_name;
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
+    gameState.apply(OnAssignPriestCommand(playerIndex));
+  }
+}
+
+class OnAssignPriestCommand implements GameCommand {
+  const OnAssignPriestCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
       PriestRole.type,
-      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
+      (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       before: IList([WerewolvesTeam.type, WitchRole.type, BigBadWolfRole.type]),
       players: {playerIndex},
     );
 
-    gameState.deathHooks.add((gameState, deadPlayerIndex, reason) {
-      return gameState.isNight && blessedPlayers.contains(deadPlayerIndex);
+    gameData.deathHooks.add((gameState, deadPlayerIndex, reason) {
+      final priest = gameState.players[playerIndex].role as PriestRole;
+      return gameState.isNight &&
+          priest.blessedPlayers.contains(deadPlayerIndex);
     });
   }
 
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+
   WidgetBuilder nightActionScreen(
-    int playerIndex,
+    GameState gameState,
     VoidCallback onComplete,
   ) => (BuildContext context) {
-    return blessAmountRemaining > 0
+    final priest = gameState.players[playerIndex].role as PriestRole;
+    return priest.blessAmountRemaining > 0
         ? ActionScreen(
             key: UniqueKey(),
-            appBarTitle: Text(_name(context)),
+            appBarTitle: Text(PriestRole._name(context)),
             instruction: Text(
               AppLocalizations.of(context).role_priest_nightAction_instruction,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             actionIdentifier: PriestRole.type,
-            selectionCount: blessAmountRemaining,
+            selectionCount: priest.blessAmountRemaining,
             allowSelectLess: true,
             onConfirm: (selection, gameState) {
-              blessedPlayers.addAll(selection);
-              blessAmountRemaining -= selection.length;
+              gameState.apply(
+                PriestBlessPlayersCommand(
+                  playerIndex: playerIndex,
+                  playersToBless: selection,
+                ),
+              );
               onComplete();
             },
             currentActorIndices: ISet({playerIndex}),
-            disabledPlayerIndices: ISet(blessedPlayers),
+            disabledPlayerIndices: ISet(priest.blessedPlayers),
           )
         : Scaffold(
-            appBar: AppBar(title: Text(_name(context))),
+            appBar: AppBar(title: Text(PriestRole._name(context))),
             body: Center(
               child: Text(
                 AppLocalizations.of(context).role_priest_nightAction_noBlesses,
@@ -115,4 +144,31 @@ class PriestRole extends Role {
             bottomNavigationBar: BottomContinueButton(onPressed: onComplete),
           );
   };
+}
+
+class PriestBlessPlayersCommand implements GameCommand {
+  const PriestBlessPlayersCommand({
+    required this.playerIndex,
+    required this.playersToBless,
+  });
+
+  final int playerIndex;
+  final ISet<int> playersToBless;
+
+  @override
+  void apply(GameData gameData) {
+    final priest = gameData.players[playerIndex].role as PriestRole;
+    priest.blessedPlayers.addAll(playersToBless);
+    priest.blessAmountRemaining -= playersToBless.length;
+  }
+
+  @override
+  // TODO: implement canBeUndone
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
 }

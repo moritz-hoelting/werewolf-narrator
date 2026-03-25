@@ -20,6 +20,14 @@
     "@button_noLabel": {
         "description": "Cancel button label"
     },
+    "button_undoTooltip": "Undo",
+    "@button_undoTooltip": {
+        "description": "Tooltip for the undo button"
+    },
+    "button_redoTooltip": "Redo",
+    "@button_redoTooltip": {
+        "description": "Tooltip for the redo button"
+    },
     "alert_leaveGame_title": "Leave Game",
     "@alert_leaveGame_title": {
         "description": "Title for the alert dialog when leaving a game"
@@ -33,7 +41,7 @@
         "description": "Title for the roles overview screen"
     },
     "screen_rolesOverview_optionsHeading": "Options:",
-    "@screen_rolesOverview_title": {
+    "@screen_rolesOverview_optionsHeading": {
         "description": "Heading for the options in the role info dialog"
     },
     "screen_settings_title": "Settings",
@@ -759,6 +767,10 @@
     "role_ancientWerewolf_nightAction_hasUsedAbility": "You have already used your ability this game.",
     "@role_ancientWerewolf_nightAction_hasUsedAbility": {
         "description": "Message shown on the Ancient Werewolf night action screen when the ability has already been used"
+    },
+    "role_ancientWerewolf_nightAction_noAttackThisNight": "No player was attacked this night.",
+    "@role_ancientWerewolf_nightAction_noAttackThisNight": {
+        "description": "Message shown on the Ancient Werewolf night action screen when there is no attacked player"
     },
     "role_bigBadWolf_name": "Big Bad Wolf",
     "@role_bigBadWolf_name": {

@@ -1,5 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/role_config.dart';
@@ -18,15 +21,16 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class BodyguardRole extends Role {
-  BodyguardRole._(RoleConfiguration config);
+  BodyguardRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<BodyguardRole> type = RoleType<BodyguardRole>();
   @override
   RoleType<BodyguardRole> get objectType => type;
 
   bool hasBeenAttacked = false;
   int? protectionTarget;
-
-  late final int playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<BodyguardRole>(
@@ -53,12 +57,59 @@ class BodyguardRole extends Role {
       AppLocalizations.of(context).role_bodyguard_name;
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    this.playerIndex = playerIndex;
+    gameState.apply(OnAssignBodyguardCommand(playerIndex));
+  }
 
-    gameState.nightActionManager.registerAction(
+  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
+    if (hasBeenAttacked &&
+        deadPlayerIndex != playerIndex &&
+        protectionTarget == deadPlayerIndex) {
+      gameState.apply(
+        MarkDeadCommand.single(player: playerIndex, deathReason: reason),
+      );
+    }
+    if (gameState.isNight &&
+        protectionTarget == deadPlayerIndex &&
+        gameState.playerAliveUntilDawn(playerIndex)) {
+      gameState.apply(MarkBodyguardAttackedCommand(playerIndex));
+      return true;
+    } else if (deadPlayerIndex == playerIndex) {
+      final bool wasProtected = !hasBeenAttacked;
+      if (hasBeenAttacked) {
+        gameState.apply(RemoveBodyguardDeathHookCommand(playerIndex));
+      }
+      gameState.apply(
+        MarkDeadCommand.single(player: playerIndex, deathReason: reason),
+      );
+      return wasProtected;
+    } else {
+      return false;
+    }
+  }
+
+  void dawnHook(GameState gameState, int dayCount) {
+    gameState.apply(
+      BodyguardSetProtectionTargetCommand(
+        playerIndex: playerIndex,
+        targetPlayerIndex: null,
+      ),
+    );
+  }
+}
+
+class OnAssignBodyguardCommand implements GameCommand {
+  const OnAssignBodyguardCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+
+    gameData.nightActionManager.registerAction(
       BodyguardRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       players: {playerIndex},
@@ -67,32 +118,18 @@ class BodyguardRole extends Role {
       after: IList([DoctorRole.type]),
     );
 
-    gameState.dawnHooks.add((gameState, dayCount) {
-      protectionTarget = null;
-    });
+    gameData.dawnHooks.add(bodyguardRole.dawnHook);
 
-    gameState.deathHooks.add(deathHook);
+    gameData.deathHooks.add(bodyguardRole.deathHook);
   }
 
-  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
-    if (hasBeenAttacked && deadPlayerIndex != playerIndex) {
-      gameState.markPlayerDead(playerIndex, reason);
-    }
-    if (gameState.isNight &&
-        protectionTarget == deadPlayerIndex &&
-        gameState.playerAliveUntilDawn(playerIndex)) {
-      hasBeenAttacked = true;
-      return true;
-    } else if (deadPlayerIndex == playerIndex) {
-      final bool wasProtected = !hasBeenAttacked;
-      if (hasBeenAttacked) {
-        gameState.deathHooks.remove(deathHook);
-      }
-      hasBeenAttacked = true;
-      return wasProtected;
-    } else {
-      return false;
-    }
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -101,7 +138,7 @@ class BodyguardRole extends Role {
         return ActionScreen(
           key: UniqueKey(),
           actionIdentifier: BodyguardRole.type,
-          appBarTitle: Text(_name(context)),
+          appBarTitle: Text(BodyguardRole._name(context)),
           selectionCount: 1,
           currentActorIndices: ISet({playerIndex}),
           instruction: Text(
@@ -109,9 +146,85 @@ class BodyguardRole extends Role {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           onConfirm: (playerIds, gameState) {
-            protectionTarget = playerIds.singleOrNull;
+            gameState.apply(
+              BodyguardSetProtectionTargetCommand(
+                playerIndex: playerIndex,
+                targetPlayerIndex: playerIds.singleOrNull,
+              ),
+            );
             onComplete();
           },
         );
       };
+}
+
+class RemoveBodyguardDeathHookCommand implements GameCommand {
+  const RemoveBodyguardDeathHookCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    gameData.deathHooks.remove(bodyguardRole.deathHook);
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    gameData.deathHooks.add(bodyguardRole.deathHook);
+  }
+}
+
+class BodyguardSetProtectionTargetCommand implements GameCommand {
+  BodyguardSetProtectionTargetCommand({
+    required this.playerIndex,
+    required this.targetPlayerIndex,
+  });
+
+  final int playerIndex;
+  final int? targetPlayerIndex;
+
+  int? previousProtectionTarget;
+
+  @override
+  void apply(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    previousProtectionTarget = bodyguardRole.protectionTarget;
+    bodyguardRole.protectionTarget = targetPlayerIndex;
+  }
+
+  @override
+  bool get canBeUndone => previousProtectionTarget != null;
+
+  @override
+  void undo(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    bodyguardRole.protectionTarget = previousProtectionTarget;
+    previousProtectionTarget = null;
+  }
+}
+
+class MarkBodyguardAttackedCommand implements GameCommand {
+  const MarkBodyguardAttackedCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    bodyguardRole.hasBeenAttacked = true;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
 }

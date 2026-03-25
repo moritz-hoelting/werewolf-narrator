@@ -1,6 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
@@ -14,7 +17,10 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 class WolfHoundRole extends Role {
-  WolfHoundRole._(RoleConfiguration config);
+  WolfHoundRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
 
   static final RoleType<WolfHoundRole> type = RoleType<WolfHoundRole>();
   @override
@@ -64,20 +70,41 @@ class WolfHoundRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
+    gameState.apply(RegisterWolfHoundNightActionCommand(playerIndex));
+  }
+}
+
+class RegisterWolfHoundNightActionCommand implements GameCommand {
+  const RegisterWolfHoundNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
       WolfHoundRole.type,
       (gameState, onComplete) {
         return nightActionScreen(playerIndex, onComplete);
       },
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
-          selectedWerewolf == null,
+          (gameState.players[playerIndex].role as WolfHoundRole)
+                  .selectedWerewolf ==
+              null,
       players: {playerIndex},
       before: IList([WerewolvesTeam.type]),
     );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    throw UnimplementedError();
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -94,9 +121,33 @@ class WolfHoundRole extends Role {
           firstOption: Text(localizations.team_village_name),
           secondOption: Text(localizations.team_werewolves_name),
           onComplete: (selectedFirst) {
-            selectedWerewolf = !selectedFirst!;
+            Provider.of<GameState>(
+              context,
+              listen: false,
+            ).apply(WolfHoundChooseCommand(playerIndex, !selectedFirst!));
             onComplete();
           },
         );
       };
+}
+
+class WolfHoundChooseCommand implements GameCommand {
+  const WolfHoundChooseCommand(this.playerIndex, this.selectedWerewolf);
+
+  final int playerIndex;
+  final bool selectedWerewolf;
+
+  @override
+  void apply(GameData gameData) {
+    final role = gameData.players[playerIndex].role as WolfHoundRole;
+    role.selectedWerewolf = selectedWerewolf;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    throw UnimplementedError();
+  }
 }

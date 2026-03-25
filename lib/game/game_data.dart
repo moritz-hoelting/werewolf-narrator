@@ -2,10 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
-    show SheriffVoteAction;
-import 'package:werewolf_narrator/game/misc/phases/voting.dart'
-    show VillageVoteScreen;
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/role.dart'
@@ -58,17 +54,6 @@ class GameData {
           ),
       'Number of players must match total number of roles assigned (correctly accounting for Thief roles)',
     );
-    VillageVoteScreen.registerAction(state);
-    SheriffVoteAction.registerAction(state);
-    for (final team in teams.values) {
-      team.initialize(state);
-    }
-    for (final role in roleConfigurations.keys) {
-      final roleInitializer = RoleManager.getInitializer(role);
-      if (roleInitializer != null) {
-        roleInitializer(state);
-      }
-    }
   }
 
   /// Game state wrapper object
@@ -126,6 +111,7 @@ class GameData {
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
   /// Will be called multiple times per death for determining whether to show the action. The answer must be consistent.
+  // TODO: change to only get single player index
   final List<ActionHook> deathActionHooks = [];
 
   /// Hooks for remaining roles at the end of role assignment.
@@ -145,6 +131,8 @@ class GameData {
   // Guards against recursive calls in markPlayerDead and markPlayerRevived.
   final List<int> _markDeadRecursionGuard = [];
   final List<int> _markRevivedRecursionGuard = [];
+
+  final Map<dynamic, dynamic> customData = {};
 
   /// The current day counter.
   int get dayCounter => _dayCounter;
@@ -326,11 +314,12 @@ class GameData {
   void setPlayersRole(RoleType role, ISet<int> playerIndices) {
     for (final index in playerIndices) {
       final Role playerRole = RoleManager.instantiateRole(
+        index,
         role,
         roleConfigurations[role]?.config ?? {},
       );
       players[index].role = playerRole;
-      playerRole.onAssign(state, index);
+      playerRole.onAssign(state);
     }
   }
 
@@ -369,26 +358,6 @@ class GameData {
           return acc;
         })
         .lock;
-  }
-
-  /// Removes unassigned roles from the role counts.
-  void removeUnassignedRoles() {
-    final unassignedRoles = this.unassignedRoles.fold(<RoleType, int>{}, (
-      acc,
-      element,
-    ) {
-      acc[element] = (acc[element] ?? 0) + 1;
-      return acc;
-    });
-    for (final entry in unassignedRoles.entries) {
-      roleConfigurations[entry.key] = (
-        count: (roleConfigurations[entry.key]?.count ?? 0) - entry.value,
-        config: roleConfigurations[entry.key]?.config ?? {},
-      );
-      if (roleConfigurations[entry.key]!.count <= 0) {
-        roleConfigurations.remove(entry.key);
-      }
-    }
   }
 
   /// Marks a player as dead with the given death reason.
@@ -554,7 +523,7 @@ class GameData {
   }
 
   /// Transitions to the next valid phase, if any.
-  bool transitionToNextPhase() {
+  void transitionToNextPhase() {
     final next = nextPhase;
     final previous = _phase;
     if (next != null) {
@@ -572,9 +541,9 @@ class GameData {
           hook(state, dayCounter);
         }
       }
-      return true;
+      return;
     }
-    return false;
+    throw StateError('No valid next phase from $phase');
   }
 
   /// Gets the next valid phase, if any.

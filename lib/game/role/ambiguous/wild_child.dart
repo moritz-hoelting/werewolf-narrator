@@ -1,6 +1,10 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
@@ -14,7 +18,10 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class WildChildRole extends Role {
-  WildChildRole._(RoleConfiguration config);
+  WildChildRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
 
   static final RoleType<WildChildRole> type = RoleType<WildChildRole>();
   @override
@@ -61,18 +68,40 @@ class WildChildRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
+    gameState.apply(RegisterWildChildNightActionCommand(playerIndex));
+  }
+}
+
+class RegisterWildChildNightActionCommand implements GameCommand {
+  const RegisterWildChildNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
       WildChildRole.type,
       (gameState, onComplete) {
         return nightActionScreen(playerIndex, onComplete);
       },
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) && roleModel == null,
+          gameState.playerAliveUntilDawn(playerIndex) &&
+          (gameState.players[playerIndex].role as WildChildRole).roleModel ==
+              null,
       players: {playerIndex},
     );
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -89,22 +118,79 @@ class WildChildRole extends Role {
           currentActorIndices: ISet({playerIndex}),
           disabledPlayerIndices: ISet({playerIndex}),
           onConfirm: (selectedIndices, gameState) {
-            roleModel = selectedIndices.single;
+            final int roleModel = selectedIndices.single;
 
-            if (!gameState.players[roleModel!].isAlive) {
-              turned = true;
-            } else {
-              gameState.deathHooks.add((gameState, index, reason) {
-                if (index == roleModel) {
-                  turned = true;
-                }
-
-                return false;
-              });
-            }
+            gameState.apply(
+              WildChildSelectRoleModelCommand(
+                playerIndex: playerIndex,
+                roleModelIndex: roleModel,
+              ),
+            );
 
             onComplete();
           },
         );
       };
+}
+
+class WildChildSelectRoleModelCommand implements GameCommand {
+  const WildChildSelectRoleModelCommand({
+    required this.playerIndex,
+    required this.roleModelIndex,
+  });
+
+  final int playerIndex;
+  final int roleModelIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final player = gameData.players[playerIndex];
+    final role = player.role as WildChildRole;
+
+    role.roleModel = roleModelIndex;
+    if (!gameData.players[roleModelIndex].isAlive) {
+      role.turned = true;
+    } else {
+      gameData.deathHooks.add(deathHook);
+    }
+  }
+
+  @override
+  // TODO: implement canBeUndone
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+
+  bool deathHook(GameState gameState, int index, DeathReason reason) {
+    if (index == roleModelIndex) {
+      gameState.apply(TurnWildChildCommand(playerIndex));
+    }
+
+    return false;
+  }
+}
+
+class TurnWildChildCommand implements GameCommand {
+  const TurnWildChildCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final player = gameData.players[playerIndex];
+    final role = player.role as WildChildRole;
+    role.turned = true;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    throw UnimplementedError();
+  }
 }

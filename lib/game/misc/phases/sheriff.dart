@@ -8,27 +8,14 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
-class SheriffVoteAction {
-  SheriffVoteAction._();
-
-  int? sheriffIndex;
-
-  static void registerAction(GameState gameState) {
-    gameState.apply(
-      RegisterSheriffElectionScreenCommand(SheriffVoteAction._()),
-    );
-  }
-}
-
 class SheriffElectionScreen extends StatelessWidget {
-  const SheriffElectionScreen({
-    super.key,
-    required this.sheriffVoteAction,
-    required this.onComplete,
-  });
+  const SheriffElectionScreen({super.key, required this.onComplete});
 
   final VoidCallback onComplete;
-  final SheriffVoteAction sheriffVoteAction;
+
+  static void registerAction(GameState gameState) {
+    gameState.apply(RegisterSheriffElectionScreenCommand());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +27,12 @@ class SheriffElectionScreen extends StatelessWidget {
         localizations.screen_sheriffElection_instruction,
         style: Theme.of(context).textTheme.bodyLarge,
       ),
-      actionIdentifier: SheriffVoteAction,
+      actionIdentifier: SheriffElectionScreen,
       selectionCount: 1,
       allowSelectLess: true,
       onConfirm: (selectedPlayers, gameState) {
         if (selectedPlayers.isNotEmpty) {
-          sheriffVoteAction.sheriffIndex = selectedPlayers.single;
+          gameState.apply(ElectSheriffCommand(selectedPlayers.single));
         }
         onComplete();
       },
@@ -54,28 +41,27 @@ class SheriffElectionScreen extends StatelessWidget {
 }
 
 class RegisterSheriffElectionScreenCommand implements GameCommand {
-  const RegisterSheriffElectionScreenCommand(this.sheriffVoteAction);
-
-  final SheriffVoteAction sheriffVoteAction;
+  const RegisterSheriffElectionScreenCommand();
 
   @override
   void apply(GameData gameData) {
     gameData.dayActionManager.registerAction(
-      SheriffVoteAction,
+      SheriffElectionScreen,
       (gameState, onComplete) =>
-          (context) => SheriffElectionScreen(
-            sheriffVoteAction: sheriffVoteAction,
-            onComplete: onComplete,
-          ),
+          (context) => SheriffElectionScreen(onComplete: onComplete),
       conditioned: (gameState) =>
           gameState.alivePlayerCount > 1 &&
-          (sheriffVoteAction.sheriffIndex == null ||
-              !gameState.players[sheriffVoteAction.sheriffIndex!].isAlive),
+          (gameData.customData[SheriffElectionScreen] == null ||
+              !gameState
+                  .players[gameData.customData[SheriffElectionScreen] as int]
+                  .isAlive),
       before: IList([VillageVoteScreen]),
       players: const {},
     );
 
     gameData.playerDisplayHooks.add(playerDisplayHook);
+
+    gameData.customData[SheriffElectionScreen] = null;
   }
 
   @override
@@ -83,7 +69,7 @@ class RegisterSheriffElectionScreenCommand implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    gameData.dayActionManager.unregisterAction(SheriffVoteAction);
+    gameData.dayActionManager.unregisterAction(SheriffElectionScreen);
     gameData.playerDisplayHooks.remove(playerDisplayHook);
   }
 
@@ -93,12 +79,31 @@ class RegisterSheriffElectionScreenCommand implements GameCommand {
     int playerIndex,
   ) {
     if (phaseIdentifier == VillageVoteScreen &&
-        sheriffVoteAction.sheriffIndex == playerIndex) {
+        gameState.customData[SheriffElectionScreen] == playerIndex) {
       return PlayerDisplayData(
         trailing: (context) => const Icon(Icons.local_police_outlined),
       );
     } else {
       return null;
     }
+  }
+}
+
+class ElectSheriffCommand implements GameCommand {
+  const ElectSheriffCommand(this.sheriffIndex);
+
+  final int sheriffIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.customData[SheriffElectionScreen] = sheriffIndex;
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    gameData.customData[SheriffElectionScreen] = null;
   }
 }

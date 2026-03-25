@@ -1,6 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
@@ -14,7 +17,10 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class BigBadWolfRole extends Role {
-  BigBadWolfRole._(RoleConfiguration config);
+  BigBadWolfRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<BigBadWolfRole> type = RoleType<BigBadWolfRole>();
   @override
   RoleType<BigBadWolfRole> get objectType => type;
@@ -24,7 +30,7 @@ class BigBadWolfRole extends Role {
       type,
       RegisterRoleInformation(
         constructor: BigBadWolfRole._,
-        name: (context) => AppLocalizations.of(context).role_bigBadWolf_name,
+        name: _name,
         description: (context) =>
             AppLocalizations.of(context).role_bigBadWolf_description,
         initialTeam: WerewolvesTeam.type,
@@ -40,11 +46,32 @@ class BigBadWolfRole extends Role {
     );
   }
 
-  @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  static String _name(BuildContext context) =>
+      AppLocalizations.of(context).role_bigBadWolf_name;
 
-    gameState.nightActionManager.registerAction(
+  @override
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
+
+    gameState.apply(RegisterBigBadWolfNightActionCommand(playerIndex));
+  }
+}
+
+bool werewolfHasDied(GameState gameState) => gameState.players.indexed
+    .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
+    .map((entry) => entry.$1)
+    .toISet()
+    .intersection(gameState.knownDeadPlayerIndices)
+    .isNotEmpty;
+
+class RegisterBigBadWolfNightActionCommand implements GameCommand {
+  const RegisterBigBadWolfNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
       BigBadWolfRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
@@ -54,6 +81,15 @@ class BigBadWolfRole extends Role {
       before: IList([WitchRole.type]),
       players: {playerIndex},
     );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement
+    throw UnimplementedError();
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -68,16 +104,18 @@ class BigBadWolfRole extends Role {
         );
 
         return ActionScreen(
-          appBarTitle: Text(name(context)),
+          appBarTitle: Text(BigBadWolfRole._name(context)),
           instruction: Text(
             localizations.role_bigBadWolf_nightAction_instruction,
           ),
           actionIdentifier: BigBadWolfRole.type,
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
-            gameState.markPlayerDead(
-              selectedPlayers.single,
-              WerewolvesDeathReason(ISet({playerIndex})),
+            gameState.apply(
+              MarkDeadCommand.single(
+                player: selectedPlayers.single,
+                deathReason: WerewolvesDeathReason(ISet({playerIndex})),
+              ),
             );
             onComplete();
           },
@@ -86,10 +124,3 @@ class BigBadWolfRole extends Role {
         );
       };
 }
-
-bool werewolfHasDied(GameState gameState) => gameState.players.indexed
-    .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
-    .map((entry) => entry.$1)
-    .toISet()
-    .intersection(gameState.knownDeadPlayerIndices)
-    .isNotEmpty;

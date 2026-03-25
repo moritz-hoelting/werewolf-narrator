@@ -1,5 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
@@ -9,12 +10,10 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 
 class AngelRole extends Role implements WinCondition {
-  AngelRole._(RoleConfiguration config);
+  AngelRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<AngelRole> type = RoleType<AngelRole>();
   @override
   RoleType<AngelRole> get objectType => type;
-
-  int? playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<AngelRole>(
@@ -39,11 +38,10 @@ class AngelRole extends Role implements WinCondition {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    this.playerIndex = playerIndex;
-    gameState.winConditions.add(this);
+    gameState.apply(RegisterWinConditionCommand(this));
   }
 
   static String _name(BuildContext context) =>
@@ -51,13 +49,12 @@ class AngelRole extends Role implements WinCondition {
 
   @override
   bool hasWon(GameState gameState) =>
-      playerIndex != null &&
-      gameState.players[playerIndex!].deathInformation?.day == 0;
+      gameState.players[playerIndex].deathInformation?.day == 0;
 
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context).role_angel_winHeadline;
 
   @override
-  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex!});
+  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex});
 }

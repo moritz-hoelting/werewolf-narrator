@@ -2,6 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -12,18 +15,20 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class CupidRole extends Role {
-  CupidRole._(RoleConfiguration config);
+  CupidRole._({required RoleConfiguration config, required super.playerIndex});
 
   static final RoleType<CupidRole> type = RoleType<CupidRole>();
   @override
   RoleType<CupidRole> get objectType => type;
+
+  Lovers? lovers;
 
   static void registerRole() {
     RoleManager.registerRole<CupidRole>(
       type,
       RegisterRoleInformation(
         constructor: CupidRole._,
-        name: (context) => AppLocalizations.of(context).role_cupid_name,
+        name: _name,
         description: (context) =>
             AppLocalizations.of(context).role_cupid_description,
         initialTeam: VillageTeam.type,
@@ -39,68 +44,46 @@ class CupidRole extends Role {
     );
   }
 
+  static String _name(BuildContext context) =>
+      AppLocalizations.of(context).role_cupid_name;
+
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
-
-    gameState.nightActionManager.registerAction(
-      CupidRole.type,
-      (gameState, onComplete) {
-        return nightActionScreen(playerIndex, onComplete);
-      },
-      conditioned: (gameState) =>
-          gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
-          gameState.playerAliveUntilDawn(playerIndex),
-      players: {playerIndex},
-    );
-  }
-
-  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) {
-    return (context) => CupidScreen(
-      onComplete: onComplete,
-      cupidIndex: playerIndex,
-      cupidRole: this,
-    );
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
+    gameState.apply(RegisterCupidNightActionCommand(playerIndex));
   }
 }
 
-class CupidScreen extends StatefulWidget {
+class CupidScreen extends StatelessWidget {
   const CupidScreen({
     super.key,
     required this.onComplete,
-    required this.cupidRole,
     required this.cupidIndex,
+    required this.cupidRole,
   });
 
-  final CupidRole cupidRole;
   final int cupidIndex;
+  final CupidRole cupidRole;
   final VoidCallback onComplete;
 
   @override
-  State<CupidScreen> createState() => _CupidScreenState();
-}
-
-class _CupidScreenState extends State<CupidScreen> {
-  Lovers? lovers;
-
-  @override
   Widget build(BuildContext context) {
-    if (lovers == null) {
+    if (cupidRole.lovers == null) {
       return ActionScreen(
-        appBarTitle: Text(widget.cupidRole.name(context)),
+        appBarTitle: Text(CupidRole._name(context)),
         instruction: Text(
           AppLocalizations.of(context).role_cupid_nightAction_instruction,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         actionIdentifier: CupidRole.type,
-        currentActorIndices: ISet({widget.cupidIndex}),
+        currentActorIndices: ISet({cupidIndex}),
         selectionCount: 2,
         onConfirm: onAssignLovers,
       );
     } else {
       return WakeLoversScreen(
-        onPhaseComplete: widget.onComplete,
-        lovers: lovers!.lovers,
+        onPhaseComplete: onComplete,
+        lovers: cupidRole.lovers!.lovers,
       );
     }
   }
@@ -110,13 +93,9 @@ class _CupidScreenState extends State<CupidScreen> {
       selectedIndices.length == 2,
       'Cupid must select exactly two players as lovers.',
     );
-    final selectedList = selectedIndices.toList()..sort();
-    final lovers_ = Lovers(selectedList.toISet());
-    lovers = lovers_;
-    gameState.winConditions.add(lovers_);
-    lovers_.initialize(gameState);
-
-    gameState.notifyUpdate();
+    gameState.apply(
+      CupidAssignLoversCommand(cupidIndex: cupidIndex, lovers: selectedIndices),
+    );
   }
 }
 
@@ -177,5 +156,70 @@ class WakeLoversScreen extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class RegisterCupidNightActionCommand implements GameCommand {
+  final int playerIndex;
+
+  const RegisterCupidNightActionCommand(this.playerIndex);
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      CupidRole.type,
+      (gameState, onComplete) {
+        return nightActionScreen(gameState, onComplete);
+      },
+      conditioned: (gameState) =>
+          gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
+          gameState.playerAliveUntilDawn(playerIndex),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+
+  WidgetBuilder nightActionScreen(
+    GameState gameState,
+    VoidCallback onComplete,
+  ) {
+    return (context) => CupidScreen(
+      onComplete: onComplete,
+      cupidIndex: playerIndex,
+      cupidRole: gameState.players[playerIndex].role as CupidRole,
+    );
+  }
+}
+
+class CupidAssignLoversCommand implements GameCommand {
+  CupidAssignLoversCommand({required this.cupidIndex, required this.lovers});
+
+  final int cupidIndex;
+  final ISet<int> lovers;
+
+  @override
+  void apply(GameData gameData) {
+    final lovers_ = Lovers(lovers);
+    final cupidRole = gameData.players[cupidIndex].role as CupidRole;
+    cupidRole.lovers = lovers_;
+    gameData.state.apply(RegisterWinConditionCommand(lovers_));
+    lovers_.initialize(gameData.state);
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

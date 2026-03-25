@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
+    show SheriffElectionScreen;
+import 'package:werewolf_narrator/game/misc/phases/voting.dart'
+    show VillageVoteScreen;
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathInformation;
 import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
@@ -12,6 +16,8 @@ import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/team.dart' show Team;
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
+    show DynamicActionEntry;
 import 'package:werewolf_narrator/game/util/hooks.dart';
 
 class GameState extends ChangeNotifier {
@@ -42,6 +48,7 @@ class GameState extends ChangeNotifier {
   }
 
   bool get canUndo => _appliedCommandStack.lastOrNull?.canBeUndone ?? false;
+  bool get canRedo => _redoCommandStack.isNotEmpty;
 
   GameState({
     required List<String> playerNames,
@@ -53,7 +60,21 @@ class GameState extends ChangeNotifier {
       playerNames: playerNames,
       roleConfigurations: roleConfigurations,
     );
+
+    VillageVoteScreen.registerAction(this);
+    SheriffElectionScreen.registerAction(this);
+    for (final team in teams.values) {
+      team.initialize(this);
+    }
+    for (final role in roleConfigurations.keys) {
+      final roleInitializer = RoleManager.getInitializer(role);
+      if (roleInitializer != null) {
+        roleInitializer(this);
+      }
+    }
   }
+
+  IMap<dynamic, dynamic> get customData => _data.customData.lock;
 
   /// The current day counter.
   int get dayCounter => _data.dayCounter;
@@ -297,4 +318,10 @@ class GameState extends ChangeNotifier {
         (element) => (index: element.index, player: PlayerView(element.player)),
       )
       .toISet();
+
+  IList<DynamicActionEntry> get nightActions =>
+      _data.nightActionManager.orderedActions;
+
+  IList<DynamicActionEntry> get dayActions =>
+      _data.dayActionManager.orderedActions;
 }

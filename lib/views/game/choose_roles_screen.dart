@@ -171,7 +171,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
           ),
         );
 
-    for (final role in modifiedRoles.keys) {
+    for (final role in _selectedRoles.keys) {
       final adjuster = role.information.roleCountAdjuster;
       if (adjuster != null) {
         adjuster(modifiedRoles, widget.playerCount);

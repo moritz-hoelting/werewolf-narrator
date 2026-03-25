@@ -1,5 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
 import 'package:werewolf_narrator/game/model/role_config.dart';
@@ -14,7 +16,10 @@ import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
 class BearTamerRole extends Role {
-  BearTamerRole._(RoleConfiguration config);
+  BearTamerRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<BearTamerRole> type = RoleType<BearTamerRole>();
   @override
   RoleType<BearTamerRole> get objectType => type;
@@ -41,25 +46,10 @@ class BearTamerRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    // TODO: change to dawn message
-    gameState.dayActionManager.registerAction(
-      BearTamerRole,
-      (gameState, onComplete) =>
-          (context) =>
-              BearGruntScreen(playerIndex: playerIndex, onComplete: onComplete),
-      conditioned: (gameState) => gameState
-          .getAliveNeighbors(playerIndex)
-          .toISet()
-          .union(ISet({playerIndex}))
-          .intersection(WerewolvesTeam.werewolfPlayerIndices(gameState))
-          .isNotEmpty,
-      players: {playerIndex},
-      beforeAll: true,
-      before: IList([VillageVoteScreen]),
-    );
+    gameState.apply(RegisterBearTamerDawnMessageCommand(playerIndex));
   }
 }
 
@@ -99,5 +89,40 @@ class BearGruntScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomContinueButton(onPressed: onComplete),
     );
+  }
+}
+
+class RegisterBearTamerDawnMessageCommand implements GameCommand {
+  const RegisterBearTamerDawnMessageCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    // TODO: change to dawn message
+    gameData.dayActionManager.registerAction(
+      BearTamerRole,
+      (gameState, onComplete) =>
+          (context) =>
+              BearGruntScreen(playerIndex: playerIndex, onComplete: onComplete),
+      conditioned: (gameState) => gameState
+          .getAliveNeighbors(playerIndex)
+          .toISet()
+          .union(ISet({playerIndex}))
+          .intersection(WerewolvesTeam.werewolfPlayerIndices(gameState))
+          .isNotEmpty,
+      players: {playerIndex},
+      beforeAll: true,
+      before: IList([VillageVoteScreen]),
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

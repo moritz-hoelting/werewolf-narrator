@@ -6,7 +6,10 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/util/iterable.dart';
 
 class VillagerRole extends Role {
-  VillagerRole._(RoleConfiguration config);
+  VillagerRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<VillagerRole> type = RoleType<VillagerRole>();
   @override
   RoleType<VillagerRole> get objectType => type;

@@ -1,6 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -13,7 +15,7 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class FoxRole extends Role {
-  FoxRole._(RoleConfiguration config)
+  FoxRole._({required RoleConfiguration config, required super.playerIndex})
     : loosePowersOnWrongGuess = config[losePowersOnWrongGuessOptionId];
   static final RoleType<FoxRole> type = RoleType<FoxRole>();
   @override
@@ -59,22 +61,10 @@ class FoxRole extends Role {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    gameState.nightActionManager.registerAction(
-      FoxRole.type,
-      (gameState, onComplete) =>
-          (context) => FoxScreen(
-            foxRole: this,
-            playerIndex: playerIndex,
-            onPhaseComplete: onComplete,
-          ),
-      conditioned: (gameState) =>
-          !hasLostPowers && gameState.playerAliveUntilDawn(playerIndex),
-      after: IList([CupidRole.type]),
-      players: {playerIndex},
-    );
+    gameState.apply(RegisterFoxNightActionCommand(playerIndex));
   }
 }
 
@@ -136,7 +126,9 @@ class _FoxScreenState extends State<FoxScreen> {
                 ? () {
                     if (widget.foxRole.loosePowersOnWrongGuess &&
                         !_foundWerewolf!) {
-                      widget.foxRole.hasLostPowers = true;
+                      gameState.apply(
+                        FoxLoosePowersCommand(widget.playerIndex),
+                      );
                     }
                     widget.onPhaseComplete();
                   }
@@ -246,4 +238,59 @@ bool _checkForWerewolves(GameState gameState, int playerIndex) {
     (index) =>
         gameState.players[index].role?.team(gameState) == WerewolvesTeam.type,
   );
+}
+
+class RegisterFoxNightActionCommand implements GameCommand {
+  const RegisterFoxNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      FoxRole.type,
+      (gameState, onComplete) =>
+          (context) => FoxScreen(
+            foxRole: gameState.players[playerIndex].role as FoxRole,
+            playerIndex: playerIndex,
+            onPhaseComplete: onComplete,
+          ),
+      conditioned: (gameState) =>
+          !(gameState.players[playerIndex].role as FoxRole).hasLostPowers &&
+          gameState.playerAliveUntilDawn(playerIndex),
+      after: IList([CupidRole.type]),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  // TODO: implement canBeUndone
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+}
+
+class FoxLoosePowersCommand implements GameCommand {
+  const FoxLoosePowersCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    final foxRole = gameData.state.players[playerIndex].role as FoxRole;
+    foxRole.hasLostPowers = true;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
 }

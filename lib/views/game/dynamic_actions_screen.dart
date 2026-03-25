@@ -9,12 +9,12 @@ import 'package:werewolf_narrator/game/util/hooks.dart' show ActionHook;
 class DynamicActionsScreen extends StatefulWidget {
   const DynamicActionsScreen({
     super.key,
-    required this.actionManager,
+    required this.orderedActions,
     required this.actionHooks,
     required this.onAllActionsComplete,
   });
 
-  final DynamicActionManager actionManager;
+  final IList<DynamicActionEntry> orderedActions;
   final VoidCallback onAllActionsComplete;
   final IList<ActionHook> actionHooks;
 
@@ -31,7 +31,7 @@ class _DynamicActionsScreenState extends State<DynamicActionsScreen> {
     super.initState();
 
     final gameState = Provider.of<GameState>(context, listen: false);
-    _actions = widget.actionManager.orderedActions.where((entry) {
+    _actions = widget.orderedActions.where((entry) {
       final players = entry.players.lock;
       return widget.actionHooks.none(
         (hook) => hook(gameState, entry.identifier, players),

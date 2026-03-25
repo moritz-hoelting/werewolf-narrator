@@ -31,4 +31,9 @@ class CompositeGameCommand implements GameCommand {
 
   @override
   bool get canBeUndone => _commands.all((command) => command.canBeUndone);
+
+  @override
+  String toString() {
+    return "${super.toString()}$_commands";
+  }
 }

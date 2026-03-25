@@ -1,4 +1,7 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:werewolf_narrator/game/commands/set_players_role.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
@@ -8,7 +11,6 @@ import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 
@@ -29,14 +31,18 @@ void main() {
       },
     );
 
-    state.setPlayersRole(SeerRole.type, [0]);
-    state.setPlayersRole(HunterRole.type, [1]);
-    state.setPlayersRole(CupidRole.type, [2]);
-    state.setPlayersRole(WerewolfRole.type, [3]);
+    state.apply(
+      CompositeGameCommand(
+        [
+          SetPlayersRoleCommand(SeerRole.type, ISet({0})),
+          SetPlayersRoleCommand(HunterRole.type, ISet({1})),
+          SetPlayersRoleCommand(CupidRole.type, ISet({2})),
+          SetPlayersRoleCommand(WerewolfRole.type, ISet({3})),
+        ].lock,
+      ),
+    );
 
-    DynamicActionManager nightActionManager = state.nightActionManager;
-
-    final List<Object> actions = nightActionManager.orderedActions
+    final List<Object> actions = state.nightActions
         .map((action) => action.identifier)
         .toList();
 

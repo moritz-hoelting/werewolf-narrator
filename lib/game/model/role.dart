@@ -134,10 +134,14 @@ abstract class RoleManager {
   }
 
   /// Instantiates a new role of the given type.
-  static Role instantiateRole(RoleType role, RoleConfiguration config) {
+  static Role instantiateRole(
+    int playerIndex,
+    RoleType role,
+    RoleConfiguration config,
+  ) {
     final info = _roleInformation[role];
     if (info != null) {
-      return info.constructor(config);
+      return info.constructor(playerIndex: playerIndex, config: config);
     } else {
       throw Exception('No constructor registered for role type $role');
     }
@@ -164,7 +168,11 @@ abstract class RoleManager {
 
 class RegisterRoleInformation<T extends Role> {
   /// The constructor function for this role.
-  final Role Function(RoleConfiguration config) constructor;
+  final Role Function({
+    required int playerIndex,
+    required RoleConfiguration config,
+  })
+  constructor;
 
   /// The name of this role.
   final String Function(BuildContext context) name;

@@ -1,6 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
@@ -16,7 +19,7 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart'
     show PlayerList;
 
 class PiperRole extends Role implements WinCondition {
-  PiperRole._(RoleConfiguration config)
+  PiperRole._({required RoleConfiguration config, required super.playerIndex})
     : charmAmountPerNight = config[charmAmountPerNightOptionId];
   static final RoleType<PiperRole> type = RoleType<PiperRole>();
   @override
@@ -25,7 +28,6 @@ class PiperRole extends Role implements WinCondition {
 
   final int charmAmountPerNight;
 
-  int? playerIndex;
   Set<int> charmedPlayers = {};
 
   static void registerRole() {
@@ -63,23 +65,20 @@ class PiperRole extends Role implements WinCondition {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    this.playerIndex = playerIndex;
-    gameState.winConditions.add(this);
-
-    gameState.nightActionManager.registerAction(
-      PiperRole,
-      (gameState, onComplete) =>
-          (context) => PiperScreen(
-            playerIndex: playerIndex,
-            onComplete: onComplete,
-            charmedPlayers: charmedPlayers,
+    gameState.apply(
+      CompositeGameCommand(
+        [
+          RegisterWinConditionCommand(this),
+          RegisterPiperNightActionCommand(
             charmAmountPerNight: charmAmountPerNight,
+            charmedPlayers: charmedPlayers,
+            playerIndex: playerIndex,
           ),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      players: {playerIndex},
+        ].lock,
+      ),
     );
   }
 
@@ -87,18 +86,16 @@ class PiperRole extends Role implements WinCondition {
       AppLocalizations.of(context).role_piper_name;
 
   @override
-  bool hasWon(GameState gameState) =>
-      playerIndex != null &&
-      gameState.alivePlayerIndices
-          .difference(charmedPlayers)
-          .singleElementEquals(playerIndex!);
+  bool hasWon(GameState gameState) => gameState.alivePlayerIndices
+      .difference(charmedPlayers)
+      .singleElementEquals(playerIndex);
 
   @override
   String winningHeadline(BuildContext context) =>
       AppLocalizations.of(context).role_piper_winHeadline;
 
   @override
-  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex!});
+  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex});
 }
 
 class PiperScreen extends StatefulWidget {
@@ -154,7 +151,12 @@ class _PiperScreenState extends State<PiperScreen> {
               ),
             ),
             onConfirm: (selectedPlayers, gameState) {
-              widget.charmedPlayers.addAll(selectedPlayers);
+              gameState.apply(
+                PiperCharmPlayersCommand(
+                  playerIndex: widget.playerIndex,
+                  charmedPlayers: selectedPlayers,
+                ),
+              );
               setState(() {
                 hasCharmedPlayers = true;
               });
@@ -192,5 +194,66 @@ class _PiperScreenState extends State<PiperScreen> {
               onPressed: widget.onComplete,
             ),
           );
+  }
+}
+
+class RegisterPiperNightActionCommand implements GameCommand {
+  const RegisterPiperNightActionCommand({
+    required this.playerIndex,
+    required this.charmedPlayers,
+    required this.charmAmountPerNight,
+  });
+
+  final int playerIndex;
+  final Set<int> charmedPlayers;
+  final int charmAmountPerNight;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      PiperRole,
+      (gameState, onComplete) =>
+          (context) => PiperScreen(
+            playerIndex: playerIndex,
+            onComplete: onComplete,
+            charmedPlayers: charmedPlayers,
+            charmAmountPerNight: charmAmountPerNight,
+          ),
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    throw UnimplementedError();
+  }
+}
+
+class PiperCharmPlayersCommand implements GameCommand {
+  const PiperCharmPlayersCommand({
+    required this.playerIndex,
+    required this.charmedPlayers,
+  });
+
+  final int playerIndex;
+  final ISet<int> charmedPlayers;
+
+  @override
+  void apply(GameData gameData) {
+    final role = gameData.players[playerIndex].role as PiperRole;
+    role.charmedPlayers.addAll(charmedPlayers);
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }

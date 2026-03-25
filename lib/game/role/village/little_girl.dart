@@ -5,7 +5,10 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
 class LittleGirlRole extends Role {
-  LittleGirlRole._(RoleConfiguration config);
+  LittleGirlRole._({
+    required RoleConfiguration config,
+    required super.playerIndex,
+  });
   static final RoleType<LittleGirlRole> type = RoleType<LittleGirlRole>();
   @override
   RoleType<LittleGirlRole> get objectType => type;

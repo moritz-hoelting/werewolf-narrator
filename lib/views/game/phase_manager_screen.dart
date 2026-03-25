@@ -1,4 +1,3 @@
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GamePhase;
@@ -30,19 +29,13 @@ class GamePhaseScreen extends StatelessWidget {
       case GamePhase.checkRoles:
         return CheckRolesScreen(
           key: ValueKey(phase),
-          onPhaseComplete: () {
-            Provider.of<GameState>(
-              context,
-              listen: false,
-            ).nightActionManager.orderActions();
-            onPhaseComplete();
-          },
+          onPhaseComplete: onPhaseComplete,
         );
       case GamePhase.nightActions:
         final gameState = Provider.of<GameState>(context, listen: false);
         return DynamicActionsScreen(
-          actionManager: gameState.nightActionManager,
-          actionHooks: gameState.nightActionHooks.lock,
+          orderedActions: gameState.nightActions,
+          actionHooks: gameState.nightActionHooks,
           onAllActionsComplete: onPhaseComplete,
         );
       case GamePhase.dawn:
@@ -50,8 +43,8 @@ class GamePhaseScreen extends StatelessWidget {
       case GamePhase.dayActions:
         final gameState = Provider.of<GameState>(context, listen: false);
         return DynamicActionsScreen(
-          actionManager: gameState.dayActionManager,
-          actionHooks: gameState.dayActionHooks.lock,
+          orderedActions: gameState.dayActions,
+          actionHooks: gameState.dayActionHooks,
           onAllActionsComplete: onPhaseComplete,
         );
       case GamePhase.gameOver:

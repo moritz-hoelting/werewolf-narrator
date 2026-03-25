@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
@@ -12,12 +13,10 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 class HunterRole extends Role implements DeathReason {
-  HunterRole._(RoleConfiguration config);
+  HunterRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<HunterRole> type = RoleType<HunterRole>();
   @override
   RoleType<HunterRole> get objectType => type;
-
-  int? playerIndex;
 
   static void registerRole() {
     RoleManager.registerRole<HunterRole>(
@@ -41,40 +40,28 @@ class HunterRole extends Role implements DeathReason {
   }
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
-
-    this.playerIndex = playerIndex;
-  }
-
-  @override
   String deathReasonDescription(BuildContext context) =>
       AppLocalizations.of(context).role_hunter_deathReason;
 
   @override
-  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 
   @override
   bool hasDeathScreen(GameState gameState) => true;
   @override
   WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) {
-    return (context) => HunterScreen(
-      playerIndex: playerIndex,
-      hunterRole: this,
-      onPhaseComplete: onComplete,
-    );
+    return (context) =>
+        HunterScreen(playerIndex: playerIndex, onPhaseComplete: onComplete);
   }
 }
 
 class HunterScreen extends StatelessWidget {
   final int playerIndex;
-  final HunterRole hunterRole;
   final VoidCallback onPhaseComplete;
 
   const HunterScreen({
     super.key,
     required this.playerIndex,
-    required this.hunterRole,
     required this.onPhaseComplete,
   });
 
@@ -95,7 +82,12 @@ class HunterScreen extends StatelessWidget {
           disabledPlayerIndices: ISet({playerIndex}),
           selectionCount: 1,
           onConfirm: (selectedPlayers, gameState) {
-            gameState.markPlayerDead(selectedPlayers.single, hunterRole);
+            gameState.apply(
+              MarkDeadCommand.single(
+                player: selectedPlayers.single,
+                deathReason: gameState.players[playerIndex].role as HunterRole,
+              ),
+            );
             onPhaseComplete();
           },
         );

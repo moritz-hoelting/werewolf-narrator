@@ -1,6 +1,10 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/mark_dead.dart';
+import 'package:werewolf_narrator/game/commands/mark_revived.dart';
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -17,7 +21,7 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class WitchRole extends Role implements DeathReason {
-  WitchRole._(RoleConfiguration config)
+  WitchRole._({required RoleConfiguration config, required super.playerIndex})
     : healPotions = config[healPotionOptionId],
       killPotions = config[killPotionOptionId];
   static final RoleType<WitchRole> type = RoleType<WitchRole>();
@@ -26,8 +30,6 @@ class WitchRole extends Role implements DeathReason {
 
   static const String healPotionOptionId = 'heal';
   static const String killPotionOptionId = 'kill';
-
-  int? playerIndex;
 
   int healPotions;
   int killPotions;
@@ -78,18 +80,10 @@ class WitchRole extends Role implements DeathReason {
   ]);
 
   @override
-  void onAssign(GameState gameState, int playerIndex) {
-    super.onAssign(gameState, playerIndex);
+  void onAssign(GameState gameState) {
+    super.onAssign(gameState);
 
-    this.playerIndex = playerIndex;
-
-    gameState.nightActionManager.registerAction(
-      WitchRole.type,
-      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
-      after: IList([WerewolvesTeam.type, CupidRole.type]),
-      players: {playerIndex},
-    );
+    gameState.apply(RegisterWitchNightActionCommand(playerIndex));
   }
 
   @override
@@ -97,35 +91,21 @@ class WitchRole extends Role implements DeathReason {
       AppLocalizations.of(context).role_witch_deathReason;
 
   @override
-  ISet<int> get responsiblePlayerIndices => ISet({playerIndex!});
-
-  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
-      (context) => WitchScreen(
-        witchRole: this,
-        playerIndex: playerIndex,
-        onPhaseComplete: onComplete,
-        useUpPotions: ({heal = 0, kill = 0}) {
-          healPotions -= heal;
-          killPotions -= kill;
-          if (heal > 0 || kill > 0) {
-            Provider.of<GameState>(context, listen: false).notifyUpdate();
-          }
-        },
-      );
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 }
 
 class WitchScreen extends StatefulWidget {
-  final WitchRole witchRole;
+  final int killPotions;
+  final int healPotions;
   final int playerIndex;
   final VoidCallback onPhaseComplete;
-  final void Function({int heal, int kill}) useUpPotions;
 
   const WitchScreen({
     super.key,
-    required this.witchRole,
+    required this.killPotions,
+    required this.healPotions,
     required this.playerIndex,
     required this.onPhaseComplete,
-    required this.useUpPotions,
   });
 
   @override
@@ -136,7 +116,7 @@ class _WitchScreenState extends State<WitchScreen> {
   final Set<int> _selectedKillPlayers = {};
   final Set<int> _selectedHealPlayers = {};
 
-  late bool _killModeActive = widget.witchRole.healPotions == 0;
+  late bool _killModeActive = widget.healPotions == 0;
 
   @override
   Widget build(BuildContext context) {
@@ -147,11 +127,11 @@ class _WitchScreenState extends State<WitchScreen> {
         title: Text(localizations.role_witch_name),
         automaticallyImplyLeading: false,
       ),
-      body: widget.witchRole.healPotions > 0 || widget.witchRole.killPotions > 0
+      body: widget.healPotions > 0 || widget.killPotions > 0
           ? HasPotionsBody(
               playerIndex: widget.playerIndex,
-              healPotions: widget.witchRole.healPotions,
-              killPotions: widget.witchRole.killPotions,
+              healPotions: widget.healPotions,
+              killPotions: widget.killPotions,
               killModeActive: _killModeActive,
               enableKillMode: () {
                 setState(() {
@@ -181,19 +161,12 @@ class _WitchScreenState extends State<WitchScreen> {
             context,
             listen: false,
           );
-          if (_selectedHealPlayers.isNotEmpty) {
-            for (final healIndex in _selectedHealPlayers) {
-              gameState.markPlayerRevived(healIndex);
-            }
-          }
-          if (_selectedKillPlayers.isNotEmpty) {
-            for (final killIndex in _selectedKillPlayers) {
-              gameState.markPlayerDead(killIndex, widget.witchRole);
-            }
-          }
-          widget.useUpPotions(
-            heal: _selectedHealPlayers.length,
-            kill: _selectedKillPlayers.length,
+          gameState.apply(
+            WitchUsePotionsCommand(
+              playerIndex: widget.playerIndex,
+              healPlayers: _selectedHealPlayers.lock,
+              killPlayers: _selectedKillPlayers.lock,
+            ),
           );
           widget.onPhaseComplete();
         },
@@ -213,19 +186,11 @@ class _WitchScreenState extends State<WitchScreen> {
             : (killedByWerewolves));
   }
 
-  VoidCallback? onTapKill(GameState gameState, int index) => handleOnTap(
-    gameState,
-    index,
-    _selectedKillPlayers,
-    widget.witchRole.killPotions,
-  );
+  VoidCallback? onTapKill(GameState gameState, int index) =>
+      handleOnTap(gameState, index, _selectedKillPlayers, widget.killPotions);
 
-  VoidCallback? onTapHeal(GameState gameState, int index) => handleOnTap(
-    gameState,
-    index,
-    _selectedHealPlayers,
-    widget.witchRole.healPotions,
-  );
+  VoidCallback? onTapHeal(GameState gameState, int index) =>
+      handleOnTap(gameState, index, _selectedHealPlayers, widget.healPotions);
   VoidCallback? handleOnTap(
     GameState gameState,
     int index,
@@ -363,5 +328,81 @@ class HasPotionsBody extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class RegisterWitchNightActionCommand implements GameCommand {
+  const RegisterWitchNightActionCommand(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  void apply(GameData gameData) {
+    gameData.nightActionManager.registerAction(
+      WitchRole.type,
+      (gameState, onComplete) {
+        final witch = gameState.players[playerIndex].role as WitchRole;
+
+        return (context) => WitchScreen(
+          healPotions: witch.healPotions,
+          killPotions: witch.killPotions,
+          playerIndex: playerIndex,
+          onPhaseComplete: onComplete,
+        );
+      },
+      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      after: IList([WerewolvesTeam.type, CupidRole.type]),
+      players: {playerIndex},
+    );
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
+  }
+}
+
+class WitchUsePotionsCommand implements GameCommand {
+  WitchUsePotionsCommand({
+    required this.playerIndex,
+    required this.healPlayers,
+    required this.killPlayers,
+  });
+
+  final int playerIndex;
+  final ISet<int> healPlayers;
+  final ISet<int> killPlayers;
+
+  @override
+  void apply(GameData gameData) {
+    final witchRole = gameData.players[playerIndex].role as WitchRole;
+
+    if (healPlayers.isNotEmpty || killPlayers.isNotEmpty) {
+      gameData.state.apply(
+        CompositeGameCommand(
+          <GameCommand>[
+            if (healPlayers.isNotEmpty) MarkRevivedCommand(healPlayers),
+            if (killPlayers.isNotEmpty)
+              MarkDeadCommand(players: killPlayers, deathReason: witchRole),
+          ].lock,
+        ),
+      );
+    }
+
+    witchRole.healPotions -= healPlayers.length;
+    witchRole.killPotions -= killPlayers.length;
+  }
+
+  @override
+  bool get canBeUndone => false;
+
+  @override
+  void undo(GameData gameData) {
+    // TODO: implement undo
+    throw UnimplementedError();
   }
 }
