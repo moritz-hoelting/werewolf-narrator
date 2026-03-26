@@ -23,27 +23,45 @@ import 'package:werewolf_narrator/game/util/hooks.dart';
 class GameState extends ChangeNotifier {
   late final GameData _data;
 
-  final List<GameCommand> _appliedCommandStack = [];
+  final List<_CommandStackEntry> _appliedCommandStack = [];
   final List<GameCommand> _redoCommandStack = [];
 
-  void apply(GameCommand command) {
+  final List<_AppliedCommandFrame> _frameStack = [];
+
+  void _apply(GameCommand command) {
+    final previousStack = _frameStack.lastOrNull;
+    if (previousStack != null) {
+      previousStack.add(command);
+    }
+    _frameStack.add(_AppliedCommandFrame());
     command.apply(_data);
-    _appliedCommandStack.add(command);
+    final currentStackEntry = _frameStack.removeLast();
+    currentStackEntry.removeEmptyFrames();
+    if (_frameStack.isEmpty) {
+      _appliedCommandStack.add(
+        _CommandStackEntry(command: command, frame: currentStackEntry),
+      );
+    } else {
+      _frameStack.last.addFrame(currentStackEntry);
+    }
+  }
+
+  void apply(GameCommand command) {
+    _apply(command);
     _redoCommandStack.clear();
     notifyListeners();
   }
 
   void undo() {
-    final GameCommand undoCommand = _appliedCommandStack.removeLast();
-    undoCommand.undo(_data);
-    _redoCommandStack.add(undoCommand);
+    final _CommandStackEntry undoEntry = _appliedCommandStack.removeLast();
+    undoEntry.undo(_data);
+    _redoCommandStack.add(undoEntry.command);
     notifyListeners();
   }
 
   void redo() {
     final GameCommand redoCommand = _redoCommandStack.removeLast();
-    redoCommand.apply(_data);
-    _appliedCommandStack.add(redoCommand);
+    _apply(redoCommand);
     notifyListeners();
   }
 
@@ -324,4 +342,81 @@ class GameState extends ChangeNotifier {
 
   IList<DynamicActionEntry> get dayActions =>
       _data.dayActionManager.orderedActions;
+}
+
+class _CommandStackEntry {
+  const _CommandStackEntry({required this.command, required this.frame});
+
+  final GameCommand command;
+  final _AppliedCommandFrame frame;
+
+  void undo(GameData gameData) {
+    frame.undoAll(gameData);
+    command.undo(gameData);
+  }
+
+  bool get canBeUndone => command.canBeUndone && frame.canUndoAll;
+
+  @override
+  String toString() {
+    return "CommandStackEntry {command: $command, frame: $frame}";
+  }
+}
+
+class _AppliedCommandFrame {
+  _AppliedCommandFrame();
+
+  final List<Either<GameCommand, _AppliedCommandFrame>> entries = [];
+
+  void add(GameCommand command) {
+    entries.add(Left(command));
+  }
+
+  void addFrame(_AppliedCommandFrame frame) {
+    entries.add(Right(frame));
+  }
+
+  void undoAll(GameData gameData) {
+    for (final entry in entries.reversed) {
+      entry.match(
+        (cmd) => cmd.undo(gameData),
+        (frame) => frame.undoAll(gameData),
+      );
+    }
+  }
+
+  void removeEmptyFrames() {
+    for (final entry in entries) {
+      entry.match((_) {}, (frame) => frame.removeEmptyFrames());
+    }
+    entries.removeWhere(
+      (entry) => entry
+          .getRight()
+          .map((frame) => frame.entries.isEmpty)
+          .getOrElse(() => false),
+    );
+  }
+
+  bool get canUndoAll => entries.every(
+    (entry) =>
+        entry.match((cmd) => cmd.canBeUndone, (frame) => frame.canUndoAll),
+  );
+
+  @override
+  String toString() {
+    return "AppliedCommandFrame[${_toStringInner()}]";
+  }
+
+  String _toStringInner() {
+    return entries.map(_toStringInnerEither).join(', ');
+  }
+
+  static String _toStringInnerEither(
+    Either<GameCommand, _AppliedCommandFrame> entry,
+  ) {
+    return entry.match(
+      (cmd) => cmd.toString(),
+      (frame) => frame._toStringInner(),
+    );
+  }
 }
