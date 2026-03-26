@@ -1,11 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:werewolf_narrator/game/commands/fill_villager_roles.dart'
+    show FillVillagerRolesCommand;
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
-import 'package:werewolf_narrator/game/model/role.dart'
-    show RoleType, RoleManager;
+import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
 import 'package:werewolf_narrator/game/model/team.dart'
@@ -13,8 +14,6 @@ import 'package:werewolf_narrator/game/model/team.dart'
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/role/role.dart' show Role;
-import 'package:werewolf_narrator/game/role/village/villager.dart'
-    show VillagerRole;
 import 'package:werewolf_narrator/game/team/team.dart' show Team;
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
     show DynamicActionManager;
@@ -310,30 +309,6 @@ class GameData {
   getAlivePlayersOfTeamType<T extends Team>() =>
       getAlivePlayersOfTeam(TeamType<T>());
 
-  /// Assigns the specified role to the players at the given indices.
-  void setPlayersRole(RoleType role, ISet<int> playerIndices) {
-    for (final index in playerIndices) {
-      final Role playerRole = RoleManager.instantiateRole(
-        index,
-        role,
-        roleConfigurations[role]?.config ?? {},
-      );
-      players[index].role = playerRole;
-      playerRole.onAssign(state);
-    }
-  }
-
-  /// Fills all unassigned players with the Villager role.
-  void fillVillagerRoles() {
-    final unassignedPlayers = players
-        .asMap()
-        .entries
-        .where((entry) => entry.value.role == null)
-        .map((entry) => entry.key)
-        .toISet();
-    setPlayersRole(VillagerRole.type, unassignedPlayers);
-  }
-
   /// Returns a list of unassigned roles in the game.
   IList<RoleType> get unassignedRoles {
     final assignedRoles = players.map((player) => player.role).fold(
@@ -530,7 +505,7 @@ class GameData {
       if (dayCounter == 0 &&
           phase.index < GamePhase.nightActions.index &&
           next.index >= GamePhase.nightActions.index) {
-        fillVillagerRoles();
+        state.apply(FillVillagerRolesCommand());
       }
       _phase = next;
       if (next == GamePhase.dawn) {

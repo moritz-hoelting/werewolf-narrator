@@ -1,7 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
-import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
+import 'package:werewolf_narrator/game/model/role.dart'
+    show RoleType, RoleManager;
+import 'package:werewolf_narrator/game/role/role.dart' show Role;
 
 class SetPlayersRoleCommand implements GameCommand {
   final RoleType role;
@@ -11,7 +13,15 @@ class SetPlayersRoleCommand implements GameCommand {
 
   @override
   void apply(GameData gameData) {
-    gameData.setPlayersRole(role, players);
+    for (final index in players) {
+      final Role playerRole = RoleManager.instantiateRole(
+        index,
+        role,
+        gameData.roleConfigurations[role]?.config ?? {},
+      );
+      gameData.players[index].role = playerRole;
+      playerRole.onAssign(gameData.state);
+    }
   }
 
   @override

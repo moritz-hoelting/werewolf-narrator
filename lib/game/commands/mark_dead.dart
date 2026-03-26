@@ -5,26 +5,31 @@ import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 
 class MarkDeadCommand implements GameCommand {
-  const MarkDeadCommand({required this.players, required this.deathReason});
+  MarkDeadCommand({required this.players, required this.deathReason});
   MarkDeadCommand.single({required int player, required this.deathReason})
     : players = ISet({player});
 
   final ISet<int> players;
   final DeathReason deathReason;
 
+  ISet<int>? _playersMarkedDead;
+
   @override
   void apply(GameData gameData) {
+    _playersMarkedDead = players
+        .where((playerIndex) => gameData.players[playerIndex].isAlive)
+        .toISet();
     for (int playerIndex in players) {
       gameData.markPlayerDead(playerIndex, deathReason);
     }
   }
 
   @override
-  bool get canBeUndone => true;
+  bool get canBeUndone => _playersMarkedDead != null;
 
   @override
   void undo(GameData gameData) {
-    for (int playerIndex in players) {
+    for (int playerIndex in _playersMarkedDead!) {
       gameData.markPlayerRevived(playerIndex);
     }
   }
