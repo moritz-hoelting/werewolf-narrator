@@ -1,0 +1,3 @@
+class RegisterTeam {
+  const RegisterTeam();
+}

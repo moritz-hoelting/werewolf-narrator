@@ -59,7 +59,8 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
                 RoleType
               >.left((team, team.information.checkTeamTogether!)),
         );
-    final roles = RoleManager.registeredRoles
+    final roles = RoleManager.categorizedRoles
+        .expand((entry) => entry.roles)
         .where(
           (role) =>
               gameRoles.contains(role) &&

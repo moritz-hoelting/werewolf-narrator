@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:build/build.dart';
 import 'package:yaml/yaml.dart';
 
+Builder pubspecInfoBuilder(_) => PubspecInfoBuilder();
+
 class PubspecInfoBuilder implements Builder {
   @override
   Map<String, List<String>> get buildExtensions => {

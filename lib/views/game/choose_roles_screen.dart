@@ -1,7 +1,5 @@
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:fpdart/fpdart.dart' show FpdartOnMap;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -55,25 +53,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
         .map((role) => role.information.initialTeam)
         .toSet();
 
-    final IList<MapEntry<ChooseRolesCategory, List<RoleType>>>
-    categorizedRoles =
-        groupBy(
-              RoleManager.registeredRoles,
-              (role) => role.information.chooseRolesInformation.category,
-            )
-            .mapValue(
-              (list) => list
-                ..sortByCompare(
-                  (role) => role.information.chooseRolesInformation.priority,
-                  (a, b) => b.compareTo(a),
-                ),
-            )
-            .entries
-            .sortedByCompare(
-              (entry) => entry.key.priority,
-              (a, b) => b.compareTo(a),
-            )
-            .toIList();
+    final categorizedRoles = RoleManager.categorizedRoles;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -83,7 +63,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
             child: ListView.separated(
               itemCount: categorizedRoles.length,
               itemBuilder: (context, index) {
-                final roles = categorizedRoles[index].value;
+                final roles = categorizedRoles[index].roles;
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -91,7 +71,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Text(
-                        categorizedRoles[index].key.name(context),
+                        categorizedRoles[index].category.name(context),
                         style: Theme.of(context).textTheme.headlineLarge,
                         textAlign: TextAlign.start,
                         softWrap: true,

@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
+@RegisterRole()
 class SeerRole extends Role {
   SeerRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<SeerRole> type = RoleType<SeerRole>();

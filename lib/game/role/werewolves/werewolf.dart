@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
@@ -6,6 +7,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/util/iterable.dart';
 
+@RegisterRole()
 class WerewolfRole extends Role {
   WerewolfRole._({
     required RoleConfiguration config,

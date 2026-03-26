@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
@@ -9,6 +10,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 
+@RegisterRole()
 class AngelRole extends Role implements WinCondition {
   AngelRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<AngelRole> type = RoleType<AngelRole>();

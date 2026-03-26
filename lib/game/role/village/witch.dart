@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
+@RegisterRole()
 class WitchRole extends Role implements DeathReason {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
     : healPotions = config[healPotionOptionId],

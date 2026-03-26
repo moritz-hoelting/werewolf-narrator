@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
@@ -11,6 +12,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
+@RegisterRole()
 class ElderRole extends Role {
   ElderRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<ElderRole> type = RoleType<ElderRole>();

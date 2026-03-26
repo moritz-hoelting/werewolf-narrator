@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
+@RegisterRole()
 class ThiefRole extends Role {
   ThiefRole._({required RoleConfiguration config, required super.playerIndex});
   static final RoleType<ThiefRole> type = RoleType<ThiefRole>();

@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -16,6 +17,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 
+@RegisterRole()
 class PriestRole extends Role {
   PriestRole._({required RoleConfiguration config, required super.playerIndex})
     : blessAmountRemaining = config[PriestRole.blessCountOptionId];

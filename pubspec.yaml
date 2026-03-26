@@ -59,6 +59,8 @@ dependencies:
   fpdart: ^1.2.0
   fast_immutable_collections: ^11.1.0
   deepcopy: ^1.1.2
+  werewolf_annotations:
+    path: ./annotations
 
 dev_dependencies:
   flutter_test:
@@ -76,9 +78,9 @@ dev_dependencies:
     git:
       url: https://github.com/moritz-hoelting/flutter_native_splash.git
       ref: ae571def5116a77ba1cffa58eb77620717072677
-  yaml: ^3.1.3
   build_runner: ^2.10.5
-  build: ^4.0.4
+  tools:
+    path: ./tools
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

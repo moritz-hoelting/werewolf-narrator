@@ -1,11 +1,9 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
+import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/team/team.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
-import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam;
 
 class TeamType<T extends Team> {
   const TeamType._();
@@ -47,14 +45,9 @@ abstract class TeamManager {
   /// Ensures that all teams are registered.
   static void ensureRegistered() {
     if (!_registered) {
-      _registerTeams();
+      GameRegistry.registerTeams();
       _registered = true;
     }
-  }
-
-  static void _registerTeams() {
-    VillageTeam.registerTeam();
-    WerewolvesTeam.registerTeam();
   }
 
   /// Registers a team with the given information.

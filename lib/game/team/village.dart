@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_team.dart' show RegisterTeam;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ import 'package:werewolf_narrator/game/model/win_condition.dart'
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 
+@RegisterTeam()
 class VillageTeam extends Team implements WinCondition {
   const VillageTeam._();
   static final TeamType type = TeamType<VillageTeam>();

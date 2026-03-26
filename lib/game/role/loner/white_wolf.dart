@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+@RegisterRole()
 class WhiteWolfRole extends Role implements WinCondition, DeathReason {
   WhiteWolfRole._({
     required RoleConfiguration config,

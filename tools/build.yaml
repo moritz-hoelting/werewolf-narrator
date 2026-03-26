@@ -1,0 +1,23 @@
+builders:
+  pubspecInfoBuilder:
+    import: "package:tools/pubspec_info_builder.dart"
+    builder_factories: ["pubspecInfoBuilder"]
+    build_extensions: { r"$package$": ["lib/pubspec_info.g.dart"] }
+    auto_apply: root_package
+    build_to: source
+    runs_before: []
+
+  registryCollectorBuilder:
+    import: "package:tools/game_registry_builder.dart"
+    builder_factories: ["registryCollectorBuilder"]
+    build_extensions: { ".dart": [".registry.json"] }
+    auto_apply: root_package
+    build_to: cache
+
+  gameRegistryBuilder:
+    import: "package:tools/game_registry_builder.dart"
+    builder_factories: ["gameRegistryBuilder"]
+    build_extensions: { r"$lib$": ["game/game_registry.g.dart"] }
+    auto_apply: root_package
+    build_to: source
+    required_inputs: [".registry.json"]

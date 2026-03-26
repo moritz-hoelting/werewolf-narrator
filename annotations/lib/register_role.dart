@@ -1,0 +1,3 @@
+class RegisterRole {
+  const RegisterRole();
+}

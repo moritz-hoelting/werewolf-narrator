@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -17,6 +18,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+@RegisterRole()
 class DoctorRole extends Role {
   DoctorRole._({required RoleConfiguration config, required super.playerIndex})
     : protectPlayerCooldown = config[protectPlayerCooldownOptionKey];

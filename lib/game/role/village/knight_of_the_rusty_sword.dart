@@ -1,3 +1,4 @@
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
@@ -13,6 +14,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
+@RegisterRole()
 class KnightOfTheRustySwordRole extends Role implements DeathReason {
   KnightOfTheRustySwordRole._({
     required RoleConfiguration config,

@@ -1,49 +1,13 @@
 import 'dart:collection';
 
+import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
+import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
-import 'package:werewolf_narrator/game/role/ambiguous/wild_child.dart'
-    show WildChildRole;
-import 'package:werewolf_narrator/game/role/ambiguous/wolf_hound.dart'
-    show WolfHoundRole;
-import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
-import 'package:werewolf_narrator/game/role/loner/piper.dart';
-import 'package:werewolf_narrator/game/role/loner/white_wolf.dart'
-    show WhiteWolfRole;
-import 'package:werewolf_narrator/game/role/village/bear_tamer.dart'
-    show BearTamerRole;
-import 'package:werewolf_narrator/game/role/village/bodyguard.dart'
-    show BodyguardRole;
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/village/doctor.dart'
-    show DoctorRole;
-import 'package:werewolf_narrator/game/role/village/elder.dart' show ElderRole;
-import 'package:werewolf_narrator/game/role/village/fox.dart' show FoxRole;
-import 'package:werewolf_narrator/game/role/village/hunter.dart'
-    show HunterRole;
-import 'package:werewolf_narrator/game/role/village/knight_of_the_rusty_sword.dart'
-    show KnightOfTheRustySwordRole;
-import 'package:werewolf_narrator/game/role/village/little_girl.dart'
-    show LittleGirlRole;
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/role/village/priest.dart'
-    show PriestRole;
-import 'package:werewolf_narrator/game/role/village/pyjama_pal.dart';
-import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
-import 'package:werewolf_narrator/game/role/village/thief.dart' show ThiefRole;
-import 'package:werewolf_narrator/game/role/village/two_sisters.dart'
-    show TwoSistersRole;
-import 'package:werewolf_narrator/game/role/village/villager.dart'
-    show VillagerRole;
-import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
-    show AncientWerewolfRole;
-import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
-    show BigBadWolfRole;
-import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
-    show WerewolfRole;
-import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
@@ -83,43 +47,9 @@ abstract class RoleManager {
   /// Ensures that all roles are registered.
   static void ensureRegistered() {
     if (!_registered) {
-      _registerRoles();
+      GameRegistry.registerRoles();
       _registered = true;
     }
-  }
-
-  static void _registerRoles() {
-    // Village roles
-    VillagerRole.registerRole();
-    SeerRole.registerRole();
-    WitchRole.registerRole();
-    HunterRole.registerRole();
-    CupidRole.registerRole();
-    LittleGirlRole.registerRole();
-    TwoSistersRole.registerRole();
-    FoxRole.registerRole();
-    KnightOfTheRustySwordRole.registerRole();
-    ElderRole.registerRole();
-    BearTamerRole.registerRole();
-    ThiefRole.registerRole();
-    PriestRole.registerRole();
-    DoctorRole.registerRole();
-    BodyguardRole.registerRole();
-    PyjamaPalRole.registerRole();
-
-    // Miscellanious roles
-    WildChildRole.registerRole();
-    WolfHoundRole.registerRole();
-
-    // Werewolf roles
-    WerewolfRole.registerRole();
-    AncientWerewolfRole.registerRole();
-    BigBadWolfRole.registerRole();
-
-    // Solo roles
-    WhiteWolfRole.registerRole();
-    PiperRole.registerRole();
-    AngelRole.registerRole();
   }
 
   /// Registers a role with the given information.
@@ -164,6 +94,27 @@ abstract class RoleManager {
     final info = _roleInformation[role];
     return info?.initialize;
   }
+
+  static IList<({ChooseRolesCategory category, IList<RoleType> roles})>
+  get categorizedRoles =>
+      groupBy(
+            registeredRoles,
+            (role) => role.information.chooseRolesInformation.category,
+          )
+          .mapValue(
+            (list) => list
+              ..sortByCompare(
+                (role) => role.information.chooseRolesInformation.priority,
+                (a, b) => b.compareTo(a),
+              ),
+          )
+          .entries
+          .sortedByCompare(
+            (entry) => entry.key.priority,
+            (a, b) => b.compareTo(a),
+          )
+          .map((entry) => (category: entry.key, roles: entry.value.lock))
+          .toIList();
 }
 
 class RegisterRoleInformation<T extends Role> {
