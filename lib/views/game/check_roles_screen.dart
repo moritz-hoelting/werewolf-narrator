@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/set_players_role.dart';
-import 'package:werewolf_narrator/game/game_data.dart' show GamePhase;
+import 'package:werewolf_narrator/game/game_command.dart';
+import 'package:werewolf_narrator/game/game_data.dart' show GameData, GamePhase;
+import 'package:werewolf_narrator/game/model/role_config.dart'
+    show RoleConfiguration;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
@@ -16,94 +19,32 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
-class CheckRolesScreen extends StatefulWidget {
+class CheckRolesScreen extends StatelessWidget {
   const CheckRolesScreen({super.key, required this.onPhaseComplete});
 
   final VoidCallback onPhaseComplete;
 
   @override
-  State<CheckRolesScreen> createState() => _CheckRolesScreenState();
-}
-
-class _CheckRolesScreenState extends State<CheckRolesScreen> {
-  late final QueueList<
-    Either<(TeamType, TeamRoleCheckTogetherInformation), RoleType>
-  >
-  _remainingChecks;
-  final Map<TeamType, List<int>> _assignedPlayersByTeam = {};
-  int _missingAssignments = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    final gameState = Provider.of<GameState>(context, listen: false);
-    final gameRoles = gameState.roleConfigurations.entries
-        .where(
-          (entry) => entry.value.count > 0 && entry.key != VillagerRole.type,
-        )
-        .map((entry) => entry.key)
-        .toList();
-    final gameTeams = gameState.teams;
-    final teams = TeamManager.registeredTeams
-        .where(
-          (team) =>
-              gameTeams.containsKey(team) &&
-              team.information.checkTeamTogether != null &&
-              gameRoles.contains(
-                team.information.checkTeamTogether!.defaultRole,
-              ),
-        )
-        .map(
-          (team) =>
-              Either<
-                (TeamType, TeamRoleCheckTogetherInformation),
-                RoleType
-              >.left((team, team.information.checkTeamTogether!)),
-        );
-    final roles = RoleManager.categorizedRoles
-        .expand((entry) => entry.roles)
-        .where(
-          (role) =>
-              gameRoles.contains(role) &&
-              !gameTeams.values.any(
-                (team) =>
-                    team
-                        .objectType
-                        .information
-                        .checkTeamTogether
-                        ?.defaultRole ==
-                    role,
-              ),
-        )
-        .map(
-          (role) =>
-              Either<
-                (TeamType, TeamRoleCheckTogetherInformation),
-                RoleType
-              >.right(role),
-        );
-    _remainingChecks = QueueList.from(teams.followedBy(roles));
-    assert(
-      _remainingChecks.isNotEmpty,
-      'There should be at least one role to check',
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CheckRoleScreen(
-      key: UniqueKey(),
-      current: _remainingChecks[0],
-      onComplete: onComplete,
-      missingAssignments: _missingAssignments,
-      assignedPlayersByTeam: _assignedPlayersByTeam,
+    return Consumer<GameState>(
+      builder: (context, gameState, child) => CheckRoleScreen(
+        key: UniqueKey(),
+        current: gameState
+            .checkRolesData
+            .checkOrder[gameState.checkRolesData.currentIndex],
+        onComplete: onComplete(gameState),
+        missingAssignments: gameState.checkRolesData.missingAssignments,
+        assignedPlayersByTeam:
+            gameState.checkRolesData.assignedPlayersByTeam.lock,
+      ),
     );
   }
 
-  void onComplete(int missing) {
-    if (_remainingChecks.length == 1) {
-      final gameState = Provider.of<GameState>(context, listen: false);
-      for (final entry in _assignedPlayersByTeam.entries) {
+  void Function(int missing) onComplete(GameState gameState) => (missing) {
+    if (gameState.checkRolesData.currentIndex >=
+        gameState.checkRolesData.checkOrder.length - 1) {
+      for (final entry
+          in gameState.checkRolesData.assignedPlayersByTeam.entries) {
         final defaultRole =
             entry.key.information.checkTeamTogether?.defaultRole;
         if (defaultRole != null) {
@@ -113,18 +54,14 @@ class _CheckRolesScreenState extends State<CheckRolesScreen> {
           gameState.apply(SetPlayersRoleCommand(defaultRole, noRolePlayers));
         }
       }
-      executeHooks();
-      widget.onPhaseComplete();
+      executeHooks(gameState);
+      onPhaseComplete();
     } else {
-      setState(() {
-        _remainingChecks.removeFirst();
-        _missingAssignments += missing;
-      });
+      gameState.finishBatch(CheckNextRoleCommand(missing: missing));
     }
-  }
+  };
 
-  void executeHooks() {
-    final gameState = Provider.of<GameState>(context, listen: false);
+  void executeHooks(GameState gameState) {
     final unassignedRoles = gameState.unassignedRoles.fold(<RoleType, int>{}, (
       acc,
       element,
@@ -144,7 +81,7 @@ class CheckRoleScreen extends StatefulWidget {
   final Either<(TeamType, TeamRoleCheckTogetherInformation), RoleType> current;
   final void Function(int missing) onComplete;
   final int missingAssignments;
-  final Map<TeamType, List<int>> assignedPlayersByTeam;
+  final IMap<TeamType, ISet<int>> assignedPlayersByTeam;
 
   const CheckRoleScreen({
     super.key,
@@ -213,8 +150,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
           (role) {
             final maxSelection = gameState.roleConfigurations[role]?.count ?? 0;
 
-            final teamConstraints =
-                widget.assignedPlayersByTeam[role.information.initialTeam];
+            final teamConstraints = role.information.initialTeam != null
+                ? widget.assignedPlayersByTeam[role.information.initialTeam!]
+                : null;
 
             return _build(
               context: context,
@@ -243,7 +181,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     required int maxSelection,
     required String title,
     required VoidCallback onCompletePressed,
-    List<int>? teamConstraints,
+    ISet<int>? teamConstraints,
   }) {
     final localizations = AppLocalizations.of(context);
     final minSelection = maxSelection - missingRoleCount(gameState);
@@ -265,7 +203,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                 index: index,
                 gameState: gameState,
                 maxSelection: maxSelection,
-                teamAssignedPlayers: teamAssignedPlayers,
+                teamAssignedPlayers: teamAssignedPlayers.lock,
                 teamConstraints: teamConstraints,
               ),
               selectedPlayers: _selectedPlayers
@@ -306,8 +244,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     required int index,
     required GameState gameState,
     required int maxSelection,
-    required List<int> teamAssignedPlayers,
-    List<int>? teamConstraints,
+    required IList<int> teamAssignedPlayers,
+    ISet<int>? teamConstraints,
   }) {
     if (gameState.players[index].role != null ||
         (teamConstraints != null
@@ -361,7 +299,12 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         .where((entry) => entry.$2)
         .map((entry) => entry.$1)
         .toList();
-    widget.assignedPlayersByTeam[team] = selectedIndices;
+    gameState.apply(
+      AssignPlayersByTeamCommand(
+        team: team,
+        playerIndices: selectedIndices.toISet(),
+      ),
+    );
     final missing = maxSelection - selectedIndices.length;
 
     widget.onComplete(max(0, missing));
@@ -382,5 +325,110 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         selectedIndices.length;
 
     widget.onComplete(isTeamRole ? 0 : max(0, missing));
+  }
+}
+
+class CheckRolesData {
+  late final IList<
+    Either<(TeamType, TeamRoleCheckTogetherInformation), RoleType>
+  >
+  checkOrder;
+  final Map<TeamType, ISet<int>> assignedPlayersByTeam = {};
+  int missingAssignments = 0;
+  int currentIndex = 0;
+
+  CheckRolesData(
+    Map<RoleType, ({int count, RoleConfiguration config})> roleConfigurations,
+  ) {
+    final gameRoles = roleConfigurations.entries
+        .where(
+          (entry) => entry.value.count > 0 && entry.key != VillagerRole.type,
+        )
+        .map((entry) => entry.key)
+        .toIList();
+    final gameTeams = roleConfigurations.entries
+        .where((entry) => entry.value.count > 0)
+        .map((entry) => entry.key.information.initialTeam)
+        .nonNulls
+        .toISet();
+    final teams = TeamManager.registeredTeams
+        .where(
+          (team) =>
+              gameTeams.contains(team) &&
+              team.information.checkTeamTogether != null &&
+              gameRoles.contains(
+                team.information.checkTeamTogether!.defaultRole,
+              ),
+        )
+        .map(
+          (team) =>
+              Either<
+                (TeamType, TeamRoleCheckTogetherInformation),
+                RoleType
+              >.left((team, team.information.checkTeamTogether!)),
+        );
+    final roles = RoleManager.categorizedRoles
+        .expand((entry) => entry.roles)
+        .where(
+          (role) =>
+              gameRoles.contains(role) &&
+              !gameTeams.any(
+                (team) =>
+                    team.information.checkTeamTogether?.defaultRole == role,
+              ),
+        )
+        .map(
+          (role) =>
+              Either<
+                (TeamType, TeamRoleCheckTogetherInformation),
+                RoleType
+              >.right(role),
+        );
+    checkOrder = IList(teams.followedBy(roles));
+    assert(checkOrder.isNotEmpty, 'There should be at least one role to check');
+  }
+}
+
+class CheckNextRoleCommand implements GameCommand {
+  final int missing;
+
+  const CheckNextRoleCommand({required this.missing});
+
+  @override
+  void apply(GameData gameData) {
+    gameData.checkRolesData.currentIndex++;
+    gameData.checkRolesData.missingAssignments += missing;
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    gameData.checkRolesData.currentIndex--;
+    gameData.checkRolesData.missingAssignments -= missing;
+  }
+}
+
+class AssignPlayersByTeamCommand implements GameCommand {
+  final TeamType team;
+  final ISet<int> playerIndices;
+
+  const AssignPlayersByTeamCommand({
+    required this.team,
+    required this.playerIndices,
+  });
+
+  @override
+  void apply(GameData gameData) {
+    gameData.checkRolesData.assignedPlayersByTeam[team] = playerIndices;
+  }
+
+  @override
+  bool get canBeUndone => true;
+
+  @override
+  void undo(GameData gameData) {
+    gameData.checkRolesData.assignedPlayersByTeam.remove(team);
   }
 }

@@ -18,6 +18,10 @@ import 'package:werewolf_narrator/game/team/team.dart' show Team;
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
     show DynamicActionManager;
 import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
+    show CheckRolesData;
+import 'package:werewolf_narrator/views/game/dynamic_actions_screen.dart'
+    show DetermineFirstDynamicActionIndexCommand;
 
 class GameData {
   GameData({
@@ -40,7 +44,8 @@ class GameData {
          (entry) =>
              entry.value.count > 0 &&
              entry.key.information.requireStartGameWithDay,
-       ) {
+       ),
+       checkRolesData = CheckRolesData(roleConfigurations) {
     assert(
       players.length ==
           roleConfigurations.entries.fold(
@@ -123,6 +128,10 @@ class GameData {
   /// Returning true adds the player as a winner, false excludes them,
   /// and null has no effect.
   final List<PlayerWinHook> playerWinHooks = [];
+
+  int? dynamicActionIndex;
+
+  CheckRolesData checkRolesData;
 
   int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
@@ -500,6 +509,13 @@ class GameData {
         for (final hook in dawnHooks) {
           hook(state, dayCounter);
         }
+      } else if (next == GamePhase.dayActions ||
+          next == GamePhase.nightActions) {
+        state.apply(
+          DetermineFirstDynamicActionIndexCommand(
+            night: next == GamePhase.nightActions,
+          ),
+        );
       }
       return;
     }
@@ -583,11 +599,15 @@ enum GamePhase {
 }
 
 class TransitionToNextPhaseCommand implements GameCommand {
-  ({GamePhase phase, int day})? previousState;
+  ({GamePhase phase, int day, CheckRolesData checkRolesData})? previousState;
 
   @override
   void apply(GameData gameData) {
-    previousState = (phase: gameData.phase, day: gameData.dayCounter);
+    previousState = (
+      phase: gameData.phase,
+      day: gameData.dayCounter,
+      checkRolesData: gameData.checkRolesData,
+    );
     gameData.transitionToNextPhase();
   }
 
@@ -597,8 +617,10 @@ class TransitionToNextPhaseCommand implements GameCommand {
   @override
   void undo(GameData gameData) {
     if (previousState != null) {
-      gameData._phase = previousState!.phase;
-      gameData._dayCounter = previousState!.day;
+      final (:phase, :day, :checkRolesData) = previousState!;
+      gameData._phase = phase;
+      gameData._dayCounter = day;
+      gameData.checkRolesData = checkRolesData;
     }
   }
 }

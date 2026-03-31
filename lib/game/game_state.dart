@@ -19,6 +19,8 @@ import 'package:werewolf_narrator/game/team/team.dart' show Team;
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
     show DynamicActionEntry;
 import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
+    show CheckRolesData;
 
 class GameState extends ChangeNotifier {
   late final GameData _data;
@@ -102,7 +104,7 @@ class GameState extends ChangeNotifier {
     for (final command in redoCommands) {
       _apply(command);
     }
-    notifyListeners();
+    finishBatch();
   }
 
   bool get canUndoBatch =>
@@ -137,6 +139,10 @@ class GameState extends ChangeNotifier {
     _currentCommandStack.clear();
     _frameStack.clear();
   }
+
+  int? get dynamicActionIndex => _data.dynamicActionIndex;
+
+  CheckRolesData get checkRolesData => _data.checkRolesData;
 
   IMap<dynamic, dynamic> get customData => _data.customData.lock;
 

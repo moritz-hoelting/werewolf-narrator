@@ -37,6 +37,7 @@ class GamePhaseScreen extends StatelessWidget {
           orderedActions: gameState.nightActions,
           actionHooks: gameState.nightActionHooks,
           onAllActionsComplete: onPhaseComplete,
+          night: true,
         );
       case GamePhase.dawn:
         return DawnScreen(onPhaseComplete: onPhaseComplete);
@@ -46,6 +47,7 @@ class GamePhaseScreen extends StatelessWidget {
           orderedActions: gameState.dayActions,
           actionHooks: gameState.dayActionHooks,
           onAllActionsComplete: onPhaseComplete,
+          night: false,
         );
       case GamePhase.gameOver:
         return GameOverScreen();
