@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/pubspec_info.g.dart';
+import 'package:werewolf_narrator/util/consts.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
 import 'package:werewolf_narrator/util/settings.dart';
@@ -20,7 +23,10 @@ class DeveloperSettingsScreen extends StatelessWidget {
           builder: (context, developerSettings, child) => ListView(
             children: [
               CheckboxListTile(
-                title: const Text("Enable"),
+                title: const Text("Enabled"),
+                subtitle: const Text(
+                  "Uncheck to disable (and hide) developer settings",
+                ),
                 value: developerSettings.enabled,
                 onChanged: (value) {
                   if (value != null) {
@@ -28,8 +34,27 @@ class DeveloperSettingsScreen extends StatelessWidget {
                   }
                 },
               ),
+
+              Tooltip(
+                message: "Tap to view commit on GitHub",
+                child: ListTile(
+                  title: Text("Git Hash: $gitHash"),
+                  subtitle: Text("Build Date: $buildDate"),
+                  onTap: PubspecInfo.repositoryUrl != null
+                      ? () {
+                          final url =
+                              "${PubspecInfo.repositoryUrl!}${PubspecInfo.repositoryUrl!.endsWith('/') ? '' : '/'}tree/$gitHash";
+                          launchUrl(Uri.parse(url));
+                        }
+                      : null,
+                ),
+              ),
+
               CheckboxListTile(
                 title: const Text("Autofill default player names"),
+                subtitle: const Text(
+                  "Players are named sequentially instead of being left blank",
+                ),
                 value: developerSettings.fillPlayerNames,
                 onChanged: (value) {
                   if (value != null) {

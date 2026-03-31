@@ -35,6 +35,27 @@ class AppInfoDisplay extends StatelessWidget {
                         ),
                       )
                     : null,
+                onTap: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationIcon: SvgPicture.asset(
+                      'assets/icon/icon.svg',
+                      width: 64,
+                      height: 64,
+                    ),
+                    applicationName: localizations.appTitle,
+                    applicationVersion: packageInfo.version,
+                    children: [
+                      const SizedBox(height: 8),
+                      if (PubspecInfo.authorName != null)
+                        Text(
+                          localizations.screen_settings_madeBy(
+                            author: PubspecInfo.authorName!,
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
 
               VersionDisplay(packageInfo: packageInfo),
@@ -73,32 +94,6 @@ class AppInfoDisplay extends StatelessWidget {
                   icon: const Icon(Icons.email),
                   label: Text(localizations.screen_settings_contactAuthor),
                 ),
-
-              TextButton.icon(
-                onPressed: () {
-                  showAboutDialog(
-                    context: context,
-                    applicationIcon: SvgPicture.asset(
-                      'assets/icon/icon.svg',
-                      width: 64,
-                      height: 64,
-                    ),
-                    applicationName: localizations.appTitle,
-                    applicationVersion: packageInfo.version,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (PubspecInfo.authorName != null)
-                        Text(
-                          localizations.screen_settings_madeBy(
-                            author: PubspecInfo.authorName!,
-                          ),
-                        ),
-                    ],
-                  );
-                },
-                label: Text(localizations.screen_settings_about),
-                icon: const Icon(Icons.info),
-              ),
             ],
           );
         }
