@@ -121,17 +121,20 @@ class OnAssignBodyguardCommand implements GameCommand {
     );
 
     gameData.dawnHooks.add(bodyguardRole.dawnHook);
-
     gameData.deathHooks.add(bodyguardRole.deathHook);
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+
+    gameData.nightActionManager.unregisterAction(BodyguardRole.type);
+
+    gameData.dawnHooks.remove(bodyguardRole.dawnHook);
+    gameData.deathHooks.remove(bodyguardRole.deathHook);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -211,22 +214,26 @@ class BodyguardSetProtectionTargetCommand implements GameCommand {
 }
 
 class MarkBodyguardAttackedCommand implements GameCommand {
-  const MarkBodyguardAttackedCommand(this.playerIndex);
+  MarkBodyguardAttackedCommand(this.playerIndex);
 
   final int playerIndex;
+
+  bool? _previousHasBeenAttacked;
 
   @override
   void apply(GameData gameData) {
     final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    _previousHasBeenAttacked = bodyguardRole.hasBeenAttacked;
     bodyguardRole.hasBeenAttacked = true;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousHasBeenAttacked != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
+    bodyguardRole.hasBeenAttacked = _previousHasBeenAttacked!;
+    _previousHasBeenAttacked = null;
   }
 }

@@ -75,17 +75,22 @@ class MarkPlayerUsedDeathActionCommand implements GameCommand {
 
   MarkPlayerUsedDeathActionCommand(this.playerIndex);
 
+  bool? _previousUsedDeathAction;
+
   @override
   void apply(GameData gameData) {
-    gameData.markPlayerUsedDeathAction(playerIndex);
+    final player = gameData.players[playerIndex];
+    _previousUsedDeathAction = player.usedDeathAction;
+    player.usedDeathAction = true;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousUsedDeathAction != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: fix
-    throw UnimplementedError();
+    final player = gameData.players[playerIndex];
+    player.usedDeathAction = _previousUsedDeathAction!;
+    _previousUsedDeathAction = null;
   }
 }

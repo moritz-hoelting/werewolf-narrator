@@ -61,12 +61,11 @@ class OnAssignElderCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.deathHooks.remove(deathHook);
   }
 
   bool deathHook(
@@ -140,12 +139,13 @@ class ElderDeathPreventAbilitiesCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionHooks.remove(nightActionHook);
+    gameData.dayActionHooks.remove(dayActionHook);
+    gameData.deathActionHooks.remove(deathActionHook);
   }
 
   bool nightActionHook(

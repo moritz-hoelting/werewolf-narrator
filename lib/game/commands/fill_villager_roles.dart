@@ -21,11 +21,10 @@ class FillVillagerRolesCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    // only applies commands, undo is automatically handled
   }
 }

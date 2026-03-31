@@ -102,11 +102,11 @@ class RegisterWolfHoundNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(WolfHoundRole.type);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -134,22 +134,27 @@ class RegisterWolfHoundNightActionCommand implements GameCommand {
 }
 
 class WolfHoundChooseCommand implements GameCommand {
-  const WolfHoundChooseCommand(this.playerIndex, this.selectedWerewolf);
+  WolfHoundChooseCommand(this.playerIndex, this.selectedWerewolf);
 
   final int playerIndex;
   final bool selectedWerewolf;
 
+  Option<bool?> _previousChoice = Option.none();
+
   @override
   void apply(GameData gameData) {
     final role = gameData.players[playerIndex].role as WolfHoundRole;
+    _previousChoice = Option.of(role.selectedWerewolf);
     role.selectedWerewolf = selectedWerewolf;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousChoice.isSome();
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    final role = gameData.players[playerIndex].role as WolfHoundRole;
+    role.selectedWerewolf = _previousChoice.getOrElse(() => null);
+    _previousChoice = Option.none();
   }
 }

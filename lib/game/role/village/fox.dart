@@ -266,33 +266,35 @@ class RegisterFoxNightActionCommand implements GameCommand {
   }
 
   @override
-  // TODO: implement canBeUndone
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(FoxRole.type);
   }
 }
 
 class FoxLoosePowersCommand implements GameCommand {
-  const FoxLoosePowersCommand(this.playerIndex);
+  FoxLoosePowersCommand(this.playerIndex);
 
   final int playerIndex;
+
+  bool? _previousHasLostPowers;
 
   @override
   void apply(GameData gameData) {
     final foxRole = gameData.state.players[playerIndex].role as FoxRole;
+    _previousHasLostPowers = foxRole.hasLostPowers;
     foxRole.hasLostPowers = true;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousHasLostPowers != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final foxRole = gameData.state.players[playerIndex].role as FoxRole;
+    foxRole.hasLostPowers = _previousHasLostPowers!;
+    _previousHasLostPowers = null;
   }
 }

@@ -102,8 +102,7 @@ class RegisterWildChildNightActionCommand implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(WildChildRole.type);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
@@ -136,7 +135,7 @@ class RegisterWildChildNightActionCommand implements GameCommand {
 }
 
 class WildChildSelectRoleModelCommand implements GameCommand {
-  const WildChildSelectRoleModelCommand({
+  WildChildSelectRoleModelCommand({
     required this.playerIndex,
     required this.roleModelIndex,
   });
@@ -144,10 +143,14 @@ class WildChildSelectRoleModelCommand implements GameCommand {
   final int playerIndex;
   final int roleModelIndex;
 
+  ({int? roleModel, bool turned})? _previousData;
+
   @override
   void apply(GameData gameData) {
     final player = gameData.players[playerIndex];
     final role = player.role as WildChildRole;
+
+    _previousData = (roleModel: role.roleModel, turned: role.turned);
 
     role.roleModel = roleModelIndex;
     if (!gameData.players[roleModelIndex].isAlive) {
@@ -158,13 +161,23 @@ class WildChildSelectRoleModelCommand implements GameCommand {
   }
 
   @override
-  // TODO: implement canBeUndone
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousData != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final player = gameData.players[playerIndex];
+    final role = player.role as WildChildRole;
+
+    if (_previousData!.roleModel == null) {
+      gameData.deathHooks.remove(deathHook);
+    }
+
+    final (:roleModel, :turned) = _previousData!;
+
+    role.roleModel = roleModel;
+    role.turned = turned;
+
+    _previousData = null;
   }
 
   bool deathHook(GameState gameState, int index, DeathReason reason) {
@@ -177,22 +190,29 @@ class WildChildSelectRoleModelCommand implements GameCommand {
 }
 
 class TurnWildChildCommand implements GameCommand {
-  const TurnWildChildCommand(this.playerIndex);
+  TurnWildChildCommand(this.playerIndex);
 
   final int playerIndex;
+
+  bool? _previousTurned;
 
   @override
   void apply(GameData gameData) {
     final player = gameData.players[playerIndex];
     final role = player.role as WildChildRole;
+    _previousTurned = role.turned;
     role.turned = true;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousTurned != null;
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    final player = gameData.players[playerIndex];
+    final role = player.role as WildChildRole;
+    role.turned = _previousTurned!;
+
+    _previousTurned = null;
   }
 }

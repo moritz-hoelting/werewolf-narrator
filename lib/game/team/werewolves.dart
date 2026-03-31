@@ -103,11 +103,11 @@ class WerewolvesDeathReason implements DeathReason {
 }
 
 class RegisterWerewolvesNightActionCommand implements GameCommand {
-  Set<int> nightActionPlayerIndices = {};
+  Set<int> _nightActionPlayerIndices = {};
 
   @override
   void apply(GameData gameData) {
-    nightActionPlayerIndices = WerewolvesTeam.werewolfPlayerIndices(
+    _nightActionPlayerIndices = WerewolvesTeam.werewolfPlayerIndices(
       gameData.state,
     ).unlock;
 
@@ -115,13 +115,13 @@ class RegisterWerewolvesNightActionCommand implements GameCommand {
       WerewolvesTeam.type,
       (gameState, onComplete) => nightActionScreen(onComplete),
       conditioned: (gameState) {
-        nightActionPlayerIndices
+        _nightActionPlayerIndices
           ..clear()
           ..addAll(WerewolvesTeam.werewolfPlayerIndices(gameState));
         return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
       },
       after: IList([CupidRole.type, SeerRole.type]),
-      players: nightActionPlayerIndices,
+      players: _nightActionPlayerIndices,
     );
   }
 
@@ -130,7 +130,7 @@ class RegisterWerewolvesNightActionCommand implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
+    gameData.nightActionManager.unregisterAction(WerewolvesTeam.type);
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {

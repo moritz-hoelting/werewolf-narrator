@@ -5,6 +5,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
@@ -76,13 +77,6 @@ class DoctorRole extends Role {
 
     gameState.apply(AssignDoctorCommand(playerIndex: playerIndex));
   }
-
-  void addToCooldownList(int playerIndex) {
-    playersInCooldown.add(playerIndex);
-    while (playersInCooldown.length > protectPlayerCooldown) {
-      playersInCooldown.removeFirst();
-    }
-  }
 }
 
 class AssignDoctorCommand implements GameCommand {
@@ -100,32 +94,37 @@ class AssignDoctorCommand implements GameCommand {
       before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
     );
 
-    gameData.dawnHooks.add((gameState, dayCount) {
-      gameState.apply(
-        SetDoctorProtectionTargetCommand(
-          playerIndex: playerIndex,
-          targetPlayerIndex: null,
-        ),
-      );
-    });
-
-    gameData.deathHooks.add(
-      (gameState, deadPlayerIndex, reason) =>
-          gameState.isNight &&
-          (gameState.players[playerIndex].role as DoctorRole)
-                  .protectionTarget ==
-              deadPlayerIndex,
-    );
+    gameData.dawnHooks.add(dawnHook);
+    gameData.deathHooks.add(deathHook);
   }
 
   @override
-  // TODO: implement canBeUndone
-  bool get canBeUndone => throw UnimplementedError();
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
+    gameData.nightActionManager.unregisterAction(DoctorRole.type);
+    gameData.dawnHooks.remove(dawnHook);
+    gameData.deathHooks.remove(deathHook);
   }
+
+  void dawnHook(GameState gameState, int dayCount) {
+    gameState.apply(
+      SetDoctorProtectionTargetCommand(
+        playerIndex: playerIndex,
+        targetPlayerIndex: null,
+      ),
+    );
+  }
+
+  bool deathHook(
+    GameState gameState,
+    int deadPlayerIndex,
+    DeathReason reason,
+  ) =>
+      gameState.isNight &&
+      (gameState.players[playerIndex].role as DoctorRole).protectionTarget ==
+          deadPlayerIndex;
 
   WidgetBuilder nightActionScreen(
     GameState gameState,
@@ -161,7 +160,7 @@ class AssignDoctorCommand implements GameCommand {
 }
 
 class SetDoctorProtectionTargetCommand implements GameCommand {
-  const SetDoctorProtectionTargetCommand({
+  SetDoctorProtectionTargetCommand({
     required this.playerIndex,
     required this.targetPlayerIndex,
   });
@@ -169,20 +168,43 @@ class SetDoctorProtectionTargetCommand implements GameCommand {
   final int playerIndex;
   final int? targetPlayerIndex;
 
+  ({int? previousTarget, List<int> removedPlayersFromCooldown})? _previousData;
+
   @override
   void apply(GameData gameData) {
     final doctorRole = gameData.players[playerIndex].role as DoctorRole;
+    final previousTarget = doctorRole.protectionTarget;
+
     doctorRole.protectionTarget = targetPlayerIndex;
+
+    final removedPlayersFromCooldown = <int>[];
     if (targetPlayerIndex != null) {
-      doctorRole.addToCooldownList(targetPlayerIndex!);
+      doctorRole.playersInCooldown.add(targetPlayerIndex!);
+      while (doctorRole.playersInCooldown.length >
+          doctorRole.protectPlayerCooldown) {
+        final removedPlayer = doctorRole.playersInCooldown.removeFirst();
+        removedPlayersFromCooldown.add(removedPlayer);
+      }
     }
+
+    _previousData = (
+      previousTarget: previousTarget,
+      removedPlayersFromCooldown: removedPlayersFromCooldown,
+    );
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousData != null;
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    final doctorRole = gameData.players[playerIndex].role as DoctorRole;
+    final (:previousTarget, :removedPlayersFromCooldown) = _previousData!;
+    doctorRole.protectionTarget = previousTarget;
+    for (final removedPlayer in removedPlayersFromCooldown.reversed) {
+      doctorRole.playersInCooldown.addFirst(removedPlayer);
+    }
+    _previousData = null;
+    doctorRole.playersInCooldown.remove(targetPlayerIndex);
   }
 }

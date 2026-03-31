@@ -133,21 +133,21 @@ class ThiefScreen extends StatelessWidget {
 class InitializeThiefCommand implements GameCommand {
   @override
   void apply(GameData gameData) {
-    gameData.remainingRoleHooks.putIfAbsent(ThiefRole.type, () => []).add((
-      gameState,
-      remainingCount,
-    ) {
-      gameState.apply(RemoveUnassignedRolesCommand());
-    });
+    gameData.remainingRoleHooks
+        .putIfAbsent(ThiefRole.type, () => [])
+        .add(thiefRoleHook);
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.remainingRoleHooks[ThiefRole.type]?.remove(thiefRoleHook);
+  }
+
+  void thiefRoleHook(GameState gameState, int remainingCount) {
+    gameState.apply(RemoveUnassignedRolesCommand());
   }
 }
 
@@ -174,11 +174,10 @@ class RegisterThiefNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(ThiefRole.type);
   }
 }

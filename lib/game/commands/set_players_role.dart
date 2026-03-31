@@ -11,9 +11,13 @@ class SetPlayersRoleCommand implements GameCommand {
 
   SetPlayersRoleCommand(this.role, this.players);
 
+  Map<int, Role?>? _previousRoles;
+
   @override
   void apply(GameData gameData) {
+    _previousRoles = {};
     for (final index in players) {
+      _previousRoles![index] = gameData.players[index].role;
       final Role playerRole = RoleManager.instantiateRole(
         index,
         role,
@@ -25,11 +29,20 @@ class SetPlayersRoleCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousRoles != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: fix
-    throw UnimplementedError();
+    for (final entry in _previousRoles!.entries) {
+      final index = entry.key;
+      final previousRole = entry.value;
+      if (previousRole != null) {
+        gameData.players[index].role = previousRole;
+        previousRole.onAssign(gameData.state);
+      } else {
+        gameData.players[index].role = null;
+      }
+    }
+    _previousRoles = null;
   }
 }

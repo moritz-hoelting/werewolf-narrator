@@ -227,11 +227,11 @@ class RegisterPiperNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(PiperRole);
   }
 }
 
@@ -255,7 +255,7 @@ class PiperCharmPlayersCommand implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final role = gameData.players[playerIndex].role as PiperRole;
+    role.charmedPlayers.removeAll(charmedPlayers);
   }
 }

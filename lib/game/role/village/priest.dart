@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/death_information.dart'
+    show DeathReason;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -90,20 +92,22 @@ class OnAssignPriestCommand implements GameCommand {
       players: {playerIndex},
     );
 
-    gameData.deathHooks.add((gameState, deadPlayerIndex, reason) {
-      final priest = gameState.players[playerIndex].role as PriestRole;
-      return gameState.isNight &&
-          priest.blessedPlayers.contains(deadPlayerIndex);
-    });
+    gameData.deathHooks.add(deathHook);
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(PriestRole.type);
+
+    gameData.deathHooks.remove(deathHook);
+  }
+
+  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
+    final priest = gameState.players[playerIndex].role as PriestRole;
+    return gameState.isNight && priest.blessedPlayers.contains(deadPlayerIndex);
   }
 
   WidgetBuilder nightActionScreen(
@@ -165,12 +169,13 @@ class PriestBlessPlayersCommand implements GameCommand {
   }
 
   @override
-  // TODO: implement canBeUndone
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final priest = gameData.players[playerIndex].role as PriestRole;
+
+    priest.blessedPlayers.removeAll(playersToBless);
+    priest.blessAmountRemaining += playersToBless.length;
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -202,16 +203,16 @@ class RegisterAncientWerewolfNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(AncientWerewolfRole.type);
   }
 }
 
 class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
-  const AncientWerewolfSaveConvertPlayerIndexCommand({
+  AncientWerewolfSaveConvertPlayerIndexCommand({
     required this.playerIndex,
     required this.convertedPlayerIndex,
   });
@@ -219,11 +220,13 @@ class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
   final int playerIndex;
   final int convertedPlayerIndex;
 
+  Option<int?> _previousConvertedPlayerIndex = Option.none();
+
   @override
   void apply(GameData gameData) {
-    (gameData.players[playerIndex].role as AncientWerewolfRole)
-            .convertedPlayerIndex =
-        convertedPlayerIndex;
+    final role = gameData.players[playerIndex].role as AncientWerewolfRole;
+    _previousConvertedPlayerIndex = Option.of(role.convertedPlayerIndex);
+    role.convertedPlayerIndex = convertedPlayerIndex;
   }
 
   @override
@@ -231,8 +234,10 @@ class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    (gameData.players[playerIndex].role as AncientWerewolfRole)
-            .convertedPlayerIndex =
-        null;
+    final role = gameData.players[playerIndex].role as AncientWerewolfRole;
+    role.convertedPlayerIndex = _previousConvertedPlayerIndex.getOrElse(
+      () => null,
+    );
+    _previousConvertedPlayerIndex = Option.none();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -181,12 +182,11 @@ class RegisterCupidNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(CupidRole.type);
   }
 
   WidgetBuilder nightActionScreen(
@@ -207,21 +207,25 @@ class CupidAssignLoversCommand implements GameCommand {
   final int cupidIndex;
   final ISet<int> lovers;
 
+  Option<Lovers?> _previousLovers = Option.none();
+
   @override
   void apply(GameData gameData) {
     final lovers_ = Lovers(lovers);
     final cupidRole = gameData.players[cupidIndex].role as CupidRole;
+    _previousLovers = Option.of(cupidRole.lovers);
     cupidRole.lovers = lovers_;
     gameData.state.apply(RegisterWinConditionCommand(lovers_));
     lovers_.initialize(gameData.state);
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousLovers.isSome();
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final cupidRole = gameData.players[cupidIndex].role as CupidRole;
+    cupidRole.lovers = _previousLovers.getOrElse(() => null);
+    _previousLovers = Option.none();
   }
 }

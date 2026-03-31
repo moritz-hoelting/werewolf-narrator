@@ -359,12 +359,11 @@ class RegisterWitchNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(WitchRole.type);
   }
 }
 
@@ -400,11 +399,13 @@ class WitchUsePotionsCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final witchRole = gameData.players[playerIndex].role as WitchRole;
+
+    witchRole.healPotions += healPlayers.length;
+    witchRole.killPotions += killPlayers.length;
   }
 }

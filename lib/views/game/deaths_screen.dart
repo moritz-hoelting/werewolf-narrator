@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
-import 'package:werewolf_narrator/game/game_data.dart' show GameData;
+import 'package:werewolf_narrator/game/game_data.dart'
+    show GameData, GameOverCommand;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
@@ -109,17 +110,27 @@ class DeathsScreen extends StatelessWidget {
 }
 
 class MarkDeathsAnnouncedCommand implements GameCommand {
+  List<int>? _previouslyUnannouncedDeaths;
+
   @override
   void apply(GameData gameData) {
-    gameData.markDeathsAnnounced();
+    _previouslyUnannouncedDeaths = gameData.unannouncedDeaths.keys.toList();
+    for (var playerIndex in gameData.unannouncedDeaths.keys) {
+      gameData.players[playerIndex].deathAnnounced = true;
+    }
+    if (gameData.checkWinConditions() != null) {
+      gameData.state.apply(GameOverCommand());
+    }
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previouslyUnannouncedDeaths != null;
 
   @override
   void undo(GameData gameData) {
-    // TODO: fix
-    throw UnimplementedError();
+    for (var playerIndex in _previouslyUnannouncedDeaths!) {
+      gameData.players[playerIndex].deathAnnounced = false;
+    }
+    _previouslyUnannouncedDeaths = null;
   }
 }

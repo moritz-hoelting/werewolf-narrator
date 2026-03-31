@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -92,17 +93,18 @@ class OnAssignPyjamaPalCommand implements GameCommand {
     );
 
     gameData.dawnHooks.add(dawnHook);
-
     gameData.deathHooks.add(deathHook);
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(PyjamaPalRole.type);
+
+    gameData.dawnHooks.remove(dawnHook);
+    gameData.deathHooks.remove(deathHook);
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) =>
@@ -184,7 +186,7 @@ class OnAssignPyjamaPalCommand implements GameCommand {
 }
 
 class SetPyjamaPalSleepoverTargetCommand implements GameCommand {
-  const SetPyjamaPalSleepoverTargetCommand({
+  SetPyjamaPalSleepoverTargetCommand({
     required this.playerIndex,
     required this.sleepoverTargetIndex,
   });
@@ -192,18 +194,24 @@ class SetPyjamaPalSleepoverTargetCommand implements GameCommand {
   final int playerIndex;
   final int? sleepoverTargetIndex;
 
+  Option<int?> _previousSleepoverTargetIndex = Option.none();
+
   @override
   void apply(GameData gameData) {
     final role = gameData.players[playerIndex].role as PyjamaPalRole;
+    _previousSleepoverTargetIndex = Option.of(role.sleepoverAtPlayer);
     role.sleepoverAtPlayer = sleepoverTargetIndex;
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => _previousSleepoverTargetIndex.isSome();
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    final role = gameData.players[playerIndex].role as PyjamaPalRole;
+    role.sleepoverAtPlayer = _previousSleepoverTargetIndex.getOrElse(
+      () => null,
+    );
+    _previousSleepoverTargetIndex = Option.none();
   }
 }

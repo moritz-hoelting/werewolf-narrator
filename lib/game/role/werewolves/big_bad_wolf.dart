@@ -86,12 +86,11 @@ class RegisterBigBadWolfNightActionCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement
-    throw UnimplementedError();
+    gameData.nightActionManager.unregisterAction(BigBadWolfRole.type);
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>

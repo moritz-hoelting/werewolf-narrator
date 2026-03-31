@@ -377,21 +377,6 @@ class GameData {
     _markRevivedRecursionGuard.remove(playerIndex);
   }
 
-  /// Marks that a player has used their death action.
-  void markPlayerUsedDeathAction(int playerIndex) {
-    players[playerIndex].usedDeathAction = true;
-  }
-
-  /// Marks all deaths as announced and checks for game over conditions.
-  void markDeathsAnnounced() {
-    for (var playerIndex in unannouncedDeaths.keys) {
-      players[playerIndex].deathAnnounced = true;
-    }
-    if (checkWinConditions() != null) {
-      _phase = GamePhase.gameOver;
-    }
-  }
-
   /// Checks if a player is alive or killed in the current cycle.
   bool playerAliveOrKilledThisCycle(int playerIndex) =>
       players[playerIndex].isAlive ||
@@ -615,5 +600,24 @@ class TransitionToNextPhaseCommand implements GameCommand {
       gameData._phase = previousState!.phase;
       gameData._dayCounter = previousState!.day;
     }
+  }
+}
+
+class GameOverCommand implements GameCommand {
+  GamePhase? _previousPhase;
+
+  @override
+  void apply(GameData gameData) {
+    _previousPhase = gameData.phase;
+    gameData._phase = GamePhase.gameOver;
+  }
+
+  @override
+  bool get canBeUndone => _previousPhase != null;
+
+  @override
+  void undo(GameData gameData) {
+    gameData._phase = _previousPhase!;
+    _previousPhase = null;
   }
 }

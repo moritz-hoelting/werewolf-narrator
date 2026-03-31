@@ -117,14 +117,7 @@ class OnAssignWhiteWolfCommand implements GameCommand {
 
   @override
   void apply(GameData gameData) {
-    gameData.playerWinHooks.add((gameState, winner, playerIndex) {
-      if (gameState.teams.containsKey(WerewolvesTeam.type) &&
-          winner == (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam) &&
-          playerIndex == this.playerIndex) {
-        return false;
-      }
-      return null;
-    });
+    gameData.playerWinHooks.add(playerWinHook);
 
     gameData.nightActionManager.registerAction(
       WhiteWolfRole,
@@ -138,12 +131,25 @@ class OnAssignWhiteWolfCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => false;
+  bool get canBeUndone => true;
 
   @override
   void undo(GameData gameData) {
-    // TODO: implement undo
-    throw UnimplementedError();
+    gameData.playerWinHooks.remove(playerWinHook);
+    gameData.nightActionManager.unregisterAction(WhiteWolfRole);
+  }
+
+  bool? playerWinHook(
+    GameState gameState,
+    WinCondition winner,
+    int playerIndex,
+  ) {
+    if (gameState.teams.containsKey(WerewolvesTeam.type) &&
+        winner == (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam) &&
+        playerIndex == this.playerIndex) {
+      return false;
+    }
+    return null;
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) => (context) {
