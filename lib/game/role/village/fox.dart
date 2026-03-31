@@ -1,3 +1,4 @@
+import 'package:fpdart/fpdart.dart' show Option, FpdartOnOption;
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ class FoxRole extends Role {
   final bool loosePowersOnWrongGuess;
 
   bool hasLostPowers = false;
+
+  bool? foundWerewolfThisRound;
 
   static void registerRole() {
     RoleManager.registerRole<FoxRole>(
@@ -88,8 +91,6 @@ class FoxScreen extends StatefulWidget {
 }
 
 class _FoxScreenState extends State<FoxScreen> {
-  bool? _foundWerewolf;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<GameState>(
@@ -97,20 +98,10 @@ class _FoxScreenState extends State<FoxScreen> {
         final localizations = AppLocalizations.of(context);
 
         return Scaffold(
-          appBar: GameAppBar(
-            title: Text(localizations.role_fox_name),
-            leading: _foundWerewolf != null
-                ? IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () => setState(() {
-                      _foundWerewolf = null;
-                    }),
-                  )
-                : null,
-          ),
-          body: _foundWerewolf != null
+          appBar: GameAppBar(title: Text(localizations.role_fox_name)),
+          body: widget.foxRole.foundWerewolfThisRound != null
               ? _ShowResult(
-                  foundWerewolf: _foundWerewolf!,
+                  foundWerewolf: widget.foxRole.foundWerewolfThisRound!,
                   gameState: gameState,
                 )
               : _SelectPlayer(
@@ -118,16 +109,19 @@ class _FoxScreenState extends State<FoxScreen> {
                   gameState: gameState,
                   onPlayerSelected: (index) {
                     final foundWerewolf = _checkForWerewolves(gameState, index);
-                    setState(() {
-                      _foundWerewolf = foundWerewolf;
-                    });
+                    gameState.finishBatch(
+                      FoxRoleFoundWerewolfCommand(
+                        playerIndex: widget.playerIndex,
+                        foundWerewolf: foundWerewolf,
+                      ),
+                    );
                   },
                 ),
           bottomNavigationBar: BottomContinueButton(
-            onPressed: _foundWerewolf != null
+            onPressed: widget.foxRole.foundWerewolfThisRound != null
                 ? () {
                     if (widget.foxRole.loosePowersOnWrongGuess &&
-                        !_foundWerewolf!) {
+                        !widget.foxRole.foundWerewolfThisRound!) {
                       gameState.apply(
                         FoxLoosePowersCommand(widget.playerIndex),
                       );
@@ -271,6 +265,36 @@ class RegisterFoxNightActionCommand implements GameCommand {
   @override
   void undo(GameData gameData) {
     gameData.nightActionManager.unregisterAction(FoxRole.type);
+  }
+}
+
+class FoxRoleFoundWerewolfCommand implements GameCommand {
+  FoxRoleFoundWerewolfCommand({
+    required this.playerIndex,
+    required this.foundWerewolf,
+  });
+
+  final int playerIndex;
+  final bool foundWerewolf;
+
+  Option<bool?> _previousFoundWerewolf = Option.none();
+
+  @override
+  void apply(GameData gameData) {
+    final foxRole = gameData.state.players[playerIndex].role as FoxRole;
+    _previousFoundWerewolf = Option.of(foxRole.foundWerewolfThisRound);
+    foxRole.foundWerewolfThisRound = foundWerewolf;
+  }
+
+  @override
+  bool get canBeUndone => _previousFoundWerewolf.isSome();
+
+  @override
+  void undo(GameData gameData) {
+    final foxRole = gameData.state.players[playerIndex].role as FoxRole;
+    foxRole.foundWerewolfThisRound = _previousFoundWerewolf.getOrElse(
+      () => null,
+    );
   }
 }
 

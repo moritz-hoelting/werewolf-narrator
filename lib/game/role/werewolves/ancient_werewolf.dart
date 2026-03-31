@@ -33,6 +33,7 @@ class AncientWerewolfRole extends Role {
   RoleType<AncientWerewolfRole> get objectType => type;
 
   int? convertedPlayerIndex;
+  int? convertedDayCount;
 
   static void registerRole() {
     RoleManager.registerRole<AncientWerewolfRole>(
@@ -80,25 +81,46 @@ class AncientWerewolfScreen extends StatelessWidget {
       builder: (context, gameState, child) {
         final localizations = AppLocalizations.of(context);
 
-        if ((gameState.players[playerIndex].role as AncientWerewolfRole)
-                .convertedPlayerIndex !=
-            null) {
-          return Scaffold(
-            appBar: GameAppBar(
-              title: Text(localizations.role_ancientWerewolf_name),
-            ),
-            body: Center(
-              child: Text(
-                localizations.role_ancientWerewolf_nightAction_hasUsedAbility,
-                style: Theme.of(context).textTheme.bodyLarge,
+        final ancientWerewolfRole =
+            gameState.players[playerIndex].role as AncientWerewolfRole;
+
+        if (ancientWerewolfRole.convertedPlayerIndex != null) {
+          if (ancientWerewolfRole.convertedDayCount == gameState.dayCounter) {
+            return Scaffold(
+              appBar: GameAppBar(
+                title: Text(localizations.role_ancientWerewolf_name),
               ),
-            ),
-            bottomNavigationBar: BottomContinueButton(
-              onPressed: () {
-                submit(gameState, false);
-              },
-            ),
-          );
+              body: Center(
+                child: Text(
+                  localizations.role_ancientWerewolf_nightAction_informPlayer(
+                    player: gameState
+                        .players[ancientWerewolfRole.convertedPlayerIndex!]
+                        .name,
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              bottomNavigationBar: BottomContinueButton(
+                onPressed: onPhaseComplete,
+              ),
+            );
+          } else {
+            return Scaffold(
+              appBar: GameAppBar(
+                title: Text(localizations.role_ancientWerewolf_name),
+              ),
+              body: Center(
+                child: Text(
+                  localizations.role_ancientWerewolf_nightAction_hasUsedAbility,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+              bottomNavigationBar: BottomContinueButton(
+                onPressed: onPhaseComplete,
+              ),
+            );
+          }
         }
 
         int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.$1;
@@ -148,8 +170,9 @@ class AncientWerewolfScreen extends StatelessWidget {
       if (lastAttackedPlayer != null) {
         useAbilityOn(gameState, lastAttackedPlayer.$1, lastAttackedPlayer.$2);
       }
+    } else {
+      onPhaseComplete();
     }
-    onPhaseComplete();
   }
 
   (int, PlayerView)? findLastAttackedPlayer(GameState gameState) {
@@ -165,7 +188,7 @@ class AncientWerewolfScreen extends StatelessWidget {
   }
 
   void useAbilityOn(GameState gameState, int playerIndex, PlayerView player) {
-    gameState.apply(
+    gameState.finishBatch(
       CompositeGameCommand(
         [
           MarkRevivedCommand.single(playerIndex),
@@ -173,6 +196,7 @@ class AncientWerewolfScreen extends StatelessWidget {
           AncientWerewolfSaveConvertPlayerIndexCommand(
             playerIndex: this.playerIndex,
             convertedPlayerIndex: playerIndex,
+            convertedDayCount: gameState.dayCounter,
           ),
         ].lock,
       ),
@@ -214,18 +238,25 @@ class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
   AncientWerewolfSaveConvertPlayerIndexCommand({
     required this.playerIndex,
     required this.convertedPlayerIndex,
+    required this.convertedDayCount,
   });
 
   final int playerIndex;
   final int convertedPlayerIndex;
+  final int convertedDayCount;
 
-  Option<int?> _previousConvertedPlayerIndex = Option.none();
+  Option<({int? convertedPlayerIndex, int? convertedDayCount})> _previousData =
+      Option.none();
 
   @override
   void apply(GameData gameData) {
     final role = gameData.players[playerIndex].role as AncientWerewolfRole;
-    _previousConvertedPlayerIndex = Option.of(role.convertedPlayerIndex);
+    _previousData = Option.of((
+      convertedPlayerIndex: role.convertedPlayerIndex,
+      convertedDayCount: role.convertedDayCount,
+    ));
     role.convertedPlayerIndex = convertedPlayerIndex;
+    role.convertedDayCount = convertedDayCount;
   }
 
   @override
@@ -234,9 +265,11 @@ class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
   @override
   void undo(GameData gameData) {
     final role = gameData.players[playerIndex].role as AncientWerewolfRole;
-    role.convertedPlayerIndex = _previousConvertedPlayerIndex.getOrElse(
-      () => null,
+    final previousData = _previousData.getOrElse(
+      () => (convertedPlayerIndex: null, convertedDayCount: null),
     );
-    _previousConvertedPlayerIndex = Option.none();
+    role.convertedPlayerIndex = previousData.convertedPlayerIndex;
+    role.convertedDayCount = previousData.convertedDayCount;
+    _previousData = Option.none();
   }
 }

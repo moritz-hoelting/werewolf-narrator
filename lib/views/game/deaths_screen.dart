@@ -110,11 +110,11 @@ class DeathsScreen extends StatelessWidget {
 }
 
 class MarkDeathsAnnouncedCommand implements GameCommand {
-  List<int>? _previouslyUnannouncedDeaths;
+  ISet<int>? _previouslyUnannouncedDeaths;
 
   @override
   void apply(GameData gameData) {
-    _previouslyUnannouncedDeaths = gameData.unannouncedDeaths.keys.toList();
+    _previouslyUnannouncedDeaths = gameData.unannouncedDeaths.keys.toISet();
     for (var playerIndex in gameData.unannouncedDeaths.keys) {
       gameData.players[playerIndex].deathAnnounced = true;
     }

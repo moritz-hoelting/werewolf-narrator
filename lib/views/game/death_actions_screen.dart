@@ -52,16 +52,15 @@ class _DeathActionsScreenState extends State<DeathActionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    assert(
-      deathActions.isNotEmpty,
-      "DeathActionsScreen built with no death actions",
-    );
+    if (deathActions.isEmpty) {
+      Future.microtask(widget.onPhaseComplete);
+    }
 
     final (playerIndex, deathAction) = deathActions[0];
 
     return deathAction(() {
       GameState gameState = Provider.of<GameState>(context, listen: false);
-      gameState.apply(MarkPlayerUsedDeathActionCommand(playerIndex));
+      gameState.finishBatch(MarkPlayerUsedDeathActionCommand(playerIndex));
       reloadDeathActions();
       if (deathActions.isEmpty) {
         widget.onPhaseComplete();

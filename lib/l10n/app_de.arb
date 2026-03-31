@@ -156,6 +156,7 @@
     "role_ancientWerewolf_nightAction_instruction": "Möchtest du den angegriffenen Spieler ({playerName}) in einen Werwolf verwandeln, anstatt ihn zu töten?",
     "role_ancientWerewolf_nightAction_hasUsedAbility": "Du hast deine Fähigkeit bereits in diesem Spiel verwendet.",
     "role_ancientWerewolf_nightAction_noAttackThisNight": "Kein Spieler wurde diese Nacht angegriffen.",
+    "role_ancientWerewolf_nightAction_informPlayer": "Wecke {player} und informiere ihn/sie, dass er/sie jetzt mit den Werwölfen spielen.",
     "role_bigBadWolf_name": "Großer Böser Wolf",
     "role_bigBadWolf_description": "Der große böse Wolf wacht jede Nacht ein weiteres Mal alleine auf und sucht sich ein weiteres Opfer, solange noch kein Werwolf gestorben ist.",
     "role_bigBadWolf_checkInstruction": "Wecke und wähle {count, plural, =1{den Großen Bösen Wolf} other{alle Großen Bösen Wölfe}} aus",

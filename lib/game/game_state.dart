@@ -96,6 +96,7 @@ class GameState extends ChangeNotifier {
         _currentCommandStack.map((entry) => entry.command).toIList(),
       );
     }
+    _currentCommandStack.clear();
     notifyListeners();
   }
 

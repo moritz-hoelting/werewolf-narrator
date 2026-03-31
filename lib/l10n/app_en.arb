@@ -772,6 +772,16 @@
     "@role_ancientWerewolf_nightAction_noAttackThisNight": {
         "description": "Message shown on the Ancient Werewolf night action screen when there is no attacked player"
     },
+    "role_ancientWerewolf_nightAction_informPlayer": "Wake {player} and inform them that they now play with the werewolves.",
+    "@role_ancientWerewolf_nightAction_informPlayer": {
+        "description": "Instruction for the narrator to wake the player that has been converted by the Ancient Werewolf and inform them that they are now a werewolf",
+        "placeholders": {
+            "player": {
+                "type": "String",
+                "example": "Alice"
+            }
+        }
+    },
     "role_bigBadWolf_name": "Big Bad Wolf",
     "@role_bigBadWolf_name": {
         "description": "Name of the Big Bad Wolf role"

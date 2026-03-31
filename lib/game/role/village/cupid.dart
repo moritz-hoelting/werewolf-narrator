@@ -97,7 +97,7 @@ class CupidScreen extends StatelessWidget {
       selectedIndices.length == 2,
       'Cupid must select exactly two players as lovers.',
     );
-    gameState.apply(
+    gameState.finishBatch(
       CupidAssignLoversCommand(cupidIndex: cupidIndex, lovers: selectedIndices),
     );
   }
