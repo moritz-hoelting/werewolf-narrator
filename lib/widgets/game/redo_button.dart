@@ -11,9 +11,9 @@ class RedoButton extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
         return IconButton(
-          onPressed: gameState.canRedo
+          onPressed: gameState.canRedoBatch
               ? () {
-                  gameState.redo();
+                  gameState.redoBatch();
                 }
               : null,
           icon: child!,

@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class ActionScreen extends StatefulWidget {
@@ -47,10 +48,7 @@ class _ActionScreenState extends State<ActionScreen> {
   Widget build(BuildContext context) {
     return Consumer<GameState>(
       builder: (context, gameState, _) => Scaffold(
-        appBar: AppBar(
-          title: widget.appBarTitle,
-          automaticallyImplyLeading: false,
-        ),
+        appBar: GameAppBar(title: widget.appBarTitle),
         body: Column(
           children: [
             if (widget.instruction != null)

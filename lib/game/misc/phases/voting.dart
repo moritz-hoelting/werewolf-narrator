@@ -8,6 +8,7 @@ import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class VillageVoteScreen extends StatefulWidget {
@@ -32,10 +33,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
 
     return Consumer<GameState>(
       builder: (context, gameState, _) => Scaffold(
-        appBar: AppBar(
-          title: Text(localizations.screen_villageVote_title),
-          automaticallyImplyLeading: false,
-        ),
+        appBar: GameAppBar(title: Text(localizations.screen_villageVote_title)),
         body: PlayerList(
           phaseIdentifier: VillageVoteScreen,
           disabledPlayers: gameState.knownDeadPlayerIndices,

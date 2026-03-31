@@ -18,6 +18,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 @RegisterRole()
 class PriestRole extends Role {
@@ -139,7 +140,7 @@ class OnAssignPriestCommand implements GameCommand {
             disabledPlayerIndices: ISet(priest.blessedPlayers),
           )
         : Scaffold(
-            appBar: AppBar(title: Text(PriestRole._name(context))),
+            appBar: GameAppBar(title: Text(PriestRole._name(context))),
             body: Center(
               child: Text(
                 AppLocalizations.of(context).role_priest_nightAction_noBlesses,

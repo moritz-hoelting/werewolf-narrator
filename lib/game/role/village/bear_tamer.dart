@@ -15,6 +15,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 @RegisterRole()
 class BearTamerRole extends Role {
@@ -70,10 +71,7 @@ class BearGruntScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.role_bearTamer_name),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: GameAppBar(title: Text(localizations.role_bearTamer_name)),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

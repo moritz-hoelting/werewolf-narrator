@@ -36,7 +36,7 @@ class _GameViewState extends State<GameView> {
               } else {
                 showDeathAnnouncement = false;
                 if (gameState.phase != GamePhase.gameOver) {
-                  gameState.apply(TransitionToNextPhaseCommand());
+                  gameState.finishBatch(TransitionToNextPhaseCommand());
                 }
               }
             }

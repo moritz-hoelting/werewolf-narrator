@@ -23,9 +23,16 @@ import 'package:werewolf_narrator/game/util/hooks.dart';
 class GameState extends ChangeNotifier {
   late final GameData _data;
 
-  final List<_CommandStackEntry> _appliedCommandStack = [];
-  final List<GameCommand> _redoCommandStack = [];
+  /// Chunked actions for undo functionality. Each inner list represents a batch of actions that should be undone together.
+  final List<IList<_CommandStackEntry>> _batchedCommandStack = [];
 
+  /// Current commands that have been applied but not yet finalized into a batch.
+  final List<_CommandStackEntry> _currentCommandStack = [];
+
+  /// Stack of batches that have been undone and can be redone.
+  final List<IList<GameCommand>> _redoCommandStack = [];
+
+  /// Frames for the currently applied commands, used for handling nested command applications.
   final List<_AppliedCommandFrame> _frameStack = [];
 
   void _apply(GameCommand command) {
@@ -38,7 +45,7 @@ class GameState extends ChangeNotifier {
     final currentStackEntry = _frameStack.removeLast();
     currentStackEntry.removeEmptyFrames();
     if (_frameStack.isEmpty) {
-      _appliedCommandStack.add(
+      _currentCommandStack.add(
         _CommandStackEntry(command: command, frame: currentStackEntry),
       );
     } else {
@@ -52,21 +59,57 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void undo() {
-    final _CommandStackEntry undoEntry = _appliedCommandStack.removeLast();
-    undoEntry.undo(_data);
-    _redoCommandStack.add(undoEntry.command);
+  void finishBatch([GameCommand? finalCommand]) {
+    if (finalCommand != null) {
+      _apply(finalCommand);
+      _redoCommandStack.clear();
+    }
+
+    final commands = _currentCommandStack.toIList();
+    _currentCommandStack.clear();
+    _frameStack.clear();
+    _batchedCommandStack.add(commands);
+
     notifyListeners();
   }
 
-  void redo() {
-    final GameCommand redoCommand = _redoCommandStack.removeLast();
-    _apply(redoCommand);
+  void undoBatch() {
+    for (final entry in _currentCommandStack.reversed) {
+      entry.undo(_data);
+    }
+    if (_batchedCommandStack.isNotEmpty) {
+      final lastBatch = _batchedCommandStack.removeLast();
+
+      for (final batchEntry in lastBatch.reversed) {
+        batchEntry.undo(_data);
+      }
+      _redoCommandStack.add(
+        lastBatch
+            .addAll(_currentCommandStack)
+            .map((entry) => entry.command)
+            .toIList(),
+      );
+    } else {
+      _redoCommandStack.add(
+        _currentCommandStack.map((entry) => entry.command).toIList(),
+      );
+    }
     notifyListeners();
   }
 
-  bool get canUndo => _appliedCommandStack.lastOrNull?.canBeUndone ?? false;
-  bool get canRedo => _redoCommandStack.isNotEmpty;
+  void redoBatch() {
+    final IList<GameCommand> redoCommands = _redoCommandStack.removeLast();
+    for (final command in redoCommands) {
+      _apply(command);
+    }
+    notifyListeners();
+  }
+
+  bool get canUndoBatch =>
+      _currentCommandStack.every((entry) => entry.canBeUndone) &&
+      (_batchedCommandStack.lastOrNull?.every((entry) => entry.canBeUndone) ??
+          false);
+  bool get canRedoBatch => _redoCommandStack.isNotEmpty;
 
   GameState({
     required List<String> playerNames,
@@ -90,6 +133,9 @@ class GameState extends ChangeNotifier {
         roleInitializer(this);
       }
     }
+
+    _currentCommandStack.clear();
+    _frameStack.clear();
   }
 
   IMap<dynamic, dynamic> get customData => _data.customData.lock;

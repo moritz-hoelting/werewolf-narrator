@@ -15,6 +15,7 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/misc/winners/lovers.dart' show Lovers;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 @RegisterRole()
 class CupidRole extends Role {
@@ -118,9 +119,8 @@ class WakeLoversScreen extends StatelessWidget {
       builder: (context, gameState, _) {
         final localizations = AppLocalizations.of(context);
         return Scaffold(
-          appBar: AppBar(
+          appBar: GameAppBar(
             title: Text(localizations.screen_wakeLovers_title),
-            automaticallyImplyLeading: false,
           ),
           body: Center(
             child: Padding(

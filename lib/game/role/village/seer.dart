@@ -13,6 +13,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 @RegisterRole()
@@ -75,10 +76,7 @@ class _SeerScreenState extends State<SeerScreen> {
         final localizations = AppLocalizations.of(context);
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(localizations.role_seer_name),
-            automaticallyImplyLeading: false,
-          ),
+          appBar: GameAppBar(title: Text(localizations.role_seer_name)),
           body: Column(
             children: [
               Padding(

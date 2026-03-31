@@ -16,6 +16,7 @@ import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart'
     show BottomContinueButton;
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart'
     show PlayerList;
 
@@ -165,10 +166,7 @@ class _PiperScreenState extends State<PiperScreen> {
             },
           )
         : Scaffold(
-            appBar: AppBar(
-              title: Text(PiperRole._name(context)),
-              automaticallyImplyLeading: false,
-            ),
+            appBar: GameAppBar(title: Text(PiperRole._name(context))),
             body: Column(
               children: [
                 Padding(

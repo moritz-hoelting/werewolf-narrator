@@ -72,6 +72,7 @@ class _DynamicActionsScreenState extends State<DynamicActionsScreen> {
       setState(() {
         _currentActionIndex = nextIndex;
       });
+      gameState.finishBatch();
     } else {
       widget.onAllActionsComplete();
     }

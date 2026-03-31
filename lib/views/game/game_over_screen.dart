@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class GameOverScreen extends StatelessWidget {
   const GameOverScreen({super.key});
@@ -29,7 +30,7 @@ class GameOverScreen extends StatelessWidget {
             .toList();
 
         return Scaffold(
-          appBar: AppBar(title: Text(localizations.screen_gameOver_title)),
+          appBar: GameAppBar(title: Text(localizations.screen_gameOver_title)),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

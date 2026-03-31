@@ -11,9 +11,9 @@ class UndoButton extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
         return IconButton(
-          onPressed: gameState.canUndo
+          onPressed: gameState.canUndoBatch
               ? () {
-                  gameState.undo();
+                  gameState.undoBatch();
                 }
               : null,
           icon: child!,

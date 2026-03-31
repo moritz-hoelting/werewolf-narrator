@@ -66,7 +66,7 @@ void main() {
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
-      state.apply(TransitionToNextPhaseCommand());
+      state.finishBatch(TransitionToNextPhaseCommand());
     }
   });
 
@@ -114,7 +114,7 @@ void main() {
         equals(expectedOrder[i]),
         reason: "Expected phase ${expectedOrder[i]} at step $i",
       );
-      state.apply(TransitionToNextPhaseCommand());
+      state.finishBatch(TransitionToNextPhaseCommand());
     }
   });
 }

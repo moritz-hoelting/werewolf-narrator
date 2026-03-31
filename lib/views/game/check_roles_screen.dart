@@ -13,6 +13,7 @@ import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 class CheckRolesScreen extends StatefulWidget {
@@ -250,7 +251,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         widget.assignedPlayersByTeam.values.flattenedToList;
 
     return Scaffold(
-      appBar: AppBar(title: Text(title), automaticallyImplyLeading: false),
+      appBar: GameAppBar(title: Text(title)),
       body: teamConstraints != null && teamConstraints.isEmpty
           ? Center(
               child: Text(

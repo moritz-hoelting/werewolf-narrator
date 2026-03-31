@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
 import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class DeathsScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
@@ -35,9 +36,8 @@ class DeathsScreen extends StatelessWidget {
         return Scaffold(
           extendBody: true,
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
+          appBar: GameAppBar(
             title: title ?? Text(localizations.screen_deaths_title),
-            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
           ),
           body: Container(

@@ -13,6 +13,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 @RegisterRole()
@@ -96,9 +97,8 @@ class _FoxScreenState extends State<FoxScreen> {
         final localizations = AppLocalizations.of(context);
 
         return Scaffold(
-          appBar: AppBar(
+          appBar: GameAppBar(
             title: Text(localizations.role_fox_name),
-            automaticallyImplyLeading: false,
             leading: _foundWerewolf != null
                 ? IconButton(
                     icon: Icon(Icons.arrow_back),

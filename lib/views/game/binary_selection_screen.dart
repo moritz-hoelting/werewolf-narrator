@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart'
     show BottomContinueButton;
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class BinarySelectionScreen extends StatefulWidget {
   final Widget appBarTitle;
@@ -31,10 +32,7 @@ class _BinarySelectionScreenState extends State<BinarySelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: widget.appBarTitle,
-        automaticallyImplyLeading: false,
-      ),
+      appBar: GameAppBar(title: widget.appBarTitle),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

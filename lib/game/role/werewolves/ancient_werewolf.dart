@@ -19,6 +19,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam, WerewolvesDeathReason;
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 @RegisterRole()
 class AncientWerewolfRole extends Role {
@@ -83,9 +84,8 @@ class AncientWerewolfScreen extends StatelessWidget {
                 .convertedPlayerIndex !=
             null) {
           return Scaffold(
-            appBar: AppBar(
+            appBar: GameAppBar(
               title: Text(localizations.role_ancientWerewolf_name),
-              automaticallyImplyLeading: false,
             ),
             body: Center(
               child: Text(
@@ -105,9 +105,8 @@ class AncientWerewolfScreen extends StatelessWidget {
 
         if (lastAttackedPlayer == null) {
           return Scaffold(
-            appBar: AppBar(
+            appBar: GameAppBar(
               title: Text(localizations.role_ancientWerewolf_name),
-              automaticallyImplyLeading: false,
             ),
             body: Center(
               child: Text(

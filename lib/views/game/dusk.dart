@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class DuskScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
@@ -13,6 +14,10 @@ class DuskScreen extends StatelessWidget {
 
     return Scaffold(
       extendBody: true,
+      appBar: GameAppBar(
+        title: const SizedBox.shrink(),
+        backgroundColor: Colors.transparent,
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(

@@ -19,6 +19,7 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam, WerewolvesDeathReason;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
+import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 @RegisterRole()
@@ -125,10 +126,7 @@ class _WitchScreenState extends State<WitchScreen> {
     final localizations = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.role_witch_name),
-        automaticallyImplyLeading: false,
-      ),
+      appBar: GameAppBar(title: Text(localizations.role_witch_name)),
       body: widget.healPotions > 0 || widget.killPotions > 0
           ? HasPotionsBody(
               playerIndex: widget.playerIndex,
