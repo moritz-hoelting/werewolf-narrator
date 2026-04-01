@@ -9,6 +9,7 @@ class DawnScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DeathsScreen(
+    key: UniqueKey(),
     onPhaseComplete: onPhaseComplete,
     title: Text(AppLocalizations.of(context).screen_dawn_message),
     beamColor: Colors.orange.shade300,

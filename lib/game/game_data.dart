@@ -420,13 +420,27 @@ class GameData {
       .map((player) => player.$1)
       .toISet();
 
-  /// Whether there are pending death actions to be resolved.
-  bool get pendingDeathActions =>
-      players.any((player) => player.waitForDeathAction(state));
+  /// The index of the first player with pending death actions, or null if there are none.
+  int? get firstPlayerWithPendingDeathAction =>
+      Iterable.generate(playerCount, (i) => i).firstWhereOrNull((index) {
+        final player = players[index];
+        return player.role != null &&
+            player.role!.hasDeathScreen(state) &&
+            player.waitForDeathAction(state);
+      });
 
   /// Whether there are pending death announcements to be made.
   bool get pendingDeathAnnouncements =>
       players.any((player) => !player.isAlive && !player.deathAnnounced);
+
+  /// Whether there are pending death announcements to be made for deaths that occurred during the night.
+  bool get pendingDeathAnnouncementsFromNight => players.any(
+    (player) =>
+        !player.isAlive &&
+        !player.deathAnnounced &&
+        player.deathInformation != null &&
+        player.deathInformation!.atNight,
+  );
 
   (int, int) getAliveNeighbors(int playerIndex) {
     final livingIndices = List.generate(

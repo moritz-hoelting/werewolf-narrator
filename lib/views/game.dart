@@ -18,7 +18,6 @@ class GameView extends StatefulWidget {
 
 class _GameViewState extends State<GameView> {
   GameSetupResult? setupResult;
-  bool showDeathAnnouncement = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +29,13 @@ class _GameViewState extends State<GameView> {
         ),
         child: Consumer<GameState>(
           builder: (context, gameState, child) {
-            void onPhaseComplete() {
-              if (gameState.pendingDeathAnnouncements && !gameState.isNight) {
-                showDeathAnnouncement = true;
-              } else {
-                showDeathAnnouncement = false;
-                if (gameState.phase != GamePhase.gameOver) {
-                  gameState.finishBatch(TransitionToNextPhaseCommand());
-                }
-              }
-            }
+            final showDeathsScreen =
+                gameState.pendingDeathAnnouncements &&
+                (!gameState.isNight || gameState.phase == GamePhase.dusk) &&
+                !gameState.pendingDeathAnnouncementsFromNight;
 
             return Theme(
-              data: gameState.isNight
+              data: gameState.isNight && !showDeathsScreen
                   ? Themes.nighttimeTheme(context)
                   : Themes.daytimeTheme(context),
               child: Builder(
@@ -61,11 +54,17 @@ class _GameViewState extends State<GameView> {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: showDeathAnnouncement
-                      ? DeathsScreen(onPhaseComplete: onPhaseComplete)
+                  child: showDeathsScreen
+                      ? DeathsScreen(key: UniqueKey())
                       : GamePhaseScreen(
                           phase: gameState.phase,
-                          onPhaseComplete: onPhaseComplete,
+                          onPhaseComplete: () {
+                            if (gameState.phase != GamePhase.gameOver) {
+                              gameState.finishBatch(
+                                TransitionToNextPhaseCommand(),
+                              );
+                            }
+                          },
                         ),
                 ),
               ),

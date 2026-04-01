@@ -62,6 +62,11 @@ class GameState extends ChangeNotifier {
   }
 
   void finishBatch([GameCommand? finalCommand]) {
+    assert(
+      _frameStack.isEmpty,
+      "Finish batch cannot be called within a command application",
+    );
+
     if (finalCommand != null) {
       _apply(finalCommand);
       _redoCommandStack.clear();
@@ -112,6 +117,7 @@ class GameState extends ChangeNotifier {
       _currentCommandStack.every((entry) => entry.canBeUndone) &&
       (_batchedCommandStack.lastOrNull?.every((entry) => entry.canBeUndone) ??
           false);
+
   bool get canRedoBatch => _redoCommandStack.isNotEmpty;
 
   GameState({
@@ -370,11 +376,16 @@ class GameState extends ChangeNotifier {
   /// Player indices that are dead.
   ISet<int> get deadPlayerIndices => _data.deadPlayerIndices;
 
-  /// Whether there are pending death actions to be resolved.
-  bool get pendingDeathActions => _data.pendingDeathActions;
+  /// The index of the first player with pending death actions, or null if there are none.
+  int? get firstPlayerWithPendingDeathAction =>
+      _data.firstPlayerWithPendingDeathAction;
 
   /// Whether there are pending death announcements to be made.
   bool get pendingDeathAnnouncements => _data.pendingDeathAnnouncements;
+
+  /// Whether there are pending death announcements to be made for deaths that occurred during the night.
+  bool get pendingDeathAnnouncementsFromNight =>
+      _data.pendingDeathAnnouncementsFromNight;
 
   (int, int) getAliveNeighbors(int playerIndex) =>
       _data.getAliveNeighbors(playerIndex);

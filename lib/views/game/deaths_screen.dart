@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
@@ -10,13 +11,13 @@ import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class DeathsScreen extends StatelessWidget {
-  final VoidCallback onPhaseComplete;
+  final VoidCallback? onPhaseComplete;
   final Widget? title;
   final Color? beamColor;
 
   const DeathsScreen({
     super.key,
-    required this.onPhaseComplete,
+    this.onPhaseComplete,
     this.title,
     this.beamColor,
   });
@@ -26,8 +27,8 @@ class DeathsScreen extends StatelessWidget {
     return Consumer<GameState>(
       builder: (context, gameState, child) {
         if (!gameState.pendingDeathAnnouncements &&
-            gameState.pendingDeathActions) {
-          return DeathActionsScreen(onPhaseComplete: onPhaseComplete);
+            gameState.firstPlayerWithPendingDeathAction != null) {
+          return DeathActionsScreen(onPhaseComplete: onPhaseComplete ?? () {});
         }
 
         final localizations = AppLocalizations.of(context);
@@ -95,8 +96,14 @@ class DeathsScreen extends StatelessWidget {
                 );
                 gameState.apply(MarkDeathsAnnouncedCommand());
 
-                if (!gameState.pendingDeathActions) {
-                  onPhaseComplete();
+                final firstPlayerWithPendingDeathAction =
+                    gameState.firstPlayerWithPendingDeathAction;
+
+                if (firstPlayerWithPendingDeathAction == null &&
+                    onPhaseComplete != null) {
+                  onPhaseComplete!();
+                } else {
+                  gameState.finishBatch();
                 }
               },
               label: Text(localizations.button_continueLabel),
