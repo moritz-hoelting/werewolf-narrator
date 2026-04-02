@@ -20,7 +20,7 @@ class RedoButton extends StatelessWidget {
           tooltip: AppLocalizations.of(context).button_redoTooltip,
         );
       },
-      child: const Icon(Icons.undo),
+      child: const Icon(Icons.redo),
     );
   }
 }
