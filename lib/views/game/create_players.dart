@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/util/settings.dart';
 
 class CreatePlayersScreen extends StatefulWidget {
   static const int minPlayers = 8;
@@ -180,7 +180,10 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
         .map((name) => name.trim())
         .where((name) => name.isNotEmpty)
         .toList();
-    Provider.of<AppSettings>(context, listen: false).addNamesToCache(names);
+    Provider.of<AppDatabase>(
+      context,
+      listen: false,
+    ).nameCacheDao.addNamesToCache(names);
     widget.onSubmit(names);
   }
 }
@@ -241,17 +244,13 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
     return Autocomplete<String>(
       textEditingController: _controller,
       focusNode: _focusNode,
-      optionsBuilder: (textEditingValue) {
+      optionsBuilder: (textEditingValue) async {
         if (textEditingValue.text == '') {
           return const Iterable<String>.empty();
         }
-        final appSettings = Provider.of<AppSettings>(context, listen: false);
-        return appSettings.nameCache.where(
-          (name) =>
-              name.toLowerCase().contains(
-                textEditingValue.text.toLowerCase(),
-              ) &&
-              name != textEditingValue.text,
+        final appDatabase = Provider.of<AppDatabase>(context, listen: false);
+        return await appDatabase.nameCacheDao.getAllNamesStartingWith(
+          textEditingValue.text,
         );
       },
       onSelected: (option) {
@@ -326,10 +325,10 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Provider.of<AppSettings>(
+                            Provider.of<AppDatabase>(
                               context,
                               listen: false,
-                            ).deleteNameFromCache(option);
+                            ).nameCacheDao.deleteNameFromCache(option);
                             Navigator.of(context).pop();
                           },
                           child: Text(localizations.button_yesLabel),

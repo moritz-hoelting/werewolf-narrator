@@ -80,6 +80,10 @@
     "@screen_settings_language_default": {
         "description": "Option for language setting: system default"
     },
+    "screen_settings_manageNameCache": "Manage Name Cache",
+    "@screen_settings_manageNameCache": {
+        "description": "Label for the button to manage the name cache"
+    },
     "screen_settings_clearNameCache": "Clear Name Cache",
     "@screen_settings_clearNameCache": {
         "description": "Label for the button to clear the name cache"

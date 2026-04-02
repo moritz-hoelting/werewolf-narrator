@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
@@ -23,7 +24,13 @@ void main() {
   AppSettings.instance;
   DeveloperSettings.instance;
 
-  runApp(const WerewolfNarratorApp());
+  runApp(
+    Provider<AppDatabase>(
+      create: (context) => AppDatabase(),
+      dispose: (context, db) => db.close(),
+      child: const WerewolfNarratorApp(),
+    ),
+  );
 }
 
 class WerewolfNarratorApp extends StatelessWidget {

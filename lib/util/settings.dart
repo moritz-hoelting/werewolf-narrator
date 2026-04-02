@@ -15,7 +15,6 @@ final class AppSettings extends ChangeNotifier {
     _themeMode = await _getSavedThemeMode(prefs) ?? ThemeMode.system;
     _dynamicGameTheme = await prefs.getBool(_dynamicGameThemeKey) ?? true;
     _locale = await _getSavedLocale(prefs);
-    _nameCache = await prefs.getStringList(_nameCacheKey) ?? [];
     notifyListeners();
   }
 
@@ -23,7 +22,7 @@ final class AppSettings extends ChangeNotifier {
   static const _themeModeKey = 'themeMode';
   static const _dynamicGameThemeKey = 'dynamicGameTheme';
   static const _localeKey = 'locale';
-  static const _nameCacheKey = 'nameCache';
+
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
   set themeMode(ThemeMode mode) {
@@ -52,30 +51,6 @@ final class AppSettings extends ChangeNotifier {
       notifyListeners();
       _saveLocale(newLocale);
     }
-  }
-
-  List<String> _nameCache = [];
-  List<String> get nameCache => _nameCache;
-  set nameCache(List<String> newCache) {
-    _nameCache = newCache;
-    notifyListeners();
-    _saveNameCache(newCache);
-  }
-
-  void addNamesToCache(List<String> names) {
-    for (final name in names) {
-      if (!_nameCache.contains(name)) {
-        _nameCache = [..._nameCache, name];
-      }
-    }
-    notifyListeners();
-    _saveNameCache(_nameCache);
-  }
-
-  void deleteNameFromCache(String name) {
-    _nameCache = _nameCache.where((n) => n != name).toList();
-    notifyListeners();
-    _saveNameCache(_nameCache);
   }
 
   Future<ThemeMode?> _getSavedThemeMode(SharedPreferencesAsync prefs) async {
@@ -122,13 +97,5 @@ final class AppSettings extends ChangeNotifier {
     } else {
       await prefs.remove(_localeKey);
     }
-  }
-
-  void _saveNameCache(
-    List<String> nameCache, [
-    SharedPreferencesAsync? prefs,
-  ]) async {
-    prefs ??= SharedPreferencesAsync();
-    await prefs.setStringList(_nameCacheKey, nameCache);
   }
 }

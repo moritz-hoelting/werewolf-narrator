@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
@@ -131,35 +132,95 @@ class SettingsDisplay extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text(localizations.screen_settings_clearNameCache),
-          leading: const Icon(Icons.delete),
+          title: Text(localizations.screen_settings_manageNameCache),
+          leading: const Icon(Icons.storage),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete_forever),
+            tooltip: localizations.screen_settings_clearNameCache,
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) {
+                final materialLocalizations = MaterialLocalizations.of(context);
+                return AlertDialog(
+                  title: Text(localizations.screen_settings_clearNameCache),
+                  content: Text(
+                    localizations.screen_settings_clearNameCache_description,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(materialLocalizations.cancelButtonLabel),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Provider.of<AppDatabase>(
+                          context,
+                          listen: false,
+                        ).nameCacheDao.emptyCache();
+                        Navigator.pop(context);
+                      },
+                      child: Text(materialLocalizations.okButtonLabel),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
           onTap: () => showDialog(
             context: context,
-            builder: (context) {
-              final materialLocalizations = MaterialLocalizations.of(context);
-              return AlertDialog(
-                title: Text(localizations.screen_settings_clearNameCache),
-                content: Text(
-                  localizations.screen_settings_clearNameCache_description,
+            builder: (context) => AlertDialog(
+              title: Text(localizations.screen_settings_manageNameCache),
+              content: StreamBuilder(
+                stream: Provider.of<AppDatabase>(
+                  context,
+                  listen: false,
+                ).nameCacheDao.watchAllNames(),
+                builder: (context, cachedNames) {
+                  if (cachedNames.hasError) {
+                    return Text('Error: ${cachedNames.error}');
+                  }
+                  if (!cachedNames.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+                  final names = cachedNames.data!;
+                  if (names.isEmpty) {
+                    return const Icon(
+                      Icons.no_accounts,
+                      size: 64,
+                      color: Colors.grey,
+                    );
+                  }
+                  return SizedBox(
+                    width: (MediaQuery.of(context).size.width * 0.6).clamp(
+                      0,
+                      400,
+                    ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: names.length,
+                      itemBuilder: (context, index) => ListTile(
+                        title: Text(names[index]),
+                        leading: IconButton(
+                          onPressed: () => Provider.of<AppDatabase>(
+                            context,
+                            listen: false,
+                          ).nameCacheDao.deleteNameFromCache(names[index]),
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    MaterialLocalizations.of(context).closeButtonLabel,
+                  ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(materialLocalizations.cancelButtonLabel),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Provider.of<AppSettings>(
-                        context,
-                        listen: false,
-                      ).nameCache = [];
-                      Navigator.pop(context);
-                    },
-                    child: Text(materialLocalizations.okButtonLabel),
-                  ),
-                ],
-              );
-            },
+              ],
+            ),
           ),
         ),
       ],

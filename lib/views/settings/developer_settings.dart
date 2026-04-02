@@ -1,6 +1,8 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart' show DriftDbViewer;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
 import 'package:werewolf_narrator/util/consts.dart';
@@ -60,6 +62,17 @@ class DeveloperSettingsScreen extends StatelessWidget {
                   if (value != null) {
                     developerSettings.fillPlayerNames = value;
                   }
+                },
+              ),
+
+              ListTile(
+                title: const Text("View Database"),
+                subtitle: const Text("View the contents of the app's database"),
+                onTap: () {
+                  final db = Provider.of<AppDatabase>(context, listen: false);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => DriftDbViewer(db)),
+                  );
                 },
               ),
             ],
