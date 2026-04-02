@@ -27,6 +27,8 @@
     "screen_settings_madeBy": "Mit viel Herzblut entwickelt von {author}",
     "screen_settings_reportIssue": "Problem melden",
     "screen_settings_about": "Über die App",
+    "screen_settings_changelog": "Änderungen",
+    "screen_settings_changelog_loadingError": "Fehler beim Laden des Änderungsprotokolls: {error}",
     "screen_gameSetup_createPlayers_title": "Spieler erstellen",
     "screen_gameSetup_chooseRoles_title": "Rollen auswählen",
     "screen_createPlayers_addPlayer": "Spieler hinzufügen",

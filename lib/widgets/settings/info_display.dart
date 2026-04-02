@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
+import 'package:werewolf_narrator/widgets/changelog.dart' show Changelog;
 import 'package:werewolf_narrator/widgets/settings/funding_button.dart';
 import 'package:werewolf_narrator/widgets/settings/version_display.dart';
 
@@ -98,6 +99,17 @@ class AppInfoDisplay extends StatelessWidget {
                 },
                 label: Text(localizations.screen_settings_about),
                 icon: const Icon(Icons.info),
+              ),
+
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Changelog()),
+                  );
+                },
+                label: Text(localizations.screen_settings_changelog),
+                icon: const Icon(Icons.list),
               ),
             ],
           );
