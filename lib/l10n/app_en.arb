@@ -944,7 +944,7 @@
     "@roleCategory_ambiguous_name": {
         "description": "Name of the category of ambigous roles"
     },
-    "roleCategory_loner_name": "The Loner",
+    "roleCategory_loner_name": "The Loners",
     "@roleCategory_loner_name": {
         "description": "Name of the category of loner roles"
     }
