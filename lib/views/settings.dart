@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
@@ -180,9 +181,12 @@ class SettingsDisplay extends StatelessWidget {
                     return Text('Error: ${cachedNames.error}');
                   }
                   if (!cachedNames.hasData) {
-                    return const CircularProgressIndicator();
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: 100),
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
                   }
-                  final names = cachedNames.data!;
+                  final names = cachedNames.data!.sorted();
                   if (names.isEmpty) {
                     return const Icon(
                       Icons.no_accounts,

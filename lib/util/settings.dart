@@ -1,101 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'
-    show SharedPreferencesAsync;
+import 'package:werewolf_narrator/database/database.dart';
+import 'package:werewolf_narrator/database/settings.dart';
 
 final class AppSettings extends ChangeNotifier {
-  static final AppSettings instance = AppSettings._();
+  static late final AppSettings instance;
 
-  AppSettings._() {
-    _loadSettings();
+  final SettingsDao _dao;
+
+  AppSettings._(this._dao);
+
+  static Future<void> init(AppDatabase db) async {
+    instance = AppSettings._(db.settingsDao);
+    await instance._loadSettings();
   }
 
-  // Load preferences asynchronously
-  Future<void> _loadSettings() async {
-    final prefs = SharedPreferencesAsync();
-    _themeMode = await _getSavedThemeMode(prefs) ?? ThemeMode.system;
-    _dynamicGameTheme = await prefs.getBool(_dynamicGameThemeKey) ?? true;
-    _locale = await _getSavedLocale(prefs);
-    notifyListeners();
-  }
-
-  // Preferences keys
+  // Keys
   static const _themeModeKey = 'themeMode';
   static const _dynamicGameThemeKey = 'dynamicGameTheme';
   static const _localeKey = 'locale';
 
   ThemeMode _themeMode = ThemeMode.system;
+  bool _dynamicGameTheme = true;
+  Locale? _locale;
+
   ThemeMode get themeMode => _themeMode;
+  bool get dynamicGameTheme => _dynamicGameTheme;
+  Locale? get locale => _locale;
+
+  Future<void> _loadSettings() async {
+    _themeMode =
+        await _dao.getSettingEnum(_themeModeKey, ThemeMode.values) ??
+        ThemeMode.system;
+
+    _dynamicGameTheme = await _dao.getSettingBool(_dynamicGameThemeKey) ?? true;
+
+    final localeString = await _dao.getSettingString(_localeKey);
+
+    _locale = _parseLocale(localeString);
+
+    notifyListeners();
+  }
+
   set themeMode(ThemeMode mode) {
     if (_themeMode != mode) {
       _themeMode = mode;
       notifyListeners();
-      _saveThemeMode(mode);
+
+      _dao.setSetting(_themeModeKey, mode.name, SettingsType.enumType);
     }
   }
 
-  bool _dynamicGameTheme = true;
-  bool get dynamicGameTheme => _dynamicGameTheme;
   set dynamicGameTheme(bool value) {
     if (_dynamicGameTheme != value) {
       _dynamicGameTheme = value;
       notifyListeners();
-      _saveDynamicGameTheme(value);
+
+      _dao.setSetting(_dynamicGameThemeKey, value, SettingsType.bool);
     }
   }
 
-  Locale? _locale;
-  Locale? get locale => _locale;
   set locale(Locale? newLocale) {
     if (_locale != newLocale) {
       _locale = newLocale;
       notifyListeners();
-      _saveLocale(newLocale);
-    }
-  }
 
-  Future<ThemeMode?> _getSavedThemeMode(SharedPreferencesAsync prefs) async {
-    final index = await prefs.getInt(_themeModeKey);
-    if (index != null && index >= 0 && index < ThemeMode.values.length) {
-      return ThemeMode.values[index];
-    }
-    return ThemeMode.system;
-  }
+      if (newLocale != null) {
+        final localeString = newLocale.countryCode != null
+            ? '${newLocale.languageCode}_${newLocale.countryCode}'
+            : newLocale.languageCode;
 
-  Future<Locale?> _getSavedLocale(SharedPreferencesAsync prefs) async {
-    final localeString = await prefs.getString(_localeKey);
-    if (localeString != null) {
-      final parts = localeString.split('_');
-      if (parts.length == 2) {
-        return Locale(parts[0], parts[1]);
-      } else if (parts.length == 1) {
-        return Locale(parts[0]);
+        _dao.setSetting(_localeKey, localeString, SettingsType.string);
+      } else {
+        _dao.setSetting(_localeKey, '', SettingsType.string);
       }
     }
-    return null;
   }
 
-  void _saveThemeMode(ThemeMode mode, [SharedPreferencesAsync? prefs]) async {
-    prefs ??= SharedPreferencesAsync();
-    await prefs.setInt(_themeModeKey, mode.index);
-  }
+  Locale? _parseLocale(String? localeString) {
+    if (localeString == null || localeString.isEmpty) return null;
 
-  void _saveDynamicGameTheme(
-    bool value, [
-    SharedPreferencesAsync? prefs,
-  ]) async {
-    prefs ??= SharedPreferencesAsync();
-    await prefs.setBool(_dynamicGameThemeKey, value);
-  }
-
-  void _saveLocale(Locale? locale, [SharedPreferencesAsync? prefs]) async {
-    prefs ??= SharedPreferencesAsync();
-    if (locale != null) {
-      final localeString = locale.countryCode != null
-          ? '${locale.languageCode}_${locale.countryCode}'
-          : locale.languageCode;
-      await prefs.setString(_localeKey, localeString);
-    } else {
-      await prefs.remove(_localeKey);
+    final parts = localeString.split('_');
+    if (parts.length == 2) {
+      return Locale(parts[0], parts[1]);
+    } else if (parts.length == 1) {
+      return Locale(parts[0]);
     }
+    return null;
   }
 }

@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart'
     show driftDatabase, DriftWebOptions;
 import 'package:werewolf_narrator/database/name_cache.dart'
     show NameCache, NameCacheDao;
+import 'package:werewolf_narrator/database/settings.dart';
 
 part 'database.g.dart';
 
@@ -16,9 +17,12 @@ QueryExecutor _connectWithDriftFlutter() {
   );
 }
 
-@DriftDatabase(tables: [NameCache], daos: [NameCacheDao])
+@DriftDatabase(tables: [NameCache, Settings], daos: [NameCacheDao, SettingsDao])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_connectWithDriftFlutter());
+  AppDatabase._() : super(_connectWithDriftFlutter());
+  static final AppDatabase instance = AppDatabase._();
+
+  factory AppDatabase() => instance;
 
   @override
   int get schemaVersion => 1;

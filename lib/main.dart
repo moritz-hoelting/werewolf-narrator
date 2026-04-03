@@ -13,15 +13,15 @@ import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/roles_overview.dart';
 import 'package:werewolf_narrator/views/settings.dart' show SettingsScreen;
 
-void main() {
+void main() async {
   registerFastImmutableCollectionsMappers();
 
   WidgetsFlutterBinding.ensureInitialized();
   GameRegistry.ensureInitialized();
 
   // Preload settings
-  AppSettings.instance;
-  DeveloperSettings.instance;
+  await AppSettings.init(AppDatabase());
+  await DeveloperSettings.init(AppDatabase());
 
   runApp(
     Provider<AppDatabase>(

@@ -11,3 +11,11 @@ global_options:
         - decode
         - stringify
         - equals
+
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          databases:
+            werewolf_narrator_db: lib/database/database.dart
