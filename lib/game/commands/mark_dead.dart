@@ -1,10 +1,15 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 
-class MarkDeadCommand implements GameCommand {
+part 'mark_dead.mapper.dart';
+
+@MappableClass(discriminatorValue: 'markDead')
+class MarkDeadCommand with MarkDeadCommandMappable implements GameCommand {
+  @MappableConstructor()
   MarkDeadCommand({required this.players, required this.deathReason});
   MarkDeadCommand.single({required int player, required this.deathReason})
     : players = ISet({player});

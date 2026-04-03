@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fpdart/fpdart.dart' show Option, FpdartOnOption;
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
@@ -17,13 +18,15 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
+part 'fox.mapper.dart';
+
 @RegisterRole()
 class FoxRole extends Role {
   FoxRole._({required RoleConfiguration config, required super.playerIndex})
     : loosePowersOnWrongGuess = config[losePowersOnWrongGuessOptionId];
-  static final RoleType<FoxRole> type = RoleType<FoxRole>();
+  static final RoleType type = RoleType.of<FoxRole>();
   @override
-  RoleType<FoxRole> get objectType => type;
+  RoleType get roleType => type;
 
   static const String losePowersOnWrongGuessOptionId = 'losePowersOnWrongGuess';
 
@@ -110,7 +113,7 @@ class _FoxScreenState extends State<FoxScreen> {
                   onPlayerSelected: (index) {
                     final foundWerewolf = _checkForWerewolves(gameState, index);
                     gameState.finishBatch(
-                      FoxRoleFoundWerewolfCommand(
+                      FoxFoundWerewolfCommand(
                         playerIndex: widget.playerIndex,
                         foundWerewolf: foundWerewolf,
                       ),
@@ -236,7 +239,10 @@ bool _checkForWerewolves(GameState gameState, int playerIndex) {
   );
 }
 
-class RegisterFoxNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerFoxNightAction')
+class RegisterFoxNightActionCommand
+    with RegisterFoxNightActionCommandMappable
+    implements GameCommand {
   const RegisterFoxNightActionCommand(this.playerIndex);
 
   final int playerIndex;
@@ -268,14 +274,17 @@ class RegisterFoxNightActionCommand implements GameCommand {
   }
 }
 
-class FoxRoleFoundWerewolfCommand implements GameCommand {
-  FoxRoleFoundWerewolfCommand({
+@MappableClass(discriminatorValue: 'foxFoundWerewolf')
+class FoxFoundWerewolfCommand
+    with FoxFoundWerewolfCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final bool foundWerewolf;
+
+  FoxFoundWerewolfCommand({
     required this.playerIndex,
     required this.foundWerewolf,
   });
-
-  final int playerIndex;
-  final bool foundWerewolf;
 
   Option<bool?> _previousFoundWerewolf = Option.none();
 
@@ -298,10 +307,13 @@ class FoxRoleFoundWerewolfCommand implements GameCommand {
   }
 }
 
-class FoxLoosePowersCommand implements GameCommand {
-  FoxLoosePowersCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'foxLoosePowers')
+class FoxLoosePowersCommand
+    with FoxLoosePowersCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  FoxLoosePowersCommand(this.playerIndex);
 
   bool? _previousHasLostPowers;
 

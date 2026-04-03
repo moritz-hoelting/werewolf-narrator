@@ -1,12 +1,15 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
+
+part 'sheriff.mapper.dart';
 
 class SheriffElectionScreen extends StatelessWidget {
   const SheriffElectionScreen({super.key, required this.onComplete});
@@ -40,7 +43,10 @@ class SheriffElectionScreen extends StatelessWidget {
   }
 }
 
-class RegisterSheriffElectionScreenCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerSheriffElectionScreen')
+class RegisterSheriffElectionScreenCommand
+    with RegisterSheriffElectionScreenCommandMappable
+    implements GameCommand {
   const RegisterSheriffElectionScreenCommand();
 
   @override
@@ -89,7 +95,10 @@ class RegisterSheriffElectionScreenCommand implements GameCommand {
   }
 }
 
-class ElectSheriffCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'electSheriff')
+class ElectSheriffCommand
+    with ElectSheriffCommandMappable
+    implements GameCommand {
   const ElectSheriffCommand(this.sheriffIndex);
 
   final int sheriffIndex;

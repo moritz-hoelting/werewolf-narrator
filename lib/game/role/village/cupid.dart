@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:collection/collection.dart';
@@ -5,7 +6,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -17,13 +18,15 @@ import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
+part 'cupid.mapper.dart';
+
 @RegisterRole()
 class CupidRole extends Role {
   CupidRole._({required RoleConfiguration config, required super.playerIndex});
 
-  static final RoleType<CupidRole> type = RoleType<CupidRole>();
+  static final RoleType type = RoleType.of<CupidRole>();
   @override
-  RoleType<CupidRole> get objectType => type;
+  RoleType get roleType => type;
 
   Lovers? lovers;
 
@@ -162,7 +165,10 @@ class WakeLoversScreen extends StatelessWidget {
   }
 }
 
-class RegisterCupidNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerCupidNightAction')
+class RegisterCupidNightActionCommand
+    with RegisterCupidNightActionCommandMappable
+    implements GameCommand {
   final int playerIndex;
 
   const RegisterCupidNightActionCommand(this.playerIndex);
@@ -201,11 +207,14 @@ class RegisterCupidNightActionCommand implements GameCommand {
   }
 }
 
-class CupidAssignLoversCommand implements GameCommand {
-  CupidAssignLoversCommand({required this.cupidIndex, required this.lovers});
-
+@MappableClass(discriminatorValue: 'cupidAssignLovers')
+class CupidAssignLoversCommand
+    with CupidAssignLoversCommandMappable
+    implements GameCommand {
   final int cupidIndex;
   final ISet<int> lovers;
+
+  CupidAssignLoversCommand({required this.cupidIndex, required this.lovers});
 
   Option<Lovers?> _previousLovers = Option.none();
 

@@ -1,7 +1,8 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
     show GameData, GameOverCommand;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -9,6 +10,8 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
 import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
+
+part 'deaths_screen.mapper.dart';
 
 class DeathsScreen extends StatelessWidget {
   final VoidCallback? onPhaseComplete;
@@ -116,7 +119,10 @@ class DeathsScreen extends StatelessWidget {
   }
 }
 
-class MarkDeathsAnnouncedCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'markDeathsAnnounced')
+class MarkDeathsAnnouncedCommand
+    with MarkDeathsAnnouncedCommandMappable
+    implements GameCommand {
   ISet<int>? _previouslyUnannouncedDeaths;
 
   @override

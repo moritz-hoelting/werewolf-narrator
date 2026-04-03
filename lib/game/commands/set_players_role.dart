@@ -1,11 +1,17 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/model/role.dart'
-    show RoleType, RoleManager;
+    show RoleType, RoleManager, RoleTypeMapper;
 import 'package:werewolf_narrator/game/role/role.dart' show Role;
 
-class SetPlayersRoleCommand implements GameCommand {
+part 'set_players_role.mapper.dart';
+
+@MappableClass(discriminatorValue: 'setPlayersRole')
+class SetPlayersRoleCommand
+    with SetPlayersRoleCommandMappable
+    implements GameCommand {
   final RoleType role;
   final ISet<int> players;
 

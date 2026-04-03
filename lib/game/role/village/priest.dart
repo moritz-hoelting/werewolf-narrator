@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +21,16 @@ import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
+part 'priest.mapper.dart';
+
 @RegisterRole()
 class PriestRole extends Role {
   PriestRole._({required RoleConfiguration config, required super.playerIndex})
     : blessAmountRemaining = config[PriestRole.blessCountOptionId];
 
-  static final RoleType<PriestRole> type = RoleType<PriestRole>();
+  static final RoleType type = RoleType.of<PriestRole>();
   @override
-  RoleType<PriestRole> get objectType => type;
+  RoleType get roleType => type;
 
   static const String blessCountOptionId = 'blessCount';
 
@@ -78,7 +81,10 @@ class PriestRole extends Role {
   }
 }
 
-class OnAssignPriestCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'onAssignPriest')
+class OnAssignPriestCommand
+    with OnAssignPriestCommandMappable
+    implements GameCommand {
   const OnAssignPriestCommand(this.playerIndex);
 
   final int playerIndex;
@@ -153,7 +159,10 @@ class OnAssignPriestCommand implements GameCommand {
   };
 }
 
-class PriestBlessPlayersCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'priestBlessPlayers')
+class PriestBlessPlayersCommand
+    with PriestBlessPlayersCommandMappable
+    implements GameCommand {
   const PriestBlessPlayersCommand({
     required this.playerIndex,
     required this.playersToBless,

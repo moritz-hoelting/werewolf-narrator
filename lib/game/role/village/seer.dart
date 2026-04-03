@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,14 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
+part 'seer.mapper.dart';
+
 @RegisterRole()
 class SeerRole extends Role {
   SeerRole._({required RoleConfiguration config, required super.playerIndex});
-  static final RoleType<SeerRole> type = RoleType<SeerRole>();
+  static final RoleType type = RoleType.of<SeerRole>();
   @override
-  RoleType<SeerRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<SeerRole>(
@@ -125,7 +128,10 @@ class _SeerScreenState extends State<SeerScreen> {
   }
 }
 
-class RegisterSeerNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerSeerNightAction')
+class RegisterSeerNightActionCommand
+    with RegisterSeerNightActionCommandMappable
+    implements GameCommand {
   const RegisterSeerNightActionCommand(this.playerIndex);
 
   final int playerIndex;

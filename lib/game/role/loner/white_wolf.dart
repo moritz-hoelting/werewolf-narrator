@@ -1,7 +1,9 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -15,18 +17,20 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam;
+    show WerewolvesTeam, WerewolvesWinCondition;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'white_wolf.mapper.dart';
+
 @RegisterRole()
-class WhiteWolfRole extends Role implements WinCondition, DeathReason {
+class WhiteWolfRole extends Role {
   WhiteWolfRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   }) : wakeEveryNthNight = config[wakeEveryNthNightOptionKey];
-  static final RoleType<WhiteWolfRole> type = RoleType<WhiteWolfRole>();
+  static final RoleType type = RoleType.of<WhiteWolfRole>();
   @override
-  RoleType<WhiteWolfRole> get objectType => type;
+  RoleType get roleType => type;
 
   static const String wakeEveryNthNightOptionKey = 'wakeEveryNthNight';
 
@@ -73,7 +77,7 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
     gameState.apply(
       CompositeGameCommand(
         [
-          RegisterWinConditionCommand(this),
+          RegisterWinConditionCommand(WhiteWolfWinCondition(playerIndex)),
           OnAssignWhiteWolfCommand(
             playerIndex: playerIndex,
             wakeEveryNthNight: wakeEveryNthNight,
@@ -85,6 +89,15 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
 
   static String _name(BuildContext context) =>
       AppLocalizations.of(context).role_whiteWolf_name;
+}
+
+@MappableClass(discriminatorValue: 'whiteWolf')
+class WhiteWolfWinCondition
+    with WhiteWolfWinConditionMappable
+    implements WinCondition {
+  const WhiteWolfWinCondition(this.playerIndex);
+
+  final int playerIndex;
 
   @override
   bool hasWon(GameState gameState) => soloRoleHasWon(gameState, playerIndex);
@@ -94,9 +107,16 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
       AppLocalizations.of(context).role_whiteWolf_winHeadline;
 
   @override
-  ISet<int> winningPlayers(GameState gameState) {
-    return ISet({playerIndex});
-  }
+  ISet<int> winningPlayers(GameState gameState) => ISet({playerIndex});
+}
+
+@MappableClass(discriminatorValue: 'whiteWolf')
+class WhiteWolfDeathReason
+    with WhiteWolfDeathReasonMappable
+    implements DeathReason {
+  WhiteWolfDeathReason(this.playerIndex);
+
+  final int playerIndex;
 
   @override
   String deathReasonDescription(BuildContext context) =>
@@ -106,7 +126,10 @@ class WhiteWolfRole extends Role implements WinCondition, DeathReason {
   ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 }
 
-class OnAssignWhiteWolfCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'onAssignWhiteWolf')
+class OnAssignWhiteWolfCommand
+    with OnAssignWhiteWolfCommandMappable
+    implements GameCommand {
   const OnAssignWhiteWolfCommand({
     required this.playerIndex,
     required this.wakeEveryNthNight,
@@ -145,7 +168,7 @@ class OnAssignWhiteWolfCommand implements GameCommand {
     int playerIndex,
   ) {
     if (gameState.teams.containsKey(WerewolvesTeam.type) &&
-        winner == (gameState.teams[WerewolvesTeam.type] as WerewolvesTeam) &&
+        winner is WerewolvesWinCondition &&
         playerIndex == this.playerIndex) {
       return false;
     }
@@ -181,7 +204,7 @@ class OnAssignWhiteWolfCommand implements GameCommand {
           gameState.apply(
             MarkDeadCommand.single(
               player: selectedPlayers.single,
-              deathReason: gameState.players[playerIndex].role as WhiteWolfRole,
+              deathReason: WhiteWolfDeathReason(playerIndex),
             ),
           );
         }

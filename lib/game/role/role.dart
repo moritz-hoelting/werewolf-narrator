@@ -19,17 +19,17 @@ abstract class Role {
   }
 
   /// The unique type of this role.
-  RoleType get objectType;
+  RoleType get roleType;
 
   /// Called when this role is assigned to a player.
   void onAssign(GameState gameState) {}
 
   /// The team of this role in the current game state.
   TeamType? team(GameState gameState) =>
-      overrideTeam.getOrElse(() => objectType.information.initialTeam);
+      overrideTeam.getOrElse(() => roleType.information.initialTeam);
 
   /// The display name of this role.
-  String name(BuildContext context) => objectType.information.name(context);
+  String name(BuildContext context) => roleType.information.name(context);
 
   /// Whether this role has a death screen.
   bool hasDeathScreen(GameState gameState) => false;

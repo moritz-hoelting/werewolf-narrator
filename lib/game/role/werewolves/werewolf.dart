@@ -13,9 +13,9 @@ class WerewolfRole extends Role {
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<WerewolfRole> type = RoleType<WerewolfRole>();
+  static final RoleType type = RoleType.of<WerewolfRole>();
   @override
-  RoleType<WerewolfRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<WerewolfRole>(

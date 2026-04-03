@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_annotations/register_team.dart' show RegisterTeam;
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -12,25 +14,28 @@ import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
-    show WinCondition, teamWinningPlayers;
+    show WinCondition, teamWinningPlayers, WinConditionMapper;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'werewolves.mapper.dart';
+
 @RegisterTeam()
-class WerewolvesTeam extends Team implements WinCondition {
+class WerewolvesTeam extends Team {
   const WerewolvesTeam._();
-  static final TeamType type = TeamType<WerewolvesTeam>();
+  static final TeamType type = TeamType.of<WerewolvesTeam>();
   @override
-  TeamType get objectType => type;
+  TeamType get teamType => type;
 
   static void registerTeam() {
     TeamManager.registerTeam<WerewolvesTeam>(
+      type,
       RegisterTeamInformation(
         constructor: WerewolvesTeam._,
         name: _name,
@@ -51,7 +56,7 @@ class WerewolvesTeam extends Team implements WinCondition {
     gameState.apply(
       CompositeGameCommand(
         [
-          RegisterWinConditionCommand(this),
+          RegisterWinConditionCommand(WerewolvesWinCondition()),
           RegisterWerewolvesNightActionCommand(),
         ].lock,
       ),
@@ -67,6 +72,29 @@ class WerewolvesTeam extends Team implements WinCondition {
 
   static String _name(BuildContext context) =>
       AppLocalizations.of(context).team_werewolves_name;
+}
+
+@MappableClass(discriminatorValue: 'werewolves')
+class WerewolvesDeathReason
+    with WerewolvesDeathReasonMappable
+    implements DeathReason {
+  WerewolvesDeathReason(this.responsiblePlayers);
+
+  final ISet<int> responsiblePlayers;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).team_werewolves_deathReason;
+
+  @override
+  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
+}
+
+@MappableClass(discriminatorValue: 'werewolves')
+class WerewolvesWinCondition
+    with WerewolvesWinConditionMappable
+    implements WinCondition {
+  const WerewolvesWinCondition();
 
   @override
   String winningHeadline(BuildContext context) =>
@@ -86,23 +114,13 @@ class WerewolvesTeam extends Team implements WinCondition {
 
   @override
   ISet<int> winningPlayers(GameState gameState) =>
-      teamWinningPlayers(gameState, objectType);
+      teamWinningPlayers(gameState, WerewolvesTeam.type);
 }
 
-class WerewolvesDeathReason implements DeathReason {
-  WerewolvesDeathReason(this.responsiblePlayers);
-
-  final ISet<int> responsiblePlayers;
-
-  @override
-  String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context).team_werewolves_deathReason;
-
-  @override
-  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
-}
-
-class RegisterWerewolvesNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerWerewolvesNightAction')
+class RegisterWerewolvesNightActionCommand
+    with RegisterWerewolvesNightActionCommandMappable
+    implements GameCommand {
   Set<int> _nightActionPlayerIndices = {};
 
   @override

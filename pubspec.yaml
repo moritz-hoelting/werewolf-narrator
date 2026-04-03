@@ -65,6 +65,7 @@ dependencies:
   drift_flutter: ^0.3.0
   path_provider: ^2.1.5
   drift_db_viewer: ^2.1.0
+  dart_mappable: ^4.7.0
 
 dev_dependencies:
   flutter_test:
@@ -86,6 +87,7 @@ dev_dependencies:
   tools:
     path: ./tools
   drift_dev: ^2.32.1
+  dart_mappable_builder: ^4.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -12,12 +13,14 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
+part 'elder.mapper.dart';
+
 @RegisterRole()
 class ElderRole extends Role {
   ElderRole._({required RoleConfiguration config, required super.playerIndex});
-  static final RoleType<ElderRole> type = RoleType<ElderRole>();
+  static final RoleType type = RoleType.of<ElderRole>();
   @override
-  RoleType<ElderRole> get objectType => type;
+  RoleType get roleType => type;
 
   bool hasBeenAttackedByWerewolves = false;
 
@@ -50,7 +53,10 @@ class ElderRole extends Role {
   }
 }
 
-class OnAssignElderCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'onAssignElder')
+class OnAssignElderCommand
+    with OnAssignElderCommandMappable
+    implements GameCommand {
   const OnAssignElderCommand(this.playerIndex);
 
   final int playerIndex;
@@ -97,10 +103,13 @@ class OnAssignElderCommand implements GameCommand {
   }
 }
 
-class MarkElderAsAttackedCommand implements GameCommand {
-  MarkElderAsAttackedCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'markElderAsAttacked')
+class MarkElderAsAttackedCommand
+    with MarkElderAsAttackedCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  MarkElderAsAttackedCommand(this.playerIndex);
 
   bool? previousHasBeenAttacked;
 
@@ -122,7 +131,10 @@ class MarkElderAsAttackedCommand implements GameCommand {
   }
 }
 
-class ElderDeathPreventAbilitiesCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'elderDeathPreventAbilities')
+class ElderDeathPreventAbilitiesCommand
+    with ElderDeathPreventAbilitiesCommandMappable
+    implements GameCommand {
   const ElderDeathPreventAbilitiesCommand({
     required this.playerIndex,
     required this.responsibleDeathPlayers,

@@ -1,5 +1,8 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+
+part 'death_information.mapper.dart';
 
 /// Information about a player's death.
 class DeathInformation {
@@ -19,8 +22,11 @@ class DeathInformation {
   });
 }
 
-abstract interface class DeathReason {
+@MappableClass(discriminatorKey: "type")
+abstract interface class DeathReason with DeathReasonMappable {
+  /// A description of the death reason, used for the death screen.
   String deathReasonDescription(BuildContext context);
 
+  /// The players responsible for the death.
   ISet<int> get responsiblePlayerIndices;
 }

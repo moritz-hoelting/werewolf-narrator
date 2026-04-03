@@ -1,7 +1,9 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
@@ -10,21 +12,22 @@ import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 
+part 'knight_of_the_rusty_sword.mapper.dart';
+
 @RegisterRole()
-class KnightOfTheRustySwordRole extends Role implements DeathReason {
+class KnightOfTheRustySwordRole extends Role {
   KnightOfTheRustySwordRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<KnightOfTheRustySwordRole> type =
-      RoleType<KnightOfTheRustySwordRole>();
+  static final RoleType type = RoleType.of<KnightOfTheRustySwordRole>();
   @override
-  RoleType<KnightOfTheRustySwordRole> get objectType => type;
+  RoleType get roleType => type;
 
   ({int deathDayCounter, int clockwiseNearestWerewolfIndex})? killHookData;
 
@@ -49,13 +52,6 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
       ),
     );
   }
-
-  @override
-  String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context).role_knightOfTheRustySword_deathReason;
-
-  @override
-  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 
   @override
   void onAssign(GameState gameState) {
@@ -109,7 +105,7 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
             <GameCommand>[
               MarkDeadCommand.single(
                 player: clockwiseNearestWerewolfIndex,
-                deathReason: this,
+                deathReason: KnightOfTheRustySwordRoleDeathReason(playerIndex),
               ),
               UnregisterKnightOfTheRustySwordDawnHookCommand(playerIndex),
             ].lock,
@@ -120,7 +116,26 @@ class KnightOfTheRustySwordRole extends Role implements DeathReason {
   }
 }
 
-class RegisterKnightOfTheRustySwordDeathHookCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'knightOfTheRustySword')
+class KnightOfTheRustySwordRoleDeathReason
+    with KnightOfTheRustySwordRoleDeathReasonMappable
+    implements DeathReason {
+  const KnightOfTheRustySwordRoleDeathReason(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).role_knightOfTheRustySword_deathReason;
+
+  @override
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
+}
+
+@MappableClass(discriminatorValue: 'registerKnightOfTheRustySwordDeathHook')
+class RegisterKnightOfTheRustySwordDeathHookCommand
+    with RegisterKnightOfTheRustySwordDeathHookCommandMappable
+    implements GameCommand {
   const RegisterKnightOfTheRustySwordDeathHookCommand(this.playerIndex);
 
   final int playerIndex;
@@ -145,16 +160,19 @@ class RegisterKnightOfTheRustySwordDeathHookCommand implements GameCommand {
   }
 }
 
-class RegisterKnightOfTheRustySwordDawnHookCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerKnightOfTheRustySwordDawnHook')
+class RegisterKnightOfTheRustySwordDawnHookCommand
+    with RegisterKnightOfTheRustySwordDawnHookCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final int deathDayCounter;
+  final int clockwiseNearestWerewolfIndex;
+
   RegisterKnightOfTheRustySwordDawnHookCommand({
     required this.playerIndex,
     required this.deathDayCounter,
     required this.clockwiseNearestWerewolfIndex,
   });
-
-  final int playerIndex;
-  final int deathDayCounter;
-  final int clockwiseNearestWerewolfIndex;
 
   Option<({int clockwiseNearestWerewolfIndex, int deathDayCounter})?>
   _previousKillHookData = Option.none();
@@ -187,10 +205,13 @@ class RegisterKnightOfTheRustySwordDawnHookCommand implements GameCommand {
   }
 }
 
-class UnregisterKnightOfTheRustySwordDawnHookCommand implements GameCommand {
-  UnregisterKnightOfTheRustySwordDawnHookCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'unregisterKnightOfTheRustySwordDawnHook')
+class UnregisterKnightOfTheRustySwordDawnHookCommand
+    with UnregisterKnightOfTheRustySwordDawnHookCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  UnregisterKnightOfTheRustySwordDawnHookCommand(this.playerIndex);
 
   Option<({int clockwiseNearestWerewolfIndex, int deathDayCounter})?>
   _previousKillHookData = Option.none();

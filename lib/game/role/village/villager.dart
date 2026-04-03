@@ -12,9 +12,9 @@ class VillagerRole extends Role {
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<VillagerRole> type = RoleType<VillagerRole>();
+  static final RoleType type = RoleType.of<VillagerRole>();
   @override
-  RoleType<VillagerRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<VillagerRole>(

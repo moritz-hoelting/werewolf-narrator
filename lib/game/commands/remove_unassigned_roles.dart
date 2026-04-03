@@ -1,13 +1,18 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
-import 'package:werewolf_narrator/game/role/role.dart' show Role;
+
+part 'remove_unassigned_roles.mapper.dart';
 
 /// Removes unassigned roles from the role counts.
-class RemoveUnassignedRolesCommand implements GameCommand {
-  Map<RoleType<Role>, ({RoleConfiguration config, int count})>? _removedRoles;
+@MappableClass(discriminatorValue: 'removeUnassignedRoles')
+class RemoveUnassignedRolesCommand
+    with RemoveUnassignedRolesCommandMappable
+    implements GameCommand {
+  Map<RoleType, ({RoleConfiguration config, int count})>? _removedRoles;
 
   @override
   void apply(GameData gameData) {

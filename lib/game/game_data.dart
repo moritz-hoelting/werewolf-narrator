@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/commands/fill_villager_roles.dart'
     show FillVillagerRolesCommand;
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
@@ -22,6 +23,8 @@ import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
     show CheckRolesData;
 import 'package:werewolf_narrator/views/game/dynamic_actions_screen.dart'
     show DetermineFirstDynamicActionIndexCommand;
+
+part 'game_data.mapper.dart';
 
 class GameData {
   GameData({
@@ -196,7 +199,7 @@ class GameData {
       roleConfigurations[role]!.count > 0;
 
   /// Checks if the game has a specific role.
-  bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
+  bool hasRoleType<T extends Role>() => hasRole(RoleType.of<T>());
 
   /// Checks if the game has a specific role with at least one alive player.
   bool hasAliveRole(RoleType role) =>
@@ -204,25 +207,24 @@ class GameData {
       players.indexed.any(
         (p) =>
             p.$2.role != null &&
-            p.$2.role!.objectType == role &&
+            p.$2.role!.roleType == role &&
             playerAliveUntilDawn(p.$1),
       );
 
   /// Checks if the game has a specific role with at least one alive player.
-  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
+  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType.of<T>());
 
   /// Returns index and the player with a specific role, if any.
   ({int index, Player player})? getPlayerOfRole(RoleType role) => players
       .mapIndexed((index, player) => (index: index, player: player))
       .singleWhereOrNull(
         (player) =>
-            player.player.role != null &&
-            player.player.role!.objectType == role,
+            player.player.role != null && player.player.role!.roleType == role,
       );
 
   /// Returns index and the player with a specific role, if any.
   ({int index, Player player})? getPlayerOfRoleType<T extends Role>() =>
-      getPlayerOfRole(RoleType<T>());
+      getPlayerOfRole(RoleType.of<T>());
 
   /// Returns index and the alive player with a specific role, if any.
   ({int index, Player player})? getAlivePlayerOfRole(RoleType role) => players
@@ -230,26 +232,26 @@ class GameData {
       .singleWhereOrNull(
         (entry) =>
             entry.player.role != null &&
-            entry.player.role!.objectType == role &&
+            entry.player.role!.roleType == role &&
             playerAliveUntilDawn(entry.index),
       );
 
   /// Returns index and the alive player with a specific role, if any.
   ({int index, Player player})? getAlivePlayerOfRoleType<T extends Role>() =>
-      getAlivePlayerOfRole(RoleType<T>());
+      getAlivePlayerOfRole(RoleType.of<T>());
 
   /// Returns a list of indices and players with a specific role.
   IList<({int index, Player player})> getPlayersOfRole(RoleType role) => players
       .mapIndexed((index, player) => (index: index, player: player))
       .where(
         (entry) =>
-            entry.player.role != null && entry.player.role!.objectType == role,
+            entry.player.role != null && entry.player.role!.roleType == role,
       )
       .toIList();
 
   /// Returns a list of indices and players with a specific role.
   IList<({int index, Player player})> getPlayersOfRoleType<T extends Role>() =>
-      getPlayersOfRole(RoleType<T>());
+      getPlayersOfRole(RoleType.of<T>());
 
   /// Returns a list of indices and alive players with a specific role.
   IList<({int index, Player player})> getAlivePlayersOfRole(RoleType role) =>
@@ -258,7 +260,7 @@ class GameData {
           .where(
             (entry) =>
                 entry.player.role != null &&
-                entry.player.role!.objectType == role &&
+                entry.player.role!.roleType == role &&
                 playerAliveUntilDawn(entry.index),
           )
           .toIList();
@@ -266,7 +268,7 @@ class GameData {
   /// Returns a list of indices and alive players with a specific role.
   IList<({int index, Player player})>
   getAlivePlayersOfRoleType<T extends Role>() =>
-      getAlivePlayersOfRole(RoleType<T>());
+      getAlivePlayersOfRole(RoleType.of<T>());
 
   /// Checks if the game has a specific team.
   bool hasPlayerOfTeam(TeamType team) => players.any(
@@ -274,7 +276,8 @@ class GameData {
   );
 
   /// Checks if the game has a specific team.
-  bool hasPlayerOfTeamType<T extends Team>() => hasPlayerOfTeam(TeamType<T>());
+  bool hasPlayerOfTeamType<T extends Team>() =>
+      hasPlayerOfTeam(TeamType.of<T>());
 
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeam(TeamType team) => players.indexed.any(
@@ -286,7 +289,7 @@ class GameData {
 
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeamType<T extends Team>() =>
-      hasAlivePlayerOfTeam(TeamType<T>());
+      hasAlivePlayerOfTeam(TeamType.of<T>());
 
   /// Returns a list of indices and players belonging to a specific team.
   IList<({int index, Player player})> getPlayersOfTeam(TeamType team) => players
@@ -299,7 +302,7 @@ class GameData {
 
   /// Returns a list of indices and players belonging to a specific team.
   IList<({int index, Player player})> getPlayersOfTeamType<T extends Team>() =>
-      getPlayersOfTeam(TeamType<T>());
+      getPlayersOfTeam(TeamType.of<T>());
 
   /// Returns a list of indices and alive players belonging to a specific team.
   IList<({int index, Player player})> getAlivePlayersOfTeam(TeamType team) =>
@@ -316,7 +319,7 @@ class GameData {
   /// Returns a list of indices and alive players belonging to a specific team.
   IList<({int index, Player player})>
   getAlivePlayersOfTeamType<T extends Team>() =>
-      getAlivePlayersOfTeam(TeamType<T>());
+      getAlivePlayersOfTeam(TeamType.of<T>());
 
   /// Returns a list of unassigned roles in the game.
   IList<RoleType> get unassignedRoles {
@@ -324,7 +327,7 @@ class GameData {
       <RoleType, int>{},
       (acc, element) {
         if (element != null) {
-          acc[element.objectType] = (acc[element.objectType] ?? 0) + 1;
+          acc[element.roleType] = (acc[element.roleType] ?? 0) + 1;
         }
         return acc;
       },
@@ -612,12 +615,15 @@ enum GamePhase {
       index >= GamePhase.dusk.index && index < GamePhase.dawn.index;
 }
 
-class TransitionToNextPhaseCommand implements GameCommand {
-  ({GamePhase phase, int day, CheckRolesData checkRolesData})? previousState;
+@MappableClass(discriminatorValue: 'transitionToNextPhase')
+class TransitionToNextPhaseCommand
+    with TransitionToNextPhaseCommandMappable
+    implements GameCommand {
+  ({GamePhase phase, int day, CheckRolesData checkRolesData})? _previousState;
 
   @override
   void apply(GameData gameData) {
-    previousState = (
+    _previousState = (
       phase: gameData.phase,
       day: gameData.dayCounter,
       checkRolesData: gameData.checkRolesData,
@@ -626,12 +632,12 @@ class TransitionToNextPhaseCommand implements GameCommand {
   }
 
   @override
-  bool get canBeUndone => previousState != null;
+  bool get canBeUndone => _previousState != null;
 
   @override
   void undo(GameData gameData) {
-    if (previousState != null) {
-      final (:phase, :day, :checkRolesData) = previousState!;
+    if (_previousState != null) {
+      final (:phase, :day, :checkRolesData) = _previousState!;
       gameData._phase = phase;
       gameData._dayCounter = day;
       gameData.checkRolesData = checkRolesData;
@@ -639,7 +645,8 @@ class TransitionToNextPhaseCommand implements GameCommand {
   }
 }
 
-class GameOverCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'gameOver')
+class GameOverCommand with GameOverCommandMappable implements GameCommand {
   GamePhase? _previousPhase;
 
   @override

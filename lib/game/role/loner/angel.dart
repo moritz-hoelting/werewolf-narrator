@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,14 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 
+part 'angel.mapper.dart';
+
 @RegisterRole()
-class AngelRole extends Role implements WinCondition {
+class AngelRole extends Role {
   AngelRole._({required RoleConfiguration config, required super.playerIndex});
-  static final RoleType<AngelRole> type = RoleType<AngelRole>();
+  static final RoleType type = RoleType.of<AngelRole>();
   @override
-  RoleType<AngelRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<AngelRole>(
@@ -43,11 +46,20 @@ class AngelRole extends Role implements WinCondition {
   void onAssign(GameState gameState) {
     super.onAssign(gameState);
 
-    gameState.apply(RegisterWinConditionCommand(this));
+    gameState.apply(
+      RegisterWinConditionCommand(AngelWinCondition(playerIndex)),
+    );
   }
 
   static String _name(BuildContext context) =>
       AppLocalizations.of(context).role_angel_name;
+}
+
+@MappableClass(discriminatorValue: "angel")
+class AngelWinCondition with AngelWinConditionMappable implements WinCondition {
+  const AngelWinCondition(this.playerIndex);
+
+  final int playerIndex;
 
   @override
   bool hasWon(GameState gameState) =>

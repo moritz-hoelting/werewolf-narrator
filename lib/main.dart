@@ -3,22 +3,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
+import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
+import 'package:werewolf_narrator/util/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/roles_overview.dart';
 import 'package:werewolf_narrator/views/settings.dart' show SettingsScreen;
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  registerFastImmutableCollectionsMappers();
 
-  // Register roles and screens
-  RoleManager.ensureRegistered();
-  TeamManager.ensureRegistered();
+  WidgetsFlutterBinding.ensureInitialized();
+  GameRegistry.ensureInitialized();
 
   // Preload settings
   AppSettings.instance;

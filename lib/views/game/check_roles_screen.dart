@@ -1,6 +1,7 @@
 import 'dart:math' show max;
 
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show Either;
@@ -18,6 +19,8 @@ import 'package:werewolf_narrator/game/role/village/villager.dart'
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
+
+part 'check_roles_screen.mapper.dart';
 
 class CheckRolesScreen extends StatelessWidget {
   const CheckRolesScreen({super.key, required this.onPhaseComplete});
@@ -389,7 +392,10 @@ class CheckRolesData {
   }
 }
 
-class CheckNextRoleCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'checkNextRole')
+class CheckNextRoleCommand
+    with CheckNextRoleCommandMappable
+    implements GameCommand {
   final int missing;
 
   const CheckNextRoleCommand({required this.missing});
@@ -410,7 +416,10 @@ class CheckNextRoleCommand implements GameCommand {
   }
 }
 
-class AssignPlayersByTeamCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'assignPlayersByTeam')
+class AssignPlayersByTeamCommand
+    with AssignPlayersByTeamCommandMappable
+    implements GameCommand {
   final TeamType team;
   final ISet<int> playerIndices;
 

@@ -1,13 +1,16 @@
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show Option, FpdartOnOption;
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show ActionHook;
+
+part 'dynamic_actions_screen.mapper.dart';
 
 class DynamicActionsScreen extends StatelessWidget {
   const DynamicActionsScreen({
@@ -84,7 +87,10 @@ int? _findNextValidIndex(
   })?.$1;
 }
 
-class DetermineFirstDynamicActionIndexCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'determineFirstDynamicActionIndex')
+class DetermineFirstDynamicActionIndexCommand
+    with DetermineFirstDynamicActionIndexCommandMappable
+    implements GameCommand {
   final bool night;
 
   const DetermineFirstDynamicActionIndexCommand({required this.night});
@@ -105,7 +111,10 @@ class DetermineFirstDynamicActionIndexCommand implements GameCommand {
   }
 }
 
-class SetDynamicActionIndexCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'setDynamicActionIndex')
+class SetDynamicActionIndexCommand
+    with SetDynamicActionIndexCommandMappable
+    implements GameCommand {
   final int newIndex;
 
   SetDynamicActionIndexCommand(this.newIndex);

@@ -1,8 +1,11 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
+
+part 'death_actions_screen.mapper.dart';
 
 class DeathActionsScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
@@ -36,7 +39,10 @@ class DeathActionsScreen extends StatelessWidget {
   }
 }
 
-class MarkPlayerUsedDeathActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'markPlayerUsedDeathAction')
+class MarkPlayerUsedDeathActionCommand
+    with MarkPlayerUsedDeathActionCommandMappable
+    implements GameCommand {
   final int playerIndex;
 
   MarkPlayerUsedDeathActionCommand(this.playerIndex);

@@ -1,9 +1,10 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
@@ -17,15 +18,17 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam, WerewolvesDeathReason;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'big_bad_wolf.mapper.dart';
+
 @RegisterRole()
 class BigBadWolfRole extends Role {
   BigBadWolfRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<BigBadWolfRole> type = RoleType<BigBadWolfRole>();
+  static final RoleType type = RoleType.of<BigBadWolfRole>();
   @override
-  RoleType<BigBadWolfRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<BigBadWolfRole>(
@@ -66,7 +69,10 @@ bool werewolfHasDied(GameState gameState) => gameState.players.indexed
     .intersection(gameState.knownDeadPlayerIndices)
     .isNotEmpty;
 
-class RegisterBigBadWolfNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerBigBadWolfNightAction')
+class RegisterBigBadWolfNightActionCommand
+    with RegisterBigBadWolfNightActionCommandMappable
+    implements GameCommand {
   const RegisterBigBadWolfNightActionCommand(this.playerIndex);
 
   final int playerIndex;

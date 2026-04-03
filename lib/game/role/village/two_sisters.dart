@@ -11,9 +11,9 @@ class TwoSistersRole extends Role {
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<TwoSistersRole> type = RoleType<TwoSistersRole>();
+  static final RoleType type = RoleType.of<TwoSistersRole>();
   @override
-  RoleType<TwoSistersRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<TwoSistersRole>(

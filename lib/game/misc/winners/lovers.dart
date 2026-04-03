@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
@@ -6,12 +7,14 @@ import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
-import 'package:werewolf_narrator/game/model/win_condition.dart'
-    show WinCondition;
+    show DeathReason, DeathReasonMapper;
+import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 
-class Lovers implements DeathReason, WinCondition {
+part 'lovers.mapper.dart';
+
+@MappableClass()
+class Lovers with LoversMappable implements DeathReason, WinCondition {
   const Lovers(this.lovers);
 
   final ISet<int> lovers;
@@ -43,7 +46,10 @@ class Lovers implements DeathReason, WinCondition {
   ISet<int> winningPlayers(GameState gameState) => lovers;
 }
 
-class InitializeLoversCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'initializeLovers')
+class InitializeLoversCommand
+    with InitializeLoversCommandMappable
+    implements GameCommand {
   const InitializeLoversCommand(this.lovers);
 
   final Lovers lovers;

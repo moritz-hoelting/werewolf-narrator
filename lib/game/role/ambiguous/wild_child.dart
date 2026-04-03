@@ -1,14 +1,14 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -18,6 +18,8 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'wild_child.mapper.dart';
+
 @RegisterRole()
 class WildChildRole extends Role {
   WildChildRole._({
@@ -25,9 +27,9 @@ class WildChildRole extends Role {
     required super.playerIndex,
   });
 
-  static final RoleType<WildChildRole> type = RoleType<WildChildRole>();
+  static final RoleType type = RoleType.of<WildChildRole>();
   @override
-  RoleType<WildChildRole> get objectType => type;
+  RoleType get roleType => type;
 
   int? roleModel;
   bool turned = false;
@@ -41,7 +43,7 @@ class WildChildRole extends Role {
   }
 
   @override
-  TeamType<Team>? team(GameState gameState) => overrideTeam.getOrElse(() {
+  TeamType? team(GameState gameState) => overrideTeam.getOrElse(() {
     if (turned) {
       return WerewolvesTeam.type;
     }
@@ -77,7 +79,10 @@ class WildChildRole extends Role {
   }
 }
 
-class RegisterWildChildNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerWildChildNightAction')
+class RegisterWildChildNightActionCommand
+    with RegisterWildChildNightActionCommandMappable
+    implements GameCommand {
   const RegisterWildChildNightActionCommand(this.playerIndex);
 
   final int playerIndex;
@@ -134,14 +139,17 @@ class RegisterWildChildNightActionCommand implements GameCommand {
       };
 }
 
-class WildChildSelectRoleModelCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'wildChildSelectRoleModel')
+class WildChildSelectRoleModelCommand
+    with WildChildSelectRoleModelCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final int roleModelIndex;
+
   WildChildSelectRoleModelCommand({
     required this.playerIndex,
     required this.roleModelIndex,
   });
-
-  final int playerIndex;
-  final int roleModelIndex;
 
   ({int? roleModel, bool turned})? _previousData;
 
@@ -189,10 +197,13 @@ class WildChildSelectRoleModelCommand implements GameCommand {
   }
 }
 
-class TurnWildChildCommand implements GameCommand {
-  TurnWildChildCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'turnWildChild')
+class TurnWildChildCommand
+    with TurnWildChildCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  TurnWildChildCommand(this.playerIndex);
 
   bool? _previousTurned;
 

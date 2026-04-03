@@ -11,9 +11,9 @@ class LittleGirlRole extends Role {
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<LittleGirlRole> type = RoleType<LittleGirlRole>();
+  static final RoleType type = RoleType.of<LittleGirlRole>();
   @override
-  RoleType<LittleGirlRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<LittleGirlRole>(

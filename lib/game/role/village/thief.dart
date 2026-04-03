@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +19,14 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
+part 'thief.mapper.dart';
+
 @RegisterRole()
 class ThiefRole extends Role {
   ThiefRole._({required RoleConfiguration config, required super.playerIndex});
-  static final RoleType<ThiefRole> type = RoleType<ThiefRole>();
+  static final RoleType type = RoleType.of<ThiefRole>();
   @override
-  RoleType<ThiefRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<ThiefRole>(
@@ -130,7 +133,10 @@ class ThiefScreen extends StatelessWidget {
   }
 }
 
-class InitializeThiefCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'initializeThief')
+class InitializeThiefCommand
+    with InitializeThiefCommandMappable
+    implements GameCommand {
   @override
   void apply(GameData gameData) {
     gameData.remainingRoleHooks
@@ -151,7 +157,10 @@ class InitializeThiefCommand implements GameCommand {
   }
 }
 
-class RegisterThiefNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerThiefNightAction')
+class RegisterThiefNightActionCommand
+    with RegisterThiefNightActionCommandMappable
+    implements GameCommand {
   const RegisterThiefNightActionCommand(this.playerIndex);
 
   final int playerIndex;

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -19,13 +20,15 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'doctor.mapper.dart';
+
 @RegisterRole()
 class DoctorRole extends Role {
   DoctorRole._({required RoleConfiguration config, required super.playerIndex})
     : protectPlayerCooldown = config[protectPlayerCooldownOptionKey];
-  static final RoleType<DoctorRole> type = RoleType<DoctorRole>();
+  static final RoleType type = RoleType.of<DoctorRole>();
   @override
-  RoleType<DoctorRole> get objectType => type;
+  RoleType get roleType => type;
 
   static const String protectPlayerCooldownOptionKey = "protectPlayerCooldown";
 
@@ -79,8 +82,11 @@ class DoctorRole extends Role {
   }
 }
 
-class AssignDoctorCommand implements GameCommand {
-  AssignDoctorCommand({required this.playerIndex});
+@MappableClass(discriminatorValue: 'assignDoctor')
+class AssignDoctorCommand
+    with AssignDoctorCommandMappable
+    implements GameCommand {
+  const AssignDoctorCommand({required this.playerIndex});
 
   final int playerIndex;
 
@@ -159,14 +165,17 @@ class AssignDoctorCommand implements GameCommand {
   };
 }
 
-class SetDoctorProtectionTargetCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'setDoctorProtectionTarget')
+class SetDoctorProtectionTargetCommand
+    with SetDoctorProtectionTargetCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final int? targetPlayerIndex;
+
   SetDoctorProtectionTargetCommand({
     required this.playerIndex,
     required this.targetPlayerIndex,
   });
-
-  final int playerIndex;
-  final int? targetPlayerIndex;
 
   ({int? previousTarget, List<int> removedPlayersFromCooldown})? _previousData;
 

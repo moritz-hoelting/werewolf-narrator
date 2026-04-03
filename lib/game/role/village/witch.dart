@@ -1,7 +1,9 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -10,7 +12,7 @@ import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -22,14 +24,16 @@ import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
+part 'witch.mapper.dart';
+
 @RegisterRole()
-class WitchRole extends Role implements DeathReason {
+class WitchRole extends Role {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
     : healPotions = config[healPotionOptionId],
       killPotions = config[killPotionOptionId];
-  static final RoleType<WitchRole> type = RoleType<WitchRole>();
+  static final RoleType type = RoleType.of<WitchRole>();
   @override
-  RoleType<WitchRole> get objectType => type;
+  RoleType get roleType => type;
 
   static const String healPotionOptionId = 'heal';
   static const String killPotionOptionId = 'kill';
@@ -88,6 +92,13 @@ class WitchRole extends Role implements DeathReason {
 
     gameState.apply(RegisterWitchNightActionCommand(playerIndex));
   }
+}
+
+@MappableClass(discriminatorValue: 'witch')
+class WitchDeathReason with WitchDeathReasonMappable implements DeathReason {
+  const WitchDeathReason(this.playerIndex);
+
+  final int playerIndex;
 
   @override
   String deathReasonDescription(BuildContext context) =>
@@ -331,7 +342,10 @@ class HasPotionsBody extends StatelessWidget {
   }
 }
 
-class RegisterWitchNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerWitchNightAction')
+class RegisterWitchNightActionCommand
+    with RegisterWitchNightActionCommandMappable
+    implements GameCommand {
   const RegisterWitchNightActionCommand(this.playerIndex);
 
   final int playerIndex;
@@ -365,7 +379,10 @@ class RegisterWitchNightActionCommand implements GameCommand {
   }
 }
 
-class WitchUsePotionsCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'witchUsePotions')
+class WitchUsePotionsCommand
+    with WitchUsePotionsCommandMappable
+    implements GameCommand {
   WitchUsePotionsCommand({
     required this.playerIndex,
     required this.healPlayers,
@@ -386,7 +403,10 @@ class WitchUsePotionsCommand implements GameCommand {
           <GameCommand>[
             if (healPlayers.isNotEmpty) MarkRevivedCommand(healPlayers),
             if (killPlayers.isNotEmpty)
-              MarkDeadCommand(players: killPlayers, deathReason: witchRole),
+              MarkDeadCommand(
+                players: killPlayers,
+                deathReason: WitchDeathReason(playerIndex),
+              ),
           ].lock,
         ),
       );

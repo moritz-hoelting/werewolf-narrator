@@ -1,12 +1,13 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/commands/override_team.dart';
-import 'package:werewolf_narrator/game/game_command.dart'
-    show CompositeGameCommand, GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
@@ -21,16 +22,17 @@ import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
+part 'ancient_werewolf.mapper.dart';
+
 @RegisterRole()
 class AncientWerewolfRole extends Role {
   AncientWerewolfRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<AncientWerewolfRole> type =
-      RoleType<AncientWerewolfRole>();
+  static final RoleType type = RoleType.of<AncientWerewolfRole>();
   @override
-  RoleType<AncientWerewolfRole> get objectType => type;
+  RoleType get roleType => type;
 
   int? convertedPlayerIndex;
   int? convertedDayCount;
@@ -204,7 +206,10 @@ class AncientWerewolfScreen extends StatelessWidget {
   }
 }
 
-class RegisterAncientWerewolfNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerAncientWerewolfNightAction')
+class RegisterAncientWerewolfNightActionCommand
+    with RegisterAncientWerewolfNightActionCommandMappable
+    implements GameCommand {
   const RegisterAncientWerewolfNightActionCommand(this.playerIndex);
 
   final int playerIndex;
@@ -234,16 +239,19 @@ class RegisterAncientWerewolfNightActionCommand implements GameCommand {
   }
 }
 
-class AncientWerewolfSaveConvertPlayerIndexCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'ancientWerewolfSaveConvertPlayerIndex')
+class AncientWerewolfSaveConvertPlayerIndexCommand
+    with AncientWerewolfSaveConvertPlayerIndexCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final int convertedPlayerIndex;
+  final int convertedDayCount;
+
   AncientWerewolfSaveConvertPlayerIndexCommand({
     required this.playerIndex,
     required this.convertedPlayerIndex,
     required this.convertedDayCount,
   });
-
-  final int playerIndex;
-  final int convertedPlayerIndex;
-  final int convertedDayCount;
 
   Option<({int? convertedPlayerIndex, int? convertedDayCount})> _previousData =
       Option.none();

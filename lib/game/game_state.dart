@@ -122,7 +122,7 @@ class GameState extends ChangeNotifier {
 
   GameState({
     required List<String> playerNames,
-    required Map<RoleType<Role>, ({Map<String, dynamic> config, int count})>
+    required Map<RoleType, ({Map<String, dynamic> config, int count})>
     roleConfigurations,
   }) {
     _data = GameData(
@@ -249,13 +249,13 @@ class GameState extends ChangeNotifier {
   bool hasRole(RoleType role) => _data.hasRole(role);
 
   /// Checks if the game has a specific role.
-  bool hasRoleType<T extends Role>() => hasRole(RoleType<T>());
+  bool hasRoleType<T extends Role>() => hasRole(RoleType.of<T>());
 
   /// Checks if the game has a specific role with at least one alive player.
   bool hasAliveRole(RoleType role) => _data.hasAliveRole(role);
 
   /// Checks if the game has a specific role with at least one alive player.
-  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType<T>());
+  bool hasAliveRoleType<T extends Role>() => hasAliveRole(RoleType.of<T>());
 
   /// Returns index and the player with a specific role, if any.
   ({int index, PlayerView player})? getPlayerOfRole(RoleType role) {
@@ -266,7 +266,7 @@ class GameState extends ChangeNotifier {
 
   /// Returns index and the player with a specific role, if any.
   ({int index, PlayerView player})? getPlayerOfRoleType<T extends Role>() =>
-      getPlayerOfRole(RoleType<T>());
+      getPlayerOfRole(RoleType.of<T>());
 
   /// Returns index and the alive player with a specific role, if any.
   ({int index, PlayerView player})? getAlivePlayerOfRole(RoleType role) {
@@ -278,7 +278,7 @@ class GameState extends ChangeNotifier {
   /// Returns index and the alive player with a specific role, if any.
   ({int index, PlayerView player})?
   getAlivePlayerOfRoleType<T extends Role>() =>
-      getAlivePlayerOfRole(RoleType<T>());
+      getAlivePlayerOfRole(RoleType.of<T>());
 
   /// Returns a list of indices and players with a specific role.
   IList<({int index, PlayerView player})> getPlayersOfRole(
@@ -287,14 +287,14 @@ class GameState extends ChangeNotifier {
       .getPlayersOfRole(role)
       .where(
         (entry) =>
-            entry.player.role != null && entry.player.role!.objectType == role,
+            entry.player.role != null && entry.player.role!.roleType == role,
       )
       .map((entry) => (index: entry.index, player: PlayerView(entry.player)))
       .toIList();
 
   /// Returns a list of indices and players with a specific role.
   IList<({int index, PlayerView player})>
-  getPlayersOfRoleType<T extends Role>() => getPlayersOfRole(RoleType<T>());
+  getPlayersOfRoleType<T extends Role>() => getPlayersOfRole(RoleType.of<T>());
 
   /// Returns a list of indices and alive players with a specific role.
   IList<({int index, PlayerView player})> getAlivePlayersOfRole(
@@ -309,20 +309,21 @@ class GameState extends ChangeNotifier {
   /// Returns a list of indices and alive players with a specific role.
   IList<({int index, PlayerView player})>
   getAlivePlayersOfRoleType<T extends Role>() =>
-      getAlivePlayersOfRole(RoleType<T>());
+      getAlivePlayersOfRole(RoleType.of<T>());
 
   /// Checks if the game has a specific team.
   bool hasPlayerOfTeam(TeamType team) => _data.hasPlayerOfTeam(team);
 
   /// Checks if the game has a specific team.
-  bool hasPlayerOfTeamType<T extends Team>() => hasPlayerOfTeam(TeamType<T>());
+  bool hasPlayerOfTeamType<T extends Team>() =>
+      hasPlayerOfTeam(TeamType.of<T>());
 
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeam(TeamType team) => _data.hasAlivePlayerOfTeam(team);
 
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeamType<T extends Team>() =>
-      hasAlivePlayerOfTeam(TeamType<T>());
+      hasAlivePlayerOfTeam(TeamType.of<T>());
 
   /// Returns a list of indices and players belonging to a specific team.
   IList<({int index, PlayerView player})> getPlayersOfTeam(TeamType team) =>
@@ -336,7 +337,7 @@ class GameState extends ChangeNotifier {
 
   /// Returns a list of indices and players belonging to a specific team.
   IList<({int index, PlayerView player})>
-  getPlayersOfTeamType<T extends Team>() => getPlayersOfTeam(TeamType<T>());
+  getPlayersOfTeamType<T extends Team>() => getPlayersOfTeam(TeamType.of<T>());
 
   /// Returns a list of indices and alive players belonging to a specific team.
   IList<({int index, PlayerView player})> getAlivePlayersOfTeam(
@@ -351,7 +352,7 @@ class GameState extends ChangeNotifier {
   /// Returns a list of indices and alive players belonging to a specific team.
   IList<({int index, PlayerView player})>
   getAlivePlayersOfTeamType<T extends Team>() =>
-      getAlivePlayersOfTeam(TeamType<T>());
+      getAlivePlayersOfTeam(TeamType.of<T>());
 
   /// Returns a list of unassigned roles in the game.
   IList<RoleType> get unassignedRoles => _data.unassignedRoles;
@@ -472,7 +473,7 @@ class _AppliedCommandFrame {
   }
 
   String _toStringInner() {
-    return entries.map(_toStringInnerEither).join(', ');
+    return entries.map(_toStringInnerEither).join(',\n');
   }
 
   static String _toStringInnerEither(

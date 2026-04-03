@@ -1,7 +1,8 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
@@ -17,15 +18,17 @@ import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
+part 'bear_tamer.mapper.dart';
+
 @RegisterRole()
 class BearTamerRole extends Role {
   BearTamerRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<BearTamerRole> type = RoleType<BearTamerRole>();
+  static final RoleType type = RoleType.of<BearTamerRole>();
   @override
-  RoleType<BearTamerRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<BearTamerRole>(
@@ -92,7 +95,10 @@ class BearGruntScreen extends StatelessWidget {
   }
 }
 
-class RegisterBearTamerDawnMessageCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerBearTamerDawnMessage')
+class RegisterBearTamerDawnMessageCommand
+    with RegisterBearTamerDawnMessageCommandMappable
+    implements GameCommand {
   const RegisterBearTamerDawnMessageCommand(this.playerIndex);
 
   final int playerIndex;

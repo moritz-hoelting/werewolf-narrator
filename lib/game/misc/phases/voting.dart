@@ -1,15 +1,18 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
+
+part 'voting.mapper.dart';
 
 class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -95,7 +98,10 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
   }
 }
 
-class VillageVoteDeathReason implements DeathReason {
+@MappableClass(discriminatorValue: 'villageVote')
+class VillageVoteDeathReason
+    with VillageVoteDeathReasonMappable
+    implements DeathReason {
   const VillageVoteDeathReason(this.responsiblePlayers);
 
   final ISet<int> responsiblePlayers;
@@ -108,7 +114,10 @@ class VillageVoteDeathReason implements DeathReason {
   ISet<int> get responsiblePlayerIndices => responsiblePlayers;
 }
 
-class RegisterVillageVoteScreenCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerVillageVoteScreen')
+class RegisterVillageVoteScreenCommand
+    with RegisterVillageVoteScreenCommandMappable
+    implements GameCommand {
   @override
   void apply(GameData gameData) {
     gameData.dayActionManager.registerAction(

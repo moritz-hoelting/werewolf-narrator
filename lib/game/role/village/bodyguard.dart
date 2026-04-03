@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +22,17 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'bodyguard.mapper.dart';
+
 @RegisterRole()
 class BodyguardRole extends Role {
   BodyguardRole._({
     required RoleConfiguration config,
     required super.playerIndex,
   });
-  static final RoleType<BodyguardRole> type = RoleType<BodyguardRole>();
+  static final RoleType type = RoleType.of<BodyguardRole>();
   @override
-  RoleType<BodyguardRole> get objectType => type;
+  RoleType get roleType => type;
 
   bool hasBeenAttacked = false;
   int? protectionTarget;
@@ -102,7 +105,10 @@ class BodyguardRole extends Role {
   }
 }
 
-class OnAssignBodyguardCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'onAssignBodyguard')
+class OnAssignBodyguardCommand
+    with OnAssignBodyguardCommandMappable
+    implements GameCommand {
   const OnAssignBodyguardCommand(this.playerIndex);
 
   final int playerIndex;
@@ -163,7 +169,10 @@ class OnAssignBodyguardCommand implements GameCommand {
       };
 }
 
-class RemoveBodyguardDeathHookCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'removeBodyguardDeathHook')
+class RemoveBodyguardDeathHookCommand
+    with RemoveBodyguardDeathHookCommandMappable
+    implements GameCommand {
   const RemoveBodyguardDeathHookCommand(this.playerIndex);
 
   final int playerIndex;
@@ -184,39 +193,45 @@ class RemoveBodyguardDeathHookCommand implements GameCommand {
   }
 }
 
-class BodyguardSetProtectionTargetCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'bodyguardSetProtectionTarget')
+class BodyguardSetProtectionTargetCommand
+    with BodyguardSetProtectionTargetCommandMappable
+    implements GameCommand {
+  final int playerIndex;
+  final int? targetPlayerIndex;
+
   BodyguardSetProtectionTargetCommand({
     required this.playerIndex,
     required this.targetPlayerIndex,
   });
 
-  final int playerIndex;
-  final int? targetPlayerIndex;
-
-  int? previousProtectionTarget;
+  int? _previousProtectionTarget;
 
   @override
   void apply(GameData gameData) {
     final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
-    previousProtectionTarget = bodyguardRole.protectionTarget;
+    _previousProtectionTarget = bodyguardRole.protectionTarget;
     bodyguardRole.protectionTarget = targetPlayerIndex;
   }
 
   @override
-  bool get canBeUndone => previousProtectionTarget != null;
+  bool get canBeUndone => _previousProtectionTarget != null;
 
   @override
   void undo(GameData gameData) {
     final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
-    bodyguardRole.protectionTarget = previousProtectionTarget;
-    previousProtectionTarget = null;
+    bodyguardRole.protectionTarget = _previousProtectionTarget;
+    _previousProtectionTarget = null;
   }
 }
 
-class MarkBodyguardAttackedCommand implements GameCommand {
-  MarkBodyguardAttackedCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'markBodyguardAttacked')
+class MarkBodyguardAttackedCommand
+    with MarkBodyguardAttackedCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  MarkBodyguardAttackedCommand(this.playerIndex);
 
   bool? _previousHasBeenAttacked;
 

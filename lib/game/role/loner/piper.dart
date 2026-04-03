@@ -1,7 +1,9 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
@@ -20,13 +22,15 @@ import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart'
     show PlayerList;
 
+part 'piper.mapper.dart';
+
 @RegisterRole()
-class PiperRole extends Role implements WinCondition {
+class PiperRole extends Role {
   PiperRole._({required RoleConfiguration config, required super.playerIndex})
     : charmAmountPerNight = config[charmAmountPerNightOptionId];
-  static final RoleType<PiperRole> type = RoleType<PiperRole>();
+  static final RoleType type = RoleType.of<PiperRole>();
   @override
-  RoleType<PiperRole> get objectType => type;
+  RoleType get roleType => type;
   static const String charmAmountPerNightOptionId = 'charmAmountPerNight';
 
   final int charmAmountPerNight;
@@ -74,7 +78,7 @@ class PiperRole extends Role implements WinCondition {
     gameState.apply(
       CompositeGameCommand(
         [
-          RegisterWinConditionCommand(this),
+          RegisterWinConditionCommand(PiperWinCondition(playerIndex)),
           RegisterPiperNightActionCommand(
             charmAmountPerNight: charmAmountPerNight,
             charmedPlayers: charmedPlayers,
@@ -87,11 +91,23 @@ class PiperRole extends Role implements WinCondition {
 
   static String _name(BuildContext context) =>
       AppLocalizations.of(context).role_piper_name;
+}
+
+@MappableClass(discriminatorValue: 'piper')
+class PiperWinCondition with PiperWinConditionMappable implements WinCondition {
+  const PiperWinCondition(this.playerIndex);
+
+  final int playerIndex;
 
   @override
-  bool hasWon(GameState gameState) => gameState.alivePlayerIndices
-      .difference(charmedPlayers)
-      .singleElementEquals(playerIndex);
+  bool hasWon(GameState gameState) {
+    final piperRole = gameState.players[playerIndex].role as PiperRole;
+    final charmedPlayers = piperRole.charmedPlayers;
+
+    return gameState.alivePlayerIndices
+        .difference(charmedPlayers)
+        .singleElementEquals(playerIndex);
+  }
 
   @override
   String winningHeadline(BuildContext context) =>
@@ -197,7 +213,10 @@ class _PiperScreenState extends State<PiperScreen> {
   }
 }
 
-class RegisterPiperNightActionCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'registerPiperNightAction')
+class RegisterPiperNightActionCommand
+    with RegisterPiperNightActionCommandMappable
+    implements GameCommand {
   const RegisterPiperNightActionCommand({
     required this.playerIndex,
     required this.charmedPlayers,
@@ -233,7 +252,10 @@ class RegisterPiperNightActionCommand implements GameCommand {
   }
 }
 
-class PiperCharmPlayersCommand implements GameCommand {
+@MappableClass(discriminatorValue: 'piperCharmPlayers')
+class PiperCharmPlayersCommand
+    with PiperCharmPlayersCommandMappable
+    implements GameCommand {
   const PiperCharmPlayersCommand({
     required this.playerIndex,
     required this.charmedPlayers,

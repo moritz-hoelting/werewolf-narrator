@@ -1,29 +1,42 @@
 import 'dart:collection';
 
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/team/team.dart';
 
-class TeamType<T extends Team> {
-  const TeamType._();
+part 'team.mapper.dart';
 
-  static final _teamMap = <Type, TeamType>{};
+@MappableClass()
+class TeamType with TeamTypeMappable {
+  const TeamType._(this.id);
 
-  factory TeamType() {
-    if (!_teamMap.containsKey(T)) {
-      _teamMap[T] = TeamType<T>._();
+  @MappableConstructor()
+  factory TeamType.fromId(String id) {
+    GameRegistry.teamTypeForId(id); // Ensure that the team type is registered
+    return TeamType._(id);
+  }
+
+  final String id;
+
+  static final _teamMap = <String, TeamType>{};
+
+  static TeamType of<T extends Team>() {
+    final String id = GameRegistry.idForTeamType<T>();
+    if (!_teamMap.containsKey(id)) {
+      _teamMap[id] = TeamType._(id);
     }
-    return _teamMap[T] as TeamType<T>;
+    return _teamMap[id]!;
   }
 
   /// The unique type of this team.
-  Type get type => T;
+  Type get type => GameRegistry.teamTypeForId(id);
 
   @override
-  bool operator ==(Object other) => other is TeamType<T>;
+  bool operator ==(Object other) => other is TeamType ? other.id == id : false;
   @override
-  int get hashCode => T.hashCode;
+  int get hashCode => type.hashCode;
 
   /// The registered information for this team.
   RegisterTeamInformation get information => TeamManager.getInformation(this);
@@ -34,28 +47,26 @@ class TeamType<T extends Team> {
   }
 
   @override
-  String toString() => 'Team<$T>';
+  String toString() => 'Team<$id>';
 }
 
 abstract class TeamManager {
   static final LinkedHashMap<TeamType, RegisterTeamInformation>
   _teamInformation = LinkedHashMap();
-  static bool _registered = false;
-
-  /// Ensures that all teams are registered.
-  static void ensureRegistered() {
-    if (!_registered) {
-      GameRegistry.registerTeams();
-      _registered = true;
-    }
-  }
 
   /// Registers a team with the given information.
-  static void registerTeam<T extends Team>(RegisterTeamInformation<T> info) {
-    if (_teamInformation.containsKey(TeamType<T>())) {
+  static void registerTeam<T extends Team>(
+    TeamType teamType,
+    RegisterTeamInformation<T> info,
+  ) {
+    assert(
+      teamType == TeamType.of<T>(),
+      'The team type must match the team information',
+    );
+    if (_teamInformation.containsKey(teamType)) {
       throw Exception('Team of type $T is already registered');
     }
-    _teamInformation[TeamType<T>()] = info;
+    _teamInformation[teamType] = info;
   }
 
   /// Instantiates a new team of the given type.

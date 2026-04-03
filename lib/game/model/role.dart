@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:fpdart/fpdart.dart';
@@ -11,52 +12,59 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
-class RoleType<T extends Role> {
-  const RoleType._();
+part 'role.mapper.dart';
 
-  static final _roleMap = <Type, RoleType>{};
+@MappableClass()
+class RoleType with RoleTypeMappable {
+  const RoleType._(this.id);
 
-  factory RoleType() {
-    if (!_roleMap.containsKey(T)) {
-      _roleMap[T] = RoleType<T>._();
+  @MappableConstructor()
+  factory RoleType.fromId(String id) {
+    GameRegistry.roleTypeForId(id); // Ensure that the role type is registered
+    return RoleType._(id);
+  }
+
+  final String id;
+
+  static final _roleMap = <String, RoleType>{};
+
+  static RoleType of<T extends Role>() {
+    final String id = GameRegistry.idForRoleType<T>();
+    if (!_roleMap.containsKey(id)) {
+      _roleMap[id] = RoleType._(id);
     }
-    return _roleMap[T] as RoleType<T>;
+    return _roleMap[id]!;
   }
 
   /// The unique type of this role.
-  Type get type => T;
+  Type get type => GameRegistry.roleTypeForId(id);
 
   @override
-  bool operator ==(Object other) => other is RoleType<T>;
+  bool operator ==(Object other) => other is RoleType ? other.id == id : false;
   @override
-  int get hashCode => T.hashCode;
+  int get hashCode => type.hashCode;
 
   /// The registered role information for this role type.
-  RegisterRoleInformation<T> get information =>
-      RoleManager.getRoleInformation(this) as RegisterRoleInformation<T>;
+  RegisterRoleInformation get information =>
+      RoleManager.getRoleInformation(this) as RegisterRoleInformation;
 
   @override
-  String toString() => 'Role<$T>';
+  String toString() => 'Role<$id>';
 }
 
 abstract class RoleManager {
   static final LinkedHashMap<RoleType, RegisterRoleInformation>
   _roleInformation = LinkedHashMap();
-  static bool _registered = false;
-
-  /// Ensures that all roles are registered.
-  static void ensureRegistered() {
-    if (!_registered) {
-      GameRegistry.registerRoles();
-      _registered = true;
-    }
-  }
 
   /// Registers a role with the given information.
   static void registerRole<T extends Role>(
-    RoleType<T> roleType,
+    RoleType roleType,
     RegisterRoleInformation<T> info,
   ) {
+    assert(
+      roleType == RoleType.of<T>(),
+      'The role type must match the role information',
+    );
     if (_roleInformation.containsKey(roleType)) {
       throw Exception('Role of type $T is already registered');
     }

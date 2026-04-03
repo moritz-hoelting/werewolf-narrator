@@ -1,13 +1,13 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
+import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/team/team.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -17,6 +17,8 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
+part 'wolf_hound.mapper.dart';
+
 @RegisterRole()
 class WolfHoundRole extends Role {
   WolfHoundRole._({
@@ -24,9 +26,9 @@ class WolfHoundRole extends Role {
     required super.playerIndex,
   });
 
-  static final RoleType<WolfHoundRole> type = RoleType<WolfHoundRole>();
+  static final RoleType type = RoleType.of<WolfHoundRole>();
   @override
-  RoleType<WolfHoundRole> get objectType => type;
+  RoleType get roleType => type;
 
   bool? selectedWerewolf;
 
@@ -43,7 +45,7 @@ class WolfHoundRole extends Role {
   }
 
   @override
-  TeamType<Team>? team(GameState gameState) => overrideTeam.getOrElse(() {
+  TeamType? team(GameState gameState) => overrideTeam.getOrElse(() {
     if (selectedWerewolf == true) {
       return WerewolvesTeam.type;
     }
@@ -79,10 +81,13 @@ class WolfHoundRole extends Role {
   }
 }
 
-class RegisterWolfHoundNightActionCommand implements GameCommand {
-  const RegisterWolfHoundNightActionCommand(this.playerIndex);
-
+@MappableClass(discriminatorValue: 'registerWolfHoundNightAction')
+class RegisterWolfHoundNightActionCommand
+    with RegisterWolfHoundNightActionCommandMappable
+    implements GameCommand {
   final int playerIndex;
+
+  const RegisterWolfHoundNightActionCommand(this.playerIndex);
 
   @override
   void apply(GameData gameData) {
@@ -133,11 +138,14 @@ class RegisterWolfHoundNightActionCommand implements GameCommand {
       };
 }
 
-class WolfHoundChooseCommand implements GameCommand {
-  WolfHoundChooseCommand(this.playerIndex, this.selectedWerewolf);
-
+@MappableClass(discriminatorValue: 'wolfHoundChoose')
+class WolfHoundChooseCommand
+    with WolfHoundChooseCommandMappable
+    implements GameCommand {
   final int playerIndex;
   final bool selectedWerewolf;
+
+  WolfHoundChooseCommand(this.playerIndex, this.selectedWerewolf);
 
   Option<bool?> _previousChoice = Option.none();
 

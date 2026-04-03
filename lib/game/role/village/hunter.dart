@@ -1,3 +1,4 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -6,19 +7,21 @@ import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
+part 'hunter.mapper.dart';
+
 @RegisterRole()
-class HunterRole extends Role implements DeathReason {
+class HunterRole extends Role {
   HunterRole._({required RoleConfiguration config, required super.playerIndex});
-  static final RoleType<HunterRole> type = RoleType<HunterRole>();
+  static final RoleType type = RoleType.of<HunterRole>();
   @override
-  RoleType<HunterRole> get objectType => type;
+  RoleType get roleType => type;
 
   static void registerRole() {
     RoleManager.registerRole<HunterRole>(
@@ -42,19 +45,26 @@ class HunterRole extends Role implements DeathReason {
   }
 
   @override
-  String deathReasonDescription(BuildContext context) =>
-      AppLocalizations.of(context).role_hunter_deathReason;
-
-  @override
-  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
-
-  @override
   bool hasDeathScreen(GameState gameState) => true;
   @override
   WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) {
     return (context) =>
         HunterScreen(playerIndex: playerIndex, onPhaseComplete: onComplete);
   }
+}
+
+@MappableClass(discriminatorValue: 'hunter')
+class HunterDeathReason with HunterDeathReasonMappable implements DeathReason {
+  const HunterDeathReason(this.playerIndex);
+
+  final int playerIndex;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).role_hunter_deathReason;
+
+  @override
+  ISet<int> get responsiblePlayerIndices => ISet({playerIndex});
 }
 
 class HunterScreen extends StatelessWidget {
@@ -87,7 +97,7 @@ class HunterScreen extends StatelessWidget {
             gameState.apply(
               MarkDeadCommand.single(
                 player: selectedPlayers.single,
-                deathReason: gameState.players[playerIndex].role as HunterRole,
+                deathReason: HunterDeathReason(playerIndex),
               ),
             );
             onPhaseComplete();

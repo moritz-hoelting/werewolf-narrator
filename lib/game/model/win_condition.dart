@@ -1,9 +1,13 @@
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 
-abstract interface class WinCondition {
+part 'win_condition.mapper.dart';
+
+@MappableClass(discriminatorKey: "type")
+abstract interface class WinCondition with WinConditionMappable {
   /// The headline displayed when having won.
   String winningHeadline(BuildContext context);
 

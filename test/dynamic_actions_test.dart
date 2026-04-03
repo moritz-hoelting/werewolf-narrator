@@ -1,9 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/set_players_role.dart';
-import 'package:werewolf_narrator/game/game_command.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/game_registry.g.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
     show HunterRole;
@@ -16,8 +15,7 @@ import 'package:werewolf_narrator/game/team/werewolves.dart'
 
 void main() {
   setUpAll(() {
-    RoleManager.ensureRegistered();
-    TeamManager.ensureRegistered();
+    GameRegistry.ensureInitialized();
   });
 
   test("Test night action order", () {
