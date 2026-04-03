@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:meta/meta.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 
 @sealed
 abstract class Role {
@@ -11,12 +11,10 @@ abstract class Role {
 
   final int playerIndex;
 
-  Option<TeamType?> overrideTeam = Option.none();
+  Option<TeamType?> overrideTeam = const Option.none();
 
   @override
-  String toString() {
-    return runtimeType.toString();
-  }
+  String toString() => runtimeType.toString();
 
   /// The unique type of this role.
   RoleType get roleType;

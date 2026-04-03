@@ -36,30 +36,28 @@ class WerewolfNarratorApp extends StatelessWidget {
   const WerewolfNarratorApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => AppSettings.instance),
-        ChangeNotifierProvider(create: (context) => DeveloperSettings.instance),
-      ],
-      child: Consumer<AppSettings>(
-        builder: (context, settings, child) => MaterialApp(
-          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-          theme: Themes.lightThemeForMaterialApp(settings),
-          darkTheme: Themes.darkThemeForMaterialApp(settings),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: settings.locale,
-          home: const HomePage(),
-        ),
+  Widget build(BuildContext context) => MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => AppSettings.instance),
+      ChangeNotifierProvider(create: (context) => DeveloperSettings.instance),
+    ],
+    child: Consumer<AppSettings>(
+      builder: (context, settings, child) => MaterialApp(
+        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+        theme: Themes.lightThemeForMaterialApp(settings),
+        darkTheme: Themes.darkThemeForMaterialApp(settings),
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: settings.locale,
+        home: const HomePage(),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class HomePage extends StatelessWidget {
@@ -90,7 +88,7 @@ class HomePage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       label: Text(localizations.button_newGameLabel),
-                      icon: Icon(Icons.play_arrow),
+                      icon: const Icon(Icons.play_arrow),
                       onPressed: () => _startNewGame(context),
                       style: ElevatedButton.styleFrom(
                         elevation: 8,
@@ -114,7 +112,7 @@ class HomePage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       label: Text(localizations.screen_rolesOverview_title),
-                      icon: Icon(Icons.person),
+                      icon: const Icon(Icons.person),
                       style: ElevatedButton.styleFrom(
                         elevation: 4,
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -135,7 +133,7 @@ class HomePage extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       label: Text(localizations.screen_settings_title),
-                      icon: Icon(Icons.settings),
+                      icon: const Icon(Icons.settings),
                       style: ElevatedButton.styleFrom(
                         elevation: 4,
                         padding: const EdgeInsets.symmetric(vertical: 20),

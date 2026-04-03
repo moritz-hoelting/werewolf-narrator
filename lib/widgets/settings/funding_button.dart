@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class FundingButton extends StatelessWidget {
-  const FundingButton({super.key, required this.fundingUrls});
+  const FundingButton({required this.fundingUrls, super.key});
 
   final List<Uri> fundingUrls;
 

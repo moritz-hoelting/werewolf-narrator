@@ -1,21 +1,21 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'wild_child.mapper.dart';
@@ -63,7 +63,7 @@ class WildChildRole extends Role {
           context,
         ).role_wildChild_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.ambiguous,
           priority: 2,
         ),
@@ -91,9 +91,7 @@ class RegisterWildChildNightActionCommand
   void apply(GameData gameData) {
     gameData.nightActionManager.registerAction(
       WildChildRole.type,
-      (gameState, onComplete) {
-        return nightActionScreen(playerIndex, onComplete);
-      },
+      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
           gameState.playerAliveUntilDawn(playerIndex) &&
           (gameState.players[playerIndex].role as WildChildRole).roleModel ==

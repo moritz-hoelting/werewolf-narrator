@@ -16,75 +16,73 @@ class DeveloperSettingsScreen extends StatelessWidget {
   const DeveloperSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Developer Settings")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Consumer<DeveloperSettings>(
-          builder: (context, developerSettings, child) => ListView(
-            children: [
-              CheckboxListTile(
-                title: const Text("Enabled"),
-                subtitle: const Text(
-                  "Uncheck to disable (and hide) developer settings",
-                ),
-                value: developerSettings.enabled,
-                onChanged: (value) {
-                  if (value != null) {
-                    developerSettings.enabled = value;
-                  }
-                },
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: const Text('Developer Settings')),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Consumer<DeveloperSettings>(
+        builder: (context, developerSettings, child) => ListView(
+          children: [
+            CheckboxListTile(
+              title: const Text('Enabled'),
+              subtitle: const Text(
+                'Uncheck to disable (and hide) developer settings',
               ),
+              value: developerSettings.enabled,
+              onChanged: (value) {
+                if (value != null) {
+                  developerSettings.enabled = value;
+                }
+              },
+            ),
 
-              Tooltip(
-                message: "Tap to view commit on GitHub",
-                child: ListTile(
-                  title: Text("Git Hash: $gitHash"),
-                  subtitle: Text("Build Date: $buildDate"),
-                  onTap: PubspecInfo.repositoryUrl != null
-                      ? () {
-                          final url =
-                              "${PubspecInfo.repositoryUrl!}${PubspecInfo.repositoryUrl!.endsWith('/') ? '' : '/'}tree/$gitHash";
-                          launchUrl(Uri.parse(url));
-                        }
-                      : null,
-                ),
+            Tooltip(
+              message: 'Tap to view commit on GitHub',
+              child: ListTile(
+                title: const Text('Git Hash: $gitHash'),
+                subtitle: const Text('Build Date: $buildDate'),
+                onTap: PubspecInfo.repositoryUrl != null
+                    ? () {
+                        final url =
+                            "${PubspecInfo.repositoryUrl!}${PubspecInfo.repositoryUrl!.endsWith('/') ? '' : '/'}tree/$gitHash";
+                        launchUrl(Uri.parse(url));
+                      }
+                    : null,
               ),
+            ),
 
-              CheckboxListTile(
-                title: const Text("Autofill default player names"),
-                subtitle: const Text(
-                  "Players are named sequentially instead of being left blank",
-                ),
-                value: developerSettings.fillPlayerNames,
-                onChanged: (value) {
-                  if (value != null) {
-                    developerSettings.fillPlayerNames = value;
-                  }
-                },
+            CheckboxListTile(
+              title: const Text('Autofill default player names'),
+              subtitle: const Text(
+                'Players are named sequentially instead of being left blank',
               ),
+              value: developerSettings.fillPlayerNames,
+              onChanged: (value) {
+                if (value != null) {
+                  developerSettings.fillPlayerNames = value;
+                }
+              },
+            ),
 
-              ListTile(
-                title: const Text("View Database"),
-                subtitle: const Text("View the contents of the app's database"),
-                onTap: () {
-                  final db = Provider.of<AppDatabase>(context, listen: false);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => DriftDbViewer(db)),
-                  );
-                },
-              ),
-            ],
-          ),
+            ListTile(
+              title: const Text('View Database'),
+              subtitle: const Text("View the contents of the app's database"),
+              onTap: () {
+                final db = Provider.of<AppDatabase>(context, listen: false);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => DriftDbViewer(db)),
+                );
+              },
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class SettingsDisplay extends StatelessWidget {
-  const SettingsDisplay({super.key, required this.settings});
+  const SettingsDisplay({required this.settings, super.key});
 
   final AppSettings settings;
 

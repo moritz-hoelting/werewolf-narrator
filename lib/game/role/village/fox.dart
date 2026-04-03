@@ -1,19 +1,19 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:fpdart/fpdart.dart' show Option, FpdartOnOption;
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show FpdartOnOption, Option;
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -61,7 +61,7 @@ class FoxRole extends Role {
             ).role_fox_option_losePowersOnWrongGuess_description,
           ),
         ]),
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 30,
         ),
@@ -83,10 +83,10 @@ class FoxScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
   const FoxScreen({
-    super.key,
     required this.foxRole,
     required this.playerIndex,
     required this.onPhaseComplete,
+    super.key,
   });
 
   @override
@@ -95,48 +95,44 @@ class FoxScreen extends StatefulWidget {
 
 class _FoxScreenState extends State<FoxScreen> {
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context);
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) {
+      final localizations = AppLocalizations.of(context);
 
-        return Scaffold(
-          appBar: GameAppBar(title: Text(localizations.role_fox_name)),
-          body: widget.foxRole.foundWerewolfThisRound != null
-              ? _ShowResult(
-                  foundWerewolf: widget.foxRole.foundWerewolfThisRound!,
-                  gameState: gameState,
-                )
-              : _SelectPlayer(
-                  playerIndex: widget.playerIndex,
-                  gameState: gameState,
-                  onPlayerSelected: (index) {
-                    final foundWerewolf = _checkForWerewolves(gameState, index);
-                    gameState.finishBatch(
-                      FoxFoundWerewolfCommand(
-                        playerIndex: widget.playerIndex,
-                        foundWerewolf: foundWerewolf,
-                      ),
-                    );
-                  },
-                ),
-          bottomNavigationBar: BottomContinueButton(
-            onPressed: widget.foxRole.foundWerewolfThisRound != null
-                ? () {
-                    if (widget.foxRole.loosePowersOnWrongGuess &&
-                        !widget.foxRole.foundWerewolfThisRound!) {
-                      gameState.apply(
-                        FoxLoosePowersCommand(widget.playerIndex),
-                      );
-                    }
-                    widget.onPhaseComplete();
+      return Scaffold(
+        appBar: GameAppBar(title: Text(localizations.role_fox_name)),
+        body: widget.foxRole.foundWerewolfThisRound != null
+            ? _ShowResult(
+                foundWerewolf: widget.foxRole.foundWerewolfThisRound!,
+                gameState: gameState,
+              )
+            : _SelectPlayer(
+                playerIndex: widget.playerIndex,
+                gameState: gameState,
+                onPlayerSelected: (index) {
+                  final foundWerewolf = _checkForWerewolves(gameState, index);
+                  gameState.finishBatch(
+                    FoxFoundWerewolfCommand(
+                      playerIndex: widget.playerIndex,
+                      foundWerewolf: foundWerewolf,
+                    ),
+                  );
+                },
+              ),
+        bottomNavigationBar: BottomContinueButton(
+          onPressed: widget.foxRole.foundWerewolfThisRound != null
+              ? () {
+                  if (widget.foxRole.loosePowersOnWrongGuess &&
+                      !widget.foxRole.foundWerewolfThisRound!) {
+                    gameState.apply(FoxLoosePowersCommand(widget.playerIndex));
                   }
-                : () => promptSkipAbility(context, widget.onPhaseComplete),
-          ),
-        );
-      },
-    );
-  }
+                  widget.onPhaseComplete();
+                }
+              : () => promptSkipAbility(context, widget.onPhaseComplete),
+        ),
+      );
+    },
+  );
 
   void promptSkipAbility(BuildContext context, VoidCallback onComplete) {
     final localizations = AppLocalizations.of(context);
@@ -211,19 +207,15 @@ class _ShowResult extends StatelessWidget {
   final GameState gameState;
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        foundWerewolf
-            ? AppLocalizations.of(context).role_fox_nightAction_result_werewolf
-            : AppLocalizations.of(
-                context,
-              ).role_fox_nightAction_result_noWerewolf,
-        style: Theme.of(context).textTheme.headlineMedium,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+    child: Text(
+      foundWerewolf
+          ? AppLocalizations.of(context).role_fox_nightAction_result_werewolf
+          : AppLocalizations.of(context).role_fox_nightAction_result_noWerewolf,
+      style: Theme.of(context).textTheme.headlineMedium,
+      textAlign: TextAlign.center,
+    ),
+  );
 }
 
 bool _checkForWerewolves(GameState gameState, int playerIndex) {
@@ -286,7 +278,7 @@ class FoxFoundWerewolfCommand
     required this.foundWerewolf,
   });
 
-  Option<bool?> _previousFoundWerewolf = Option.none();
+  Option<bool?> _previousFoundWerewolf = const Option.none();
 
   @override
   void apply(GameData gameData) {

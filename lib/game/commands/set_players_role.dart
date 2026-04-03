@@ -3,7 +3,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/model/role.dart'
-    show RoleType, RoleManager, RoleTypeMapper;
+    show RoleManager, RoleType, RoleTypeMapper;
 import 'package:werewolf_narrator/game/role/role.dart' show Role;
 
 part 'set_players_role.mapper.dart';

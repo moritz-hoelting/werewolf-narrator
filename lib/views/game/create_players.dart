@@ -10,8 +10,8 @@ class CreatePlayersScreen extends StatefulWidget {
   final List<String>? initialPlayers;
 
   const CreatePlayersScreen({
-    super.key,
     required this.onSubmit,
+    super.key,
     this.initialPlayers,
   });
 
@@ -114,7 +114,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
               onReorder: reorderPlayer,
             ),
           ),
-          Divider(height: 32),
+          const Divider(height: 32),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -159,19 +159,17 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
       invalidIndexes = invalid;
     });
 
-    return (trimmedNames.where((n) => n.isNotEmpty).toSet().length >=
-        CreatePlayersScreen.minPlayers);
+    return trimmedNames.where((n) => n.isNotEmpty).toSet().length >=
+        CreatePlayersScreen.minPlayers;
   }
 
   void reorderPlayer(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
+      final adjustedNewIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
       final item = playerNames.removeAt(oldIndex);
       final key = playerKeys.removeAt(oldIndex);
-      playerNames.insert(newIndex, item);
-      playerKeys.insert(newIndex, key);
+      playerNames.insert(adjustedNewIndex, item);
+      playerKeys.insert(adjustedNewIndex, key);
     });
   }
 
@@ -196,11 +194,11 @@ class PlayerNameInput extends StatefulWidget {
   final bool isInvalid;
 
   const PlayerNameInput({
-    super.key,
     required this.idx,
     required this.initialText,
-    this.isInvalid = false,
     required this.onNameChanged,
+    super.key,
+    this.isInvalid = false,
     this.onDelete,
   });
 
@@ -249,7 +247,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
           return const Iterable<String>.empty();
         }
         final appDatabase = Provider.of<AppDatabase>(context, listen: false);
-        return await appDatabase.nameCacheDao.getAllNamesStartingWith(
+        return appDatabase.nameCacheDao.getAllNamesStartingWith(
           textEditingValue.text,
         );
       },
@@ -258,90 +256,86 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
         widget.onNameChanged(option);
       },
       fieldViewBuilder:
-          (context, textEditingController, focusNode, onFieldSubmitted) {
-            return TextField(
-              autocorrect: false,
-              maxLength: 25,
-              decoration: InputDecoration(
-                labelText: localizations
-                    .screen_createPlayers_playerNumberInputLabel(
-                      number: widget.idx + 1,
-                    ),
-                errorText:
-                    (_touched && !_focusNode.hasFocus && widget.isInvalid)
-                    ? localizations
-                          .screen_createPlayers_error_invalidOrDuplicateName
-                    : null,
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.delete),
-                  iconSize: 30,
-                  onPressed: widget.onDelete,
-                  disabledColor: Theme.of(context).disabledColor,
-                ),
+          (
+            context,
+            textEditingController,
+            focusNode,
+            onFieldSubmitted,
+          ) => TextField(
+            autocorrect: false,
+            maxLength: 25,
+            decoration: InputDecoration(
+              labelText: localizations
+                  .screen_createPlayers_playerNumberInputLabel(
+                    number: widget.idx + 1,
+                  ),
+              errorText: (_touched && !_focusNode.hasFocus && widget.isInvalid)
+                  ? localizations
+                        .screen_createPlayers_error_invalidOrDuplicateName
+                  : null,
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.delete),
+                iconSize: 30,
+                onPressed: widget.onDelete,
+                disabledColor: Theme.of(context).disabledColor,
               ),
-              buildCounter:
-                  (
-                    _, {
-                    required currentLength,
-                    required isFocused,
-                    maxLength,
-                  }) => null,
-              controller: _controller,
-              focusNode: _focusNode,
-              onChanged: widget.onNameChanged,
+            ),
+            buildCounter:
+                (_, {required currentLength, required isFocused, maxLength}) =>
+                    null,
+            controller: _controller,
+            focusNode: _focusNode,
+            onChanged: widget.onNameChanged,
+          ),
+      optionsViewBuilder: (context, onSelected, options) => Material(
+        elevation: 4,
+        child: ListView.builder(
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemCount: options.length,
+          itemBuilder: (context, index) {
+            final option = options.elementAt(index);
+            return ListTile(
+              title: Text(option),
+              onTap: () => onSelected(option),
+              onLongPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(
+                      localizations
+                          .screen_createPlayers_deleteNameFromCacheTitle,
+                    ),
+                    content: Text(
+                      localizations
+                          .screen_createPlayers_deleteNameFromCacheContent(
+                            name: option,
+                          ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(localizations.button_noLabel),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Provider.of<AppDatabase>(
+                            context,
+                            listen: false,
+                          ).nameCacheDao.deleteNameFromCache(option);
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(localizations.button_yesLabel),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           },
-      optionsViewBuilder: (context, onSelected, options) {
-        return Material(
-          elevation: 4,
-          child: ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: options.length,
-            itemBuilder: (context, index) {
-              final option = options.elementAt(index);
-              return ListTile(
-                title: Text(option),
-                onTap: () => onSelected(option),
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text(
-                        localizations
-                            .screen_createPlayers_deleteNameFromCacheTitle,
-                      ),
-                      content: Text(
-                        localizations
-                            .screen_createPlayers_deleteNameFromCacheContent(
-                              name: option,
-                            ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(localizations.button_noLabel),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Provider.of<AppDatabase>(
-                              context,
-                              listen: false,
-                            ).nameCacheDao.deleteNameFromCache(option);
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(localizations.button_yesLabel),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

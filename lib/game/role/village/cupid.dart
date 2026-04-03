@@ -1,20 +1,20 @@
-import 'package:dart_mappable/dart_mappable.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:collection/collection.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/misc/winners/lovers.dart' show Lovers;
+import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
@@ -43,7 +43,7 @@ class CupidRole extends Role {
           context,
         ).role_cupid_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 50,
         ),
@@ -63,10 +63,10 @@ class CupidRole extends Role {
 
 class CupidScreen extends StatelessWidget {
   const CupidScreen({
-    super.key,
     required this.onComplete,
     required this.cupidIndex,
     required this.cupidRole,
+    super.key,
   });
 
   final int cupidIndex;
@@ -111,58 +111,54 @@ class WakeLoversScreen extends StatelessWidget {
   final ISet<int> lovers;
 
   const WakeLoversScreen({
-    super.key,
     required this.onPhaseComplete,
     required this.lovers,
+    super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context);
-        return Scaffold(
-          appBar: GameAppBar(
-            title: Text(localizations.screen_wakeLovers_title),
-          ),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                spacing: 16.0,
-                children: [
-                  const Icon(Icons.favorite, color: Colors.red, size: 160),
-                  Text(
-                    localizations.screen_wakeLovers_instructions,
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-                  ...lovers
-                      .sorted((a, b) => a.compareTo(b))
-                      .map(
-                        (playerIndex) =>
-                            Text(gameState.players[playerIndex].name),
-                      ),
-                ],
-              ),
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) {
+      final localizations = AppLocalizations.of(context);
+      return Scaffold(
+        appBar: GameAppBar(title: Text(localizations.screen_wakeLovers_title)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              spacing: 16.0,
+              children: [
+                const Icon(Icons.favorite, color: Colors.red, size: 160),
+                Text(
+                  localizations.screen_wakeLovers_instructions,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                ...lovers
+                    .sorted((a, b) => a.compareTo(b))
+                    .map(
+                      (playerIndex) =>
+                          Text(gameState.players[playerIndex].name),
+                    ),
+              ],
             ),
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-              ),
-              onPressed: onPhaseComplete,
-              label: Text(localizations.button_continueLabel),
-              icon: const Icon(Icons.arrow_forward),
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size.fromHeight(60),
             ),
+            onPressed: onPhaseComplete,
+            label: Text(localizations.button_continueLabel),
+            icon: const Icon(Icons.arrow_forward),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
 }
 
 @MappableClass(discriminatorValue: 'registerCupidNightAction')
@@ -177,9 +173,7 @@ class RegisterCupidNightActionCommand
   void apply(GameData gameData) {
     gameData.nightActionManager.registerAction(
       CupidRole.type,
-      (gameState, onComplete) {
-        return nightActionScreen(gameState, onComplete);
-      },
+      (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       conditioned: (gameState) =>
           gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
           gameState.playerAliveUntilDawn(playerIndex),
@@ -198,13 +192,12 @@ class RegisterCupidNightActionCommand
   WidgetBuilder nightActionScreen(
     GameState gameState,
     VoidCallback onComplete,
-  ) {
-    return (context) => CupidScreen(
-      onComplete: onComplete,
-      cupidIndex: playerIndex,
-      cupidRole: gameState.players[playerIndex].role as CupidRole,
-    );
-  }
+  ) =>
+      (context) => CupidScreen(
+        onComplete: onComplete,
+        cupidIndex: playerIndex,
+        cupidRole: gameState.players[playerIndex].role as CupidRole,
+      );
 }
 
 @MappableClass(discriminatorValue: 'cupidAssignLovers')
@@ -216,7 +209,7 @@ class CupidAssignLoversCommand
 
   CupidAssignLoversCommand({required this.cupidIndex, required this.lovers});
 
-  Option<Lovers?> _previousLovers = Option.none();
+  Option<Lovers?> _previousLovers = const Option.none();
 
   @override
   void apply(GameData gameData) {
@@ -235,6 +228,6 @@ class CupidAssignLoversCommand
   void undo(GameData gameData) {
     final cupidRole = gameData.players[cupidIndex].role as CupidRole;
     cupidRole.lovers = _previousLovers.getOrElse(() => null);
-    _previousLovers = Option.none();
+    _previousLovers = const Option.none();
   }
 }

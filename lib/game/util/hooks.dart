@@ -1,9 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
-import 'package:werewolf_narrator/game/game_state.dart';
 
 typedef DawnHook = void Function(GameState gameState, int dayCount);
 
@@ -49,9 +49,9 @@ class PlayerDisplayData {
   final Color? tileColor;
 
   static PlayerDisplayData merge(Iterable<PlayerDisplayData> list) {
-    bool disabled = false;
-    List<WidgetBuilder> trailing = [];
-    List<WidgetBuilder> subtitle = [];
+    var disabled = false;
+    final List<WidgetBuilder> trailing = [];
+    final List<WidgetBuilder> subtitle = [];
     Color? selectedTileColor;
     Color? tileColor;
 
@@ -82,26 +82,22 @@ class PlayerDisplayData {
           ? null
           : (trailing.length == 1
                 ? trailing.single
-                : (context) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: trailing
-                          .map((builder) => builder(context))
-                          .toList(),
-                    );
-                  }),
+                : (context) => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: trailing
+                        .map((builder) => builder(context))
+                        .toList(),
+                  )),
       subtitle: subtitle.isEmpty
           ? null
           : (subtitle.length == 1
                 ? subtitle.single
-                : (context) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: subtitle
-                          .map((builder) => builder(context))
-                          .toList(),
-                    );
-                  }),
+                : (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: subtitle
+                        .map((builder) => builder(context))
+                        .toList(),
+                  )),
       selectedTileColor: selectedTileColor,
       tileColor: tileColor,
     );

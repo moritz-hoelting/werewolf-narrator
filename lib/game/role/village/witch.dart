@@ -1,25 +1,25 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/game/util/hooks.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam, WerewolvesDeathReason;
+    show WerewolvesDeathReason, WerewolvesTeam;
+import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -55,7 +55,7 @@ class WitchRole extends Role {
         ).role_witch_checkInstruction(count: count),
         validRoleCounts: const [1],
         options: options,
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 15,
         ),
@@ -115,11 +115,11 @@ class WitchScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
   const WitchScreen({
-    super.key,
     required this.killPotions,
     required this.healPotions,
     required this.playerIndex,
     required this.onPhaseComplete,
+    super.key,
   });
 
   @override
@@ -163,15 +163,12 @@ class _WitchScreenState extends State<WitchScreen> {
           : Center(
               child: Text(
                 localizations.role_witch_nightAction_instruction_noPotionsLeft,
-                style: TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18),
               ),
             ),
       bottomNavigationBar: BottomContinueButton(
         onPressed: () {
-          final GameState gameState = Provider.of<GameState>(
-            context,
-            listen: false,
-          );
+          final gameState = Provider.of<GameState>(context, listen: false);
           gameState.apply(
             WitchUsePotionsCommand(
               playerIndex: widget.playerIndex,
@@ -194,7 +191,7 @@ class _WitchScreenState extends State<WitchScreen> {
             ? (index != widget.playerIndex &&
                   gameState.playerAliveOrKilledThisCycle(index) &&
                   !killedByWerewolves)
-            : (killedByWerewolves));
+            : killedByWerewolves);
   }
 
   VoidCallback? onTapKill(GameState gameState, int index) =>
@@ -241,7 +238,6 @@ class _WitchScreenState extends State<WitchScreen> {
 
 class HasPotionsBody extends StatelessWidget {
   const HasPotionsBody({
-    super.key,
     required this.playerIndex,
     required this.killModeActive,
     required this.healPotions,
@@ -253,6 +249,7 @@ class HasPotionsBody extends StatelessWidget {
     required this.selectedKillPlayers,
     required this.onTapHeal,
     required this.onTapKill,
+    super.key,
   });
 
   final int playerIndex;

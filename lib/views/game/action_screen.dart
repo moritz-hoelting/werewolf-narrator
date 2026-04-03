@@ -1,9 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -24,15 +24,15 @@ class ActionScreen extends StatefulWidget {
   final void Function(ISet<int> playerIds, GameState gameState) onConfirm;
 
   const ActionScreen({
-    super.key,
     required this.appBarTitle,
-    this.instruction,
     required this.actionIdentifier,
+    required this.selectionCount,
+    required this.onConfirm,
+    super.key,
+    this.instruction,
     this.currentActorIndices = const ISet.empty(),
     this.disabledPlayerIndices = const ISet.empty(),
-    required this.selectionCount,
     this.allowSelectLess = false,
-    required this.onConfirm,
     this.playerDisplayData,
     this.playerSpecificDisplayData = const IMap.empty(),
   });
@@ -45,38 +45,36 @@ class _ActionScreenState extends State<ActionScreen> {
   final Set<int> _selectedPlayers = {};
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) => Scaffold(
-        appBar: GameAppBar(title: widget.appBarTitle),
-        body: Column(
-          children: [
-            if (widget.instruction != null)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: widget.instruction!,
-              ),
-            Expanded(
-              child: PlayerList(
-                phaseIdentifier: widget.actionIdentifier,
-                onPlayerTap: (index) => getOnTapPlayer(index, gameState),
-                selectedPlayers: _selectedPlayers.lock,
-                disabledPlayers: widget.disabledPlayerIndices.union(
-                  gameState.knownDeadPlayerIndices,
-                ),
-                currentActorIndices: widget.currentActorIndices,
-                playerDisplayData: widget.playerDisplayData,
-                playerSpecificDisplayData: widget.playerSpecificDisplayData,
-              ),
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) => Scaffold(
+      appBar: GameAppBar(title: widget.appBarTitle),
+      body: Column(
+        children: [
+          if (widget.instruction != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: widget.instruction!,
             ),
-          ],
-        ),
-        bottomNavigationBar: BottomContinueButton(
-          onPressed: getOnContinue(gameState),
-        ),
+          Expanded(
+            child: PlayerList(
+              phaseIdentifier: widget.actionIdentifier,
+              onPlayerTap: (index) => getOnTapPlayer(index, gameState),
+              selectedPlayers: _selectedPlayers.lock,
+              disabledPlayers: widget.disabledPlayerIndices.union(
+                gameState.knownDeadPlayerIndices,
+              ),
+              currentActorIndices: widget.currentActorIndices,
+              playerDisplayData: widget.playerDisplayData,
+              playerSpecificDisplayData: widget.playerSpecificDisplayData,
+            ),
+          ),
+        ],
       ),
-    );
-  }
+      bottomNavigationBar: BottomContinueButton(
+        onPressed: getOnContinue(gameState),
+      ),
+    ),
+  );
 
   VoidCallback? getOnTapPlayer(int index, GameState gameState) {
     if (!gameState.playerAliveUntilDawn(index)) {

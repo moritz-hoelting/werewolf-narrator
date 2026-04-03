@@ -19,7 +19,7 @@ class RemoveUnassignedRolesCommand
     final unassignedRoles = gameData.unassignedRoles.fold(
       <RoleType, ({int count, RoleConfiguration config})>{},
       (acc, element) {
-        int count = (acc[element]?.count ?? 0) + 1;
+        final count = (acc[element]?.count ?? 0) + 1;
         acc[element] = (
           count: count,
           config:

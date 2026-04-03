@@ -27,17 +27,17 @@ class SettingsScreen extends StatelessWidget {
             ),
             if (Provider.of<DeveloperSettings>(context).enabled)
               ListTile(
-                title: const Text("Developer Settings"),
+                title: const Text('Developer Settings'),
                 leading: const Icon(Icons.developer_board),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeveloperSettingsScreen(),
+                    builder: (context) => const DeveloperSettingsScreen(),
                   ),
                 ),
               ),
 
-            Divider(height: 32),
+            const Divider(height: 32),
             const AppInfoDisplay(),
           ],
         ),
@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class SettingsDisplay extends StatelessWidget {
-  const SettingsDisplay({super.key, required this.settings});
+  const SettingsDisplay({required this.settings, super.key});
 
   final AppSettings settings;
 
@@ -182,7 +182,7 @@ class SettingsDisplay extends StatelessWidget {
                   }
                   if (!cachedNames.hasData) {
                     return ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: 100),
+                      constraints: const BoxConstraints(maxHeight: 100),
                       child: const Center(child: CircularProgressIndicator()),
                     );
                   }

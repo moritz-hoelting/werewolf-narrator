@@ -1,17 +1,17 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'hunter.mapper.dart';
@@ -36,7 +36,7 @@ class HunterRole extends Role {
           context,
         ).role_hunter_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 5,
         ),
@@ -47,10 +47,9 @@ class HunterRole extends Role {
   @override
   bool hasDeathScreen(GameState gameState) => true;
   @override
-  WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) {
-    return (context) =>
-        HunterScreen(playerIndex: playerIndex, onPhaseComplete: onComplete);
-  }
+  WidgetBuilder? deathActionScreen(VoidCallback onComplete, int playerIndex) =>
+      (context) =>
+          HunterScreen(playerIndex: playerIndex, onPhaseComplete: onComplete);
 }
 
 @MappableClass(discriminatorValue: 'hunter')
@@ -72,38 +71,36 @@ class HunterScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
 
   const HunterScreen({
-    super.key,
     required this.playerIndex,
     required this.onPhaseComplete,
+    super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context);
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) {
+      final localizations = AppLocalizations.of(context);
 
-        return ActionScreen(
-          appBarTitle: Text(localizations.role_hunter_name),
-          instruction: Text(
-            localizations.role_hunter_deathAction_instruction,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          actionIdentifier: HunterRole.type,
-          currentActorIndices: ISet({playerIndex}),
-          disabledPlayerIndices: ISet({playerIndex}),
-          selectionCount: 1,
-          onConfirm: (selectedPlayers, gameState) {
-            gameState.apply(
-              MarkDeadCommand.single(
-                player: selectedPlayers.single,
-                deathReason: HunterDeathReason(playerIndex),
-              ),
-            );
-            onPhaseComplete();
-          },
-        );
-      },
-    );
-  }
+      return ActionScreen(
+        appBarTitle: Text(localizations.role_hunter_name),
+        instruction: Text(
+          localizations.role_hunter_deathAction_instruction,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        actionIdentifier: HunterRole.type,
+        currentActorIndices: ISet({playerIndex}),
+        disabledPlayerIndices: ISet({playerIndex}),
+        selectionCount: 1,
+        onConfirm: (selectedPlayers, gameState) {
+          gameState.apply(
+            MarkDeadCommand.single(
+              player: selectedPlayers.single,
+              deathReason: HunterDeathReason(playerIndex),
+            ),
+          );
+          onPhaseComplete();
+        },
+      );
+    },
+  );
 }

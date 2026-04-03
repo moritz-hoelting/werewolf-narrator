@@ -21,8 +21,59 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    always_put_required_named_parameters_first: true
+    avoid_double_and_int_checks: true
+    avoid_escaping_inner_quotes: true
+    avoid_multiple_declarations_per_line: true
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    combinators_ordering: true
+    directives_ordering: true
+    eol_at_end_of_file: true
+    join_return_with_assignment: true
+    leading_newlines_in_multiline_strings: true
+    matching_super_parameters: true
+    no_adjacent_strings_in_list: true
+    no_self_assignments: true
+    noop_primitive_operations: true
+    omit_obvious_local_variable_types: true
+    only_throw_errors: true
+    parameter_assignments: true
+    prefer_asserts_in_initializer_lists: true
+    prefer_asserts_with_message: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_expression_function_bodies: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_if_elements_to_conditional_expressions: true
+    prefer_null_aware_method_calls: true
+    prefer_single_quotes: true
+    prefer_void_to_null: true
+    simplify_variable_pattern: true
+    sized_box_shrink_expand: true
+    sort_pub_dependencies: true
+    specify_nonobvious_property_types: true
+    throw_in_finally: true
+    tighten_type_of_initializing_formals: true
+    type_annotate_public_apis: true
+    unawaited_futures: true
+    unnecessary_await_in_return: true
+    unnecessary_ignore: true
+    unnecessary_library_directive: true
+    unnecessary_parenthesis: true
+    unnecessary_raw_strings: true
+    unnecessary_statements: true
+    unnecessary_unawaited: true
+    unreachable_from_main: true
+    use_colored_box: true
+    use_decorated_box: true
+    use_enums: true
+    use_is_even_rather_than_modulo: true
+    use_named_constants: true
+    use_raw_strings: true
+    use_string_buffers: true
+    use_to_and_as_if_applicable: true
+    use_truncating_division: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

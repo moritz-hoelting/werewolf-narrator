@@ -1,21 +1,21 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/ancient_werewolf.dart'
     show AncientWerewolfRole;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam, WerewolvesDeathReason;
+    show WerewolvesDeathReason, WerewolvesTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'big_bad_wolf.mapper.dart';
@@ -43,7 +43,7 @@ class BigBadWolfRole extends Role {
           context,
         ).role_bigBadWolf_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.werewolves,
           priority: 5,
         ),

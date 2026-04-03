@@ -5,7 +5,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 
 class VersionDisplay extends StatefulWidget {
-  const VersionDisplay({super.key, required this.packageInfo});
+  const VersionDisplay({required this.packageInfo, super.key});
 
   final PackageInfo packageInfo;
 
@@ -42,7 +42,7 @@ class _VersionDisplayState extends State<VersionDisplay> {
           messenger.showSnackBar(
             SnackBar(
               content: Text(
-                "Click ${10 - _clickTimes.length} more times to enable developer settings!",
+                'Click ${10 - _clickTimes.length} more times to enable developer settings!',
               ),
             ),
           );

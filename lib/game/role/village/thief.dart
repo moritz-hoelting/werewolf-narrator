@@ -1,22 +1,22 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/remove_unassigned_roles.dart';
 import 'package:werewolf_narrator/game/commands/set_players_role.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 
 part 'thief.mapper.dart';
@@ -57,7 +57,7 @@ class ThiefRole extends Role {
             );
           }
         },
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
         ),
       ),
@@ -81,48 +81,46 @@ class ThiefScreen extends StatelessWidget {
   final int playerIndex;
 
   const ThiefScreen({
-    super.key,
     required this.onPhaseComplete,
     required this.playerIndex,
+    super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) {
-        final localizations = AppLocalizations.of(context);
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) {
+      final localizations = AppLocalizations.of(context);
 
-        final missingRoles = gameState.unassignedRoles;
+      final missingRoles = gameState.unassignedRoles;
 
-        assert(
-          missingRoles.length ==
-              2 * gameState.roleConfigurations[ThiefRole.type]!.count,
-          'Number of missing roles must match twice the number of Thief roles assigned',
-        );
+      assert(
+        missingRoles.length ==
+            2 * gameState.roleConfigurations[ThiefRole.type]!.count,
+        'Number of missing roles must match twice the number of Thief roles assigned',
+      );
 
-        final (roleA, roleB) = (missingRoles[0], missingRoles[1]);
+      final (roleA, roleB) = (missingRoles[0], missingRoles[1]);
 
-        return BinarySelectionScreen(
-          key: UniqueKey(),
-          appBarTitle: Text(localizations.role_thief_name),
-          instruction: Text(
-            localizations.role_thief_nightAction_instruction,
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          firstOption: Text(roleA.information.name(context)),
-          secondOption: Text(roleB.information.name(context)),
-          onComplete: (selectedFirst) => submit(
-            gameState,
-            selectedFirst != null ? (selectedFirst ? roleA : roleB) : null,
-          ),
-          allowSelectNone:
-              roleA.information.initialTeam != WerewolvesTeam.type ||
-              roleB.information.initialTeam != WerewolvesTeam.type,
-        );
-      },
-    );
-  }
+      return BinarySelectionScreen(
+        key: UniqueKey(),
+        appBarTitle: Text(localizations.role_thief_name),
+        instruction: Text(
+          localizations.role_thief_nightAction_instruction,
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+        firstOption: Text(roleA.information.name(context)),
+        secondOption: Text(roleB.information.name(context)),
+        onComplete: (selectedFirst) => submit(
+          gameState,
+          selectedFirst != null ? (selectedFirst ? roleA : roleB) : null,
+        ),
+        allowSelectNone:
+            roleA.information.initialTeam != WerewolvesTeam.type ||
+            roleB.information.initialTeam != WerewolvesTeam.type,
+      );
+    },
+  );
 
   void submit(GameState gameState, RoleType? selectedRole) {
     if (selectedRole != null) {

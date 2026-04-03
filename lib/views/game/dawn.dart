@@ -5,7 +5,7 @@ import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 class DawnScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
 
-  const DawnScreen({super.key, required this.onPhaseComplete});
+  const DawnScreen({required this.onPhaseComplete, super.key});
 
   @override
   Widget build(BuildContext context) => DeathsScreen(

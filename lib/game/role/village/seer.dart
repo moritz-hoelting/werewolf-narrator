@@ -1,18 +1,18 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -39,7 +39,7 @@ class SeerRole extends Role {
           context,
         ).role_seer_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 45,
         ),
@@ -60,9 +60,9 @@ class SeerScreen extends StatefulWidget {
   final VoidCallback onPhaseComplete;
 
   const SeerScreen({
-    super.key,
     required this.playerIndex,
     required this.onPhaseComplete,
+    super.key,
   });
 
   @override
@@ -73,59 +73,57 @@ class _SeerScreenState extends State<SeerScreen> {
   int? _selectedPlayer;
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        final localizations = AppLocalizations.of(context);
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) {
+      final localizations = AppLocalizations.of(context);
 
-        return Scaffold(
-          appBar: GameAppBar(title: Text(localizations.role_seer_name)),
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  localizations.role_seer_nightAction_instruction,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+      return Scaffold(
+        appBar: GameAppBar(title: Text(localizations.role_seer_name)),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                localizations.role_seer_nightAction_instruction,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
-              Expanded(
-                child: PlayerList(
-                  phaseIdentifier: SeerScreen,
-                  selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
-                  disabledPlayers: gameState.knownDeadPlayerIndices.union({
-                    widget.playerIndex,
-                  }),
-                  currentActorIndices: ISet({widget.playerIndex}),
-                  playerSpecificDisplayData: _selectedPlayer != null
-                      ? IMap({
-                          _selectedPlayer!: PlayerDisplayData(
-                            subtitle: (context) => Text(
-                              gameState.players[_selectedPlayer!].role?.name(
-                                    context,
-                                  ) ??
-                                  localizations.role_unknown_name,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
+            ),
+            Expanded(
+              child: PlayerList(
+                phaseIdentifier: SeerScreen,
+                selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
+                disabledPlayers: gameState.knownDeadPlayerIndices.union({
+                  widget.playerIndex,
+                }),
+                currentActorIndices: ISet({widget.playerIndex}),
+                playerSpecificDisplayData: _selectedPlayer != null
+                    ? IMap({
+                        _selectedPlayer!: PlayerDisplayData(
+                          subtitle: (context) => Text(
+                            gameState.players[_selectedPlayer!].role?.name(
+                                  context,
+                                ) ??
+                                localizations.role_unknown_name,
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
-                        })
-                      : const IMap.empty(),
-                  onPlayerTap: (index) => () {
-                    setState(() {
-                      _selectedPlayer = index;
-                    });
-                  },
-                ),
+                        ),
+                      })
+                    : const IMap.empty(),
+                onPlayerTap: (index) => () {
+                  setState(() {
+                    _selectedPlayer = index;
+                  });
+                },
               ),
-            ],
-          ),
-          bottomNavigationBar: BottomContinueButton(
-            onPressed: _selectedPlayer != null ? widget.onPhaseComplete : null,
-          ),
-        );
-      },
-    );
-  }
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomContinueButton(
+          onPressed: _selectedPlayer != null ? widget.onPhaseComplete : null,
+        ),
+      );
+    },
+  );
 }
 
 @MappableClass(discriminatorValue: 'registerSeerNightAction')

@@ -5,11 +5,11 @@ import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/win_condition.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'lovers.mapper.dart';
 

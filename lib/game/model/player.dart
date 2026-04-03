@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 
 /// A player in the game.
 class Player {
@@ -60,9 +60,7 @@ class Player {
   }
 
   @override
-  String toString() {
-    return 'Player(name: $name, role: $role, isAlive: $isAlive)';
-  }
+  String toString() => 'Player(name: $name, role: $role, isAlive: $isAlive)';
 }
 
 class PlayerView {

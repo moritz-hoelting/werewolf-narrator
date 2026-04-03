@@ -13,11 +13,11 @@ class BinarySelectionScreen extends StatefulWidget {
   final bool allowSelectNone;
 
   const BinarySelectionScreen({
-    super.key,
     required this.appBarTitle,
     required this.firstOption,
     required this.secondOption,
     required this.onComplete,
+    super.key,
     this.instruction,
     this.allowSelectNone = false,
   });
@@ -30,84 +30,82 @@ class _BinarySelectionScreenState extends State<BinarySelectionScreen> {
   bool? _selectedFirst;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: GameAppBar(title: widget.appBarTitle),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (widget.instruction != null)
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: widget.instruction,
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget build(BuildContext context) => Scaffold(
+    appBar: GameAppBar(title: widget.appBarTitle),
+    body: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (widget.instruction != null)
+          Column(
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (_selectedFirst == true) {
-                      _selectedFirst = null;
-                    } else {
-                      _selectedFirst = true;
-                    }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(150, 150),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  backgroundColor: _selectedFirst == true
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.5)
-                      : null,
-                  elevation: 4,
-                ),
-                child: widget.firstOption,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: widget.instruction,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (_selectedFirst == false) {
-                      _selectedFirst = null;
-                    } else {
-                      _selectedFirst = false;
-                    }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(150, 150),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  backgroundColor: _selectedFirst == false
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.5)
-                      : null,
-                  elevation: 4,
-                ),
-                child: widget.secondOption,
-              ),
+              const SizedBox(height: 20),
             ],
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomContinueButton(
-        onPressed: _selectedFirst == null && !widget.allowSelectNone
-            ? null
-            : () {
-                widget.onComplete(_selectedFirst);
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  if (_selectedFirst == true) {
+                    _selectedFirst = null;
+                  } else {
+                    _selectedFirst = true;
+                  }
+                });
               },
-      ),
-    );
-  }
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(150, 150),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                backgroundColor: _selectedFirst == true
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5)
+                    : null,
+                elevation: 4,
+              ),
+              child: widget.firstOption,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  if (_selectedFirst == false) {
+                    _selectedFirst = null;
+                  } else {
+                    _selectedFirst = false;
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(150, 150),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                backgroundColor: _selectedFirst == false
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5)
+                    : null,
+                elevation: 4,
+              ),
+              child: widget.secondOption,
+            ),
+          ],
+        ),
+      ],
+    ),
+    bottomNavigationBar: BottomContinueButton(
+      onPressed: _selectedFirst == null && !widget.allowSelectNone
+          ? null
+          : () {
+              widget.onComplete(_selectedFirst);
+            },
+    ),
+  );
 }

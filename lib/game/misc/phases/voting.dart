@@ -5,10 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
@@ -17,7 +17,7 @@ part 'voting.mapper.dart';
 class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
-  const VillageVoteScreen({super.key, required this.onComplete});
+  const VillageVoteScreen({required this.onComplete, super.key});
 
   @override
   State<VillageVoteScreen> createState() => _VillageVoteScreenState();

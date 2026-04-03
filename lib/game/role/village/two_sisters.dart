@@ -28,7 +28,7 @@ class TwoSistersRole extends Role {
           context,
         ).role_twoSisters_checkInstruction(count: count),
         validRoleCounts: const [2],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 40,
         ),

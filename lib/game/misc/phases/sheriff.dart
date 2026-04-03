@@ -3,21 +3,21 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/misc/phases/voting.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/misc/phases/voting.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'sheriff.mapper.dart';
 
 class SheriffElectionScreen extends StatelessWidget {
-  const SheriffElectionScreen({super.key, required this.onComplete});
+  const SheriffElectionScreen({required this.onComplete, super.key});
 
   final VoidCallback onComplete;
 
   static void registerAction(GameState gameState) {
-    gameState.apply(RegisterSheriffElectionScreenCommand());
+    gameState.apply(const RegisterSheriffElectionScreenCommand());
   }
 
   @override

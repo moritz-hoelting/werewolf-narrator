@@ -7,20 +7,16 @@ class UndoButton extends StatelessWidget {
   const UndoButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) {
-        return IconButton(
-          onPressed: gameState.canUndoBatch
-              ? () {
-                  gameState.undoBatch();
-                }
-              : null,
-          icon: child!,
-          tooltip: AppLocalizations.of(context).button_undoTooltip,
-        );
-      },
-      child: const Icon(Icons.undo),
-    );
-  }
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) => IconButton(
+      onPressed: gameState.canUndoBatch
+          ? () {
+              gameState.undoBatch();
+            }
+          : null,
+      icon: child!,
+      tooltip: AppLocalizations.of(context).button_undoTooltip,
+    ),
+    child: const Icon(Icons.undo),
+  );
 }

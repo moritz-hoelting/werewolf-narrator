@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/game/role_settings.dart'
     show RoleOptionsDialog;
 
@@ -13,9 +13,9 @@ class ChooseRolesScreen extends StatefulWidget {
   onSubmit;
 
   const ChooseRolesScreen({
-    super.key,
     required this.playerCount,
     required this.onSubmit,
+    super.key,
   });
 
   @override
@@ -202,7 +202,6 @@ class RoleSelectorCard extends StatelessWidget {
   final void Function(RoleConfiguration configuration) setConfiguration;
 
   const RoleSelectorCard({
-    super.key,
     required this.role,
     required this.count,
     required this.countIndex,
@@ -210,6 +209,7 @@ class RoleSelectorCard extends StatelessWidget {
     required this.setCount,
     required this.configuration,
     required this.setConfiguration,
+    super.key,
   });
 
   @override
@@ -253,14 +253,14 @@ class RoleSelectorCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: Icon(Icons.info_outline),
+                icon: const Icon(Icons.info_outline),
                 onPressed: () => showDialog(
                   context: context,
                   builder: (context) => RoleInfoDialog(role: role),
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.settings_outlined),
+                icon: const Icon(Icons.settings_outlined),
                 onPressed: role.information.options.isNotEmpty
                     ? () => showDialog(
                         context: context,
@@ -296,49 +296,47 @@ class _Counter extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.remove),
-          onPressed: value > 0
-              ? () => setValue(
-                  valueIndex - 1,
-                  valueIndex == 0 ? 0 : validCounts.elementAt(valueIndex - 1),
-                )
-              : null,
-          onLongPress: value > 0 ? () => setValue(-1, 0) : null,
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: const Icon(Icons.remove),
+        onPressed: value > 0
+            ? () => setValue(
+                valueIndex - 1,
+                valueIndex == 0 ? 0 : validCounts.elementAt(valueIndex - 1),
+              )
+            : null,
+        onLongPress: value > 0 ? () => setValue(-1, 0) : null,
+      ),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        transitionBuilder: (child, anim) =>
+            ScaleTransition(scale: anim, child: child),
+        child: Text(
+          '$value',
+          key: ValueKey(value),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, anim) =>
-              ScaleTransition(scale: anim, child: child),
-          child: Text(
-            '$value',
-            key: ValueKey(value),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: value < maxValue
-              ? () => setValue(
-                  valueIndex + 1,
-                  validCounts.elementAt(valueIndex + 1),
-                )
-              : null,
-          onLongPress: value < maxValue
-              ? () => setValue(validCounts.length - 1, maxValue)
-              : null,
-        ),
-      ],
-    );
-  }
+      ),
+      IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: value < maxValue
+            ? () => setValue(
+                valueIndex + 1,
+                validCounts.elementAt(valueIndex + 1),
+              )
+            : null,
+        onLongPress: value < maxValue
+            ? () => setValue(validCounts.length - 1, maxValue)
+            : null,
+      ),
+    ],
+  );
 }
 
 class RoleInfoDialog extends StatelessWidget {
-  const RoleInfoDialog({super.key, required this.role});
+  const RoleInfoDialog({required this.role, super.key});
 
   final RoleType role;
 

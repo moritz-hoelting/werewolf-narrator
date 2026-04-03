@@ -16,14 +16,14 @@ class CompositeGameCommand
 
   @override
   void apply(GameData gameData) {
-    for (GameCommand command in commands) {
+    for (final command in commands) {
       command.apply(gameData);
     }
   }
 
   @override
   void undo(GameData gameData) {
-    for (GameCommand command in commands.reversed) {
+    for (final command in commands.reversed) {
       command.undo(gameData);
     }
   }

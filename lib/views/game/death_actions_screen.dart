@@ -10,11 +10,11 @@ part 'death_actions_screen.mapper.dart';
 class DeathActionsScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
 
-  const DeathActionsScreen({super.key, required this.onPhaseComplete});
+  const DeathActionsScreen({required this.onPhaseComplete, super.key});
 
   @override
   Widget build(BuildContext context) {
-    GameState gameState = Provider.of<GameState>(context, listen: false);
+    final gameState = Provider.of<GameState>(context, listen: false);
 
     final int? playerIndex = gameState.firstPlayerWithPendingDeathAction;
 

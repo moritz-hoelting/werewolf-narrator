@@ -1,25 +1,25 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason;
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/doctor.dart'
     show DoctorRole;
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
     show BigBadWolfRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'bodyguard.mapper.dart';
@@ -50,7 +50,7 @@ class BodyguardRole extends Role {
           context,
         ).role_bodyguard_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 5,
         ),
@@ -144,29 +144,27 @@ class OnAssignBodyguardCommand
   }
 
   WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
-      (BuildContext context) {
-        // TODO: show when the bodyguard has already been attacked
-        return ActionScreen(
-          key: UniqueKey(),
-          actionIdentifier: BodyguardRole.type,
-          appBarTitle: Text(BodyguardRole._name(context)),
-          selectionCount: 1,
-          currentActorIndices: ISet({playerIndex}),
-          instruction: Text(
-            AppLocalizations.of(context).role_bodyguard_nightAction_instruction,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          onConfirm: (playerIds, gameState) {
-            gameState.apply(
-              BodyguardSetProtectionTargetCommand(
-                playerIndex: playerIndex,
-                targetPlayerIndex: playerIds.singleOrNull,
-              ),
-            );
-            onComplete();
-          },
-        );
-      };
+      // TODO: show when the bodyguard has already been attacked
+      (BuildContext context) => ActionScreen(
+        key: UniqueKey(),
+        actionIdentifier: BodyguardRole.type,
+        appBarTitle: Text(BodyguardRole._name(context)),
+        selectionCount: 1,
+        currentActorIndices: ISet({playerIndex}),
+        instruction: Text(
+          AppLocalizations.of(context).role_bodyguard_nightAction_instruction,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        onConfirm: (playerIds, gameState) {
+          gameState.apply(
+            BodyguardSetProtectionTargetCommand(
+              playerIndex: playerIndex,
+              targetPlayerIndex: playerIds.singleOrNull,
+            ),
+          );
+          onComplete();
+        },
+      );
 }
 
 @MappableClass(discriminatorValue: 'removeBodyguardDeathHook')

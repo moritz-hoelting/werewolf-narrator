@@ -9,39 +9,37 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/commands/set_players_role.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData, GamePhase;
+import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
-import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 part 'check_roles_screen.mapper.dart';
 
 class CheckRolesScreen extends StatelessWidget {
-  const CheckRolesScreen({super.key, required this.onPhaseComplete});
+  const CheckRolesScreen({required this.onPhaseComplete, super.key});
 
   final VoidCallback onPhaseComplete;
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) => CheckRoleScreen(
-        key: UniqueKey(),
-        current: gameState
-            .checkRolesData
-            .checkOrder[gameState.checkRolesData.currentIndex],
-        onComplete: onComplete(gameState),
-        missingAssignments: gameState.checkRolesData.missingAssignments,
-        assignedPlayersByTeam:
-            gameState.checkRolesData.assignedPlayersByTeam.lock,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) => CheckRoleScreen(
+      key: UniqueKey(),
+      current: gameState
+          .checkRolesData
+          .checkOrder[gameState.checkRolesData.currentIndex],
+      onComplete: onComplete(gameState),
+      missingAssignments: gameState.checkRolesData.missingAssignments,
+      assignedPlayersByTeam:
+          gameState.checkRolesData.assignedPlayersByTeam.lock,
+    ),
+  );
 
   void Function(int missing) onComplete(GameState gameState) => (missing) {
     if (gameState.checkRolesData.currentIndex >=
@@ -87,11 +85,11 @@ class CheckRoleScreen extends StatefulWidget {
   final IMap<TeamType, ISet<int>> assignedPlayersByTeam;
 
   const CheckRoleScreen({
-    super.key,
     required this.current,
     required this.onComplete,
     required this.missingAssignments,
     required this.assignedPlayersByTeam,
+    super.key,
   });
 
   @override
@@ -125,58 +123,51 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   );
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, _) {
-        return widget.current.fold(
-          (teamTuple) {
-            final team = teamTuple.$1;
-            final checkTogetherInformation = teamTuple.$2;
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, _) => widget.current.fold(
+      (teamTuple) {
+        final team = teamTuple.$1;
+        final checkTogetherInformation = teamTuple.$2;
 
-            final maxSelection = gameState.roleConfigurations.entries
-                .where((entry) => entry.key.information.initialTeam == team)
-                .map((entry) => entry.value.count)
-                .sum;
+        final maxSelection = gameState.roleConfigurations.entries
+            .where((entry) => entry.key.information.initialTeam == team)
+            .map((entry) => entry.value.count)
+            .sum;
 
-            return _build(
-              context: context,
-              gameState: gameState,
-              maxSelection: maxSelection,
-              title: checkTogetherInformation.checkInstruction(
-                context,
-                maxSelection,
-              ),
-              onCompletePressed: () =>
-                  onCompleteTeam(gameState, team, maxSelection),
-            );
-          },
-          (role) {
-            final maxSelection = gameState.roleConfigurations[role]?.count ?? 0;
-
-            final teamConstraints = role.information.initialTeam != null
-                ? widget.assignedPlayersByTeam[role.information.initialTeam!]
-                : null;
-
-            return _build(
-              context: context,
-              gameState: gameState,
-              maxSelection: maxSelection,
-              teamConstraints: teamConstraints,
-              title: role.information.checkRoleInstruction(
-                context,
-                maxSelection,
-              ),
-              onCompletePressed: () => onCompleteRole(
-                gameState,
-                role,
-                isTeamRole: teamConstraints != null,
-              ),
-            );
-          },
+        return _build(
+          context: context,
+          gameState: gameState,
+          maxSelection: maxSelection,
+          title: checkTogetherInformation.checkInstruction(
+            context,
+            maxSelection,
+          ),
+          onCompletePressed: () =>
+              onCompleteTeam(gameState, team, maxSelection),
         );
       },
-    );
-  }
+      (role) {
+        final maxSelection = gameState.roleConfigurations[role]?.count ?? 0;
+
+        final teamConstraints = role.information.initialTeam != null
+            ? widget.assignedPlayersByTeam[role.information.initialTeam!]
+            : null;
+
+        return _build(
+          context: context,
+          gameState: gameState,
+          maxSelection: maxSelection,
+          teamConstraints: teamConstraints,
+          title: role.information.checkRoleInstruction(context, maxSelection),
+          onCompletePressed: () => onCompleteRole(
+            gameState,
+            role,
+            isTeamRole: teamConstraints != null,
+          ),
+        );
+      },
+    ),
+  );
 
   Widget _build({
     required BuildContext context,
@@ -284,13 +275,13 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
   }
 
   void _clearAll() {
-    for (int i = 0; i < _selectedPlayers.length; i++) {
+    for (var i = 0; i < _selectedPlayers.length; i++) {
       _selectedPlayers[i] = false;
     }
   }
 
   void _clearAllExcept(int index) {
-    for (int i = 0; i < _selectedPlayers.length; i++) {
+    for (var i = 0; i < _selectedPlayers.length; i++) {
       if (i != index) {
         _selectedPlayers[i] = false;
       }

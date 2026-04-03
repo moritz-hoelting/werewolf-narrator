@@ -1,9 +1,9 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/commands/override_team.dart';
@@ -11,13 +11,13 @@ import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
-    show WerewolvesTeam, WerewolvesDeathReason;
+    show WerewolvesDeathReason, WerewolvesTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/binary_selection_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
@@ -51,7 +51,7 @@ class AncientWerewolfRole extends Role {
           context,
         ).role_ancientWerewolf_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.werewolves,
           priority: 10,
         ),
@@ -69,73 +69,35 @@ class AncientWerewolfRole extends Role {
 
 class AncientWerewolfScreen extends StatelessWidget {
   const AncientWerewolfScreen({
-    super.key,
     required this.playerIndex,
     required this.onPhaseComplete,
+    super.key,
   });
 
   final int playerIndex;
   final VoidCallback onPhaseComplete;
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) {
-        final localizations = AppLocalizations.of(context);
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) {
+      final localizations = AppLocalizations.of(context);
 
-        final ancientWerewolfRole =
-            gameState.players[playerIndex].role as AncientWerewolfRole;
+      final ancientWerewolfRole =
+          gameState.players[playerIndex].role as AncientWerewolfRole;
 
-        if (ancientWerewolfRole.convertedPlayerIndex != null) {
-          if (ancientWerewolfRole.convertedDayCount == gameState.dayCounter) {
-            return Scaffold(
-              appBar: GameAppBar(
-                title: Text(localizations.role_ancientWerewolf_name),
-              ),
-              body: Center(
-                child: Text(
-                  localizations.role_ancientWerewolf_nightAction_informPlayer(
-                    player: gameState
-                        .players[ancientWerewolfRole.convertedPlayerIndex!]
-                        .name,
-                  ),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              bottomNavigationBar: BottomContinueButton(
-                onPressed: onPhaseComplete,
-              ),
-            );
-          } else {
-            return Scaffold(
-              appBar: GameAppBar(
-                title: Text(localizations.role_ancientWerewolf_name),
-              ),
-              body: Center(
-                child: Text(
-                  localizations.role_ancientWerewolf_nightAction_hasUsedAbility,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-              bottomNavigationBar: BottomContinueButton(
-                onPressed: onPhaseComplete,
-              ),
-            );
-          }
-        }
-
-        int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.$1;
-
-        if (lastAttackedPlayer == null) {
+      if (ancientWerewolfRole.convertedPlayerIndex != null) {
+        if (ancientWerewolfRole.convertedDayCount == gameState.dayCounter) {
           return Scaffold(
             appBar: GameAppBar(
               title: Text(localizations.role_ancientWerewolf_name),
             ),
             body: Center(
               child: Text(
-                localizations
-                    .role_ancientWerewolf_nightAction_noAttackThisNight,
+                localizations.role_ancientWerewolf_nightAction_informPlayer(
+                  player: gameState
+                      .players[ancientWerewolfRole.convertedPlayerIndex!]
+                      .name,
+                ),
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
@@ -144,27 +106,60 @@ class AncientWerewolfScreen extends StatelessWidget {
               onPressed: onPhaseComplete,
             ),
           );
-        }
-
-        return BinarySelectionScreen(
-          key: UniqueKey(),
-          appBarTitle: Text(localizations.role_ancientWerewolf_name),
-          instruction: Text(
-            localizations.role_ancientWerewolf_nightAction_instruction(
-              playerName: findLastAttackedPlayer(gameState)?.$2.name ?? "?",
+        } else {
+          return Scaffold(
+            appBar: GameAppBar(
+              title: Text(localizations.role_ancientWerewolf_name),
             ),
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
+            body: Center(
+              child: Text(
+                localizations.role_ancientWerewolf_nightAction_hasUsedAbility,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            bottomNavigationBar: BottomContinueButton(
+              onPressed: onPhaseComplete,
+            ),
+          );
+        }
+      }
+
+      final int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.$1;
+
+      if (lastAttackedPlayer == null) {
+        return Scaffold(
+          appBar: GameAppBar(
+            title: Text(localizations.role_ancientWerewolf_name),
           ),
-          firstOption: Text(localizations.button_yesLabel),
-          secondOption: Text(localizations.button_noLabel),
-          onComplete: (selectedFirst) {
-            submit(gameState, selectedFirst!);
-          },
+          body: Center(
+            child: Text(
+              localizations.role_ancientWerewolf_nightAction_noAttackThisNight,
+              style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          bottomNavigationBar: BottomContinueButton(onPressed: onPhaseComplete),
         );
-      },
-    );
-  }
+      }
+
+      return BinarySelectionScreen(
+        key: UniqueKey(),
+        appBarTitle: Text(localizations.role_ancientWerewolf_name),
+        instruction: Text(
+          localizations.role_ancientWerewolf_nightAction_instruction(
+            playerName: findLastAttackedPlayer(gameState)?.$2.name ?? '?',
+          ),
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+        firstOption: Text(localizations.button_yesLabel),
+        secondOption: Text(localizations.button_noLabel),
+        onComplete: (selectedFirst) {
+          submit(gameState, selectedFirst!);
+        },
+      );
+    },
+  );
 
   void submit(GameState gameState, bool selectedFirst) {
     if (selectedFirst) {
@@ -254,7 +249,7 @@ class AncientWerewolfSaveConvertPlayerIndexCommand
   });
 
   Option<({int? convertedPlayerIndex, int? convertedDayCount})> _previousData =
-      Option.none();
+      const Option.none();
 
   @override
   void apply(GameData gameData) {
@@ -278,6 +273,6 @@ class AncientWerewolfSaveConvertPlayerIndexCommand
     );
     role.convertedPlayerIndex = previousData.convertedPlayerIndex;
     role.convertedDayCount = previousData.convertedDayCount;
-    _previousData = Option.none();
+    _previousData = const Option.none();
   }
 }

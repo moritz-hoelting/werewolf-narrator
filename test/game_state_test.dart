@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/commands/set_players_role.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
     show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/game_registry.g.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
@@ -12,16 +13,15 @@ import 'package:werewolf_narrator/game/role/village/hunter.dart'
 import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
-import 'package:werewolf_narrator/game/game_state.dart';
 
 void main() {
   setUpAll(() {
     GameRegistry.ensureInitialized();
   });
 
-  test("Test game phase order", () {
-    GameState state = GameState(
-      playerNames: List.generate(4, (index) => "Player $index"),
+  test('Test game phase order', () {
+    final state = GameState(
+      playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
         HunterRole.type: (count: 1, config: {}),
@@ -46,7 +46,7 @@ void main() {
       GamePhase.dayActions,
     ];
 
-    for (int i = 0; i < expectedOrder.length; i++) {
+    for (var i = 0; i < expectedOrder.length; i++) {
       if (state.phase == GamePhase.checkRoles) {
         state.apply(
           CompositeGameCommand(
@@ -62,15 +62,15 @@ void main() {
       expect(
         state.phase,
         equals(expectedOrder[i]),
-        reason: "Expected phase ${expectedOrder[i]} at step $i",
+        reason: 'Expected phase ${expectedOrder[i]} at step $i',
       );
       state.finishBatch(TransitionToNextPhaseCommand());
     }
   });
 
-  test("Test game phase order with Angel role", () {
-    GameState state = GameState(
-      playerNames: List.generate(4, (index) => "Player $index"),
+  test('Test game phase order with Angel role', () {
+    final state = GameState(
+      playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
         AngelRole.type: (count: 1, config: {}),
@@ -94,7 +94,7 @@ void main() {
       (GamePhase.dayActions, 2),
     ];
 
-    for (int i = 0; i < expectedOrder.length; i++) {
+    for (var i = 0; i < expectedOrder.length; i++) {
       if (state.phase == GamePhase.checkRoles) {
         state.apply(
           CompositeGameCommand(
@@ -110,7 +110,7 @@ void main() {
       expect(
         (state.phase, state.dayCounter),
         equals(expectedOrder[i]),
-        reason: "Expected phase ${expectedOrder[i]} at step $i",
+        reason: 'Expected phase ${expectedOrder[i]} at step $i',
       );
       state.finishBatch(TransitionToNextPhaseCommand());
     }

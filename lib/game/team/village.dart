@@ -1,15 +1,15 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_team.dart' show RegisterTeam;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/widgets.dart';
+import 'package:werewolf_annotations/register_team.dart' show RegisterTeam;
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
-    show WinCondition, teamWinningPlayers, WinConditionMapper;
-import 'package:werewolf_narrator/game/game_state.dart';
+    show WinCondition, WinConditionMapper, teamWinningPlayers;
 import 'package:werewolf_narrator/game/team/team.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'village.mapper.dart';
 
@@ -34,7 +34,7 @@ class VillageTeam extends Team {
   void initialize(GameState gameState) {
     super.initialize(gameState);
 
-    gameState.apply(RegisterWinConditionCommand(VillageWinCondition()));
+    gameState.apply(const RegisterWinConditionCommand(VillageWinCondition()));
   }
 }
 

@@ -24,7 +24,7 @@ class MarkDeadCommand with MarkDeadCommandMappable implements GameCommand {
     _playersMarkedDead = players
         .where((playerIndex) => gameData.players[playerIndex].isAlive)
         .toISet();
-    for (int playerIndex in players) {
+    for (final int playerIndex in players) {
       gameData.markPlayerDead(playerIndex, deathReason);
     }
   }
@@ -34,7 +34,7 @@ class MarkDeadCommand with MarkDeadCommandMappable implements GameCommand {
 
   @override
   void undo(GameData gameData) {
-    for (int playerIndex in _playersMarkedDead!) {
+    for (final int playerIndex in _playersMarkedDead!) {
       gameData.markPlayerRevived(playerIndex);
     }
   }

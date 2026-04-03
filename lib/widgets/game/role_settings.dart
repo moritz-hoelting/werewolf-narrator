@@ -5,10 +5,10 @@ import 'package:werewolf_narrator/game/model/role_config.dart';
 
 class RoleOptionsDialog extends StatefulWidget {
   const RoleOptionsDialog({
-    super.key,
     required this.role,
     required this.configuration,
     required this.setConfiguration,
+    super.key,
   });
 
   final RoleType role;
@@ -43,12 +43,14 @@ class _RoleOptionsDialogState extends State<RoleOptionsDialog> {
         width: size.width * 0.8,
         child: ListView(
           shrinkWrap: true,
-          children: roleInformation.options.map((option) {
-            return switch (option) {
-              IntOption() => IntOptionWidget(option: option, data: data),
-              BoolOption() => BoolOptionWidget(option: option, data: data),
-            };
-          }).toList(),
+          children: roleInformation.options
+              .map(
+                (option) => switch (option) {
+                  IntOption() => IntOptionWidget(option: option, data: data),
+                  BoolOption() => BoolOptionWidget(option: option, data: data),
+                },
+              )
+              .toList(),
         ),
       ),
       actions: [
@@ -69,7 +71,7 @@ class _RoleOptionsDialogState extends State<RoleOptionsDialog> {
 }
 
 class IntOptionWidget extends StatefulWidget {
-  const IntOptionWidget({super.key, required this.option, required this.data});
+  const IntOptionWidget({required this.option, required this.data, super.key});
 
   final IntOption option;
   final RoleConfiguration data;
@@ -83,44 +85,42 @@ class _IntOptionWidgetState extends State<IntOptionWidget> {
       widget.data[widget.option.id] ?? widget.option.defaultValue;
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(widget.option.label(context)),
-      subtitle: Text(widget.option.description(context)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed:
-                widget.option.min == null || currentValue > widget.option.min!
-                ? () {
-                    final int newValue = currentValue - 1;
-                    widget.data[widget.option.id] = newValue;
-                    setState(() => currentValue = newValue);
-                  }
-                : null,
-          ),
-          Text('$currentValue'),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed:
-                widget.option.max == null || currentValue < widget.option.max!
-                ? () {
-                    final int newValue = currentValue + 1;
-                    widget.data[widget.option.id] = newValue;
-                    setState(() => currentValue = newValue);
-                  }
-                : null,
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ListTile(
+    title: Text(widget.option.label(context)),
+    subtitle: Text(widget.option.description(context)),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.remove),
+          onPressed:
+              widget.option.min == null || currentValue > widget.option.min!
+              ? () {
+                  final int newValue = currentValue - 1;
+                  widget.data[widget.option.id] = newValue;
+                  setState(() => currentValue = newValue);
+                }
+              : null,
+        ),
+        Text('$currentValue'),
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed:
+              widget.option.max == null || currentValue < widget.option.max!
+              ? () {
+                  final int newValue = currentValue + 1;
+                  widget.data[widget.option.id] = newValue;
+                  setState(() => currentValue = newValue);
+                }
+              : null,
+        ),
+      ],
+    ),
+  );
 }
 
 class BoolOptionWidget extends StatefulWidget {
-  const BoolOptionWidget({super.key, required this.option, required this.data});
+  const BoolOptionWidget({required this.option, required this.data, super.key});
 
   final BoolOption option;
   final RoleConfiguration data;
@@ -134,17 +134,15 @@ class _BoolOptionWidgetState extends State<BoolOptionWidget> {
       widget.data[widget.option.id] ?? widget.option.defaultValue;
 
   @override
-  Widget build(BuildContext context) {
-    return CheckboxListTile(
-      title: Text(widget.option.label(context)),
-      subtitle: Text(widget.option.description(context)),
-      value: checked,
-      onChanged: (value) {
-        if (value != null) {
-          widget.data[widget.option.id] = value;
-          setState(() => checked = value);
-        }
-      },
-    );
-  }
+  Widget build(BuildContext context) => CheckboxListTile(
+    title: Text(widget.option.label(context)),
+    subtitle: Text(widget.option.description(context)),
+    value: checked,
+    onChanged: (value) {
+      if (value != null) {
+        widget.data[widget.option.id] = value;
+        setState(() => checked = value);
+      }
+    },
+  );
 }

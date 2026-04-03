@@ -1,23 +1,23 @@
 import 'dart:collection';
 
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
     show BigBadWolfRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'doctor.mapper.dart';
@@ -30,7 +30,7 @@ class DoctorRole extends Role {
   @override
   RoleType get roleType => type;
 
-  static const String protectPlayerCooldownOptionKey = "protectPlayerCooldown";
+  static const String protectPlayerCooldownOptionKey = 'protectPlayerCooldown';
 
   final int protectPlayerCooldown;
 
@@ -63,7 +63,7 @@ class DoctorRole extends Role {
             min: 0,
           ),
         ]),
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 5,
         ),
@@ -135,34 +135,34 @@ class AssignDoctorCommand
   WidgetBuilder nightActionScreen(
     GameState gameState,
     VoidCallback onComplete,
-  ) => (BuildContext context) {
-    return ActionScreen(
-      key: UniqueKey(),
-      actionIdentifier: DoctorRole.type,
-      appBarTitle: Text(DoctorRole._name(context)),
-      selectionCount: 1,
-      currentActorIndices: ISet({playerIndex}),
-      disabledPlayerIndices: (gameState.players[playerIndex].role as DoctorRole)
-          .playersInCooldown
-          .toISet(),
-      instruction: Text(
-        AppLocalizations.of(context).role_doctor_nightAction_instruction,
-        style: Theme.of(context).textTheme.bodyMedium,
-      ),
-      onConfirm: (playerIds, gameState) {
-        final protectPlayerIndex = playerIds.singleOrNull;
-        if (protectPlayerIndex != null) {
-          gameState.apply(
-            SetDoctorProtectionTargetCommand(
-              playerIndex: playerIndex,
-              targetPlayerIndex: protectPlayerIndex,
-            ),
-          );
-        }
-        onComplete();
-      },
-    );
-  };
+  ) =>
+      (BuildContext context) => ActionScreen(
+        key: UniqueKey(),
+        actionIdentifier: DoctorRole.type,
+        appBarTitle: Text(DoctorRole._name(context)),
+        selectionCount: 1,
+        currentActorIndices: ISet({playerIndex}),
+        disabledPlayerIndices:
+            (gameState.players[playerIndex].role as DoctorRole)
+                .playersInCooldown
+                .toISet(),
+        instruction: Text(
+          AppLocalizations.of(context).role_doctor_nightAction_instruction,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        onConfirm: (playerIds, gameState) {
+          final protectPlayerIndex = playerIds.singleOrNull;
+          if (protectPlayerIndex != null) {
+            gameState.apply(
+              SetDoctorProtectionTargetCommand(
+                playerIndex: playerIndex,
+                targetPlayerIndex: protectPlayerIndex,
+              ),
+            );
+          }
+          onComplete();
+        },
+      );
 }
 
 @MappableClass(discriminatorValue: 'setDoctorProtectionTarget')

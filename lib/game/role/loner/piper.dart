@@ -1,19 +1,19 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/util/set.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 import 'package:werewolf_narrator/widgets/bottom_continue_button.dart'
@@ -63,7 +63,7 @@ class PiperRole extends Role {
             defaultValue: 2,
           ),
         ]),
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 2,
         ),
@@ -119,11 +119,11 @@ class PiperWinCondition with PiperWinConditionMappable implements WinCondition {
 
 class PiperScreen extends StatefulWidget {
   const PiperScreen({
-    super.key,
     required this.playerIndex,
     required this.charmedPlayers,
     required this.charmAmountPerNight,
     required this.onComplete,
+    super.key,
   });
 
   final int playerIndex;

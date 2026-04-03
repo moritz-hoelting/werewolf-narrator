@@ -42,9 +42,7 @@ class TeamType with TeamTypeMappable {
   RegisterTeamInformation get information => TeamManager.getInformation(this);
 
   /// The display name of this team.
-  String name(BuildContext context) {
-    return information.name(context);
-  }
+  String name(BuildContext context) => information.name(context);
 
   @override
   String toString() => 'Team<$id>';

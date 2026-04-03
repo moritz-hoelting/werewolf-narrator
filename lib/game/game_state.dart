@@ -8,7 +8,7 @@ import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason, DeathInformation;
+    show DeathInformation, DeathReason;
 import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
@@ -64,7 +64,7 @@ class GameState extends ChangeNotifier {
   void finishBatch([GameCommand? finalCommand]) {
     assert(
       _frameStack.isEmpty,
-      "Finish batch cannot be called within a command application",
+      'Finish batch cannot be called within a command application',
     );
 
     if (finalCommand != null) {
@@ -423,9 +423,7 @@ class _CommandStackEntry {
   bool get canBeUndone => command.canBeUndone && frame.canUndoAll;
 
   @override
-  String toString() {
-    return "CommandStackEntry {command: $command, frame: $frame}";
-  }
+  String toString() => 'CommandStackEntry {command: $command, frame: $frame}';
 }
 
 class _AppliedCommandFrame {
@@ -468,20 +466,11 @@ class _AppliedCommandFrame {
   );
 
   @override
-  String toString() {
-    return "AppliedCommandFrame[${_toStringInner()}]";
-  }
+  String toString() => 'AppliedCommandFrame[${_toStringInner()}]';
 
-  String _toStringInner() {
-    return entries.map(_toStringInnerEither).join(',\n');
-  }
+  String _toStringInner() => entries.map(_toStringInnerEither).join(',\n');
 
   static String _toStringInnerEither(
     Either<GameCommand, _AppliedCommandFrame> entry,
-  ) {
-    return entry.match(
-      (cmd) => cmd.toString(),
-      (frame) => frame._toStringInner(),
-    );
-  }
+  ) => entry.match((cmd) => cmd.toString(), (frame) => frame._toStringInner());
 }

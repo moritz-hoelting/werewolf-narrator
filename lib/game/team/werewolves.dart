@@ -9,19 +9,19 @@ import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
-import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
-    show WinCondition, teamWinningPlayers, WinConditionMapper;
+    show WinCondition, WinConditionMapper, teamWinningPlayers;
+import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/village/seer.dart' show SeerRole;
 import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/team/team.dart';
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'werewolves.mapper.dart';
@@ -56,7 +56,7 @@ class WerewolvesTeam extends Team {
     gameState.apply(
       CompositeGameCommand(
         [
-          RegisterWinConditionCommand(WerewolvesWinCondition()),
+          const RegisterWinConditionCommand(WerewolvesWinCondition()),
           RegisterWerewolvesNightActionCommand(),
         ].lock,
       ),
@@ -108,8 +108,8 @@ class WerewolvesWinCondition
     final werewolfCount = teamPlayers[WerewolvesTeam.type]?.length ?? 0;
     final teams = teamPlayers.keys.toSet();
 
-    return (werewolfCount >= gameState.alivePlayerCount / 2 &&
-        teams.difference({WerewolvesTeam.type, VillageTeam.type}).isEmpty);
+    return werewolfCount >= gameState.alivePlayerCount / 2 &&
+        teams.difference({WerewolvesTeam.type, VillageTeam.type}).isEmpty;
   }
 
   @override
@@ -171,7 +171,7 @@ class RegisterWerewolvesNightActionCommand
       currentActorIndices: werewolfIndices,
       disabledPlayerIndices: werewolvesOrDead,
       onConfirm: (selectedPlayers, gameState) {
-        int? selectedPlayer = selectedPlayers.singleOrNull;
+        final int? selectedPlayer = selectedPlayers.singleOrNull;
         if (selectedPlayer != null) {
           gameState.apply(
             MarkDeadCommand.single(

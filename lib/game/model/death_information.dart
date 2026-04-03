@@ -22,7 +22,7 @@ class DeathInformation {
   });
 }
 
-@MappableClass(discriminatorKey: "type")
+@MappableClass(discriminatorKey: 'type')
 abstract interface class DeathReason with DeathReasonMappable {
   /// A description of the death reason, used for the death screen.
   String deathReasonDescription(BuildContext context);

@@ -6,8 +6,8 @@ import 'package:werewolf_narrator/game/util/hooks.dart';
 
 class PlayerList extends StatelessWidget {
   const PlayerList({
-    super.key,
     required this.phaseIdentifier,
+    super.key,
     this.selectedPlayers = const ISet.empty(),
     this.disabledPlayers = const ISet.empty(),
     this.hiddenPlayers = const ISet.empty(),
@@ -27,52 +27,50 @@ class PlayerList extends StatelessWidget {
   final VoidCallback? Function(int index)? onPlayerTap;
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) {
-        final playerDisplayHooks = gameState.playerDisplayHooks;
-        final showPlayers = List.generate(
-          gameState.playerCount,
-          (i) => i,
-        ).where((index) => !hiddenPlayers.contains(index)).toIList();
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) {
+      final playerDisplayHooks = gameState.playerDisplayHooks;
+      final showPlayers = List.generate(
+        gameState.playerCount,
+        (i) => i,
+      ).where((index) => !hiddenPlayers.contains(index)).toIList();
 
-        return ListView.builder(
-          itemCount: showPlayers.length,
-          itemBuilder: (context, index) {
-            int playerIndex = showPlayers[index];
-            final VoidCallback? onTap = onPlayerTap?.call(playerIndex);
+      return ListView.builder(
+        itemCount: showPlayers.length,
+        itemBuilder: (context, index) {
+          final int playerIndex = showPlayers[index];
+          final VoidCallback? onTap = onPlayerTap?.call(playerIndex);
 
-            return PlayerListTile(
-              index: playerIndex,
-              name: gameState.players[playerIndex].name,
-              playerDisplayHooks: playerDisplayHooks,
-              phaseIdentifier: phaseIdentifier,
-              selected: selectedPlayers.contains(playerIndex),
-              enabled: !disabledPlayers.contains(playerIndex),
-              currentActor: currentActorIndices.contains(playerIndex),
-              playerDisplayData: PlayerDisplayData.merge(
-                [
-                  playerSpecificDisplayData[playerIndex],
-                  playerDisplayData,
-                ].nonNulls,
-              ),
-              onTap: onTap,
-            );
-          },
-        );
-      },
-    );
-  }
+          return PlayerListTile(
+            index: playerIndex,
+            name: gameState.players[playerIndex].name,
+            playerDisplayHooks: playerDisplayHooks,
+            phaseIdentifier: phaseIdentifier,
+            selected: selectedPlayers.contains(playerIndex),
+            enabled: !disabledPlayers.contains(playerIndex),
+            currentActor: currentActorIndices.contains(playerIndex),
+            playerDisplayData: PlayerDisplayData.merge(
+              [
+                playerSpecificDisplayData[playerIndex],
+                playerDisplayData,
+              ].nonNulls,
+            ),
+            onTap: onTap,
+          );
+        },
+      );
+    },
+  );
 }
 
 class PlayerListTile extends StatelessWidget {
   const PlayerListTile({
-    super.key,
     required this.index,
     required this.name,
     required this.playerDisplayHooks,
-    this.onTap,
     required this.phaseIdentifier,
+    super.key,
+    this.onTap,
     this.selected = false,
     this.enabled = true,
     this.playerDisplayData,
@@ -110,12 +108,8 @@ class PlayerListTile extends StatelessWidget {
 
     return ListTile(
       title: Text(name),
-      subtitle: playerDisplayData.subtitle != null
-          ? playerDisplayData.subtitle!(context)
-          : null,
-      trailing: playerDisplayData.trailing != null
-          ? playerDisplayData.trailing!(context)
-          : null,
+      subtitle: playerDisplayData.subtitle?.call(context),
+      trailing: playerDisplayData.trailing?.call(context),
       onTap: onTap,
       selected: selected,
       enabled: tileEnabled,

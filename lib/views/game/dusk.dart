@@ -6,7 +6,7 @@ import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 class DuskScreen extends StatelessWidget {
   final VoidCallback onPhaseComplete;
 
-  const DuskScreen({super.key, required this.onPhaseComplete});
+  const DuskScreen({required this.onPhaseComplete, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +14,18 @@ class DuskScreen extends StatelessWidget {
 
     return Scaffold(
       extendBody: true,
-      appBar: GameAppBar(
-        title: const SizedBox.shrink(),
+      appBar: const GameAppBar(
+        title: SizedBox.shrink(),
         backgroundColor: Colors.transparent,
       ),
-      body: Container(
+      body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: Alignment.bottomCenter,
             radius: 2,
             colors: [Colors.purple.shade700, Colors.transparent],
             stops: const [0.0, 0.7],
-            transform: ScaleGradient(scaleX: 1.25, scaleY: 0.75),
+            transform: const ScaleGradient(scaleX: 1.25, scaleY: 0.75),
           ),
         ),
         child: Center(

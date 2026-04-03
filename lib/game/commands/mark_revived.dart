@@ -22,7 +22,7 @@ class MarkRevivedCommand
 
   @override
   void apply(GameData gameData) {
-    for (int playerIndex in players) {
+    for (final playerIndex in players) {
       final deathInformation = gameData.players[playerIndex].deathInformation;
       if (deathInformation != null) {
         _deathInformations[playerIndex] = deathInformation;

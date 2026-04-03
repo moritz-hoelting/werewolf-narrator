@@ -1,7 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/role.dart'
-    show RoleType, RoleManager;
+    show RoleManager, RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
@@ -58,7 +58,7 @@ class RolesOverviewScreen extends StatelessWidget {
 }
 
 class RoleCard extends StatelessWidget {
-  const RoleCard({super.key, required this.role});
+  const RoleCard({required this.role, super.key});
 
   final RoleType role;
 
@@ -90,7 +90,7 @@ class RoleCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline),
             onPressed: () => showDialog(
               context: context,
               builder: (context) => RoleInfoDialog(role: role),
@@ -103,7 +103,7 @@ class RoleCard extends StatelessWidget {
 }
 
 class RoleInfoDialog extends StatelessWidget {
-  const RoleInfoDialog({super.key, required this.role});
+  const RoleInfoDialog({required this.role, super.key});
 
   final RoleType role;
 
@@ -133,7 +133,7 @@ class RoleInfoDialog extends StatelessWidget {
 }
 
 class RoleInfoSettings extends StatelessWidget {
-  const RoleInfoSettings({super.key, required this.options});
+  const RoleInfoSettings({required this.options, super.key});
 
   final IList<RoleOption> options;
 

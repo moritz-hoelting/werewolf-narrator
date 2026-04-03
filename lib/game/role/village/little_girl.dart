@@ -1,9 +1,9 @@
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
-import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 @RegisterRole()
 class LittleGirlRole extends Role {
@@ -28,7 +28,7 @@ class LittleGirlRole extends Role {
           context,
         ).role_littleGirl_checkInstruction(count: count),
         validRoleCounts: const [1],
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 35,
         ),

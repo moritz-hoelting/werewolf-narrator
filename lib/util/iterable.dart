@@ -27,6 +27,5 @@ class _InfiniteIterator<T> implements Iterator<T> {
 int Function(int index) _startingAtGenerator(int start) =>
     (int index) => index + start;
 
-InfiniteIterable<int> infiniteIterableStartingAt(int start) {
-  return InfiniteIterable(_startingAtGenerator(start));
-}
+InfiniteIterable<int> infiniteIterableStartingAt(int start) =>
+    InfiniteIterable(_startingAtGenerator(start));

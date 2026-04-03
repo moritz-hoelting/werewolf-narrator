@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:fpdart/fpdart.dart' show Option, FpdartOnOption;
+import 'package:fpdart/fpdart.dart' show FpdartOnOption, Option;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
@@ -14,11 +14,11 @@ part 'dynamic_actions_screen.mapper.dart';
 
 class DynamicActionsScreen extends StatelessWidget {
   const DynamicActionsScreen({
-    super.key,
     required this.orderedActions,
     required this.actionHooks,
     required this.onAllActionsComplete,
     required this.night,
+    super.key,
   });
 
   final IList<DynamicActionEntry> orderedActions;
@@ -119,7 +119,7 @@ class SetDynamicActionIndexCommand
 
   SetDynamicActionIndexCommand(this.newIndex);
 
-  Option<int?> previousIndex = Option.none();
+  Option<int?> previousIndex = const Option.none();
 
   @override
   void apply(GameData data) {

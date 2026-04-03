@@ -1,24 +1,24 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
 import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
     show BigBadWolfRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesDeathReason, WerewolvesTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'pyjama_pal.mapper.dart';
@@ -33,7 +33,7 @@ class PyjamaPalRole extends Role {
   @override
   RoleType get roleType => type;
 
-  static const String dieIfAtHostileOptionKey = "dieIfAtHostile";
+  static const String dieIfAtHostileOptionKey = 'dieIfAtHostile';
 
   final bool dieIfAtHostile;
 
@@ -63,7 +63,7 @@ class PyjamaPalRole extends Role {
             ).role_pyjamaPal_option_dieIfAtHostile_description,
           ),
         ]),
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
         ),
       ),
@@ -115,29 +115,27 @@ class OnAssignPyjamaPalCommand
   }
 
   WidgetBuilder nightActionScreen(VoidCallback onComplete) =>
-      (BuildContext context) {
-        return ActionScreen(
-          key: UniqueKey(),
-          actionIdentifier: PyjamaPalRole.type,
-          appBarTitle: Text(PyjamaPalRole._name(context)),
-          selectionCount: 1,
-          currentActorIndices: ISet({playerIndex}),
-          disabledPlayerIndices: ISet({playerIndex}),
-          instruction: Text(
-            AppLocalizations.of(context).role_pyjamaPal_nightAction_instruction,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          onConfirm: (playerIds, gameState) {
-            gameState.apply(
-              SetPyjamaPalSleepoverTargetCommand(
-                playerIndex: playerIndex,
-                sleepoverTargetIndex: playerIds.singleOrNull,
-              ),
-            );
-            onComplete();
-          },
-        );
-      };
+      (BuildContext context) => ActionScreen(
+        key: UniqueKey(),
+        actionIdentifier: PyjamaPalRole.type,
+        appBarTitle: Text(PyjamaPalRole._name(context)),
+        selectionCount: 1,
+        currentActorIndices: ISet({playerIndex}),
+        disabledPlayerIndices: ISet({playerIndex}),
+        instruction: Text(
+          AppLocalizations.of(context).role_pyjamaPal_nightAction_instruction,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        onConfirm: (playerIds, gameState) {
+          gameState.apply(
+            SetPyjamaPalSleepoverTargetCommand(
+              playerIndex: playerIndex,
+              sleepoverTargetIndex: playerIds.singleOrNull,
+            ),
+          );
+          onComplete();
+        },
+      );
 
   void dawnHook(GameState gameState, int dayCount) {
     final role = gameState.players[playerIndex].role as PyjamaPalRole;
@@ -204,7 +202,7 @@ class SetPyjamaPalSleepoverTargetCommand
     required this.sleepoverTargetIndex,
   });
 
-  Option<int?> _previousSleepoverTargetIndex = Option.none();
+  Option<int?> _previousSleepoverTargetIndex = const Option.none();
 
   @override
   void apply(GameData gameData) {
@@ -222,6 +220,6 @@ class SetPyjamaPalSleepoverTargetCommand
     role.sleepoverAtPlayer = _previousSleepoverTargetIndex.getOrElse(
       () => null,
     );
-    _previousSleepoverTargetIndex = Option.none();
+    _previousSleepoverTargetIndex = const Option.none();
   }
 }

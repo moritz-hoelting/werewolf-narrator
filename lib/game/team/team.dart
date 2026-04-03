@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/team.dart';
 
 @sealed
 abstract class Team {

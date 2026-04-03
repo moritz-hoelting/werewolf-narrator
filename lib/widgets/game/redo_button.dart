@@ -7,20 +7,16 @@ class RedoButton extends StatelessWidget {
   const RedoButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<GameState>(
-      builder: (context, gameState, child) {
-        return IconButton(
-          onPressed: gameState.canRedoBatch
-              ? () {
-                  gameState.redoBatch();
-                }
-              : null,
-          icon: child!,
-          tooltip: AppLocalizations.of(context).button_redoTooltip,
-        );
-      },
-      child: const Icon(Icons.redo),
-    );
-  }
+  Widget build(BuildContext context) => Consumer<GameState>(
+    builder: (context, gameState, child) => IconButton(
+      onPressed: gameState.canRedoBatch
+          ? () {
+              gameState.redoBatch();
+            }
+          : null,
+      icon: child!,
+      tooltip: AppLocalizations.of(context).button_redoTooltip,
+    ),
+    child: const Icon(Icons.redo),
+  );
 }

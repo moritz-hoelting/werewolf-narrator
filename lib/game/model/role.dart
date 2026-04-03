@@ -6,10 +6,10 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/role.dart';
-import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'role.mapper.dart';
@@ -198,34 +198,23 @@ class ChooseRolesInformation {
   const ChooseRolesInformation({required this.category, this.priority = 0});
 }
 
-class ChooseRolesCategory {
+enum ChooseRolesCategory {
+  werewolves(name: _werewolvesName, priority: 20),
+  village(name: _villageName, priority: 15),
+  ambiguous(name: _ambiguousName, priority: 10),
+  loner(name: _lonerName, priority: 5);
+
+  const ChooseRolesCategory({required this.name, required this.priority});
+
   final String Function(BuildContext context) name;
   final int priority;
 
-  const ChooseRolesCategory._({required this.name, required this.priority});
-
-  static const werewolves = ChooseRolesCategory._(
-    name: _werewolvesName,
-    priority: 20,
-  );
   static String _werewolvesName(BuildContext context) =>
       AppLocalizations.of(context).roleCategory_werewolves_name;
-
-  static const village = ChooseRolesCategory._(
-    name: _villageName,
-    priority: 15,
-  );
   static String _villageName(BuildContext context) =>
       AppLocalizations.of(context).roleCategory_village_name;
-
-  static const ambiguous = ChooseRolesCategory._(
-    name: _ambiguousName,
-    priority: 10,
-  );
   static String _ambiguousName(BuildContext context) =>
       AppLocalizations.of(context).roleCategory_ambiguous_name;
-
-  static const loner = ChooseRolesCategory._(name: _lonerName, priority: 5);
   static String _lonerName(BuildContext context) =>
       AppLocalizations.of(context).roleCategory_loner_name;
 }

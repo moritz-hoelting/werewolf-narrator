@@ -1,15 +1,15 @@
 import 'package:dart_mappable/dart_mappable.dart';
-import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/register_win_condition.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
+import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
-import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/role/role.dart';
 
 part 'angel.mapper.dart';
 
@@ -34,7 +34,7 @@ class AngelRole extends Role {
         ).role_angel_checkInstruction(count: count),
         validRoleCounts: const [1],
         requireStartGameWithDay: true,
-        chooseRolesInformation: ChooseRolesInformation(
+        chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 1,
         ),
@@ -55,7 +55,7 @@ class AngelRole extends Role {
       AppLocalizations.of(context).role_angel_name;
 }
 
-@MappableClass(discriminatorValue: "angel")
+@MappableClass(discriminatorValue: 'angel')
 class AngelWinCondition with AngelWinConditionMappable implements WinCondition {
   const AngelWinCondition(this.playerIndex);
 

@@ -125,9 +125,8 @@ class DynamicActionRegistration {
   });
 
   @override
-  String toString() {
-    return 'DynamicActionRegistration(entry: $entry, before: $before, after: $after, beforeAll: $beforeAll, afterAll: $afterAll)';
-  }
+  String toString() =>
+      'DynamicActionRegistration(entry: $entry, before: $before, after: $after, beforeAll: $beforeAll, afterAll: $afterAll)';
 }
 
 class DynamicActionEntry {
@@ -151,7 +150,6 @@ class DynamicActionEntry {
   });
 
   @override
-  String toString() {
-    return 'DynamicActionEntry(identifier: $identifier, players: $players)';
-  }
+  String toString() =>
+      'DynamicActionEntry(identifier: $identifier, players: $players)';
 }

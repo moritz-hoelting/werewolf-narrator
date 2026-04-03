@@ -11,7 +11,7 @@ import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
 import 'package:werewolf_narrator/game/model/team.dart'
-    show TeamType, TeamManager;
+    show TeamManager, TeamType;
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
 import 'package:werewolf_narrator/game/role/role.dart' show Role;
@@ -339,7 +339,7 @@ class GameData {
           return (entry.key, entry.value.count - assignedCount);
         })
         .fold(<RoleType>[], (acc, element) {
-          for (int i = 0; i < element.$2; i++) {
+          for (var i = 0; i < element.$2; i++) {
             acc.add(element.$1);
           }
           return acc;
@@ -353,7 +353,7 @@ class GameData {
       return;
     }
     _markDeadRecursionGuard.add(playerIndex);
-    bool shouldDie = true;
+    var shouldDie = true;
     for (final hook in deathHooks) {
       if (hook(state, playerIndex, deathReason)) {
         shouldDie = false;
@@ -377,7 +377,7 @@ class GameData {
       return;
     }
     _markRevivedRecursionGuard.add(playerIndex);
-    bool shouldRevive = true;
+    var shouldRevive = true;
     for (final hook in reviveHooks) {
       if (hook(state, playerIndex)) {
         shouldRevive = false;
@@ -541,7 +541,7 @@ class GameData {
 
   /// Gets the next valid phase, if any.
   GamePhase? get nextPhase {
-    for (int i = 1; i < GamePhase.values.length; i++) {
+    for (var i = 1; i < GamePhase.values.length; i++) {
       final next = GamePhase.values.elementAt(
         (phase.index + i) % GamePhase.values.length,
       );

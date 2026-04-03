@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
-    show TransitionToNextPhaseCommand, GamePhase;
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+    show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart';
@@ -47,7 +47,7 @@ class _GameViewState extends State<GameView> {
                     final answer = await showDialog<bool>(
                       useRootNavigator: false,
                       context: context,
-                      builder: (dialogContext) => LeaveGameDialog(),
+                      builder: (dialogContext) => const LeaveGameDialog(),
                     );
 
                     if (answer == true && context.mounted) {

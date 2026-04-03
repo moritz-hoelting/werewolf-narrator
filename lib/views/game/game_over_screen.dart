@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition;
-import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 class GameOverScreen extends StatelessWidget {
@@ -24,13 +24,16 @@ class GameOverScreen extends StatelessWidget {
         );
 
         final WinCondition winner = winnerOrNull!;
-        List<PlayerView> winners = gameState
+        final List<PlayerView> winners = gameState
             .winningPlayers()!
             .map((entry) => entry.player)
             .toList();
 
         return Scaffold(
-          appBar: GameAppBar(title: Text(localizations.screen_gameOver_title)),
+          appBar: GameAppBar(
+            title: Text(localizations.screen_gameOver_title),
+            automaticallyImplyLeading: true,
+          ),
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
