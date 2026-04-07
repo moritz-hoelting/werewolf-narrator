@@ -42,7 +42,6 @@ linter:
     prefer_asserts_with_message: true
     prefer_const_constructors: true
     prefer_const_declarations: true
-    prefer_expression_function_bodies: true
     prefer_final_in_for_each: true
     prefer_final_locals: true
     prefer_if_elements_to_conditional_expressions: true

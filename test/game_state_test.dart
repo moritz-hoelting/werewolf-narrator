@@ -1,5 +1,7 @@
+import 'package:drift/native.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/set_players_role.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
@@ -16,11 +18,15 @@ import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
 
 void main() {
   setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
     GameRegistry.ensureInitialized();
   });
 
   test('Test game phase order', () {
+    AppDatabase(NativeDatabase.memory());
+
     final state = GameState(
+      id: 0,
       playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),
@@ -69,7 +75,10 @@ void main() {
   });
 
   test('Test game phase order with Angel role', () {
+    AppDatabase(NativeDatabase.memory());
+
     final state = GameState(
+      id: 1,
       playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: {}),

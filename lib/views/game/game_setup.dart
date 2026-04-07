@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
@@ -48,9 +49,7 @@ class _GameSetupViewState extends State<GameSetupView> {
         ),
         GameSetupStep.chooseRoles => ChooseRolesScreen(
           playerCount: players.length,
-          onSubmit: (selectedRoles) => widget.onFinished(
-            GameSetupResult(players: players, selectedRoles: selectedRoles),
-          ),
+          onSubmit: submitChooseRoles,
         ),
       },
     ),
@@ -61,6 +60,22 @@ class _GameSetupViewState extends State<GameSetupView> {
       step = GameSetupStep.chooseRoles;
       players = createdPlayers;
     });
+  }
+
+  Future<void> submitChooseRoles(
+    Map<RoleType, ({Map<String, dynamic> config, int count})> selectedRoles,
+  ) async {
+    final gameId = await Provider.of<AppDatabase>(
+      context,
+      listen: false,
+    ).gamesDao.createGame(players, selectedRoles);
+    widget.onFinished(
+      GameSetupResult(
+        id: gameId,
+        players: players,
+        selectedRoles: selectedRoles,
+      ),
+    );
   }
 }
 
@@ -81,8 +96,13 @@ enum GameSetupStep {
 }
 
 class GameSetupResult {
+  final int id;
   final List<String> players;
   final Map<RoleType, ({int count, RoleConfiguration config})> selectedRoles;
 
-  GameSetupResult({required this.players, required this.selectedRoles});
+  GameSetupResult({
+    required this.id,
+    required this.players,
+    required this.selectedRoles,
+  });
 }

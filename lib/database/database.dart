@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart'
     show DriftWebOptions, driftDatabase;
-import 'package:werewolf_narrator/database/name_cache.dart'
-    show NameCache, NameCacheDao;
+import 'package:werewolf_narrator/database/game.dart';
+import 'package:werewolf_narrator/database/player_names.dart'
+    show PlayerNames, PlayerNamesDao;
 import 'package:werewolf_narrator/database/settings.dart';
+import 'package:werewolf_narrator/game/model/role.dart';
 
 part 'database.g.dart';
 
@@ -15,13 +17,43 @@ QueryExecutor _connectWithDriftFlutter() => driftDatabase(
   ),
 );
 
-@DriftDatabase(tables: [NameCache, Settings], daos: [NameCacheDao, SettingsDao])
+@DriftDatabase(
+  tables: [
+    PlayerNames,
+    Settings,
+    Games,
+    GamePlayers,
+    GameRoles,
+    CommandBatches,
+    CommandEntries,
+  ],
+  daos: [PlayerNamesDao, SettingsDao, GamesDao],
+)
 class AppDatabase extends _$AppDatabase {
-  AppDatabase._() : super(_connectWithDriftFlutter());
-  static final AppDatabase instance = AppDatabase._();
+  AppDatabase.open([QueryExecutor? executor])
+    : super(executor ?? _connectWithDriftFlutter());
+  static AppDatabase? instance;
 
-  factory AppDatabase() => instance;
+  factory AppDatabase([QueryExecutor? executor]) {
+    instance ??= AppDatabase.open(executor);
+    return instance!;
+  }
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      if (details.wasCreated) {
+        await customStatement('PRAGMA foreign_keys = ON;');
+      }
+    },
+  );
 }
+
+JsonTypeConverter2<Map<String, dynamic>, Uint8List, Object?> jsonMapConverter =
+    TypeConverter.jsonb(
+      fromJson: (json) => json as Map<String, dynamic>,
+      toJson: (pref) => pref,
+    );

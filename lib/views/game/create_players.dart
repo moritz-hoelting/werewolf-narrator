@@ -178,10 +178,8 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
         .map((name) => name.trim())
         .where((name) => name.isNotEmpty)
         .toList();
-    Provider.of<AppDatabase>(
-      context,
-      listen: false,
-    ).nameCacheDao.addNamesToCache(names);
+    final database = Provider.of<AppDatabase>(context, listen: false);
+    database.playerNamesDao.addNameSuggestions(names);
     widget.onSubmit(names);
   }
 }
@@ -247,9 +245,11 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
           return const Iterable<String>.empty();
         }
         final appDatabase = Provider.of<AppDatabase>(context, listen: false);
-        return appDatabase.nameCacheDao.getAllNamesStartingWith(
-          textEditingValue.text,
-        );
+        return appDatabase.playerNamesDao
+            .getAllNameSuggestionsStartingWith(textEditingValue.text)
+            .then(
+              (names) => names.where((name) => name != textEditingValue.text),
+            );
       },
       onSelected: (option) {
         _controller.text = option;
@@ -323,7 +323,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
                           Provider.of<AppDatabase>(
                             context,
                             listen: false,
-                          ).nameCacheDao.deleteNameFromCache(option);
+                          ).playerNamesDao.disableNameSuggestion(option);
                           Navigator.of(context).pop();
                         },
                         child: Text(localizations.button_yesLabel),

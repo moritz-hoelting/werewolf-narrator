@@ -1,6 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
@@ -23,6 +26,9 @@ import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
     show CheckRolesData;
 
 class GameState extends ChangeNotifier {
+  /// The unique identifier for this game, corresponding to the database ID.
+  final int id;
+
   late final GameData _data;
 
   /// Chunked actions for undo functionality. Each inner list represents a batch of actions that should be undone together.
@@ -61,7 +67,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void finishBatch([GameCommand? finalCommand]) {
+  IList<_CommandStackEntry> _finishBatch([GameCommand? finalCommand]) {
     assert(
       _frameStack.isEmpty,
       'Finish batch cannot be called within a command application',
@@ -77,10 +83,28 @@ class GameState extends ChangeNotifier {
     _frameStack.clear();
     _batchedCommandStack.add(commands);
 
+    return commands;
+  }
+
+  void finishBatch([GameCommand? finalCommand]) {
+    final commandsInBatch = _finishBatch(finalCommand);
+
     notifyListeners();
+
+    final db = AppDatabase();
+    unawaited(
+      db.computeWithDatabase(
+        computation: (db) => db.gamesDao.insertCommandBatch(
+          id,
+          commandsInBatch.map((entry) => entry.command),
+        ),
+        connect: AppDatabase.open,
+      ),
+    );
   }
 
   void undoBatch() {
+    final batchStackLength = _batchedCommandStack.length;
     for (final entry in _currentCommandStack.reversed) {
       entry.undo(_data);
     }
@@ -103,14 +127,37 @@ class GameState extends ChangeNotifier {
     }
     _currentCommandStack.clear();
     notifyListeners();
+
+    if (batchStackLength > 0) {
+      final db = AppDatabase();
+      unawaited(
+        db.computeWithDatabase(
+          computation: (db) =>
+              db.gamesDao.setBatchUndoStatus(id, batchStackLength - 1, true),
+          connect: AppDatabase.open,
+        ),
+      );
+    }
   }
 
   void redoBatch() {
+    final batchStackLength = _batchedCommandStack.length;
     final IList<GameCommand> redoCommands = _redoCommandStack.removeLast();
     for (final command in redoCommands) {
       _apply(command);
     }
-    finishBatch();
+    _finishBatch();
+
+    notifyListeners();
+
+    final db = AppDatabase();
+    unawaited(
+      db.computeWithDatabase(
+        computation: (db) =>
+            db.gamesDao.setBatchUndoStatus(id, batchStackLength, false),
+        connect: AppDatabase.open,
+      ),
+    );
   }
 
   bool get canUndoBatch =>
@@ -121,6 +168,7 @@ class GameState extends ChangeNotifier {
   bool get canRedoBatch => _redoCommandStack.isNotEmpty;
 
   GameState({
+    required this.id,
     required List<String> playerNames,
     required Map<RoleType, ({Map<String, dynamic> config, int count})>
     roleConfigurations,
@@ -145,6 +193,33 @@ class GameState extends ChangeNotifier {
 
     _currentCommandStack.clear();
     _frameStack.clear();
+  }
+
+  static Future<GameState> fromDatabase({
+    required int id,
+    required List<String> playerNames,
+    required Map<RoleType, ({Map<String, dynamic> config, int count})>
+    roleConfigurations,
+  }) async {
+    final state = GameState(
+      id: id,
+      playerNames: playerNames,
+      roleConfigurations: roleConfigurations,
+    );
+
+    final (:run, :undone) = await AppDatabase().gamesDao
+        .getCommandBatchesForGame(id);
+
+    for (final batch in run) {
+      for (final command in batch) {
+        state._apply(command);
+      }
+      state._finishBatch();
+    }
+
+    state._redoCommandStack.addAll(undone);
+
+    return state;
   }
 
   int? get dynamicActionIndex => _data.dynamicActionIndex;

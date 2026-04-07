@@ -17,5 +17,7 @@ targets:
     builders:
       drift_dev:
         options:
+          named_parameters: true
+          store_date_time_values_as_text: true
           databases:
             werewolf_narrator_db: lib/database/database.dart

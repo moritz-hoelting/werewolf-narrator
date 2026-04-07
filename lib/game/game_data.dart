@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/commands/fill_villager_roles.dart'
     show FillVillagerRolesCommand;
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -653,6 +654,8 @@ class GameOverCommand with GameOverCommandMappable implements GameCommand {
   void apply(GameData gameData) {
     _previousPhase = gameData.phase;
     gameData._phase = GamePhase.gameOver;
+
+    AppDatabase().gamesDao.endGame(gameData.state.id);
   }
 
   @override

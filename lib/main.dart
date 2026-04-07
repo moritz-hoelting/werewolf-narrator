@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,6 +12,7 @@ import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/game.dart';
+import 'package:werewolf_narrator/views/games_overview.dart';
 import 'package:werewolf_narrator/views/roles_overview.dart';
 import 'package:werewolf_narrator/views/settings.dart' show SettingsScreen;
 
@@ -20,12 +23,19 @@ void main() async {
   GameRegistry.ensureInitialized();
 
   // Preload settings
-  await AppSettings.init(AppDatabase());
-  await DeveloperSettings.init(AppDatabase());
+  final db = AppDatabase();
+  unawaited(
+    db.computeWithDatabase(
+      computation: (db) async {
+        await (AppSettings.init(db), DeveloperSettings.init(db)).wait;
+      },
+      connect: AppDatabase.open,
+    ),
+  );
 
   runApp(
     Provider<AppDatabase>(
-      create: (context) => AppDatabase(),
+      create: (context) => db,
       dispose: (context, db) => db.close(),
       child: const WerewolfNarratorApp(),
     ),
@@ -84,6 +94,7 @@ class HomePage extends StatelessWidget {
               child: Column(
                 spacing: 16,
                 children: [
+                  // Start new game button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -96,7 +107,7 @@ class HomePage extends StatelessWidget {
                         foregroundColor: Theme.of(
                           context,
                         ).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 50),
+                        padding: const EdgeInsets.symmetric(vertical: 40),
                         tapTargetSize: MaterialTapTargetSize.padded,
                         textStyle: const TextStyle(
                           fontSize: 18,
@@ -108,6 +119,31 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // Game overview button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      label: Text(localizations.screen_gamesOverview_title),
+                      icon: const Icon(Icons.history),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(vertical: 25),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const GamesOverview(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  // Roles overview button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -115,7 +151,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.person),
                       style: ElevatedButton.styleFrom(
                         elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 25),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -129,6 +165,8 @@ class HomePage extends StatelessWidget {
                       },
                     ),
                   ),
+
+                  // Settings button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -136,7 +174,7 @@ class HomePage extends StatelessWidget {
                       icon: const Icon(Icons.settings),
                       style: ElevatedButton.styleFrom(
                         elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 25),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

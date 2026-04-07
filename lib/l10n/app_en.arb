@@ -36,6 +36,66 @@
     "@alert_leaveGame_message": {
         "description": "Message in the alert dialog when leaving a game"
     },
+    "screen_gamesOverview_title": "Games Overview",
+    "@screen_gamesOverview_title": {
+        "description": "Title for the games overview screen"
+    },
+    "screen_gamesOverview_noGamesFound": "No games found",
+    "@screen_gamesOverview_noGamesFound": {
+        "description": "Message when no games are found"
+    },
+    "screen_gameOverview_gameTitleOfId": "Game #{id}",
+    "@screen_gameOverview_gameTitleOfId": {
+        "description": "Title for a game in the game overview screen, with the game ID as a variable",
+        "placeholders": {
+            "id": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "screen_gameOverview_gameTitleWithPlayers": "Game #{id}: {playerNames}",
+    "@screen_gameOverview_gameTitleWithPlayers": {
+        "description": "Title for a game in the game overview screen, with the game ID and player names as variables",
+        "placeholders": {
+            "id": {
+                "type": "int",
+                "example": "1"
+            },
+            "playerNames": {
+                "type": "String",
+                "example": "Alice, Bob, Charlie"
+            }
+        }
+    },
+    "screen_gameOverview_gameSubtitleOngoing": "Started at {startedAt}, still ongoing",
+    "@screen_gameOverview_gameSubtitleOngoing": {
+        "description": "Subtitle for an ongoing game in the game overview screen, with the start time as a variable",
+        "placeholders": {
+            "startedAt": {
+                "type": "String",
+                "example": "2025-04-07 19:00"
+            }
+        }
+    },
+    "screen_gameOverview_gameSubtitleFinished": "Started at {startedAt}, finished at {finishedAt}",
+    "@screen_gameOverview_gameSubtitleFinished": {
+        "description": "Subtitle for a finished game in the game overview screen, with the start and finish times as variables",
+        "placeholders": {
+            "startedAt": {
+                "type": "String",
+                "example": "2025-04-07 19:00"
+            },
+            "finishedAt": {
+                "type": "String",
+                "example": "2025-04-07 21:00"
+            }
+        }
+    },
+    "screen_gameOverview_resumeGameTooltip": "Resume",
+    "@screen_gameOverview_resumeGameTooltip": {
+        "description": "Tooltip for the button to resume an ongoing game in the game overview screen"
+    },
     "screen_rolesOverview_title": "Roles",
     "@screen_rolesOverview_title": {
         "description": "Title for the roles overview screen"

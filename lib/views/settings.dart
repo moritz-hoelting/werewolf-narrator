@@ -157,7 +157,7 @@ class SettingsDisplay extends StatelessWidget {
                         Provider.of<AppDatabase>(
                           context,
                           listen: false,
-                        ).nameCacheDao.emptyCache();
+                        ).playerNamesDao.disableAllNameSuggestions();
                         Navigator.pop(context);
                       },
                       child: Text(materialLocalizations.okButtonLabel),
@@ -175,7 +175,7 @@ class SettingsDisplay extends StatelessWidget {
                 stream: Provider.of<AppDatabase>(
                   context,
                   listen: false,
-                ).nameCacheDao.watchAllNames(),
+                ).playerNamesDao.watchAllNameSuggestions(),
                 builder: (context, cachedNames) {
                   if (cachedNames.hasError) {
                     return Text('Error: ${cachedNames.error}');
@@ -208,7 +208,7 @@ class SettingsDisplay extends StatelessWidget {
                           onPressed: () => Provider.of<AppDatabase>(
                             context,
                             listen: false,
-                          ).nameCacheDao.deleteNameFromCache(names[index]),
+                          ).playerNamesDao.disableNameSuggestion(names[index]),
                           icon: const Icon(Icons.delete),
                         ),
                       ),
