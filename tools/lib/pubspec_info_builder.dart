@@ -39,7 +39,7 @@ class PubspecInfoBuilder implements Builder {
         """
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // Generated from pubspec.yaml
-
+// dart format off
 // coverage:ignore-file
 // ignore_for_file: type=lint
 

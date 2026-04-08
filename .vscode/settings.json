@@ -1,5 +1,7 @@
 {
+    "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
-        "*.dart": "${capture}.g.dart,${capture}.mapper.dart"
+        "*.dart": "${capture}.g.dart,${capture}.mapper.dart",
+        "pubspec.yaml": "pubspec.lock,.flutter-plugins-dependencies,.metadata"
     }
 }

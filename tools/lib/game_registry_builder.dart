@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:build/build.dart';
+import 'package:collection/collection.dart';
 import 'package:werewolf_annotations/register_role.dart';
 import 'package:werewolf_annotations/register_team.dart';
 import 'package:dart_mappable/dart_mappable.dart' show MappableClass;
@@ -113,6 +114,7 @@ class GameRegistryBuilder implements Builder {
     final buffer = StringBuffer()
       ..writeln('// GENERATED CODE - DO NOT MODIFY')
       ..writeln('// coverage:ignore-file')
+      ..writeln('// dart format off')
       ..writeln('// ignore_for_file: type=lint')
       ..writeln();
 
@@ -124,10 +126,17 @@ class GameRegistryBuilder implements Builder {
     );
     buffer.writeln();
 
-    // Deduplicated imports
-    final imports = {...roles, ...teams, ...mappableClasses};
-    for (final imp in imports) {
-      buffer.writeln("import '${imp.import}' show ${imp.name};");
+    // Deduplicated and group imports
+    final imports =
+        groupBy(
+          roles.followedBy(teams).followedBy(mappableClasses),
+          (element) => element.import,
+        ).map(
+          (key, value) =>
+              MapEntry(key, value.map((element) => element.name).toSet()),
+        );
+    for (final imp in imports.entries) {
+      buffer.writeln("import '${imp.key}' show ${imp.value.join(', ')};");
     }
 
     buffer.writeln();
