@@ -1,8 +1,11 @@
+import 'dart:async' show unawaited;
+
 import 'package:drift_db_viewer/drift_db_viewer.dart' show DriftDbViewer;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
+import 'package:werewolf_narrator/database/database.dart'
+    show AppDatabase, AppDatabaseHolder;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
 import 'package:werewolf_narrator/util/consts.dart';
@@ -36,17 +39,15 @@ class DeveloperSettingsScreen extends StatelessWidget {
               },
             ),
 
-            Tooltip(
-              message: 'Tap to view commit on GitHub',
-              child: ListTile(
-                title: const Text('Git Hash: $gitHash'),
-                subtitle: const Text('Build Date: $buildDate'),
-                onTap: PubspecInfo.repositoryUrl != null
-                    ? () {
-                        final url =
-                            "${PubspecInfo.repositoryUrl!}${PubspecInfo.repositoryUrl!.endsWith('/') ? '' : '/'}tree/$gitHash";
-                        launchUrl(Uri.parse(url));
-                      }
+            const ListTile(
+              title: Text('Git Hash: $gitHash'),
+              subtitle: Text('Build Date: $buildDate'),
+              trailing: IconButton(
+                icon: Icon(Icons.open_in_new),
+                tooltip: 'View commit in repository',
+                onPressed:
+                    PubspecInfo.repositoryUrl != null && gitHash != 'unknown'
+                    ? _openGitCommit
                     : null,
               ),
             ),
@@ -66,19 +67,70 @@ class DeveloperSettingsScreen extends StatelessWidget {
 
             ListTile(
               title: const Text('View Database'),
-              subtitle: const Text("View the contents of the app's database"),
+              subtitle: FutureBuilder(
+                future: AppDatabaseHolder.databaseLocation(),
+                builder: (context, databaseLocation) => Text(
+                  'Database file location: ${databaseLocation.data ?? "..."}',
+                ),
+              ),
               onTap: () {
                 final db = Provider.of<AppDatabase>(context, listen: false);
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => DriftDbViewer(db)),
                 );
               },
+              trailing: IconButton(
+                icon: const Icon(Icons.delete_forever),
+                tooltip: 'Delete database',
+                onPressed: () async {
+                  final answer = await showDialog<bool>(
+                    useRootNavigator: false,
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      icon: const Icon(Icons.delete),
+                      title: const Text('Delete Database'),
+                      content: const Text(
+                        'Do you really want to delete the entire database? This cannot be undone!',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: Text(
+                            MaterialLocalizations.of(context).cancelButtonLabel,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            MaterialLocalizations.of(context).okButtonLabel,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (answer == true && context.mounted) {
+                    unawaited(
+                      Provider.of<AppDatabaseHolder>(
+                        context,
+                        listen: false,
+                      ).recreateDatabase(),
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),
       ),
     ),
   );
+}
+
+void _openGitCommit() {
+  final url =
+      "${PubspecInfo.repositoryUrl!}${PubspecInfo.repositoryUrl!.endsWith('/') ? '' : '/'}tree/$gitHash";
+  launchUrl(Uri.parse(url));
 }
 
 class SettingsDisplay extends StatelessWidget {

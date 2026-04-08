@@ -22,7 +22,7 @@ void main() {
   });
 
   test('Test night action order', () {
-    AppDatabase(NativeDatabase.memory());
+    AppDatabaseHolder(NativeDatabase.memory());
 
     final state = GameState(
       id: 0,

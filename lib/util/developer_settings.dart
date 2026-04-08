@@ -6,14 +6,16 @@ import 'package:werewolf_narrator/database/settings.dart';
 final class DeveloperSettings extends ChangeNotifier {
   static late final DeveloperSettings instance;
 
-  final SettingsDao _dao;
+  final AppDatabaseHolder _holder;
 
-  DeveloperSettings._(this._dao);
+  DeveloperSettings._(this._holder);
 
-  static Future<void> init(AppDatabase db) async {
-    instance = DeveloperSettings._(db.settingsDao);
+  static Future<void> init(AppDatabaseHolder db) async {
+    instance = DeveloperSettings._(db);
     await instance._loadDeveloperSettings();
   }
+
+  SettingsDao get _dao => _holder.database.settingsDao;
 
   // Keys
   static const _enabledKey = 'dev:enabled';

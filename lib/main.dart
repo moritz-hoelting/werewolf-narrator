@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
+import 'package:werewolf_narrator/database/database.dart'
+    show AppDatabase, AppDatabaseHolder;
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
@@ -23,21 +24,18 @@ void main() async {
   GameRegistry.ensureInitialized();
 
   // Preload settings
-  final db = AppDatabase();
-  unawaited(
-    db.computeWithDatabase(
-      computation: (db) async {
-        await (AppSettings.init(db), DeveloperSettings.init(db)).wait;
-      },
-      connect: AppDatabase.open,
-    ),
-  );
+  final dbHolder = AppDatabaseHolder();
+  unawaited(DeveloperSettings.init(dbHolder));
+  await AppSettings.init(dbHolder);
 
   runApp(
-    Provider<AppDatabase>(
-      create: (context) => db,
-      dispose: (context, db) => db.close(),
-      child: const WerewolfNarratorApp(),
+    ChangeNotifierProvider(
+      create: (context) => dbHolder,
+      builder: (context, child) =>
+          ProxyProvider<AppDatabaseHolder, AppDatabase>(
+            update: (context, holder, previous) => holder.database,
+            child: const WerewolfNarratorApp(),
+          ),
     ),
   );
 }

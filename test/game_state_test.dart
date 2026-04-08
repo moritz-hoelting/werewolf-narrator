@@ -23,7 +23,7 @@ void main() {
   });
 
   test('Test game phase order', () {
-    AppDatabase(NativeDatabase.memory());
+    AppDatabaseHolder(NativeDatabase.memory());
 
     final state = GameState(
       id: 0,
@@ -75,7 +75,7 @@ void main() {
   });
 
   test('Test game phase order with Angel role', () {
-    AppDatabase(NativeDatabase.memory());
+    AppDatabaseHolder(NativeDatabase.memory());
 
     final state = GameState(
       id: 1,

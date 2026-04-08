@@ -655,7 +655,7 @@ class GameOverCommand with GameOverCommandMappable implements GameCommand {
     _previousPhase = gameData.phase;
     gameData._phase = GamePhase.gameOver;
 
-    AppDatabase().gamesDao.endGame(gameData.state.id);
+    AppDatabaseHolder().database.gamesDao.endGame(gameData.state.id);
   }
 
   @override

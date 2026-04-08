@@ -3,7 +3,8 @@ import 'dart:async' show unawaited;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
+import 'package:werewolf_narrator/database/database.dart'
+    show AppDatabase, AppDatabaseHolder;
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
@@ -91,7 +92,7 @@ class GameState extends ChangeNotifier {
 
     notifyListeners();
 
-    final db = AppDatabase();
+    final db = AppDatabaseHolder().database;
     unawaited(
       db.computeWithDatabase(
         computation: (db) => db.gamesDao.insertCommandBatch(
@@ -129,7 +130,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
 
     if (batchStackLength > 0) {
-      final db = AppDatabase();
+      final db = AppDatabaseHolder().database;
       unawaited(
         db.computeWithDatabase(
           computation: (db) =>
@@ -150,7 +151,7 @@ class GameState extends ChangeNotifier {
 
     notifyListeners();
 
-    final db = AppDatabase();
+    final db = AppDatabaseHolder().database;
     unawaited(
       db.computeWithDatabase(
         computation: (db) =>
@@ -207,7 +208,7 @@ class GameState extends ChangeNotifier {
       roleConfigurations: roleConfigurations,
     );
 
-    final (:run, :undone) = await AppDatabase().gamesDao
+    final (:run, :undone) = await AppDatabaseHolder().database.gamesDao
         .getCommandBatchesForGame(id);
 
     for (final batch in run) {
