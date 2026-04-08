@@ -292,6 +292,16 @@
     "@screen_gameOver_winnersLabel": {
         "description": "Label shown above the list of winning players"
     },
+    "widget_playerList_additionalInformationSubtitle": "Role: {role}",
+    "@widget_playerList_additionalInformationSubtitle": {
+        "description": "Subtitle of the PlayerListTile showing additional data",
+        "placeholders": {
+            "role": {
+                "type": "String",
+                "example": "Villager"
+            }
+        }
+    },
     "dialog_noVote_title": "No player selected",
     "@dialog_noVote_title": {
         "description": "Title for the dialog shown when no player is selected"

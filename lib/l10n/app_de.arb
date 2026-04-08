@@ -59,6 +59,7 @@
     "screen_deaths_playerHasDied": "Spieler {playerName} ist gestorben.",
     "screen_gameOver_title": "Spiel beendet",
     "screen_gameOver_winnersLabel": "Gewinner:",
+    "widget_playerList_additionalInformationSubtitle": "Rolle: {role}",
     "dialog_noVote_title": "Kein Spieler ausgewählt",
     "dialog_noVote_message": "Möchtest du wirklich fortfahren, ohne jemanden auszuwählen?",
     "dialog_fewerSelectionsTitle": "Weniger Auswahlen getroffen als erlaubt",

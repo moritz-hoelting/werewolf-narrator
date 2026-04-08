@@ -1,8 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_data.dart' show GamePhase;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class PlayerList extends StatelessWidget {
   const PlayerList({
@@ -89,7 +92,25 @@ class PlayerListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     final gameState = Provider.of<GameState>(context, listen: true);
+
+    final isCheckRoles =
+        phaseIdentifier is (GamePhase, Object?) &&
+        (phaseIdentifier as (GamePhase, Object?)).$1 == GamePhase.checkRoles;
+
+    final checkRolesTeamRole = isCheckRoles
+        ? gameState.checkRolesData.assignedPlayersByTeam.entries
+              .firstWhereOrNull((entry) => entry.value.contains(index))
+              ?.key
+              .information
+              .checkTeamTogether
+              ?.defaultRole
+        : null;
+
+    final role =
+        gameState.players[index].role?.name(context) ??
+        checkRolesTeamRole?.information.name(context);
 
     final hookPlayerDisplayData = PlayerDisplayData.merge(
       playerDisplayHooks
@@ -99,6 +120,14 @@ class PlayerListTile extends StatelessWidget {
 
     final playerDisplayData = this.playerDisplayData != null
         ? PlayerDisplayData.merge([
+            if (gameState.additionalInformationVisible)
+              PlayerDisplayData(
+                subtitle: (context) => Text(
+                  localizations.widget_playerList_additionalInformationSubtitle(
+                    role: role ?? localizations.role_unknown_name,
+                  ),
+                ),
+              ),
             this.playerDisplayData!,
             hookPlayerDisplayData,
           ])

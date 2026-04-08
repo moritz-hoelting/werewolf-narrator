@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/widgets/game/leave_game_dialog.dart';
+import 'package:werewolf_narrator/widgets/game/more_info_button.dart';
 import 'package:werewolf_narrator/widgets/game/redo_button.dart';
 import 'package:werewolf_narrator/widgets/game/undo_button.dart';
 
@@ -41,7 +42,7 @@ class GameAppBar extends StatelessWidget implements PreferredSizeWidget {
           )
         : leading,
     backgroundColor: backgroundColor,
-    actions: [const UndoButton(), const RedoButton()],
+    actions: [const MoreInfoButton(), const UndoButton(), const RedoButton()],
   );
 
   @override

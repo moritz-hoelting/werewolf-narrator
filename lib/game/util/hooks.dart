@@ -94,6 +94,7 @@ class PlayerDisplayData {
                 ? subtitle.single
                 : (context) => Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: subtitle
                         .map((builder) => builder(context))
                         .toList(),

@@ -222,6 +222,16 @@ class GameState extends ChangeNotifier {
     return state;
   }
 
+  // TODO: change to enum: off, all, and limited
+  bool _additionalInformationVisible = false;
+
+  /// Whether the additional information mode is active.
+  bool get additionalInformationVisible => _additionalInformationVisible;
+  set additionalInformationVisible(bool value) {
+    _additionalInformationVisible = value;
+    notifyListeners();
+  }
+
   int? get dynamicActionIndex => _data.dynamicActionIndex;
 
   CheckRolesData get checkRolesData => _data.checkRolesData;
