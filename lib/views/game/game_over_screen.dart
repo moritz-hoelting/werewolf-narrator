@@ -32,6 +32,7 @@ class GameOverScreen extends StatelessWidget {
         return Scaffold(
           appBar: GameAppBar(
             title: Text(localizations.screen_gameOver_title),
+            exitGameButton: false,
             automaticallyImplyLeading: true,
           ),
           body: Center(

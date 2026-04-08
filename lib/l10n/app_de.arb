@@ -8,7 +8,7 @@
     "button_undoTooltip": "Rückgängig",
     "button_redoTooltip": "Wiederherstellen",
     "alert_leaveGame_title": "Spiel verlassen",
-    "alert_leaveGame_message": "Möchtest du das aktuelle Spiel wirklich verlassen? Dein Fortschritt geht verloren.",
+    "alert_leaveGame_message": "Möchtest du das aktuelle Spiel wirklich verlassen? Du kannst in der Spieleübersicht fortfahren.",
     "screen_gamesOverview_title": "Spieleübersicht",
     "screen_gamesOverview_noGamesFound": "Keine Spiele gefunden",
     "screen_gameOverview_gameTitleOfId": "Spiel #{id}",

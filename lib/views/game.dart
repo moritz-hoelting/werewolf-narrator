@@ -4,11 +4,11 @@ import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
     show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart';
 import 'package:werewolf_narrator/views/game/phase_manager_screen.dart';
+import 'package:werewolf_narrator/widgets/game/leave_game_dialog.dart';
 
 class GameView extends StatefulWidget {
   const GameView({this.gameId, super.key});
@@ -162,30 +162,6 @@ class InnerGameView extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-class LeaveGameDialog extends StatelessWidget {
-  const LeaveGameDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context);
-    return AlertDialog(
-      icon: const Icon(Icons.exit_to_app),
-      title: Text(localizations.alert_leaveGame_title),
-      content: Text(localizations.alert_leaveGame_message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(MaterialLocalizations.of(context).okButtonLabel),
-        ),
-      ],
     );
   }
 }
