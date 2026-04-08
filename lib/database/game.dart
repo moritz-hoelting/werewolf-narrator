@@ -11,10 +11,12 @@ import 'package:werewolf_narrator/game/model/role_config.dart'
 
 part 'game.g.dart';
 
+@TableIndex(name: 'archivedGames', columns: {#archived})
 class Games extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get startedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get endedAt => dateTime().nullable()();
+  BoolColumn get archived => boolean().withDefault(const Constant(false))();
 
   @override
   bool get isStrict => true;
@@ -156,17 +158,40 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
         GamesCompanion(endedAt: Value(DateTime.now())),
       );
 
-  Stream<List<Game>> watchGames({bool? active}) {
+  Stream<List<Game>> watchGames({bool? active, bool? archived}) {
     final query = select(games);
 
-    if (active != null) {
+    final predicates = <Expression<bool> Function($GamesTable tbl)>[
+      if (active != null)
+        (tbl) => (active ? tbl.endedAt.isNull() : tbl.endedAt.isNotNull()),
+      if (archived != null)
+        (tbl) => tbl.archived.equalsExp(
+          archived ? const Constant(true) : const Constant(false),
+        ),
+    ];
+
+    if (predicates.isNotEmpty) {
       query.where(
-        (tbl) => active ? tbl.endedAt.isNull() : tbl.endedAt.isNotNull(),
+        (tbl) => Expression.and(predicates.map((predFn) => predFn(tbl))),
       );
     }
 
-    return query.watch();
+    return (query..orderBy([(tbl) => OrderingTerm.desc(tbl.startedAt)]))
+        .watch();
   }
+
+  Future<void> setGameArchived(int gameId, bool status) =>
+      (update(games)..where((tbl) => tbl.id.equals(gameId))).write(
+        GamesCompanion(archived: Value(status)),
+      );
+
+  Future<void> deleteGame(int gameId) =>
+      (delete(games)..where((tbl) => tbl.id.equals(gameId))).go();
+
+  Future<List<Game>> deleteArchivedGames() =>
+      (delete(games)
+            ..where((tbl) => tbl.archived.equalsExp(const Constant(true))))
+          .goAndReturn();
 
   Future<List<String>> getOrderedPlayerNamesForGame(int gameId) =>
       (select(gamePlayers)

@@ -36,6 +36,14 @@
     "@alert_leaveGame_message": {
         "description": "Message in the alert dialog when leaving a game"
     },
+    "alert_deleteGame_title": "Delete game",
+    "@alert_deleteGame_title": {
+        "description": "Title for the alert dialog when deleting a game"
+    },
+    "alert_deleteGame_message": "Are you sure you want to delete the game? This cannot be undone!",
+    "@alert_deleteGame_message": {
+        "description": "Message in the alert dialog when deleting a game"
+    },
     "screen_gamesOverview_title": "Games Overview",
     "@screen_gamesOverview_title": {
         "description": "Title for the games overview screen"
