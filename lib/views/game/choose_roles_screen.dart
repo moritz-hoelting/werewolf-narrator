@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
-import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/game/role_settings.dart'
     show RoleOptionsDialog;
@@ -23,172 +23,161 @@ class ChooseRolesScreen extends StatefulWidget {
 }
 
 class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
-  final Map<RoleType, (int index, int count)> _selectedRoles = {};
+  final ValueNotifier<Map<RoleType, ({int index, int count})>> _roles =
+      ValueNotifier({});
+
   final Map<RoleType, RoleConfiguration> _roleConfigurations = {};
+  final IList<({ChooseRolesCategory category, IList<RoleType> roles})>
+  categorizedRoles = RoleManager.categorizedRoles;
 
-  int get totalSelected =>
-      _selectedRoles.values.fold(0, (sum, entry) => sum + entry.$2);
-  bool canAdd(int amount) => (totalSelected + amount) <= widget.playerCount;
+  int _totalSelected(Map<RoleType, ({int index, int count})> roles) =>
+      roles.values.fold(0, (sum, e) => sum + e.count);
 
-  void setCount(RoleType role, int index, int count) {
-    setState(() {
-      if (count == 0) {
-        _selectedRoles.remove(role);
-      } else {
-        _selectedRoles[role] = (index, count);
-      }
-    });
+  void _setCount(RoleType role, int index, int count) {
+    final current = Map<RoleType, ({int index, int count})>.from(_roles.value);
+
+    if (count == 0) {
+      current.remove(role);
+    } else {
+      current[role] = (index: index, count: count);
+    }
+
+    _roles.value = current;
+  }
+
+  RoleConfiguration _roleConfigurationOrDefault(RoleType role) {
+    final defaults = role.information.options.fold<RoleConfiguration>(
+      {},
+      (config, option) => {...config, option.id: option.defaultValue},
+    );
+
+    return {...defaults, ...?_roleConfigurations[role]};
+  }
+
+  void _submit(Map<RoleType, ({int index, int count})> roles) {
+    final modified =
+        Map<RoleType, ({int count, RoleConfiguration config})>.from(
+          roles.map(
+            (role, value) => MapEntry(role, (
+              count: value.count,
+              config: _roleConfigurationOrDefault(role),
+            )),
+          ),
+        );
+
+    for (final role in roles.keys) {
+      role.information.roleCountAdjuster?.call(modified, widget.playerCount);
+    }
+
+    widget.onSubmit(modified);
+  }
+
+  int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
+    final validRoleCounts = role.information.validRoleCounts;
+    final indexList = validRoleCounts.take(upperLimit + 1).toList();
+    final lb = lowerBound(indexList, upperLimit);
+    if (indexList.length >= lb + 1 && indexList[lb] == upperLimit) return lb;
+    if (lb == 0) return -1;
+    return lb - 1;
   }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    final int missingRoles = widget.playerCount - totalSelected;
-    final Set<RoleType> selectedRoleSet = _selectedRoles.entries
-        .where((entry) => entry.value.$2 > 0)
-        .map((entry) => entry.key)
-        .toSet();
-    final Set<TeamType?> selectedTeams = selectedRoleSet
-        .map((role) => role.information.initialTeam)
-        .toSet();
+    return ValueListenableBuilder<Map<RoleType, ({int index, int count})>>(
+      valueListenable: _roles,
+      builder: (context, roles, _) {
+        final totalSelected = _totalSelected(roles);
+        final missingRoles = widget.playerCount - totalSelected;
 
-    final categorizedRoles = RoleManager.categorizedRoles;
+        final selectedTeams = roles.entries
+            .where((e) => e.value.count > 0)
+            .map((e) => e.key.information.initialTeam)
+            .toSet();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.separated(
-              itemCount: categorizedRoles.length,
-              itemBuilder: (context, index) {
-                final roles = categorizedRoles[index].roles;
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        categorizedRoles[index].category.name(context),
-                        style: Theme.of(context).textTheme.headlineLarge,
-                        textAlign: TextAlign.start,
-                        softWrap: true,
+        final canSubmit =
+            totalSelected == widget.playerCount && selectedTeams.length >= 2;
+
+        return Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  for (final (:category, roles: categoryRoles)
+                      in categorizedRoles) ...[
+                    /// Header
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          category.name(context),
+                          style: Theme.of(context).textTheme.headlineLarge,
+                        ),
                       ),
                     ),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 250,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 1,
-                          ),
-                      itemCount: roles.length,
-                      itemBuilder: (context, index) {
-                        final role = roles[index];
-                        final maxCountIndex = findMaxCountIndexOfRole(
-                          role,
-                          missingRoles + (_selectedRoles[role]?.$2 ?? 0),
-                        );
 
-                        return RoleSelectorCard(
-                          role: role,
-                          count: _selectedRoles[role]?.$2 ?? 0,
-                          countIndex: _selectedRoles[role]?.$1 ?? -1,
-                          maxCountIndex: maxCountIndex,
-                          setCount: (index, count) =>
-                              setCount(role, index, count),
-                          configuration: _roleConfigurationOrDefault(role),
-                          setConfiguration: (configuration) => setState(() {
-                            _roleConfigurations[role] = configuration;
-                          }),
-                        );
-                      },
+                    /// Grid
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverGrid(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final role = categoryRoles[index];
+                          final selected = roles[role];
+
+                          final count = selected?.count ?? 0;
+                          final idx = selected?.index ?? -1;
+
+                          final maxCountIndex = findMaxCountIndexOfRole(
+                            role,
+                            missingRoles + count,
+                          );
+
+                          return RoleSelectorCard(
+                            role: role,
+                            count: count,
+                            countIndex: idx,
+                            maxCountIndex: maxCountIndex,
+                            configuration: _roleConfigurationOrDefault(role),
+                            setCount: (i, c) => _setCount(role, i, c),
+                            setConfiguration: (config) {
+                              _roleConfigurations[role] = config;
+                            },
+                          );
+                        }, childCount: categoryRoles.length),
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 250,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 1,
+                            ),
+                      ),
                     ),
+
+                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
                   ],
-                );
-              },
-              separatorBuilder: (context, index) => const Divider(height: 32),
-            ),
-          ),
-
-          const Divider(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
+                ],
               ),
-              onPressed:
-                  totalSelected == widget.playerCount &&
-                      selectedTeams.length >= 2
-                  ? _submit
-                  : null,
-              icon: const Icon(Icons.arrow_forward),
-              label: Text(localizations.screen_chooseRoles_startButton),
             ),
-          ),
 
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
+            const Divider(height: 32),
 
-  void _submit() {
-    final modifiedRoles =
-        Map<RoleType, ({int count, RoleConfiguration config})>.from(
-          _selectedRoles.map(
-            (role, value) => MapEntry(role, (
-              count: value.$2,
-              config: _roleConfigurationOrDefault(role),
-            )),
-          ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                label: Text(localizations.screen_chooseRoles_startButton),
+                icon: const Icon(Icons.arrow_forward),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(60),
+                ),
+                onPressed: canSubmit ? () => _submit(roles) : null,
+              ),
+            ),
+          ],
         );
-
-    for (final role in _selectedRoles.keys) {
-      final adjuster = role.information.roleCountAdjuster;
-      if (adjuster != null) {
-        adjuster(modifiedRoles, widget.playerCount);
-      }
-    }
-
-    widget.onSubmit(modifiedRoles);
-  }
-
-  int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
-    final Iterable<int> validRoleCounts = role.information.validRoleCounts;
-    final indexList = validRoleCounts.take(upperLimit + 1).toList();
-    assert(
-      indexList.isSorted((a, b) => a.compareTo(b)),
-      'validRoleCounts should be sorted in ascending order',
+      },
     );
-    final lb = lowerBound(indexList, upperLimit);
-    if (indexList.length >= lb + 1 && indexList[lb] == upperLimit) {
-      return lb;
-    }
-    if (lb == 0) {
-      return -1;
-    }
-    return lb - 1;
-  }
-
-  RoleConfiguration _roleConfigurationOrDefault(RoleType role) {
-    final defaultConfig = role.information.options.fold<RoleConfiguration>(
-      {},
-      (config, option) => {...config, option.id: option.defaultValue},
-    );
-
-    if (_roleConfigurations[role] == null) {
-      return defaultConfig;
-    } else {
-      return {...defaultConfig, ..._roleConfigurations[role]!};
-    }
   }
 }
 
@@ -230,10 +219,9 @@ class RoleSelectorCard extends StatelessWidget {
           color: count > 0 ? theme.colorScheme.primary : theme.dividerColor,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             roleInformation.name(context),
@@ -242,6 +230,7 @@ class RoleSelectorCard extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+
           _Counter(
             value: count,
             valueIndex: countIndex,
@@ -249,22 +238,23 @@ class RoleSelectorCard extends StatelessWidget {
             maxValue: maxCount,
             setValue: setCount,
           ),
+
           Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
                 icon: const Icon(Icons.info_outline),
                 onPressed: () => showDialog(
                   context: context,
-                  builder: (context) => RoleInfoDialog(role: role),
+                  builder: (_) => RoleInfoDialog(role: role),
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.settings_outlined),
-                onPressed: role.information.options.isNotEmpty
+                onPressed: roleInformation.options.isNotEmpty
                     ? () => showDialog(
                         context: context,
-                        builder: (context) => RoleOptionsDialog(
+                        builder: (_) => RoleOptionsDialog(
                           role: role,
                           configuration: configuration,
                           setConfiguration: setConfiguration,
@@ -309,16 +299,9 @@ class _Counter extends StatelessWidget {
             : null,
         onLongPress: value > 0 ? () => setValue(-1, 0) : null,
       ),
-      AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, anim) =>
-            ScaleTransition(scale: anim, child: child),
-        child: Text(
-          '$value',
-          key: ValueKey(value),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-      ),
+
+      Text(value.toString(), style: Theme.of(context).textTheme.titleMedium),
+
       IconButton(
         icon: const Icon(Icons.add),
         onPressed: value < maxValue
@@ -349,7 +332,7 @@ class RoleInfoDialog extends StatelessWidget {
       content: Text(roleInformation.description(context)),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context),
           child: Text(MaterialLocalizations.of(context).closeButtonLabel),
         ),
       ],

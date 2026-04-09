@@ -315,7 +315,7 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
       }
     }
 
-    return (run: run, undone: undone);
+    return (run: run, undone: undone.reversed.toList());
   }
 }
 
