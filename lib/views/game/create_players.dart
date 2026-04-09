@@ -47,7 +47,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
 
     final localizations = AppLocalizations.of(context);
 
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [

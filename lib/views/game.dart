@@ -44,7 +44,7 @@ class _GameViewState extends State<GameView> {
         setState(() {
           setupResult = GameSetupResult(
             id: widget.gameId!,
-            players: playerNames,
+            players: playerNames.map((value) => value.name).toList(),
             selectedRoles: roleConfigurations,
           );
         });

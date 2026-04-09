@@ -655,7 +655,15 @@ class GameOverCommand with GameOverCommandMappable implements GameCommand {
     _previousPhase = gameData.phase;
     gameData._phase = GamePhase.gameOver;
 
-    AppDatabaseHolder().database.gamesDao.endGame(gameData.state.id);
+    final winnerIndices =
+        gameData.winningPlayers()?.map((entry) => entry.index).toISet() ??
+        const ISet.empty();
+
+    AppDatabaseHolder().database.gamesDao.endGame(
+      gameData.state.id,
+      winner: gameData.checkWinConditions(),
+      winnerIndices: winnerIndices,
+    );
   }
 
   @override

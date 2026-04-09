@@ -11,6 +11,7 @@ import 'package:werewolf_narrator/database/player_names.dart'
     show PlayerNames, PlayerNamesDao;
 import 'package:werewolf_narrator/database/settings.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/model/win_condition.dart';
 
 part 'database.g.dart';
 

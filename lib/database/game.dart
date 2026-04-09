@@ -8,14 +8,18 @@ import 'package:werewolf_narrator/game/game_command.dart'
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
+import 'package:werewolf_narrator/game/model/win_condition.dart'
+    show WinCondition, WinConditionMapper;
 
 part 'game.g.dart';
 
 @TableIndex(name: 'archivedGames', columns: {#archived})
 class Games extends Table {
   IntColumn get id => integer().autoIncrement()();
-  DateTimeColumn get startedAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get startedAt =>
+      dateTime().clientDefault(() => DateTime.now())();
   DateTimeColumn get endedAt => dateTime().nullable()();
+  BlobColumn get winner => blob().map(winnerBinaryConverter).nullable()();
   BoolColumn get archived => boolean().withDefault(const Constant(false))();
 
   @override
@@ -28,6 +32,7 @@ class GamePlayers extends Table {
   IntColumn get playerId =>
       integer().references(PlayerNames, #id, onDelete: KeyAction.restrict)();
   IntColumn get order => integer()();
+  BoolColumn get hasWon => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {gameId, playerId};
@@ -153,10 +158,26 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
     return id;
   });
 
-  Future<void> endGame(int gameId) =>
-      (update(games)..where((tbl) => tbl.id.equals(gameId))).write(
-        GamesCompanion(endedAt: Value(DateTime.now())),
+  Future<void> endGame(
+    int gameId, {
+    required WinCondition? winner,
+    required ISet<int> winnerIndices,
+  }) => transaction(() async {
+    await (update(games)..where((tbl) => tbl.id.equals(gameId))).write(
+      GamesCompanion(
+        endedAt: Value(DateTime.now()),
+        winner: Value.absentIfNull(winner),
+      ),
+    );
+    await batch((batch) {
+      batch.update(
+        gamePlayers,
+        const GamePlayersCompanion(hasWon: Value(true)),
+        where: (tbl) =>
+            tbl.gameId.equals(gameId) & tbl.order.isIn(winnerIndices),
       );
+    });
+  });
 
   Stream<List<Game>> watchGames({bool? active, bool? archived}) {
     final query = select(games);
@@ -193,7 +214,9 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
             ..where((tbl) => tbl.archived.equalsExp(const Constant(true))))
           .goAndReturn();
 
-  Future<List<String>> getOrderedPlayerNamesForGame(int gameId) =>
+  Future<List<({String name, bool hasWon})>> getOrderedPlayerNamesForGame(
+    int gameId,
+  ) =>
       (select(gamePlayers)
             ..where((tbl) => tbl.gameId.equals(gameId))
             ..orderBy([(tbl) => OrderingTerm(expression: tbl.order)]))
@@ -203,7 +226,12 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
               playerNames.id.equalsExp(gamePlayers.playerId),
             ),
           ])
-          .map((row) => row.readTable(playerNames).name)
+          .map(
+            (row) => (
+              name: row.readTable(playerNames).name,
+              hasWon: row.readTable(gamePlayers).hasWon,
+            ),
+          )
           .get();
 
   Future<Map<RoleType, ({RoleConfiguration config, int count})>>
@@ -347,6 +375,13 @@ commandBinaryConverter = TypeConverter.jsonb(
     return pref.data;
   },
 );
+
+JsonTypeConverter2<WinCondition, Uint8List, Object?> winnerBinaryConverter =
+    TypeConverter.jsonb(
+      fromJson: (json) =>
+          WinConditionMapper.fromJson(json as Map<String, Object?>),
+      toJson: (pref) => pref.toJson(),
+    );
 
 class RoleTypeConverter extends TypeConverter<RoleType, String> {
   const RoleTypeConverter();

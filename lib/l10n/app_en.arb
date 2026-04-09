@@ -44,17 +44,45 @@
     "@alert_deleteGame_message": {
         "description": "Message in the alert dialog when deleting a game"
     },
+    "alert_gameInformation_title": "Game #{id} information",
+    "@alert_gameInformation_title": {
+        "description": "Title for the game information dialog in the games overview screen",
+        "placeholders": {
+            "id": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
+    "alert_gameInformation_startedAt": "Started at",
+    "@alert_gameInformation_startedAt": {
+        "description": "Label for the start time in the game information dialog"
+    },
+    "alert_gameInformation_endedAt": "Ended at",
+    "@alert_gameInformation_endedAt": {
+        "description": "Label for the end time in the game information dialog"
+    },
+    "alert_gameInformation_players": "Players:",
+    "@alert_gameInformation_players": {
+        "description": "Label for the list of players in the game information dialog"
+    },
+    "alert_gameInformation_winners": "{count, plural, =1 {Winner} other {Winners}}:",
+    "@alert_gameInformation_winners": {
+        "description": "Label for the list of winners in the game information dialog",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
+    },
     "screen_gamesOverview_title": "Games Overview",
     "@screen_gamesOverview_title": {
         "description": "Title for the games overview screen"
     },
-    "screen_gamesOverview_noGamesFound": "No games found",
-    "@screen_gamesOverview_noGamesFound": {
-        "description": "Message when no games are found"
-    },
-    "screen_gameOverview_gameTitleOfId": "Game #{id}",
-    "@screen_gameOverview_gameTitleOfId": {
-        "description": "Title for a game in the game overview screen, with the game ID as a variable",
+    "screen_gamesOverview_gameTitle": "Game #{id}",
+    "@screen_gamesOverview_gameTitle": {
+        "description": "Title for a game in the games overview screen",
         "placeholders": {
             "id": {
                 "type": "int",
@@ -62,47 +90,49 @@
             }
         }
     },
-    "screen_gameOverview_gameTitleWithPlayers": "Game #{id}: {playerNames}",
-    "@screen_gameOverview_gameTitleWithPlayers": {
-        "description": "Title for a game in the game overview screen, with the game ID and player names as variables",
+    "screen_gamesOverview_gameStarted": "Started: {dateTime}",
+    "@screen_gamesOverview_gameStarted": {
+        "description": "Message for the start time of a game in the games overview screen",
         "placeholders": {
-            "id": {
-                "type": "int",
-                "example": "1"
-            },
-            "playerNames": {
+            "dateTime": {
                 "type": "String",
-                "example": "Alice, Bob, Charlie"
+                "example": "2023-10-10 12:00"
             }
         }
     },
-    "screen_gameOverview_gameSubtitleOngoing": "Started at {startedAt}, still ongoing",
-    "@screen_gameOverview_gameSubtitleOngoing": {
-        "description": "Subtitle for an ongoing game in the game overview screen, with the start time as a variable",
+    "screen_gamesOverview_gameEnded": "Ended: {dateTime}",
+    "@screen_gamesOverview_gameEnded": {
+        "description": "Message for the end time of a game in the games overview screen",
         "placeholders": {
-            "startedAt": {
+            "dateTime": {
                 "type": "String",
-                "example": "2025-04-07 19:00"
+                "example": "2023-10-10 12:00"
             }
         }
     },
-    "screen_gameOverview_gameSubtitleFinished": "Started at {startedAt}, finished at {finishedAt}",
-    "@screen_gameOverview_gameSubtitleFinished": {
-        "description": "Subtitle for a finished game in the game overview screen, with the start and finish times as variables",
-        "placeholders": {
-            "startedAt": {
-                "type": "String",
-                "example": "2025-04-07 19:00"
-            },
-            "finishedAt": {
-                "type": "String",
-                "example": "2025-04-07 21:00"
-            }
-        }
+    "screen_gamesOverview_runningGames": "Running games",
+    "@screen_gamesOverview_runningGames": {
+        "description": "Title for the section containing running games"
     },
-    "screen_gameOverview_resumeGameTooltip": "Resume",
-    "@screen_gameOverview_resumeGameTooltip": {
-        "description": "Tooltip for the button to resume an ongoing game in the game overview screen"
+    "screen_gamesOverview_finishedGames": "Finished games",
+    "@screen_gamesOverview_finishedGames": {
+        "description": "Title for the section containing finished games"
+    },
+    "screen_gamesOverview_archivedGames": "Archived games",
+    "@screen_gamesOverview_archivedGames": {
+        "description": "Title for the section containing archived games"
+    },
+    "screen_gamesOverview_noRunningGames": "No running games",
+    "@screen_gamesOverview_noRunningGames": {
+        "description": "Message when no running games are found"
+    },
+    "screen_gamesOverview_noFinishedGames": "No finished games",
+    "@screen_gamesOverview_noFinishedGames": {
+        "description": "Message when no finished games are found"
+    },
+    "screen_gamesOverview_noArchivedGames": "No archived games",
+    "@screen_gamesOverview_noArchivedGames": {
+        "description": "Message when no archived games are found"
     },
     "screen_rolesOverview_title": "Roles",
     "@screen_rolesOverview_title": {
@@ -296,9 +326,15 @@
     "@screen_gameOver_title": {
         "description": "Title for the game over screen"
     },
-    "screen_gameOver_winnersLabel": "Winners:",
+    "screen_gameOver_winnersLabel": "{count, plural, =1 {Winner} other {Winners}}:",
     "@screen_gameOver_winnersLabel": {
-        "description": "Label shown above the list of winning players"
+        "description": "Label shown above the list of winning players",
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "1"
+            }
+        }
     },
     "dialog_noVote_title": "No player selected",
     "@dialog_noVote_title": {
@@ -1038,7 +1074,7 @@
     "@roleCategory_ambiguous_name": {
         "description": "Name of the category of ambigous roles"
     },
-    "roleCategory_loner_name": "The Loner",
+    "roleCategory_loner_name": "The Loners",
     "@roleCategory_loner_name": {
         "description": "Name of the category of loner roles"
     }

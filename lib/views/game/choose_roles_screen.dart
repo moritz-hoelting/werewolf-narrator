@@ -85,98 +85,104 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    return ValueListenableBuilder<Map<RoleType, ({int index, int count})>>(
-      valueListenable: _roles,
-      builder: (context, roles, _) {
-        final totalSelected = _totalSelected(roles);
-        final missingRoles = widget.playerCount - totalSelected;
+    return Padding(
+      padding: const EdgeInsets.all(16).copyWith(top: 0),
+      child: ValueListenableBuilder<Map<RoleType, ({int index, int count})>>(
+        valueListenable: _roles,
+        builder: (context, roles, _) {
+          final totalSelected = _totalSelected(roles);
+          final missingRoles = widget.playerCount - totalSelected;
 
-        final selectedTeams = roles.entries
-            .where((e) => e.value.count > 0)
-            .map((e) => e.key.information.initialTeam)
-            .toSet();
+          final selectedTeams = roles.entries
+              .where((e) => e.value.count > 0)
+              .map((e) => e.key.information.initialTeam)
+              .toSet();
 
-        final canSubmit =
-            totalSelected == widget.playerCount && selectedTeams.length >= 2;
+          final canSubmit =
+              totalSelected == widget.playerCount && selectedTeams.length >= 2;
 
-        return Column(
-          children: [
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  for (final (:category, roles: categoryRoles)
-                      in categorizedRoles) ...[
-                    /// Header
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Text(
-                          category.name(context),
-                          style: Theme.of(context).textTheme.headlineLarge,
+          return Column(
+            children: [
+              Expanded(
+                child: CustomScrollView(
+                  slivers: [
+                    for (final (:category, roles: categoryRoles)
+                        in categorizedRoles) ...[
+                      /// Header
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text(
+                            category.name(context),
+                            style: Theme.of(context).textTheme.headlineLarge,
+                          ),
                         ),
                       ),
-                    ),
 
-                    /// Grid
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverGrid(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final role = categoryRoles[index];
-                          final selected = roles[role];
+                      /// Grid
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: SliverGrid(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final role = categoryRoles[index];
+                            final selected = roles[role];
 
-                          final count = selected?.count ?? 0;
-                          final idx = selected?.index ?? -1;
+                            final count = selected?.count ?? 0;
+                            final idx = selected?.index ?? -1;
 
-                          final maxCountIndex = findMaxCountIndexOfRole(
-                            role,
-                            missingRoles + count,
-                          );
+                            final maxCountIndex = findMaxCountIndexOfRole(
+                              role,
+                              missingRoles + count,
+                            );
 
-                          return RoleSelectorCard(
-                            role: role,
-                            count: count,
-                            countIndex: idx,
-                            maxCountIndex: maxCountIndex,
-                            configuration: _roleConfigurationOrDefault(role),
-                            setCount: (i, c) => _setCount(role, i, c),
-                            setConfiguration: (config) {
-                              _roleConfigurations[role] = config;
-                            },
-                          );
-                        }, childCount: categoryRoles.length),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 250,
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
-                              childAspectRatio: 1,
-                            ),
+                            return RoleSelectorCard(
+                              role: role,
+                              count: count,
+                              countIndex: idx,
+                              maxCountIndex: maxCountIndex,
+                              configuration: _roleConfigurationOrDefault(role),
+                              setCount: (i, c) => _setCount(role, i, c),
+                              setConfiguration: (config) {
+                                _roleConfigurations[role] = config;
+                              },
+                            );
+                          }, childCount: categoryRoles.length),
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 250,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 1,
+                              ),
+                        ),
                       ),
-                    ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                    ],
                   ],
-                ],
-              ),
-            ),
-
-            const Divider(height: 32),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                label: Text(localizations.screen_chooseRoles_startButton),
-                icon: const Icon(Icons.arrow_forward),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(60),
                 ),
-                onPressed: canSubmit ? () => _submit(roles) : null,
               ),
-            ),
-          ],
-        );
-      },
+
+              const Divider(height: 32),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  label: Text(localizations.screen_chooseRoles_startButton),
+                  icon: const Icon(Icons.arrow_forward),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(60),
+                  ),
+                  onPressed: canSubmit ? () => _submit(roles) : null,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

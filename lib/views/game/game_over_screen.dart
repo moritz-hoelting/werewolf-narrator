@@ -46,7 +46,9 @@ class GameOverScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  localizations.screen_gameOver_winnersLabel,
+                  localizations.screen_gameOver_winnersLabel(
+                    count: winners.length,
+                  ),
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 12),
