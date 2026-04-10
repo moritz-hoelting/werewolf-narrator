@@ -1,11 +1,16 @@
-import 'dart:async' show unawaited;
+import 'dart:async' show Future, unawaited;
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart';
+import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
+import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game.dart';
+import 'package:werewolf_narrator/views/game/game_setup.dart'
+    show IncompleteGameSetup;
 
 final DateFormat _dateFormatter = DateFormat.yMd().add_jm();
 
@@ -194,10 +199,28 @@ class _GameTile extends StatelessWidget {
                 icon: const Icon(Icons.info_outline),
                 onPressed: () => _showInformation(context),
               ),
-            const IconButton(
-              // TODO: implement reusing game data to create new game with same players and roles
-              onPressed: null,
-              icon: Icon(Icons.copy),
+            IconButton(
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                final result =
+                    await showDialog<({bool copyPlayers, bool copyRoles})?>(
+                      context: context,
+                      builder: (context) => const _CopyGameDialog(),
+                    );
+
+                if (result == null) return;
+
+                await navigator.push(
+                  MaterialPageRoute(
+                    builder: (context) => _CopiedGameScreen(
+                      gameId: game.id,
+                      copyPlayers: result.copyPlayers,
+                      copyRoles: result.copyRoles,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy),
             ),
             IconButton(
               icon: Icon(
@@ -396,6 +419,131 @@ class _GameInformationDialog extends StatelessWidget {
           child: Text(MaterialLocalizations.of(context).okButtonLabel),
         ),
       ],
+    );
+  }
+}
+
+class _CopyGameDialog extends StatefulWidget {
+  const _CopyGameDialog();
+
+  @override
+  State<_CopyGameDialog> createState() => _CopyGameDialogState();
+}
+
+class _CopyGameDialogState extends State<_CopyGameDialog> {
+  bool copyPlayers = true;
+  bool copyRoles = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(localizations.screen_gamesOverview_cloneGame_title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CheckboxListTile(
+            value: copyPlayers,
+            onChanged: (value) => setState(() => copyPlayers = value ?? false),
+            title: Text(localizations.screen_gamesOverview_cloneGame_players),
+          ),
+          CheckboxListTile(
+            value: copyRoles,
+            onChanged: (value) => setState(() => copyRoles = value ?? false),
+            title: Text(localizations.screen_gamesOverview_cloneGame_roles),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, null),
+          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context, (
+              copyPlayers: copyPlayers,
+              copyRoles: copyRoles,
+            ));
+          },
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
+      ],
+    );
+  }
+}
+
+class _CopiedGameScreen extends StatefulWidget {
+  const _CopiedGameScreen({
+    required this.gameId,
+    required this.copyPlayers,
+    required this.copyRoles,
+  });
+
+  final int gameId;
+  final bool copyPlayers;
+  final bool copyRoles;
+
+  @override
+  State<_CopiedGameScreen> createState() => _CopiedGameScreenState();
+}
+
+class _CopiedGameScreenState extends State<_CopiedGameScreen> {
+  late final Future<IList<String>?> playerNamesFuture;
+  late final Future<IMap<RoleType, ({RoleConfiguration config, int count})>?>
+  roleConfigurationsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final db = Provider.of<AppDatabase>(context, listen: false);
+
+    if (widget.copyPlayers) {
+      playerNamesFuture = db.gamesDao
+          .getOrderedPlayerNamesForGame(widget.gameId)
+          .then((players) => players.map((p) => p.name).toIList());
+    } else {
+      playerNamesFuture = Future.value(null);
+    }
+
+    if (widget.copyPlayers && widget.copyRoles) {
+      roleConfigurationsFuture = db.gamesDao
+          .getRolesForGame(widget.gameId)
+          .then((roles) => roles.lock);
+    } else {
+      roleConfigurationsFuture = Future.value(null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: (playerNamesFuture, roleConfigurationsFuture).wait,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(
+              child: Text('Failed to load game data: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final playerNames = snapshot.data!.$1;
+        final roleConfigurations = snapshot.data!.$2;
+
+        return GameView(
+          incompleteGameSetup: IncompleteGameSetup(
+            players: playerNames,
+            roleConfigurations: roleConfigurations,
+          ),
+        );
+      },
     );
   }
 }

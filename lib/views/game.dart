@@ -1,4 +1,6 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
@@ -11,20 +13,25 @@ import 'package:werewolf_narrator/views/game/phase_manager_screen.dart';
 import 'package:werewolf_narrator/widgets/game/leave_game_dialog.dart';
 
 class GameView extends StatefulWidget {
-  const GameView({this.gameId, super.key});
+  const GameView({this.gameId, this.incompleteGameSetup, super.key});
 
   final int? gameId;
+  final IncompleteGameSetup? incompleteGameSetup;
 
   @override
   State<GameView> createState() => _GameViewState();
 }
 
 class _GameViewState extends State<GameView> {
-  GameSetupResult? setupResult;
+  late Either<IncompleteGameSetup, GameSetupResult> setupResult;
 
   @override
   void initState() {
     super.initState();
+
+    setupResult = Either.left(
+      widget.incompleteGameSetup ?? IncompleteGameSetup(),
+    );
 
     if (widget.gameId != null) {
       final db = Provider.of<AppDatabase>(context, listen: false);
@@ -42,10 +49,12 @@ class _GameViewState extends State<GameView> {
         );
 
         setState(() {
-          setupResult = GameSetupResult(
-            id: widget.gameId!,
-            players: playerNames.map((value) => value.name).toList(),
-            selectedRoles: roleConfigurations,
+          setupResult = Either.right(
+            GameSetupResult(
+              id: widget.gameId!,
+              players: playerNames.map((value) => value.name).toIList(),
+              selectedRoles: roleConfigurations.lock,
+            ),
           );
         });
       });
@@ -55,57 +64,68 @@ class _GameViewState extends State<GameView> {
   @override
   Widget build(BuildContext context) {
     // show spinner while loading game data
-    if (widget.gameId != null && setupResult == null) {
+    if (widget.gameId != null && setupResult.isLeft()) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (setupResult != null) {
-      if (widget.gameId != null) {
-        return FutureBuilder(
-          future: GameState.fromDatabase(
-            id: widget.gameId!,
-            playerNames: setupResult!.players,
-            roleConfigurations: setupResult!.selectedRoles,
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Text('Error loading game: ${snapshot.error}'),
-              );
-            }
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            final gameState = snapshot.data!;
-            return InnerGameView(
-              setupResult: setupResult,
-              preparedGameState: gameState,
-            );
+    return setupResult.fold(
+      (incompleteGameSetup) {
+        return GameSetupView(
+          initialPlayers: incompleteGameSetup.players,
+          initialRoleConfigurations: incompleteGameSetup.roleConfigurations,
+          setPlayers: (players) {
+            setState(() {
+              incompleteGameSetup.players = players;
+            });
+          },
+          setRoles: (roleConfigurations) {
+            setState(() {
+              incompleteGameSetup.roleConfigurations = roleConfigurations;
+            });
+          },
+          onFinished: (result) {
+            setState(() {
+              setupResult = Either.right(result);
+            });
           },
         );
-      }
+      },
+      (setupResult) {
+        if (widget.gameId != null) {
+          return FutureBuilder(
+            future: GameState.fromDatabase(
+              id: widget.gameId!,
+              playerNames: setupResult.players,
+              roleConfigurations: setupResult.selectedRoles,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error loading game: ${snapshot.error}'),
+                );
+              }
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final gameState = snapshot.data!;
+              return _InnerGameView(
+                setupResult: setupResult,
+                preparedGameState: gameState,
+              );
+            },
+          );
+        }
 
-      return InnerGameView(setupResult: setupResult);
-    } else {
-      return GameSetupView(
-        onFinished: (result) {
-          setState(() {
-            setupResult = result;
-          });
-        },
-      );
-    }
+        return _InnerGameView(setupResult: setupResult);
+      },
+    );
   }
 }
 
-class InnerGameView extends StatelessWidget {
-  const InnerGameView({
-    required this.setupResult,
-    this.preparedGameState,
-    super.key,
-  });
+class _InnerGameView extends StatelessWidget {
+  const _InnerGameView({required this.setupResult, this.preparedGameState});
 
-  final GameSetupResult? setupResult;
+  final GameSetupResult setupResult;
   final GameState? preparedGameState;
 
   @override
@@ -114,9 +134,9 @@ class InnerGameView extends StatelessWidget {
       create: (context) =>
           preparedGameState ??
           GameState(
-            id: setupResult!.id,
-            playerNames: setupResult!.players,
-            roleConfigurations: setupResult!.selectedRoles,
+            id: setupResult.id,
+            playerNames: setupResult.players,
+            roleConfigurations: setupResult.selectedRoles,
           ),
       child: Consumer<GameState>(
         builder: (context, gameState, child) {

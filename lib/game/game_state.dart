@@ -170,14 +170,14 @@ class GameState extends ChangeNotifier {
 
   GameState({
     required this.id,
-    required List<String> playerNames,
-    required Map<RoleType, ({Map<String, dynamic> config, int count})>
+    required Iterable<String> playerNames,
+    required IMap<RoleType, ({Map<String, dynamic> config, int count})>
     roleConfigurations,
   }) {
     _data = GameData(
       state: this,
       playerNames: playerNames,
-      roleConfigurations: roleConfigurations,
+      roleConfigurations: roleConfigurations.unlockLazy,
     );
 
     VillageVoteScreen.registerAction(this);
@@ -198,8 +198,8 @@ class GameState extends ChangeNotifier {
 
   static Future<GameState> fromDatabase({
     required int id,
-    required List<String> playerNames,
-    required Map<RoleType, ({Map<String, dynamic> config, int count})>
+    required IList<String> playerNames,
+    required IMap<RoleType, ({Map<String, dynamic> config, int count})>
     roleConfigurations,
   }) async {
     final state = GameState(

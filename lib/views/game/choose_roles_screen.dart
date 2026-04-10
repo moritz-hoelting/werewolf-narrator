@@ -8,13 +8,19 @@ import 'package:werewolf_narrator/widgets/game/role_settings.dart'
     show RoleOptionsDialog;
 
 class ChooseRolesScreen extends StatefulWidget {
+  final IMap<RoleType, ({Map<String, dynamic> config, int count})>?
+  initialRoles;
   final int playerCount;
-  final void Function(Map<RoleType, ({int count, RoleConfiguration config})>)
+  final void Function(IMap<RoleType, ({int count, RoleConfiguration config})>)
   onSubmit;
+  final void Function(IMap<RoleType, ({int count, RoleConfiguration config})>)
+  onBack;
 
   const ChooseRolesScreen({
+    required this.initialRoles,
     required this.playerCount,
     required this.onSubmit,
+    required this.onBack,
     super.key,
   });
 
@@ -23,12 +29,43 @@ class ChooseRolesScreen extends StatefulWidget {
 }
 
 class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
-  final ValueNotifier<Map<RoleType, ({int index, int count})>> _roles =
-      ValueNotifier({});
+  late final ValueNotifier<Map<RoleType, ({int index, int count})>> _roles;
 
-  final Map<RoleType, RoleConfiguration> _roleConfigurations = {};
+  late final Map<RoleType, RoleConfiguration> _roleConfigurations;
+
   final IList<({ChooseRolesCategory category, IList<RoleType> roles})>
   categorizedRoles = RoleManager.categorizedRoles;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _roles = ValueNotifier(
+      widget.initialRoles != null && widget.initialRoles!.isNotEmpty
+          ? Map.fromEntries(
+              widget.initialRoles!.mapTo(
+                (key, value) => MapEntry(key, (
+                  count: value.count,
+                  index: value.count == 0
+                      ? -1
+                      : key.information.validRoleCounts.indexed
+                            .firstWhere((v) => v.$2 == value.count)
+                            .$1,
+                )),
+              ),
+            )
+          : {},
+    );
+
+    _roleConfigurations =
+        widget.initialRoles != null && widget.initialRoles!.isNotEmpty
+        ? Map.fromEntries(
+            widget.initialRoles!.mapTo(
+              (key, value) => MapEntry(key, {...value.config}),
+            ),
+          )
+        : {};
+  }
 
   int _totalSelected(Map<RoleType, ({int index, int count})> roles) =>
       roles.values.fold(0, (sum, e) => sum + e.count);
@@ -54,7 +91,9 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
     return {...defaults, ...?_roleConfigurations[role]};
   }
 
-  void _submit(Map<RoleType, ({int index, int count})> roles) {
+  IMap<RoleType, ({Map<String, dynamic> config, int count})> _getFinalRoles(
+    Map<RoleType, ({int index, int count})> roles,
+  ) {
     final modified =
         Map<RoleType, ({int count, RoleConfiguration config})>.from(
           roles.map(
@@ -69,8 +108,11 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
       role.information.roleCountAdjuster?.call(modified, widget.playerCount);
     }
 
-    widget.onSubmit(modified);
+    return modified.lock;
   }
+
+  void _submit(Map<RoleType, ({int index, int count})> roles) =>
+      widget.onSubmit(_getFinalRoles(roles));
 
   int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
     final validRoleCounts = role.information.validRoleCounts;
@@ -85,103 +127,122 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(16).copyWith(top: 0),
-      child: ValueListenableBuilder<Map<RoleType, ({int index, int count})>>(
-        valueListenable: _roles,
-        builder: (context, roles, _) {
-          final totalSelected = _totalSelected(roles);
-          final missingRoles = widget.playerCount - totalSelected;
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        widget.onBack(_getFinalRoles(_roles.value));
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(localizations.screen_gameSetup_chooseRoles_title),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => widget.onBack(_getFinalRoles(_roles.value)),
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16).copyWith(top: 0),
+          child: ValueListenableBuilder<Map<RoleType, ({int index, int count})>>(
+            valueListenable: _roles,
+            builder: (context, roles, _) {
+              final totalSelected = _totalSelected(roles);
+              final missingRoles = widget.playerCount - totalSelected;
 
-          final selectedTeams = roles.entries
-              .where((e) => e.value.count > 0)
-              .map((e) => e.key.information.initialTeam)
-              .toSet();
+              final selectedTeams = roles.entries
+                  .where((e) => e.value.count > 0)
+                  .map((e) => e.key.information.initialTeam)
+                  .toSet();
 
-          final canSubmit =
-              totalSelected == widget.playerCount && selectedTeams.length >= 2;
+              final canSubmit =
+                  totalSelected == widget.playerCount &&
+                  selectedTeams.length >= 2;
 
-          return Column(
-            children: [
-              Expanded(
-                child: CustomScrollView(
-                  slivers: [
-                    for (final (:category, roles: categoryRoles)
-                        in categorizedRoles) ...[
-                      /// Header
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                          child: Text(
-                            category.name(context),
-                            style: Theme.of(context).textTheme.headlineLarge,
-                          ),
-                        ),
-                      ),
-
-                      /// Grid
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        sliver: SliverGrid(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final role = categoryRoles[index];
-                            final selected = roles[role];
-
-                            final count = selected?.count ?? 0;
-                            final idx = selected?.index ?? -1;
-
-                            final maxCountIndex = findMaxCountIndexOfRole(
-                              role,
-                              missingRoles + count,
-                            );
-
-                            return RoleSelectorCard(
-                              role: role,
-                              count: count,
-                              countIndex: idx,
-                              maxCountIndex: maxCountIndex,
-                              configuration: _roleConfigurationOrDefault(role),
-                              setCount: (i, c) => _setCount(role, i, c),
-                              setConfiguration: (config) {
-                                _roleConfigurations[role] = config;
-                              },
-                            );
-                          }, childCount: categoryRoles.length),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 250,
-                                mainAxisSpacing: 16,
-                                crossAxisSpacing: 16,
-                                childAspectRatio: 1,
+              return Column(
+                children: [
+                  Expanded(
+                    child: CustomScrollView(
+                      slivers: [
+                        for (final (:category, roles: categoryRoles)
+                            in categorizedRoles) ...[
+                          /// Header
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                              child: Text(
+                                category.name(context),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineLarge,
                               ),
-                        ),
-                      ),
+                            ),
+                          ),
 
-                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    ],
-                  ],
-                ),
-              ),
+                          /// Grid
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            sliver: SliverGrid(
+                              delegate: SliverChildBuilderDelegate((
+                                context,
+                                index,
+                              ) {
+                                final role = categoryRoles[index];
+                                final selected = roles[role];
 
-              const Divider(height: 32),
+                                final count = selected?.count ?? 0;
+                                final idx = selected?.index ?? -1;
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  label: Text(localizations.screen_chooseRoles_startButton),
-                  icon: const Icon(Icons.arrow_forward),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(60),
+                                final maxCountIndex = findMaxCountIndexOfRole(
+                                  role,
+                                  missingRoles + count,
+                                );
+
+                                return RoleSelectorCard(
+                                  role: role,
+                                  count: count,
+                                  countIndex: idx,
+                                  maxCountIndex: maxCountIndex,
+                                  configuration: _roleConfigurationOrDefault(
+                                    role,
+                                  ),
+                                  setCount: (i, c) => _setCount(role, i, c),
+                                  setConfiguration: (config) {
+                                    _roleConfigurations[role] = config;
+                                  },
+                                );
+                              }, childCount: categoryRoles.length),
+                              gridDelegate:
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 250,
+                                    mainAxisSpacing: 16,
+                                    crossAxisSpacing: 16,
+                                    childAspectRatio: 1,
+                                  ),
+                            ),
+                          ),
+
+                          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                        ],
+                      ],
+                    ),
                   ),
-                  onPressed: canSubmit ? () => _submit(roles) : null,
-                ),
-              ),
-            ],
-          );
-        },
+
+                  const Divider(height: 32),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      label: Text(localizations.screen_chooseRoles_startButton),
+                      icon: const Icon(Icons.arrow_forward),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(60),
+                      ),
+                      onPressed: canSubmit ? () => _submit(roles) : null,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }

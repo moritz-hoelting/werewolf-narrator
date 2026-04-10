@@ -17,6 +17,8 @@ import 'package:werewolf_narrator/game/role/werewolves/werewolf.dart'
     show WerewolfRole;
 
 void main() {
+  const emptyConfig = <String, dynamic>{};
+
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
     GameRegistry.ensureInitialized();
@@ -29,11 +31,11 @@ void main() {
       id: 0,
       playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
-        SeerRole.type: (count: 1, config: {}),
-        HunterRole.type: (count: 1, config: {}),
-        CupidRole.type: (count: 1, config: {}),
-        WerewolfRole.type: (count: 1, config: {}),
-      },
+        SeerRole.type: (count: 1, config: emptyConfig),
+        HunterRole.type: (count: 1, config: emptyConfig),
+        CupidRole.type: (count: 1, config: emptyConfig),
+        WerewolfRole.type: (count: 1, config: emptyConfig),
+      }.lock,
     );
 
     final List<GamePhase> expectedOrder = [
@@ -81,11 +83,11 @@ void main() {
       id: 1,
       playerNames: List.generate(4, (index) => 'Player $index'),
       roleConfigurations: {
-        SeerRole.type: (count: 1, config: {}),
-        AngelRole.type: (count: 1, config: {}),
-        CupidRole.type: (count: 1, config: {}),
-        WerewolfRole.type: (count: 1, config: {}),
-      },
+        SeerRole.type: (count: 1, config: emptyConfig),
+        AngelRole.type: (count: 1, config: emptyConfig),
+        CupidRole.type: (count: 1, config: emptyConfig),
+        WerewolfRole.type: (count: 1, config: emptyConfig),
+      }.lock,
     );
 
     final List<(GamePhase, int)> expectedOrder = [

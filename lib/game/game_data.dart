@@ -30,7 +30,7 @@ part 'game_data.mapper.dart';
 class GameData {
   GameData({
     required this.state,
-    required List<String> playerNames,
+    required Iterable<String> playerNames,
     required this.roleConfigurations,
   }) : players = playerNames.map((name) => Player(name: name)).toList(),
        teams = Map.fromEntries(

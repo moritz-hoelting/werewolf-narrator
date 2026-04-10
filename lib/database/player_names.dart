@@ -19,7 +19,7 @@ class PlayerNamesDao extends DatabaseAccessor<AppDatabase>
     with _$PlayerNamesDaoMixin {
   PlayerNamesDao(super.attachedDatabase);
 
-  Future<void> addNameSuggestions(List<String> names) async {
+  Future<void> addNameSuggestions(Iterable<String> names) async {
     await batch((batch) {
       batch.insertAll(
         playerNames,

@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
@@ -6,8 +7,8 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 class CreatePlayersScreen extends StatefulWidget {
   static const int minPlayers = 8;
 
-  final void Function(List<String>) onSubmit;
-  final List<String>? initialPlayers;
+  final void Function(IList<String>) onSubmit;
+  final IList<String>? initialPlayers;
 
   const CreatePlayersScreen({
     required this.onSubmit,
@@ -23,7 +24,8 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
   late List<String> playerNames =
       widget.initialPlayers == null || widget.initialPlayers!.isEmpty
       ? List.filled(CreatePlayersScreen.minPlayers, '', growable: true)
-      : widget.initialPlayers!;
+      : widget.initialPlayers!.unlockLazy;
+
   late List<Key> playerKeys = List.generate(
     playerNames.length,
     (_) => UniqueKey(),
@@ -47,89 +49,96 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
 
     final localizations = AppLocalizations.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          Expanded(
-            child: ReorderableListView.builder(
-              buildDefaultDragHandles: false,
-              footer: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(60),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(localizations.screen_gameSetup_createPlayers_title),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Expanded(
+              child: ReorderableListView.builder(
+                buildDefaultDragHandles: false,
+                footer: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(60),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          playerNames.add('');
+                          playerKeys.add(UniqueKey());
+                        });
+                      },
+                      label: Text(localizations.screen_createPlayers_addPlayer),
+                      icon: const Icon(Icons.add),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        playerNames.add('');
-                        playerKeys.add(UniqueKey());
-                      });
-                    },
-                    label: Text(localizations.screen_createPlayers_addPlayer),
-                    icon: const Icon(Icons.add),
                   ),
                 ),
-              ),
 
-              itemCount: playerNames.length,
-              itemBuilder: (context, index) => Padding(
-                key: playerKeys[index],
+                itemCount: playerNames.length,
+                itemBuilder: (context, index) => Padding(
+                  key: playerKeys[index],
 
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 12.0, right: 8.0),
-                        child: ReorderableDragStartListener(
-                          index: index,
-                          child: const Icon(Icons.drag_handle),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 12.0, right: 8.0),
+                          child: ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(Icons.drag_handle),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: PlayerNameInput(
-                        key: playerKeys[index],
-                        idx: index,
-                        initialText: playerNames[index],
-                        isInvalid: invalidIndexes.contains(index),
-                        onNameChanged: (name) => updatePlayerName(index, name),
-                        onDelete:
-                            playerNames.length > CreatePlayersScreen.minPlayers
-                            ? () => deletePlayer(index)
-                            : null,
+                      Expanded(
+                        child: PlayerNameInput(
+                          key: playerKeys[index],
+                          idx: index,
+                          initialText: playerNames[index],
+                          isInvalid: invalidIndexes.contains(index),
+                          onNameChanged: (name) =>
+                              updatePlayerName(index, name),
+                          onDelete:
+                              playerNames.length >
+                                  CreatePlayersScreen.minPlayers
+                              ? () => deletePlayer(index)
+                              : null,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              onReorder: reorderPlayer,
-            ),
-          ),
-          const Divider(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
+                onReorder: reorderPlayer,
               ),
-              onPressed: validateNames() ? submit : null,
-              label: Text(
-                localizations.screen_createPlayers_chooseRolesButtonLabel,
-              ),
-              icon: const Icon(Icons.arrow_forward),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+            const Divider(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(60),
+                ),
+                onPressed: validateNames() ? submit : null,
+                label: Text(
+                  localizations.screen_createPlayers_chooseRolesButtonLabel,
+                ),
+                icon: const Icon(Icons.arrow_forward),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -177,7 +186,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
     final names = playerNames
         .map((name) => name.trim())
         .where((name) => name.isNotEmpty)
-        .toList();
+        .toIList();
     final database = Provider.of<AppDatabase>(context, listen: false);
     database.playerNamesDao.addNameSuggestions(names);
     widget.onSubmit(names);

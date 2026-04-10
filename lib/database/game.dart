@@ -100,8 +100,8 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
   GamesDao(super.attachedDatabase);
 
   Future<int> createGame(
-    List<String> playerNames,
-    Map<RoleType, ({Map<String, dynamic> config, int count})>
+    IList<String> playerNames,
+    IMap<RoleType, ({Map<String, dynamic> config, int count})>
     rolesWithCountAndConfig,
   ) => transaction(() async {
     // Insert game and get id
@@ -126,15 +126,13 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
     await batch((batch) {
       batch.insertAll(
         gamePlayers,
-        sortedPlayerNamesIds.indexed
-            .map(
-              (entry) => GamePlayersCompanion.insert(
-                gameId: id,
-                playerId: entry.$2.id,
-                order: entry.$1,
-              ),
-            )
-            .toList(),
+        sortedPlayerNamesIds.indexed.map(
+          (entry) => GamePlayersCompanion.insert(
+            gameId: id,
+            playerId: entry.$2.id,
+            order: entry.$1,
+          ),
+        ),
       );
     });
 
@@ -142,16 +140,14 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
     await batch((batch) {
       batch.insertAll(
         gameRoles,
-        rolesWithCountAndConfig.entries
-            .map(
-              (entry) => GameRolesCompanion.insert(
-                gameId: id,
-                role: entry.key,
-                configuration: entry.value.config,
-                count: entry.value.count,
-              ),
-            )
-            .toList(),
+        rolesWithCountAndConfig.entries.map(
+          (entry) => GameRolesCompanion.insert(
+            gameId: id,
+            role: entry.key,
+            configuration: entry.value.config,
+            count: entry.value.count,
+          ),
+        ),
       );
     });
 

@@ -134,6 +134,18 @@
     "@screen_gamesOverview_noArchivedGames": {
         "description": "Message when no archived games are found"
     },
+    "screen_gamesOverview_cloneGame_title": "New game with",
+    "@screen_gamesOverview_cloneGame_title": {
+        "description": "Title for the copy game dialog"
+    },
+    "screen_gamesOverview_cloneGame_players": "Same players",
+    "@screen_gamesOverview_cloneGame_players": {
+        "description": "Option for the copy game dialog to copy the players from the original game"
+    },
+    "screen_gamesOverview_cloneGame_roles": "Same roles",
+    "@screen_gamesOverview_cloneGame_roles": {
+        "description": "Option for the copy game dialog to copy the roles from the original game"
+    },
     "screen_rolesOverview_title": "Roles",
     "@screen_rolesOverview_title": {
         "description": "Title for the roles overview screen"
