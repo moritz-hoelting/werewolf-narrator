@@ -21,32 +21,38 @@ class CreatePlayersScreen extends StatefulWidget {
 }
 
 class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
-  late List<String> playerNames =
-      widget.initialPlayers == null || widget.initialPlayers!.isEmpty
-      ? List.filled(CreatePlayersScreen.minPlayers, '', growable: true)
-      : widget.initialPlayers!.unlockLazy;
+  late List<({String name, Key key})> playerNames;
+  Set<int> invalidIndices = {};
 
-  late List<Key> playerKeys = List.generate(
-    playerNames.length,
-    (_) => UniqueKey(),
-  );
+  @override
+  void initState() {
+    super.initState();
+    playerNames =
+        widget.initialPlayers == null || widget.initialPlayers!.isEmpty
+        ? List.generate(
+            CreatePlayersScreen.minPlayers,
+            (index) => (name: '', key: UniqueKey()),
+            growable: true,
+          )
+        : widget.initialPlayers!
+              .map((name) => (name: name, key: UniqueKey()))
+              .toList();
+  }
 
-  Set<int> invalidIndexes = {};
+  void updatePlayerName(int index, String name) {
+    setState(() {
+      playerNames[index] = (name: name, key: playerNames[index].key);
+    });
+  }
+
+  void deletePlayer(int index) {
+    setState(() {
+      playerNames.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    void updatePlayerName(int index, String name) {
-      setState(() {
-        playerNames[index] = name;
-      });
-    }
-
-    void deletePlayer(int index) {
-      setState(() {
-        playerNames.removeAt(index);
-      });
-    }
-
     final localizations = AppLocalizations.of(context);
 
     return Scaffold(
@@ -72,8 +78,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                       ),
                       onPressed: () {
                         setState(() {
-                          playerNames.add('');
-                          playerKeys.add(UniqueKey());
+                          playerNames.add((name: '', key: UniqueKey()));
                         });
                       },
                       label: Text(localizations.screen_createPlayers_addPlayer),
@@ -81,11 +86,9 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                     ),
                   ),
                 ),
-
                 itemCount: playerNames.length,
                 itemBuilder: (context, index) => Padding(
-                  key: playerKeys[index],
-
+                  key: playerNames[index].key,
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,10 +105,9 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                       ),
                       Expanded(
                         child: PlayerNameInput(
-                          key: playerKeys[index],
                           idx: index,
-                          initialText: playerNames[index],
-                          isInvalid: invalidIndexes.contains(index),
+                          initialText: playerNames[index].name,
+                          isInvalid: invalidIndices.contains(index),
                           onNameChanged: (name) =>
                               updatePlayerName(index, name),
                           onDelete:
@@ -118,7 +120,6 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                     ],
                   ),
                 ),
-
                 onReorder: reorderPlayer,
               ),
             ),
@@ -144,8 +145,9 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
   }
 
   bool validateNames() {
-    final trimmedNames = playerNames.map((name) => name.trim()).toList();
-
+    final trimmedNames = playerNames
+        .map((player) => player.name.trim())
+        .toList();
     final invalid = <int>{};
 
     for (var i = 0; i < trimmedNames.length; i++) {
@@ -155,20 +157,18 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
     final seen = <String>{};
     for (var i = 0; i < trimmedNames.length; i++) {
       final name = trimmedNames[i];
-      if (name.isNotEmpty) {
-        if (seen.contains(name)) {
-          invalid.add(i);
-        } else {
-          seen.add(name);
-        }
+      if (name.isNotEmpty && seen.contains(name)) {
+        invalid.add(i);
+      } else {
+        seen.add(name);
       }
     }
 
     setState(() {
-      invalidIndexes = invalid;
+      invalidIndices = invalid;
     });
 
-    return trimmedNames.where((n) => n.isNotEmpty).toSet().length >=
+    return trimmedNames.where((name) => name.isNotEmpty).toSet().length >=
         CreatePlayersScreen.minPlayers;
   }
 
@@ -176,17 +176,12 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
     setState(() {
       final adjustedNewIndex = newIndex > oldIndex ? newIndex - 1 : newIndex;
       final item = playerNames.removeAt(oldIndex);
-      final key = playerKeys.removeAt(oldIndex);
       playerNames.insert(adjustedNewIndex, item);
-      playerKeys.insert(adjustedNewIndex, key);
     });
   }
 
   void submit() {
-    final names = playerNames
-        .map((name) => name.trim())
-        .where((name) => name.isNotEmpty)
-        .toIList();
+    final names = playerNames.map((player) => player.name.trim()).toIList();
     final database = Provider.of<AppDatabase>(context, listen: false);
     database.playerNamesDao.addNameSuggestions(names);
     widget.onSubmit(names);
@@ -227,11 +222,9 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
     super.initState();
 
     _focusNode.addListener(() {
-      if (_focusNode.hasFocus && !_touched) {
-        setState(() {
-          _touched = true;
-        });
-      }
+      setState(() {
+        _touched = _touched || _focusNode.hasFocus;
+      });
     });
   }
 
@@ -247,10 +240,10 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
     final localizations = AppLocalizations.of(context);
 
     return Autocomplete<String>(
-      textEditingController: _controller,
       focusNode: _focusNode,
+      textEditingController: _controller,
       optionsBuilder: (textEditingValue) async {
-        if (textEditingValue.text == '') {
+        if (textEditingValue.text.isEmpty) {
           return const Iterable<String>.empty();
         }
         final appDatabase = Provider.of<AppDatabase>(context, listen: false);
@@ -265,38 +258,29 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
         widget.onNameChanged(option);
       },
       fieldViewBuilder:
-          (
-            context,
-            textEditingController,
-            focusNode,
-            onFieldSubmitted,
-          ) => TextField(
-            autocorrect: false,
-            maxLength: 25,
-            decoration: InputDecoration(
-              labelText: localizations
-                  .screen_createPlayers_playerNumberInputLabel(
-                    number: widget.idx + 1,
+          (context, textEditingController, focusNode, onFieldSubmitted) =>
+              TextField(
+                controller: textEditingController,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  labelText: localizations
+                      .screen_createPlayers_playerNumberInputLabel(
+                        number: widget.idx + 1,
+                      ),
+                  errorText:
+                      (_touched && !_focusNode.hasFocus && widget.isInvalid)
+                      ? localizations
+                            .screen_createPlayers_error_invalidOrDuplicateName
+                      : null,
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: widget.onDelete,
+                    disabledColor: Theme.of(context).disabledColor,
                   ),
-              errorText: (_touched && !_focusNode.hasFocus && widget.isInvalid)
-                  ? localizations
-                        .screen_createPlayers_error_invalidOrDuplicateName
-                  : null,
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.delete),
-                iconSize: 30,
-                onPressed: widget.onDelete,
-                disabledColor: Theme.of(context).disabledColor,
+                ),
+                onChanged: widget.onNameChanged,
               ),
-            ),
-            buildCounter:
-                (_, {required currentLength, required isFocused, maxLength}) =>
-                    null,
-            controller: _controller,
-            focusNode: _focusNode,
-            onChanged: widget.onNameChanged,
-          ),
       optionsViewBuilder: (context, onSelected, options) => Material(
         elevation: 4,
         child: ListView.builder(

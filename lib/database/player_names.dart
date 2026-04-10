@@ -41,11 +41,15 @@ class PlayerNamesDao extends DatabaseAccessor<AppDatabase>
       if (playerId == null) {
         return;
       }
-      final isUsedInGame =
-          await (select(
-            attachedDatabase.gamePlayers,
-          )..where((gp) => gp.playerId.equals(playerId))).getSingleOrNull() !=
-          null;
+
+      final isUsedInGameQuery = existsQuery(
+        select(attachedDatabase.gamePlayers)
+          ..where((gp) => gp.playerId.equals(playerId)),
+      );
+      final isUsedInGame = await selectExpressions([
+        isUsedInGameQuery,
+      ]).getSingle().then((row) => row.read<bool>(isUsedInGameQuery)!);
+
       if (isUsedInGame) {
         await (update(playerNames)..where((tbl) => tbl.id.equals(playerId)))
             .write(const PlayerNamesCompanion(hideSuggestion: Value(true)));

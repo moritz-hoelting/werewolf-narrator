@@ -2,15 +2,17 @@ import 'dart:async' show Future, unawaited;
 
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart';
+import 'package:werewolf_narrator/game/game_state.dart' show GameState;
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart'
-    show IncompleteGameSetup;
+    show GameSetupResult, IncompleteGameSetup;
 
 final DateFormat _dateFormatter = DateFormat.yMd().add_jm();
 
@@ -239,9 +241,11 @@ class _GameTile extends StatelessWidget {
   }
 
   void _resumeGame(BuildContext context, int gameId) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => GameView(gameId: gameId)));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _ResumeGameScreen(gameId: gameId),
+      ),
+    );
   }
 
   void _showInformation(BuildContext context) {
@@ -531,17 +535,99 @@ class _CopiedGameScreenState extends State<_CopiedGameScreen> {
         }
 
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final playerNames = snapshot.data!.$1;
         final roleConfigurations = snapshot.data!.$2;
 
         return GameView(
-          incompleteGameSetup: IncompleteGameSetup(
-            players: playerNames,
-            roleConfigurations: roleConfigurations,
+          gameSetup: Either.left(
+            IncompleteGameSetup(
+              players: playerNames,
+              roleConfigurations: roleConfigurations,
+            ),
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ResumeGameScreen extends StatefulWidget {
+  const _ResumeGameScreen({required this.gameId});
+
+  final int gameId;
+
+  @override
+  State<_ResumeGameScreen> createState() => _ResumeGameScreenState();
+}
+
+class _ResumeGameScreenState extends State<_ResumeGameScreen> {
+  late final Future<({GameState gameState, GameSetupResult setupResult})>
+  preparedGameFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final db = Provider.of<AppDatabase>(context, listen: false);
+
+    preparedGameFuture =
+        (
+          db.gamesDao.getOrderedPlayerNamesForGame(widget.gameId),
+          db.gamesDao.getRolesForGame(widget.gameId),
+        ).wait.then((results) async {
+          final playerNames = results.$1;
+          final roleConfigurations = results.$2;
+
+          assert(
+            playerNames.isNotEmpty,
+            'Game with id ${widget.gameId} not found',
+          );
+
+          final gameState = await GameState.fromDatabase(
+            id: widget.gameId,
+            playerNames: playerNames.map((value) => value.name).toIList(),
+            roleConfigurations: roleConfigurations.lock,
+          );
+          final setupResult = GameSetupResult(
+            id: widget.gameId,
+            players: playerNames.map((value) => value.name).toIList(),
+            selectedRoles: roleConfigurations.lock,
+          );
+
+          return (gameState: gameState, setupResult: setupResult);
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: preparedGameFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(
+              child: Text('Failed to load game data: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final (:gameState, :setupResult) = snapshot.data!;
+
+        return GameView(
+          preparedGameState: gameState,
+          gameSetup: Either.right(setupResult),
         );
       },
     );
