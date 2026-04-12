@@ -38,9 +38,10 @@ analyze:
 
 # Run the app on a specified device
 [arg("device", help="The device to run the app on. Use 'flutter devices' to list available devices.")]
+[arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("dev")]
-run device=default_device:
-    flutter run -d {{device}} --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}}
+run device=default_device flavor="dev" *args:
+    flutter run --device-id={{device}} --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} {{if flavor == '' { "" } else { "--flavor=" + flavor }}} {{args}}
 
 # Build the app for a specified executable
 [arg("executable", help="The executable to build.")]
