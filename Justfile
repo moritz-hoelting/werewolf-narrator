@@ -41,7 +41,11 @@ analyze:
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("dev")]
 run device=default_device flavor="dev" *args:
-    flutter run --device-id={{device}} --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} {{if flavor == '' { "" } else { "--flavor=" + flavor }}} {{args}}
+    flutter run --device-id={{device}} \
+        --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} \
+        {{if flavor == "" { "" } else { "--flavor=" + flavor }}} \
+        {{if device == "chrome" { "--web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp" } else { "" }}} \
+        {{args}}
 
 # Build the app for a specified executable
 [arg("executable", help="The executable to build.")]

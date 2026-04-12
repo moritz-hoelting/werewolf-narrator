@@ -39,11 +39,11 @@ class Player {
       return false;
     }
     if (role!.hasDeathScreen(gameState)) {
-      final thisPlayerSet = ISet({
-        gameState.players.indexWhere((element) => element.ofPlayer(this)),
-      });
+      final playerIndex = gameState.players.indexWhere(
+        (element) => element.ofPlayer(this),
+      );
       return gameState.deathActionHooks.none(
-        (hook) => hook(gameState, (this, deathInformation!), thisPlayerSet),
+        (hook) => hook(gameState, (this, deathInformation!), playerIndex),
       );
     }
     return false;

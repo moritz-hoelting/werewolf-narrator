@@ -119,8 +119,7 @@ class GameData {
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
   /// Will be called multiple times per death for determining whether to show the action. The answer must be consistent.
-  // TODO: change to only get single player index
-  final List<ActionHook> deathActionHooks = [];
+  final List<DeathActionHook> deathActionHooks = [];
 
   /// Hooks for remaining roles at the end of role assignment.
   ///

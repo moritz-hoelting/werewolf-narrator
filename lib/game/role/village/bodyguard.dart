@@ -1,6 +1,8 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show FpdartOnOption, Option;
+import 'package:provider/provider.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
@@ -19,6 +21,7 @@ import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesTeam;
+import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
@@ -83,6 +86,7 @@ class BodyguardRole extends Role {
       return true;
     } else if (deadPlayerIndex == playerIndex) {
       final bool wasProtected = !hasBeenAttacked;
+      gameState.apply(MarkBodyguardAttackedCommand(playerIndex));
       if (hasBeenAttacked) {
         gameState.apply(RemoveBodyguardDeathHookCommand(playerIndex));
       }
@@ -119,7 +123,7 @@ class OnAssignBodyguardCommand
 
     gameData.nightActionManager.registerAction(
       BodyguardRole.type,
-      (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
+      (gameState, onComplete) => nightActionScreen(onComplete),
       players: {playerIndex},
       conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
       before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
@@ -143,28 +147,42 @@ class OnAssignBodyguardCommand
     gameData.deathHooks.remove(bodyguardRole.deathHook);
   }
 
-  WidgetBuilder nightActionScreen(int playerIndex, VoidCallback onComplete) =>
-      // TODO: show when the bodyguard has already been attacked
-      (BuildContext context) => ActionScreen(
-        key: UniqueKey(),
-        actionIdentifier: BodyguardRole.type,
-        appBarTitle: Text(BodyguardRole._name(context)),
-        selectionCount: 1,
-        currentActorIndices: ISet({playerIndex}),
-        instruction: Text(
-          AppLocalizations.of(context).role_bodyguard_nightAction_instruction,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        onConfirm: (playerIds, gameState) {
-          gameState.apply(
-            BodyguardSetProtectionTargetCommand(
-              playerIndex: playerIndex,
-              targetPlayerIndex: playerIds.singleOrNull,
-            ),
-          );
-          onComplete();
-        },
-      );
+  WidgetBuilder nightActionScreen(VoidCallback onComplete) =>
+      (BuildContext context) {
+        final gameState = Provider.of<GameState>(context, listen: false);
+        final bodyguardRole =
+            gameState.players[playerIndex].role as BodyguardRole;
+        final hasBeenAttacked = bodyguardRole.hasBeenAttacked;
+
+        return ActionScreen(
+          key: UniqueKey(),
+          actionIdentifier: BodyguardRole.type,
+          appBarTitle: Text(BodyguardRole._name(context)),
+          selectionCount: 1,
+          currentActorIndices: ISet({playerIndex}),
+          disabledPlayerIndices: ISet({playerIndex}),
+          instruction: Text(
+            AppLocalizations.of(context).role_bodyguard_nightAction_instruction,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          onConfirm: (playerIds, gameState) {
+            gameState.apply(
+              BodyguardSetProtectionTargetCommand(
+                playerIndex: playerIndex,
+                targetPlayerIndex: playerIds.singleOrNull,
+              ),
+            );
+            onComplete();
+          },
+          playerSpecificDisplayData: hasBeenAttacked
+              ? IMap({
+                  playerIndex: PlayerDisplayData(
+                    trailing: (context) => const Icon(Icons.gpp_maybe),
+                  ),
+                })
+              : const IMap<int, PlayerDisplayData>.empty(),
+        );
+      };
 }
 
 @MappableClass(discriminatorValue: 'removeBodyguardDeathHook')
@@ -203,23 +221,25 @@ class BodyguardSetProtectionTargetCommand
     required this.targetPlayerIndex,
   });
 
-  int? _previousProtectionTarget;
+  Option<int?> _previousProtectionTarget = const Option.none();
 
   @override
   void apply(GameData gameData) {
     final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
-    _previousProtectionTarget = bodyguardRole.protectionTarget;
+    _previousProtectionTarget = Option.of(bodyguardRole.protectionTarget);
     bodyguardRole.protectionTarget = targetPlayerIndex;
   }
 
   @override
-  bool get canBeUndone => _previousProtectionTarget != null;
+  bool get canBeUndone => _previousProtectionTarget.isSome();
 
   @override
   void undo(GameData gameData) {
     final bodyguardRole = gameData.players[playerIndex].role as BodyguardRole;
-    bodyguardRole.protectionTarget = _previousProtectionTarget;
-    _previousProtectionTarget = null;
+    bodyguardRole.protectionTarget = _previousProtectionTarget.getOrElse(
+      () => null,
+    );
+    _previousProtectionTarget = const Option.none();
   }
 }
 

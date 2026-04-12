@@ -19,6 +19,9 @@ typedef ActionHook =
       ISet<int> players,
     );
 
+typedef DeathActionHook =
+    bool Function(GameState gameState, Object? phaseIdentifier, int player);
+
 typedef PlayerDisplayHook =
     PlayerDisplayData? Function(
       GameState gameState,

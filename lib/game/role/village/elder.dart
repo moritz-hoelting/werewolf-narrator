@@ -195,15 +195,11 @@ class ElderDeathPreventAbilitiesCommand
   bool deathActionHook(
     GameState deathActionGameState,
     Object? phaseIdentifier,
-    ISet<int> phasePlayers,
+    int phasePlayer,
   ) =>
-      responsibleDeathPlayers.containsAll(phasePlayers) &&
-      phasePlayers.isNotEmpty &&
-      phasePlayers.every(
-        (playerIndex) =>
-            deathActionGameState.players[playerIndex].role?.team(
-              deathActionGameState,
-            ) ==
-            VillageTeam.type,
-      );
+      responsibleDeathPlayers.contains(phasePlayer) &&
+      deathActionGameState.players[phasePlayer].role?.team(
+            deathActionGameState,
+          ) ==
+          VillageTeam.type;
 }

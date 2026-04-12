@@ -294,7 +294,7 @@ class GameState extends ChangeNotifier {
   ///
   /// Can prevent the action from being displayed for the given players by returning true.
   /// Will be called multiple times per death for determining whether to show the action. The answer must be consistent.
-  IList<ActionHook> get deathActionHooks => _data.deathActionHooks.lock;
+  IList<DeathActionHook> get deathActionHooks => _data.deathActionHooks.lock;
 
   /// Hooks for remaining roles at the end of role assignment.
   ///
