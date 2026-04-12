@@ -81,123 +81,143 @@ class HomePage extends StatelessWidget {
         backgroundColor: colorScheme.inversePrimary,
         title: Text(localizations.appTitle),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 50,
-          children: [
-            SvgPicture.asset('assets/icon/icon.svg', width: 200, height: 200),
-            SizedBox(
-              width: 200,
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          primary: true,
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight - 32),
+            child: Center(
               child: Column(
-                spacing: 16,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 50,
                 children: [
-                  // Start new game button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      label: Text(localizations.button_newGameLabel),
-                      icon: const Icon(Icons.play_arrow),
-                      onPressed: () => _startNewGame(context),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 8,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 40),
-                        tapTargetSize: MaterialTapTargetSize.padded,
-                        textStyle: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
+                  SvgPicture.asset(
+                    'assets/icon/icon.svg',
+                    width: 200,
+                    height: 200,
                   ),
-
-                  // Game overview button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      label: Text(localizations.screen_gamesOverview_title),
-                      icon: const Icon(Icons.history),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 25),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const GamesOverview(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Roles overview button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      label: Text(localizations.screen_rolesOverview_title),
-                      icon: const Icon(Icons.person),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 25),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const RolesOverviewScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Settings button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      label: Text(localizations.screen_settings_title),
-                      icon: const Icon(Icons.settings),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(vertical: 25),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const SettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  const _MainMenuButtons(),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+}
 
-  void _startNewGame(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const GameView()));
+class _MainMenuButtons extends StatelessWidget {
+  const _MainMenuButtons();
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
+    return SizedBox(
+      width: 200,
+      child: Column(
+        spacing: 16,
+        children: [
+          // Start new game button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              label: Text(localizations.button_newGameLabel),
+              icon: const Icon(Icons.play_arrow),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const GameView()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                elevation: 8,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                tapTargetSize: MaterialTapTargetSize.padded,
+                textStyle: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+
+          // Game overview button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              label: Text(localizations.screen_gamesOverview_title),
+              icon: const Icon(Icons.history),
+              style: ElevatedButton.styleFrom(
+                elevation: 4,
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const GamesOverview(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Roles overview button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              label: Text(localizations.screen_rolesOverview_title),
+              icon: const Icon(Icons.person),
+              style: ElevatedButton.styleFrom(
+                elevation: 4,
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const RolesOverviewScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Settings button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              label: Text(localizations.screen_settings_title),
+              icon: const Icon(Icons.settings),
+              style: ElevatedButton.styleFrom(
+                elevation: 4,
+                padding: const EdgeInsets.symmetric(vertical: 25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
