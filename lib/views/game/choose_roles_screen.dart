@@ -128,6 +128,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
     final localizations = AppLocalizations.of(context);
 
     return PopScope(
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         widget.onBack(_getFinalRoles(_roles.value));
       },
