@@ -1,9 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/role/village/villager.dart'
+    show VillagerRole;
+import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/util/developer_settings.dart'
+    show DeveloperSettings;
 import 'package:werewolf_narrator/widgets/game/role_settings.dart'
     show RoleOptionsDialog;
 
@@ -111,8 +117,19 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
     return modified.lock;
   }
 
-  void _submit(Map<RoleType, ({int index, int count})> roles) =>
-      widget.onSubmit(_getFinalRoles(roles));
+  void _submit(Map<RoleType, ({int index, int count})> roles) {
+    final missingRoles = widget.playerCount - _totalSelected(roles);
+    if (missingRoles > 0) {
+      final villagerCount = roles[VillagerRole.type]?.count ?? 0;
+      final newVillagerCount = villagerCount + missingRoles;
+      roles[VillagerRole.type] = (
+        index: newVillagerCount - 1,
+        count: newVillagerCount,
+      );
+    }
+
+    widget.onSubmit(_getFinalRoles(roles));
+  }
 
   int findMaxCountIndexOfRole(RoleType role, int upperLimit) {
     final validRoleCounts = role.information.validRoleCounts;
@@ -153,9 +170,15 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
                   .map((e) => e.key.information.initialTeam)
                   .toSet();
 
-              final canSubmit =
-                  totalSelected == widget.playerCount &&
-                  selectedTeams.length >= 2;
+              final devSettings = Provider.of<DeveloperSettings>(
+                context,
+                listen: false,
+              );
+
+              final canSubmit = devSettings.fillVillagerRolesEnabled
+                  ? selectedTeams.difference({VillageTeam.type}).isNotEmpty
+                  : totalSelected == widget.playerCount &&
+                        selectedTeams.length >= 2;
 
               return Column(
                 children: [

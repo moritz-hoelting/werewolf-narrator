@@ -175,7 +175,7 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
     });
   });
 
-  Stream<List<Game>> watchGames({bool? active, bool? archived}) {
+  MultiSelectable<Game> getGames({bool? active, bool? archived}) {
     final query = select(games);
 
     final predicates = <Expression<bool> Function($GamesTable tbl)>[
@@ -193,8 +193,7 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
       );
     }
 
-    return (query..orderBy([(tbl) => OrderingTerm.desc(tbl.startedAt)]))
-        .watch();
+    return query..orderBy([(tbl) => OrderingTerm.desc(tbl.startedAt)]);
   }
 
   Future<void> setGameArchived(int gameId, bool status) =>
@@ -210,7 +209,7 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
             ..where((tbl) => tbl.archived.equalsExp(const Constant(true))))
           .goAndReturn();
 
-  Future<List<({String name, bool hasWon})>> getOrderedPlayerNamesForGame(
+  MultiSelectable<({String name, bool hasWon})> getOrderedPlayerNamesForGame(
     int gameId,
   ) =>
       (select(gamePlayers)
@@ -227,8 +226,7 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
               name: row.readTable(playerNames).name,
               hasWon: row.readTable(gamePlayers).hasWon,
             ),
-          )
-          .get();
+          );
 
   Future<Map<RoleType, ({RoleConfiguration config, int count})>>
   getRolesForGame(int gameId) async => Map.fromEntries(

@@ -40,6 +40,8 @@
     "screen_settings_dynamicGameTheme_description": "Automatischer Wechsel zwischen Tag- und Nachtdesign basierend auf der Spielphase.",
     "screen_settings_language": "Sprache",
     "screen_settings_language_default": "Systemstandard",
+    "screen_settings_minPlayers": "Minimale Spieleranzahl",
+    "screen_settings_minPlayers_description": "Mindestanzahl der Spieler, die benötigt werden, um ein Spiel zu starten",
     "screen_settings_manageNameCache": "Namen-Cache verwalten",
     "screen_settings_clearNameCache": "Namen-Cache leeren",
     "screen_settings_clearNameCache_description": "Bist du sicher, dass du den Namen-Cache leeren möchtest? Dies wird alle gespeicherten Spielernamen entfernen.",

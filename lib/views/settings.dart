@@ -7,6 +7,7 @@ import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/settings/developer_settings.dart';
+import 'package:werewolf_narrator/widgets/number_picker_dialog.dart';
 import 'package:werewolf_narrator/widgets/settings/info_display.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -57,6 +58,7 @@ class SettingsDisplay extends StatelessWidget {
 
     return Column(
       children: [
+        // Theme Mode
         ListTile(
           title: Text(localizations.screen_settings_themeMode),
           leading: const Icon(Icons.color_lens),
@@ -96,6 +98,8 @@ class SettingsDisplay extends StatelessWidget {
             },
           ),
         ),
+
+        // Dynamic Game Theme
         CheckboxListTile(
           title: Text(localizations.screen_settings_dynamicGameTheme),
           secondary: const Icon(Icons.brightness_auto),
@@ -109,6 +113,8 @@ class SettingsDisplay extends StatelessWidget {
             }
           },
         ),
+
+        // Language
         ListTile(
           title: Text(localizations.screen_settings_language),
           leading: const Icon(Icons.language),
@@ -132,6 +138,36 @@ class SettingsDisplay extends StatelessWidget {
             },
           ),
         ),
+
+        // Minimum Players
+        ListTile(
+          title: Text(localizations.screen_settings_minPlayers),
+          subtitle: Text(localizations.screen_settings_minPlayers_description),
+          leading: const Icon(Icons.group),
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text(
+              settings.minPlayers.toString(),
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ),
+          onTap: () async {
+            final result = await showDialog<int>(
+              context: context,
+              builder: (context) => NumberPickerDialog(
+                title: Text(localizations.screen_settings_minPlayers),
+                initialValue: settings.minPlayers,
+                minValue: 2,
+              ),
+            );
+
+            if (result != null) {
+              settings.minPlayers = result;
+            }
+          },
+        ),
+
+        // Name suggestions
         ListTile(
           title: Text(localizations.screen_settings_manageNameCache),
           leading: const Icon(Icons.storage),
@@ -140,92 +176,101 @@ class SettingsDisplay extends StatelessWidget {
             tooltip: localizations.screen_settings_clearNameCache,
             onPressed: () => showDialog(
               context: context,
-              builder: (context) {
-                final materialLocalizations = MaterialLocalizations.of(context);
-                return AlertDialog(
-                  title: Text(localizations.screen_settings_clearNameCache),
-                  content: Text(
-                    localizations.screen_settings_clearNameCache_description,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(materialLocalizations.cancelButtonLabel),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Provider.of<AppDatabase>(
-                          context,
-                          listen: false,
-                        ).playerNamesDao.disableAllNameSuggestions();
-                        Navigator.pop(context);
-                      },
-                      child: Text(materialLocalizations.okButtonLabel),
-                    ),
-                  ],
-                );
-              },
+              builder: (context) => const _ClearNameSuggestionsDialog(),
             ),
           ),
           onTap: () => showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: Text(localizations.screen_settings_manageNameCache),
-              content: StreamBuilder(
-                stream: Provider.of<AppDatabase>(
-                  context,
-                  listen: false,
-                ).playerNamesDao.watchAllNameSuggestions(),
-                builder: (context, cachedNames) {
-                  if (cachedNames.hasError) {
-                    return Text('Error: ${cachedNames.error}');
-                  }
-                  if (!cachedNames.hasData) {
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 100),
-                      child: const Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  final names = cachedNames.data!.sorted();
-                  if (names.isEmpty) {
-                    return const Icon(
-                      Icons.no_accounts,
-                      size: 64,
-                      color: Colors.grey,
-                    );
-                  }
-                  return SizedBox(
-                    width: (MediaQuery.of(context).size.width * 0.6).clamp(
-                      0,
-                      400,
-                    ),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: names.length,
-                      itemBuilder: (context, index) => ListTile(
-                        title: Text(names[index]),
-                        leading: IconButton(
-                          onPressed: () => Provider.of<AppDatabase>(
-                            context,
-                            listen: false,
-                          ).playerNamesDao.disableNameSuggestion(names[index]),
-                          icon: const Icon(Icons.delete),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    MaterialLocalizations.of(context).closeButtonLabel,
-                  ),
-                ),
-              ],
-            ),
+            builder: (context) => const _ManageNameSuggestionsDialog(),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ClearNameSuggestionsDialog extends StatelessWidget {
+  const _ClearNameSuggestionsDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final materialLocalizations = MaterialLocalizations.of(context);
+
+    return AlertDialog(
+      title: Text(localizations.screen_settings_clearNameCache),
+      content: Text(localizations.screen_settings_clearNameCache_description),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(materialLocalizations.cancelButtonLabel),
+        ),
+        TextButton(
+          onPressed: () {
+            Provider.of<AppDatabase>(
+              context,
+              listen: false,
+            ).playerNamesDao.disableAllNameSuggestions();
+            Navigator.pop(context);
+          },
+          child: Text(materialLocalizations.okButtonLabel),
+        ),
+      ],
+    );
+  }
+}
+
+class _ManageNameSuggestionsDialog extends StatelessWidget {
+  const _ManageNameSuggestionsDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+
+    return AlertDialog(
+      title: Text(localizations.screen_settings_manageNameCache),
+      content: StreamBuilder(
+        stream: Provider.of<AppDatabase>(
+          context,
+          listen: false,
+        ).playerNamesDao.getAllNameSuggestions().watch(),
+        builder: (context, cachedNames) {
+          if (cachedNames.hasError) {
+            return Text('Error: ${cachedNames.error}');
+          }
+          if (!cachedNames.hasData) {
+            return ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 100),
+              child: const Center(child: CircularProgressIndicator()),
+            );
+          }
+          final names = cachedNames.data!.sorted();
+          if (names.isEmpty) {
+            return const Icon(Icons.no_accounts, size: 64, color: Colors.grey);
+          }
+          return SizedBox(
+            width: (MediaQuery.of(context).size.width * 0.6).clamp(0, 400),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: names.length,
+              itemBuilder: (context, index) => ListTile(
+                title: Text(names[index]),
+                leading: IconButton(
+                  onPressed: () => Provider.of<AppDatabase>(
+                    context,
+                    listen: false,
+                  ).playerNamesDao.disableNameSuggestion(names[index]),
+                  icon: const Icon(Icons.delete),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(MaterialLocalizations.of(context).closeButtonLabel),
         ),
       ],
     );

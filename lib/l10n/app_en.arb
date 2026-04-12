@@ -190,6 +190,14 @@
     "@screen_settings_language_default": {
         "description": "Option for language setting: system default"
     },
+    "screen_settings_minPlayers": "Minimum Players",
+    "@screen_settings_minPlayers": {
+        "description": "Label for the setting to choose the minimum number of players"
+    },
+    "screen_settings_minPlayers_description": "Amount of players required to start a game",
+    "@screen_settings_minPlayers_description": {
+        "description": "Description for the minimum players setting"
+    },
     "screen_settings_manageNameCache": "Manage Name Cache",
     "@screen_settings_manageNameCache": {
         "description": "Label for the button to manage the name cache"

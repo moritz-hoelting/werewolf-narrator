@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/util/settings.dart' show AppSettings;
 
 class CreatePlayersScreen extends StatefulWidget {
-  static const int minPlayers = 8;
-
   final void Function(IList<String>) onSubmit;
   final IList<String>? initialPlayers;
 
@@ -24,13 +23,16 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
   late List<({String name, Key key})> playerNames;
   Set<int> invalidIndices = {};
 
+  static int get minPlayers => AppSettings.instance.minPlayers;
+
   @override
   void initState() {
     super.initState();
+
     playerNames =
         widget.initialPlayers == null || widget.initialPlayers!.isEmpty
         ? List.generate(
-            CreatePlayersScreen.minPlayers,
+            minPlayers,
             (index) => (name: '', key: UniqueKey()),
             growable: true,
           )
@@ -110,9 +112,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                           isInvalid: invalidIndices.contains(index),
                           onNameChanged: (name) =>
                               updatePlayerName(index, name),
-                          onDelete:
-                              playerNames.length >
-                                  CreatePlayersScreen.minPlayers
+                          onDelete: playerNames.length > minPlayers
                               ? () => deletePlayer(index)
                               : null,
                         ),
@@ -169,7 +169,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
     });
 
     return trimmedNames.where((name) => name.isNotEmpty).toSet().length >=
-        CreatePlayersScreen.minPlayers;
+        minPlayers;
   }
 
   void reorderPlayer(int oldIndex, int newIndex) {
@@ -249,6 +249,7 @@ class _PlayerNameInputState extends State<PlayerNameInput> {
         final appDatabase = Provider.of<AppDatabase>(context, listen: false);
         return appDatabase.playerNamesDao
             .getAllNameSuggestionsStartingWith(textEditingValue.text)
+            .get()
             .then(
               (names) => names.where((name) => name != textEditingValue.text),
             );

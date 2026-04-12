@@ -61,19 +61,17 @@ class PlayerNamesDao extends DatabaseAccessor<AppDatabase>
     });
   }
 
-  Future<List<String>> getAllNameSuggestionsStartingWith(String prefix) =>
+  MultiSelectable<String> getAllNameSuggestions() => (select(
+    playerNames,
+  )..where((tbl) => tbl.hideSuggestion.equals(false))).map((row) => row.name);
+
+  MultiSelectable<String> getAllNameSuggestionsStartingWith(String prefix) =>
       (select(playerNames)..where(
             (tbl) =>
                 tbl.hideSuggestion.equals(false) &
                 tbl.name.lower().like('${prefix.toLowerCase()}%'),
           ))
-          .map((row) => row.name)
-          .get();
-
-  Stream<List<String>> watchAllNameSuggestions() =>
-      (select(playerNames)..where((tbl) => tbl.hideSuggestion.equals(false)))
-          .map((row) => row.name)
-          .watch();
+          .map((row) => row.name);
 
   void disableAllNameSuggestions() async {
     await transaction(() async {

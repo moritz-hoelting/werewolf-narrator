@@ -6,6 +6,7 @@ import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/role_config.dart'
     show RoleConfiguration;
 import 'package:werewolf_narrator/util/developer_settings.dart';
+import 'package:werewolf_narrator/util/settings.dart' show AppSettings;
 import 'package:werewolf_narrator/views/game/choose_roles_screen.dart';
 import 'package:werewolf_narrator/views/game/create_players.dart';
 
@@ -52,7 +53,10 @@ class _GameSetupViewState extends State<GameSetupView> {
               context,
               listen: false,
             ).fillPlayerNamesEnabled
-            ? List.generate(8, (i) => 'Player ${i + 1}').lock
+            ? List.generate(
+                AppSettings.instance.minPlayers,
+                (i) => 'Player ${i + 1}',
+              ).lock
             : const IList.empty());
     roleConfigurations = widget.initialRoleConfigurations;
   }

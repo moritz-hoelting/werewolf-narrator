@@ -20,14 +20,17 @@ final class AppSettings extends ChangeNotifier {
   static const _themeModeKey = 'themeMode';
   static const _dynamicGameThemeKey = 'dynamicGameTheme';
   static const _localeKey = 'locale';
+  static const _minPlayersKey = 'minPlayers';
 
   ThemeMode _themeMode = ThemeMode.system;
   bool _dynamicGameTheme = true;
   Locale? _locale;
+  int _minPlayers = 8;
 
   ThemeMode get themeMode => _themeMode;
   bool get dynamicGameTheme => _dynamicGameTheme;
   Locale? get locale => _locale;
+  int get minPlayers => _minPlayers;
 
   Future<void> _loadSettings() async {
     _themeMode =
@@ -35,6 +38,8 @@ final class AppSettings extends ChangeNotifier {
         ThemeMode.system;
 
     _dynamicGameTheme = await _dao.getSettingBool(_dynamicGameThemeKey) ?? true;
+
+    _minPlayers = await _dao.getSettingInt(_minPlayersKey) ?? 8;
 
     final localeString = await _dao.getSettingString(_localeKey);
 
@@ -58,6 +63,15 @@ final class AppSettings extends ChangeNotifier {
       notifyListeners();
 
       _dao.setSetting(_dynamicGameThemeKey, value, SettingsType.bool);
+    }
+  }
+
+  set minPlayers(int value) {
+    if (_minPlayers != value) {
+      _minPlayers = value;
+      notifyListeners();
+
+      _dao.setSetting(_minPlayersKey, value, SettingsType.int);
     }
   }
 

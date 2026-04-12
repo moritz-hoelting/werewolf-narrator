@@ -20,17 +20,23 @@ final class DeveloperSettings extends ChangeNotifier {
   // Keys
   static const _enabledKey = 'dev:enabled';
   static const _fillPlayerNamesKey = 'dev:fillPlayerNames';
+  static const _fillVillagerRolesKey = 'dev:fillVillagerRoles';
 
   bool _enabled = kDebugMode;
   bool _fillPlayerNames = true;
+  bool _fillVillagerRoles = true;
 
   bool get enabled => _enabled;
   bool get fillPlayerNames => _fillPlayerNames;
   bool get fillPlayerNamesEnabled => _enabled && _fillPlayerNames;
+  bool get fillVillagerRoles => _fillVillagerRoles;
+  bool get fillVillagerRolesEnabled => _enabled && _fillVillagerRoles;
 
   Future<void> _loadDeveloperSettings() async {
     _enabled = await _dao.getSettingBool(_enabledKey) ?? kDebugMode;
     _fillPlayerNames = await _dao.getSettingBool(_fillPlayerNamesKey) ?? true;
+    _fillVillagerRoles =
+        await _dao.getSettingBool(_fillVillagerRolesKey) ?? true;
     notifyListeners();
   }
 
@@ -38,6 +44,7 @@ final class DeveloperSettings extends ChangeNotifier {
     if (_enabled != enabled) {
       _enabled = enabled;
       notifyListeners();
+
       _dao.setSetting(_enabledKey, enabled, SettingsType.bool);
     }
   }
@@ -46,7 +53,21 @@ final class DeveloperSettings extends ChangeNotifier {
     if (_fillPlayerNames != fillPlayerNames) {
       _fillPlayerNames = fillPlayerNames;
       notifyListeners();
+
       _dao.setSetting(_fillPlayerNamesKey, fillPlayerNames, SettingsType.bool);
+    }
+  }
+
+  set fillVillagerRoles(bool fillVillagerRoles) {
+    if (_fillVillagerRoles != fillVillagerRoles) {
+      _fillVillagerRoles = fillVillagerRoles;
+      notifyListeners();
+
+      _dao.setSetting(
+        _fillVillagerRolesKey,
+        fillVillagerRoles,
+        SettingsType.bool,
+      );
     }
   }
 }

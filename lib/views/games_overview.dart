@@ -117,7 +117,7 @@ class _GameListSliver extends StatelessWidget {
     final db = Provider.of<AppDatabase>(context, listen: false);
 
     return StreamBuilder<List<Game>>(
-      stream: db.gamesDao.watchGames(archived: archived, active: active),
+      stream: db.gamesDao.getGames(archived: archived, active: active).watch(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SliverToBoxAdapter(
@@ -307,7 +307,7 @@ class _PlayerNames extends StatelessWidget {
     final db = Provider.of<AppDatabase>(context, listen: false);
 
     return FutureBuilder(
-      future: db.gamesDao.getOrderedPlayerNamesForGame(gameId),
+      future: db.gamesDao.getOrderedPlayerNamesForGame(gameId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Text('...');
         return Text(
@@ -324,7 +324,8 @@ class _PlayerNames extends StatelessWidget {
 class _GameInformationDialog extends StatelessWidget {
   _GameInformationDialog({required this.game})
     : playersFuture = AppDatabaseHolder().database.gamesDao
-          .getOrderedPlayerNamesForGame(game.id);
+          .getOrderedPlayerNamesForGame(game.id)
+          .get();
 
   final Game game;
   final Future<List<({bool hasWon, String name})>> playersFuture;
@@ -506,6 +507,7 @@ class _CopiedGameScreenState extends State<_CopiedGameScreen> {
     if (widget.copyPlayers) {
       playerNamesFuture = db.gamesDao
           .getOrderedPlayerNamesForGame(widget.gameId)
+          .get()
           .then((players) => players.map((p) => p.name).toIList());
     } else {
       playerNamesFuture = Future.value(null);
@@ -577,7 +579,7 @@ class _ResumeGameScreenState extends State<_ResumeGameScreen> {
 
     preparedGameFuture =
         (
-          db.gamesDao.getOrderedPlayerNamesForGame(widget.gameId),
+          db.gamesDao.getOrderedPlayerNamesForGame(widget.gameId).get(),
           db.gamesDao.getRolesForGame(widget.gameId),
         ).wait.then((results) async {
           final playerNames = results.$1;

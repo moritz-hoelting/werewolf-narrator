@@ -65,6 +65,19 @@ class DeveloperSettingsScreen extends StatelessWidget {
               },
             ),
 
+            CheckboxListTile(
+              title: const Text('Autofill villager roles'),
+              subtitle: const Text(
+                'Remaining unassigned roles in the role distribution are filled with villager roles',
+              ),
+              value: developerSettings.fillVillagerRoles,
+              onChanged: (value) {
+                if (value != null) {
+                  developerSettings.fillVillagerRoles = value;
+                }
+              },
+            ),
+
             ListTile(
               title: const Text('View Database'),
               subtitle: FutureBuilder(
