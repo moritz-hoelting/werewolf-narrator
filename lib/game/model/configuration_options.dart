@@ -1,22 +1,33 @@
-import 'package:flutter/material.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:flutter/material.dart' show BuildContext;
 
 typedef RoleConfiguration = Map<String, dynamic>;
 
-sealed class RoleOption<T> {
+typedef GameConfiguration = IMap<String, dynamic>;
+
+sealed class ConfigurationOption<T> {
   final String id;
   final String Function(BuildContext context) label;
   final String Function(BuildContext context) description;
   final T defaultValue;
 
-  const RoleOption({
+  const ConfigurationOption({
     required this.id,
     required this.label,
     required this.description,
     required this.defaultValue,
   });
+
+  T read(Map<String, dynamic> config) {
+    if (config.containsKey(id)) {
+      return config[id] as T;
+    } else {
+      return defaultValue;
+    }
+  }
 }
 
-class BoolOption extends RoleOption<bool> {
+class BoolOption extends ConfigurationOption<bool> {
   const BoolOption({
     required super.id,
     required super.label,
@@ -25,7 +36,7 @@ class BoolOption extends RoleOption<bool> {
   });
 }
 
-class IntOption extends RoleOption<int> {
+class IntOption extends ConfigurationOption<int> {
   final int? min;
   final int? max;
 
@@ -37,4 +48,8 @@ class IntOption extends RoleOption<int> {
     this.min,
     this.max,
   });
+}
+
+GameConfiguration fillDefaultGameConfiguration(Map<String, dynamic> config) {
+  return config.lock;
 }

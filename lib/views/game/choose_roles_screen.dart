@@ -2,24 +2,24 @@ import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/village/villager.dart'
     show VillagerRole;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart'
     show DeveloperSettings;
-import 'package:werewolf_narrator/widgets/game/role_settings.dart'
+import 'package:werewolf_narrator/widgets/game/game_configuration.dart'
     show RoleOptionsDialog;
 
 class ChooseRolesScreen extends StatefulWidget {
   final IMap<RoleType, ({Map<String, dynamic> config, int count})>?
   initialRoles;
   final int playerCount;
-  final void Function(IMap<RoleType, ({int count, RoleConfiguration config})>)
+  final ValueChanged<IMap<RoleType, ({int count, RoleConfiguration config})>>
   onSubmit;
-  final void Function(IMap<RoleType, ({int count, RoleConfiguration config})>)
+  final ValueChanged<IMap<RoleType, ({int count, RoleConfiguration config})>>
   onBack;
 
   const ChooseRolesScreen({

@@ -8,9 +8,11 @@ import 'package:werewolf_narrator/database/database.dart'
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
-    show SheriffElectionScreen;
+    show SheriffElectionScreen, sheriffEnabledOption;
 import 'package:werewolf_narrator/game/misc/phases/voting.dart'
     show VillageVoteScreen;
+import 'package:werewolf_narrator/game/model/configuration_options.dart'
+    show GameConfiguration;
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathInformation, DeathReason;
 import 'package:werewolf_narrator/game/model/player.dart' show PlayerView;
@@ -25,6 +27,8 @@ import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
 import 'package:werewolf_narrator/game/util/hooks.dart';
 import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
     show CheckRolesData;
+import 'package:werewolf_narrator/views/game/game_setup.dart'
+    show GameSetupResult;
 
 class GameState extends ChangeNotifier {
   /// The unique identifier for this game, corresponding to the database ID.
@@ -171,17 +175,23 @@ class GameState extends ChangeNotifier {
   GameState({
     required this.id,
     required Iterable<String> playerNames,
+    required IMap<String, dynamic> gameConfiguration,
     required IMap<RoleType, ({Map<String, dynamic> config, int count})>
     roleConfigurations,
   }) {
     _data = GameData(
       state: this,
       playerNames: playerNames,
+      gameConfiguration: gameConfiguration,
       roleConfigurations: roleConfigurations.unlockLazy,
     );
 
     VillageVoteScreen.registerAction(this);
-    SheriffElectionScreen.registerAction(this);
+
+    if (sheriffEnabledOption.read(gameConfiguration.unlockView)) {
+      SheriffElectionScreen.registerAction(this);
+    }
+
     for (final team in teams.values) {
       team.initialize(this);
     }
@@ -196,20 +206,27 @@ class GameState extends ChangeNotifier {
     _frameStack.clear();
   }
 
-  static Future<GameState> fromDatabase({
-    required int id,
-    required IList<String> playerNames,
-    required IMap<RoleType, ({Map<String, dynamic> config, int count})>
-    roleConfigurations,
-  }) async {
+  static Future<(GameState, GameSetupResult)> fromDatabase(int id) async {
+    final gamesDao = AppDatabaseHolder().database.gamesDao;
+
+    final (players, gameConfiguration, roleConfigurations) = await (
+      gamesDao.getOrderedPlayerNamesForGame(id).get(),
+      gamesDao.getGameConfiguration(id).getSingleOrNull(),
+      gamesDao.getRolesForGame(id),
+    ).wait;
+
+    if (gameConfiguration == null) {
+      throw Exception('Game configuration not found for game with id $id');
+    }
+
     final state = GameState(
       id: id,
-      playerNames: playerNames,
-      roleConfigurations: roleConfigurations,
+      playerNames: players.map((player) => player.name).toIList(),
+      gameConfiguration: gameConfiguration,
+      roleConfigurations: roleConfigurations.lock,
     );
 
-    final (:run, :undone) = await AppDatabaseHolder().database.gamesDao
-        .getCommandBatchesForGame(id);
+    final (:run, :undone) = await gamesDao.getCommandBatchesForGame(id);
 
     for (final batch in run) {
       for (final command in batch) {
@@ -220,7 +237,14 @@ class GameState extends ChangeNotifier {
 
     state._redoCommandStack.addAll(undone);
 
-    return state;
+    final setupResult = GameSetupResult(
+      id: id,
+      players: players.map((player) => player.name).toIList(),
+      gameConfiguration: gameConfiguration,
+      roleConfigurations: roleConfigurations.lock,
+    );
+
+    return (state, setupResult);
   }
 
   int? get dynamicActionIndex => _data.dynamicActionIndex;
@@ -250,6 +274,9 @@ class GameState extends ChangeNotifier {
   get roleConfigurations => _data.roleConfigurations
       .mapValue((value) => (config: value.config.lock, count: value.count))
       .toIMap();
+
+  /// The game configuration, storing arbitrary configuration options.
+  GameConfiguration get gameConfiguration => _data.gameConfiguration;
 
   /// The total number of players in the game.
   int get playerCount => _data.playerCount;

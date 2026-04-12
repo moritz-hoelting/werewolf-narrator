@@ -7,8 +7,8 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/game/game_state.dart' show GameState;
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
-import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart'
@@ -205,7 +205,13 @@ class _GameTile extends StatelessWidget {
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 final result =
-                    await showDialog<({bool copyPlayers, bool copyRoles})?>(
+                    await showDialog<
+                      ({
+                        bool copyPlayers,
+                        bool copyConfiguration,
+                        bool copyRoles,
+                      })?
+                    >(
                       context: context,
                       builder: (context) => const _CopyGameDialog(),
                     );
@@ -217,6 +223,7 @@ class _GameTile extends StatelessWidget {
                     builder: (context) => _CopiedGameScreen(
                       gameId: game.id,
                       copyPlayers: result.copyPlayers,
+                      copyConfiguration: result.copyConfiguration,
                       copyRoles: result.copyRoles,
                     ),
                   ),
@@ -437,6 +444,7 @@ class _CopyGameDialog extends StatefulWidget {
 
 class _CopyGameDialogState extends State<_CopyGameDialog> {
   bool copyPlayers = true;
+  bool copyConfiguration = true;
   bool copyRoles = true;
 
   @override
@@ -453,6 +461,14 @@ class _CopyGameDialogState extends State<_CopyGameDialog> {
             title: Text(localizations.screen_gamesOverview_cloneGame_players),
           ),
           CheckboxListTile(
+            value: copyConfiguration,
+            onChanged: (value) =>
+                setState(() => copyConfiguration = value ?? false),
+            title: Text(
+              localizations.screen_gamesOverview_cloneGame_configuration,
+            ),
+          ),
+          CheckboxListTile(
             value: copyRoles,
             onChanged: (value) => setState(() => copyRoles = value ?? false),
             title: Text(localizations.screen_gamesOverview_cloneGame_roles),
@@ -465,12 +481,15 @@ class _CopyGameDialogState extends State<_CopyGameDialog> {
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.pop(context, (
-              copyPlayers: copyPlayers,
-              copyRoles: copyRoles,
-            ));
-          },
+          onPressed: copyPlayers || copyConfiguration || copyRoles
+              ? () {
+                  Navigator.pop(context, (
+                    copyPlayers: copyPlayers,
+                    copyConfiguration: copyConfiguration,
+                    copyRoles: copyRoles,
+                  ));
+                }
+              : null,
           child: Text(MaterialLocalizations.of(context).okButtonLabel),
         ),
       ],
@@ -482,11 +501,13 @@ class _CopiedGameScreen extends StatefulWidget {
   const _CopiedGameScreen({
     required this.gameId,
     required this.copyPlayers,
+    required this.copyConfiguration,
     required this.copyRoles,
   });
 
   final int gameId;
   final bool copyPlayers;
+  final bool copyConfiguration;
   final bool copyRoles;
 
   @override
@@ -495,6 +516,7 @@ class _CopiedGameScreen extends StatefulWidget {
 
 class _CopiedGameScreenState extends State<_CopiedGameScreen> {
   late final Future<IList<String>?> playerNamesFuture;
+  late final Future<GameConfiguration?> gameConfigurationFuture;
   late final Future<IMap<RoleType, ({RoleConfiguration config, int count})>?>
   roleConfigurationsFuture;
 
@@ -513,7 +535,15 @@ class _CopiedGameScreenState extends State<_CopiedGameScreen> {
       playerNamesFuture = Future.value(null);
     }
 
-    if (widget.copyPlayers && widget.copyRoles) {
+    if (widget.copyConfiguration) {
+      gameConfigurationFuture = db.gamesDao
+          .getGameConfiguration(widget.gameId)
+          .getSingleOrNull();
+    } else {
+      gameConfigurationFuture = Future.value(null);
+    }
+
+    if (widget.copyRoles) {
       roleConfigurationsFuture = db.gamesDao
           .getRolesForGame(widget.gameId)
           .then((roles) => roles.lock);
@@ -525,7 +555,11 @@ class _CopiedGameScreenState extends State<_CopiedGameScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: (playerNamesFuture, roleConfigurationsFuture).wait,
+      future: (
+        playerNamesFuture,
+        gameConfigurationFuture,
+        roleConfigurationsFuture,
+      ).wait,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Scaffold(
@@ -542,13 +576,14 @@ class _CopiedGameScreenState extends State<_CopiedGameScreen> {
           );
         }
 
-        final playerNames = snapshot.data!.$1;
-        final roleConfigurations = snapshot.data!.$2;
+        final (playerNames, gameConfiguration, roleConfigurations) =
+            snapshot.data!;
 
         return GameView(
           gameSetup: Either.left(
             IncompleteGameSetup(
               players: playerNames,
+              gameConfiguration: gameConfiguration,
               roleConfigurations: roleConfigurations,
             ),
           ),
@@ -568,41 +603,14 @@ class _ResumeGameScreen extends StatefulWidget {
 }
 
 class _ResumeGameScreenState extends State<_ResumeGameScreen> {
-  late final Future<({GameState gameState, GameSetupResult setupResult})>
+  late final Future<(GameState gameState, GameSetupResult setupResult)>
   preparedGameFuture;
 
   @override
   void initState() {
     super.initState();
 
-    final db = Provider.of<AppDatabase>(context, listen: false);
-
-    preparedGameFuture =
-        (
-          db.gamesDao.getOrderedPlayerNamesForGame(widget.gameId).get(),
-          db.gamesDao.getRolesForGame(widget.gameId),
-        ).wait.then((results) async {
-          final playerNames = results.$1;
-          final roleConfigurations = results.$2;
-
-          assert(
-            playerNames.isNotEmpty,
-            'Game with id ${widget.gameId} not found',
-          );
-
-          final gameState = await GameState.fromDatabase(
-            id: widget.gameId,
-            playerNames: playerNames.map((value) => value.name).toIList(),
-            roleConfigurations: roleConfigurations.lock,
-          );
-          final setupResult = GameSetupResult(
-            id: widget.gameId,
-            players: playerNames.map((value) => value.name).toIList(),
-            selectedRoles: roleConfigurations.lock,
-          );
-
-          return (gameState: gameState, setupResult: setupResult);
-        });
+    preparedGameFuture = GameState.fromDatabase(widget.gameId);
   }
 
   @override
@@ -625,7 +633,7 @@ class _ResumeGameScreenState extends State<_ResumeGameScreen> {
           );
         }
 
-        final (:gameState, :setupResult) = snapshot.data!;
+        final (gameState, setupResult) = snapshot.data!;
 
         return GameView(
           preparedGameState: gameState,

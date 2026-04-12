@@ -1,9 +1,9 @@
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
-import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
-import 'package:werewolf_narrator/game/model/role_config.dart'
+import 'package:werewolf_narrator/game/model/configuration_options.dart'
     show RoleConfiguration;
+import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 
 part 'remove_unassigned_roles.mapper.dart';
 

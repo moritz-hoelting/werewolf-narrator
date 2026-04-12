@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart'
     show DriftNativeOptions, DriftWebOptions, driftDatabase;
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart' show ChangeNotifier;
 import 'package:path_provider/path_provider.dart'
     show getApplicationSupportDirectory;
@@ -60,6 +61,12 @@ JsonTypeConverter2<Map<String, dynamic>, Uint8List, Object?> jsonMapConverter =
       fromJson: (json) => json as Map<String, dynamic>,
       toJson: (pref) => pref,
     );
+
+JsonTypeConverter2<IMap<String, dynamic>, Uint8List, Object?>
+jsonIMapConverter = TypeConverter.jsonb(
+  fromJson: (json) => (json as Map<String, dynamic>).toIMap(),
+  toJson: (pref) => pref.unlockView,
+);
 
 class AppDatabaseHolder extends ChangeNotifier {
   AppDatabaseHolder._([this.executor]);

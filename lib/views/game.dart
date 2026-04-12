@@ -30,10 +30,16 @@ class _GameViewState extends State<GameView> {
       (incompleteGameSetup) {
         return GameSetupView(
           initialPlayers: incompleteGameSetup.players,
+          initialGameConfiguration: incompleteGameSetup.gameConfiguration,
           initialRoleConfigurations: incompleteGameSetup.roleConfigurations,
           setPlayers: (players) {
             setState(() {
               incompleteGameSetup.players = players;
+            });
+          },
+          setGameConfiguration: (gameConfiguration) {
+            setState(() {
+              incompleteGameSetup.gameConfiguration = gameConfiguration;
             });
           },
           setRoles: (roleConfigurations) {
@@ -72,7 +78,8 @@ class _RunningGameView extends StatelessWidget {
           GameState(
             id: setupResult.id,
             playerNames: setupResult.players,
-            roleConfigurations: setupResult.selectedRoles,
+            gameConfiguration: setupResult.gameConfiguration,
+            roleConfigurations: setupResult.roleConfigurations,
           ),
       child: Consumer<GameState>(
         builder: (context, gameState, child) {

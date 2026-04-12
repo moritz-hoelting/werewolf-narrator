@@ -9,10 +9,10 @@ import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -63,7 +63,7 @@ class WitchRole extends Role {
     );
   }
 
-  static final IList<RoleOption> options = IList([
+  static final IList<ConfigurationOption> options = IList([
     IntOption(
       id: healPotionOptionId,
       label: (context) =>

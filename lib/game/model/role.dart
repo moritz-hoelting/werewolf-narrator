@@ -7,7 +7,7 @@ import 'package:flutter/material.dart' show BuildContext;
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
@@ -151,7 +151,7 @@ class RegisterRoleInformation<T extends Role> {
   /// List of configuration options for this role.
   ///
   /// This is used to display the options in the UI and to pass the selected options to the role constructor.
-  final IList<RoleOption> options;
+  final IList<ConfigurationOption> options;
 
   /// The initializer function for this role.
   final void Function(GameState gameState)? initialize;

@@ -132,7 +132,7 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                 ),
                 onPressed: validateNames() ? submit : null,
                 label: Text(
-                  localizations.screen_createPlayers_chooseRolesButtonLabel,
+                  localizations.screen_createPlayers_configureGameButtonLabel,
                 ),
                 icon: const Icon(Icons.arrow_forward),
               ),

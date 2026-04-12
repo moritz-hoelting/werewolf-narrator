@@ -1,7 +1,7 @@
 import 'package:deepcopy/deepcopy.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
-import 'package:werewolf_narrator/game/model/role_config.dart';
 
 class RoleOptionsDialog extends StatefulWidget {
   const RoleOptionsDialog({

@@ -6,11 +6,11 @@ import 'package:werewolf_narrator/game/commands/fill_villager_roles.dart'
     show FillVillagerRolesCommand;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart'
+    show GameConfiguration, RoleConfiguration;
 import 'package:werewolf_narrator/game/model/death_information.dart';
 import 'package:werewolf_narrator/game/model/player.dart';
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
-import 'package:werewolf_narrator/game/model/role_config.dart'
-    show RoleConfiguration;
 import 'package:werewolf_narrator/game/model/team.dart'
     show TeamManager, TeamType;
 import 'package:werewolf_narrator/game/model/win_condition.dart'
@@ -31,6 +31,7 @@ class GameData {
   GameData({
     required this.state,
     required Iterable<String> playerNames,
+    required this.gameConfiguration,
     required this.roleConfigurations,
   }) : players = playerNames.map((name) => Player(name: name)).toList(),
        teams = Map.fromEntries(
@@ -83,6 +84,9 @@ class GameData {
   final Map<RoleType, ({int count, RoleConfiguration config})>
   roleConfigurations;
 
+  /// The game configuration, storing arbitrary configuration options.
+  final GameConfiguration gameConfiguration;
+
   /// Whether the game starts with a day phase (instead of night).
   final bool startGameWithDay;
 
@@ -134,7 +138,7 @@ class GameData {
 
   int? dynamicActionIndex;
 
-  CheckRolesData checkRolesData;
+  late final CheckRolesData checkRolesData;
 
   int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;

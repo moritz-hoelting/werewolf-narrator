@@ -5,9 +5,9 @@ import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/database/player_names.dart' show PlayerNames;
 import 'package:werewolf_narrator/game/game_command.dart'
     show GameCommand, GameCommandMapper;
+import 'package:werewolf_narrator/game/model/configuration_options.dart'
+    show GameConfiguration, RoleConfiguration;
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
-import 'package:werewolf_narrator/game/model/role_config.dart'
-    show RoleConfiguration;
 import 'package:werewolf_narrator/game/model/win_condition.dart'
     show WinCondition, WinConditionMapper;
 
@@ -19,6 +19,7 @@ class Games extends Table {
   DateTimeColumn get startedAt =>
       dateTime().clientDefault(() => DateTime.now())();
   DateTimeColumn get endedAt => dateTime().nullable()();
+  BlobColumn get configuration => blob().map(jsonIMapConverter)();
   BlobColumn get winner => blob().map(winnerBinaryConverter).nullable()();
   BoolColumn get archived => boolean().withDefault(const Constant(false))();
 
@@ -101,13 +102,14 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
 
   Future<int> createGame(
     IList<String> playerNames,
+    GameConfiguration config,
     IMap<RoleType, ({Map<String, dynamic> config, int count})>
     rolesWithCountAndConfig,
   ) => transaction(() async {
     // Insert game and get id
-    final id = await into(
-      games,
-    ).insertReturning(const GamesCompanion()).then((game) => game.id);
+    final id = await into(games)
+        .insertReturning(GamesCompanion.insert(configuration: config))
+        .then((game) => game.id);
 
     // Insert player names and get their ids
     final playerNamesIds = await attachedDatabase.playerNamesDao.insertNames(
@@ -237,6 +239,11 @@ class GamesDao extends DatabaseAccessor<AppDatabase> with _$GamesDaoMixin {
         )
         .get(),
   );
+
+  SingleOrNullSelectable<GameConfiguration> getGameConfiguration(int gameId) =>
+      (select(
+        games,
+      )..where((tbl) => tbl.id.equals(gameId))).map((row) => row.configuration);
 
   Future<void> insertCommandBatch(
     int gameId,

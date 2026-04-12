@@ -5,11 +5,23 @@ import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart'
+    show BoolOption;
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
 
 part 'sheriff.mapper.dart';
+
+final sheriffEnabledOption = BoolOption(
+  id: 'enableSheriff',
+  label: (context) =>
+      AppLocalizations.of(context).configurationOption_enableSheriff_label,
+  description: (context) => AppLocalizations.of(
+    context,
+  ).configurationOption_enableSheriff_description,
+  defaultValue: true,
+);
 
 class SheriffElectionScreen extends StatelessWidget {
   const SheriffElectionScreen({required this.onComplete, super.key});

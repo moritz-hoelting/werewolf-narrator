@@ -142,6 +142,10 @@
     "@screen_gamesOverview_cloneGame_players": {
         "description": "Option for the copy game dialog to copy the players from the original game"
     },
+    "screen_gamesOverview_cloneGame_configuration": "Same configuration",
+    "@screen_gamesOverview_cloneGame_configuration": {
+        "description": "Option for the copy game dialog to copy the configuration from the original game"
+    },
     "screen_gamesOverview_cloneGame_roles": "Same roles",
     "@screen_gamesOverview_cloneGame_roles": {
         "description": "Option for the copy game dialog to copy the roles from the original game"
@@ -256,10 +260,6 @@
     "@screen_createPlayers_addPlayer": {
         "description": "Button label to add a new player"
     },
-    "screen_createPlayers_chooseRolesButtonLabel": "Choose roles",
-    "@screen_createPlayers_chooseRolesButtonLabel": {
-        "description": "Button label to proceed to role selection"
-    },
     "screen_createPlayers_playerNumberInputLabel": "Player {number} Name",
     "@screen_createPlayers_playerNumberInputLabel": {
         "description": "Label for the input field to enter a player's name",
@@ -287,6 +287,18 @@
                 "example": "Alice"
             }
         }
+    },
+    "screen_createPlayers_configureGameButtonLabel": "Configure Game",
+    "@screen_createPlayers_configureGameButtonLabel": {
+        "description": "Button label to proceed to game configuration"
+    },
+    "screen_configureGame_title": "Configure Game",
+    "@screen_configureGame_title": {
+        "description": "Title for the game configuration screen"
+    },
+    "screen_configureGame_chooseRolesButtonLabel": "Choose roles",
+    "@screen_configureGame_chooseRolesButtonLabel": {
+        "description": "Button label to proceed to role selection"
     },
     "screen_chooseRoles_startButton": "Start Game!",
     "@screen_chooseRoles_startButton": {
@@ -1073,6 +1085,14 @@
     "team_werewolves_deathReason": "Killed by Werewolves",
     "@team_werewolves_deathReason": {
         "description": "Reason for death: killed by werewolves"
+    },
+    "configurationOption_enableSheriff_label": "Enable Sheriff",
+    "@configurationOption_enableSheriff_label": {
+        "description": "Label for the option to enable the sheriff election"
+    },
+    "configurationOption_enableSheriff_description": "Whether to include the sheriff in the game. During village votes, the sheriff''s vote counts as two.",
+    "@configurationOption_enableSheriff_description": {
+        "description": "Description for the option to enable the sheriff role"
     },
     "lovers_winHeadline": "The Lovers have won!",
     "@lovers_winHeadline": {

@@ -1,8 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
+import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/role.dart'
     show RoleManager, RoleType;
-import 'package:werewolf_narrator/game/model/role_config.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 class RolesOverviewScreen extends StatelessWidget {
@@ -135,7 +135,7 @@ class RoleInfoDialog extends StatelessWidget {
 class RoleInfoSettings extends StatelessWidget {
   const RoleInfoSettings({required this.options, super.key});
 
-  final IList<RoleOption> options;
+  final IList<ConfigurationOption> options;
 
   @override
   Widget build(BuildContext context) {
