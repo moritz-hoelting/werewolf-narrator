@@ -12,6 +12,7 @@ import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/fast_immutable_collections.dart';
 import 'package:werewolf_narrator/util/settings.dart';
+import 'package:werewolf_narrator/views/error_loading_db.dart';
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/games_overview.dart';
 import 'package:werewolf_narrator/views/roles_overview.dart';
@@ -25,19 +26,34 @@ void main() async {
 
   // Preload settings
   final dbHolder = AppDatabaseHolder();
-  unawaited(DeveloperSettings.init(dbHolder));
-  await AppSettings.init(dbHolder);
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => dbHolder,
-      builder: (context, child) =>
-          ProxyProvider<AppDatabaseHolder, AppDatabase>(
-            update: (context, holder, previous) => holder.database,
-            child: const WerewolfNarratorApp(),
-          ),
-    ),
-  );
+  var errorLoadingDb = false;
+  try {
+    await AppSettings.init(dbHolder);
+    unawaited(DeveloperSettings.init(dbHolder));
+  } catch (e) {
+    errorLoadingDb = true;
+    // ignore: avoid_print
+    print('Error initializing database: $e');
+    runApp(
+      MaterialApp(
+        home: ErrorLoadingDb(error: e, dbHolder: dbHolder),
+      ),
+    );
+  }
+
+  if (!errorLoadingDb) {
+    runApp(
+      ChangeNotifierProvider(
+        create: (context) => dbHolder,
+        builder: (context, child) =>
+            ProxyProvider<AppDatabaseHolder, AppDatabase>(
+              update: (context, holder, previous) => holder.database,
+              child: const WerewolfNarratorApp(),
+            ),
+      ),
+    );
+  }
 }
 
 class WerewolfNarratorApp extends StatelessWidget {
