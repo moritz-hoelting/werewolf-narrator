@@ -138,7 +138,7 @@ class GameData {
 
   int? dynamicActionIndex;
 
-  late final CheckRolesData checkRolesData;
+  CheckRolesData checkRolesData;
 
   int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;

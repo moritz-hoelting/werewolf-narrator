@@ -48,7 +48,8 @@ class GameState extends ChangeNotifier {
   /// Frames for the currently applied commands, used for handling nested command applications.
   final List<_AppliedCommandFrame> _frameStack = [];
 
-  void _apply(GameCommand command) {
+  /// Returns whether applying is nested inside a command execution
+  bool _apply(GameCommand command) {
     final previousStack = _frameStack.lastOrNull;
     if (previousStack != null) {
       previousStack.add(command);
@@ -64,11 +65,15 @@ class GameState extends ChangeNotifier {
     } else {
       _frameStack.last.addFrame(currentStackEntry);
     }
+
+    return previousStack != null;
   }
 
   void apply(GameCommand command) {
-    _apply(command);
-    _redoCommandStack.clear();
+    final nestedApply = _apply(command);
+    if (!nestedApply) {
+      _redoCommandStack.clear();
+    }
     notifyListeners();
   }
 
