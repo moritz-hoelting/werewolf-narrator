@@ -4,8 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
-import 'package:werewolf_narrator/util/flavors.dart'
-    show appFlavor, isProdAppFlavor;
+import 'package:werewolf_narrator/util/flavors.dart' show appFlavor;
 import 'package:werewolf_narrator/widgets/settings/funding_button.dart';
 import 'package:werewolf_narrator/widgets/settings/version_display.dart';
 
@@ -29,7 +28,7 @@ class AppInfoDisplay extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.widgets),
               title: Text(
-                isProdAppFlavor
+                appFlavor.isProd
                     ? localizations.appTitle
                     : '${localizations.appTitle} ($appFlavor)',
               ),
