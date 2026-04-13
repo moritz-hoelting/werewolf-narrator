@@ -5,6 +5,11 @@ default_device := `flutter devices --machine | jq -r '(map(select(.id == "chrome
 default_dev_flavor := "dev"
 default_build_flavor := "prod"
 
+alias t := test
+alias a := analyze
+alias r := run
+alias g := generate
+
 [private]
 default:
     @just --list
@@ -45,11 +50,12 @@ analyze:
 run device=default_device flavor=default_dev_flavor *args:
     flutter run --device-id={{device}} \
         --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} \
-        {{if flavor == "" { "" } else { f"--flavor={{flavor}} --dart-define=FLAVOR={{flavor}}" }}} \
+        {{if flavor == "" { "" } else { "--flavor=" + flavor + " --dart-define=FLAVOR=" + flavor }}} \
         {{if device == "chrome" { "--web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp" } else { "" }}} \
         {{args}}
 
 # Build the app for a specified executable
+[private]
 [arg("executable", help="The executable to build.")]
 [group("build")]
 build executable *args:
@@ -70,6 +76,11 @@ build-split-apk flavor=default_build_flavor *args: (build-apk flavor "--split-pe
 [group("build")]
 build-appbundle flavor=default_build_flavor *args: (build "appbundle" f"--flavor={{flavor}}" args)
 
+# Build linux app
+[arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
+[group("build")]
+build-linux flavor=default_build_flavor *args: (build "linux" f"--dart-define=FLAVOR={{flavor}}" args)
+
 # Build web app with WASM enabled
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
@@ -89,3 +100,13 @@ build-macos flavor=default_build_flavor *args: (build "macos" f"--flavor={{flavo
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
 build-windows flavor=default_build_flavor *args: (build "windows" f"--dart-define=FLAVOR={{flavor}}" args)
+
+# Launch the built linux app
+[group("preview")]
+preview-linux:
+    ./build/linux/x64/release/bundle/werewolf_narrator
+
+# Launch the built web app using miniserve with appropriate headers for COOP and COEP
+[group("preview")]
+preview-web:
+    miniserve ./build/web/ --index index.html --header="Cross-Origin-Opener-Policy:same-origin" --header="Cross-Origin-Embedder-Policy:require-corp"

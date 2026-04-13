@@ -89,6 +89,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.1"
+  builders:
+    dependency: "direct dev"
+    description:
+      path: "tools/builders"
+      relative: true
+    source: path
+    version: "0.1.0"
   built_collection:
     dependency: transitive
     description:
@@ -851,13 +858,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.9"
-  tools:
-    dependency: "direct dev"
-    description:
-      path: tools
-      relative: true
-    source: path
-    version: "0.1.0"
   type_plus:
     dependency: transitive
     description:
@@ -1021,7 +1021,7 @@ packages:
   werewolf_annotations:
     dependency: "direct main"
     description:
-      path: annotations
+      path: "tools/annotations"
       relative: true
     source: path
     version: "0.1.0"

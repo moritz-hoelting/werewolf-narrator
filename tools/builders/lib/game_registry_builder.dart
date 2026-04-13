@@ -18,16 +18,18 @@ class RegistryCollectorBuilder implements Builder {
     '.dart': ['.registry.json'],
   };
 
-  static final _checkerRole = TypeChecker.typeNamed(RegisterRole);
-  static final _checkerTeam = TypeChecker.typeNamed(RegisterTeam);
-  static final _checkerMappableClass = TypeChecker.typeNamed(MappableClass);
+  static const _checkerRole = TypeChecker.typeNamed(RegisterRole);
+  static const _checkerTeam = TypeChecker.typeNamed(RegisterTeam);
+  static const _checkerMappableClass = TypeChecker.typeNamed(MappableClass);
 
   @override
   Future<void> build(BuildStep buildStep) async {
     final input = buildStep.inputId;
 
     // Skip generated files
-    if (input.path.contains('.g.dart')) return;
+    if (input.path.contains('.g.dart') || input.path.contains('.mapper.dart')) {
+      return;
+    }
 
     final library = await buildStep.resolver.libraryFor(input);
     final reader = LibraryReader(library);
