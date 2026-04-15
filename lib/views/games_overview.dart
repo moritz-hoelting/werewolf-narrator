@@ -10,6 +10,7 @@ import 'package:werewolf_narrator/game/game_state.dart' show GameState;
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/views/game.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart'
     show GameSetupResult, IncompleteGameSetup;
@@ -218,6 +219,8 @@ class _GameTile extends StatelessWidget {
 
                 if (result == null) return;
 
+                logger.info('Cloning game ${game.id} with options: $result');
+
                 await navigator.push(
                   MaterialPageRoute(
                     builder: (context) => _CopiedGameScreen(
@@ -248,6 +251,7 @@ class _GameTile extends StatelessWidget {
   }
 
   void _resumeGame(BuildContext context, int gameId) {
+    logger.info('Resuming game $gameId');
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => _ResumeGameScreen(gameId: gameId),
@@ -263,6 +267,9 @@ class _GameTile extends StatelessWidget {
   }
 
   void _toggleGameArchived(BuildContext context) {
+    logger.info(
+      'Toggling archived status for game ${game.id} to ${!game.archived}',
+    );
     Provider.of<AppDatabase>(
       context,
       listen: false,
@@ -294,6 +301,7 @@ class _GameTile extends StatelessWidget {
     );
 
     if (answer == true && context.mounted) {
+      logger.info('Deleting game ${game.id}');
       unawaited(
         Provider.of<AppDatabase>(
           context,
@@ -455,22 +463,21 @@ class _CopyGameDialogState extends State<_CopyGameDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CheckboxListTile(
+          SwitchListTile(
             value: copyPlayers,
-            onChanged: (value) => setState(() => copyPlayers = value ?? false),
+            onChanged: (value) => setState(() => copyPlayers = value),
             title: Text(localizations.screen_gamesOverview_cloneGame_players),
           ),
-          CheckboxListTile(
+          SwitchListTile(
             value: copyConfiguration,
-            onChanged: (value) =>
-                setState(() => copyConfiguration = value ?? false),
+            onChanged: (value) => setState(() => copyConfiguration = value),
             title: Text(
               localizations.screen_gamesOverview_cloneGame_configuration,
             ),
           ),
-          CheckboxListTile(
+          SwitchListTile(
             value: copyRoles,
-            onChanged: (value) => setState(() => copyRoles = value ?? false),
+            onChanged: (value) => setState(() => copyRoles = value),
             title: Text(localizations.screen_gamesOverview_cloneGame_roles),
           ),
         ],

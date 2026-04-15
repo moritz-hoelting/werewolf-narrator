@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:werewolf_narrator/database/database.dart';
 import 'package:werewolf_narrator/database/settings.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 
 final class AppSettings extends ChangeNotifier {
   static late final AppSettings instance;
@@ -51,6 +52,7 @@ final class AppSettings extends ChangeNotifier {
   set themeMode(ThemeMode mode) {
     if (_themeMode != mode) {
       _themeMode = mode;
+      logger.info('Setting theme mode to $mode');
       notifyListeners();
 
       _dao.setSetting(_themeModeKey, mode.name, SettingsType.enumType);
@@ -60,6 +62,7 @@ final class AppSettings extends ChangeNotifier {
   set dynamicGameTheme(bool value) {
     if (_dynamicGameTheme != value) {
       _dynamicGameTheme = value;
+      logger.info('Setting dynamic game theme to $value');
       notifyListeners();
 
       _dao.setSetting(_dynamicGameThemeKey, value, SettingsType.bool);
@@ -69,6 +72,7 @@ final class AppSettings extends ChangeNotifier {
   set minPlayers(int value) {
     if (_minPlayers != value) {
       _minPlayers = value;
+      logger.info('Setting minimum players to $value');
       notifyListeners();
 
       _dao.setSetting(_minPlayersKey, value, SettingsType.int);
@@ -78,6 +82,7 @@ final class AppSettings extends ChangeNotifier {
   set locale(Locale? newLocale) {
     if (_locale != newLocale) {
       _locale = newLocale;
+      logger.info('Setting locale to $newLocale');
       notifyListeners();
 
       if (newLocale != null) {

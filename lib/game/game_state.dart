@@ -25,6 +25,7 @@ import 'package:werewolf_narrator/game/team/team.dart' show Team;
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
     show DynamicActionEntry;
 import 'package:werewolf_narrator/game/util/hooks.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/views/game/check_roles_screen.dart'
     show CheckRolesData;
 import 'package:werewolf_narrator/views/game/game_setup.dart'
@@ -51,6 +52,9 @@ class GameState extends ChangeNotifier {
   /// Returns whether applying is nested inside a command execution
   bool _apply(GameCommand command) {
     final previousStack = _frameStack.lastOrNull;
+    logger.debug(
+      'Applying command: $command${_frameStack.isNotEmpty ? ' (nested of depth ${_frameStack.length})' : ''}',
+    );
     if (previousStack != null) {
       previousStack.add(command);
     }
@@ -99,6 +103,8 @@ class GameState extends ChangeNotifier {
   void finishBatch([GameCommand? finalCommand]) {
     final commandsInBatch = _finishBatch(finalCommand);
 
+    logger.info('Finished batch of ${commandsInBatch.length} commands');
+
     notifyListeners();
 
     final db = AppDatabaseHolder().database;
@@ -114,6 +120,9 @@ class GameState extends ChangeNotifier {
   }
 
   void undoBatch() {
+    logger.info(
+      'Undoing batch, commands to undo: ${[..._batchedCommandStack.reversed, ...(_batchedCommandStack.lastOrNull?.reversed.unlockView ?? [])]}',
+    );
     final batchStackLength = _batchedCommandStack.length;
     for (final entry in _currentCommandStack.reversed) {
       entry.undo(_data);
@@ -153,6 +162,7 @@ class GameState extends ChangeNotifier {
   void redoBatch() {
     final batchStackLength = _batchedCommandStack.length;
     final IList<GameCommand> redoCommands = _redoCommandStack.removeLast();
+    logger.info('Redoing batch, commands to redo: $redoCommands');
     for (final command in redoCommands) {
       _apply(command);
     }

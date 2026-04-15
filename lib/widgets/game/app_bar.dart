@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:werewolf_narrator/game/game_state.dart' show GameState;
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/widgets/game/leave_game_dialog.dart';
 import 'package:werewolf_narrator/widgets/game/redo_button.dart';
 import 'package:werewolf_narrator/widgets/game/undo_button.dart';
@@ -35,6 +38,11 @@ class GameAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
 
               if (answer == true && context.mounted) {
+                final gameState = Provider.of<GameState>(
+                  context,
+                  listen: false,
+                );
+                logger.info('Leaving game ${gameState.id}');
                 Navigator.of(context).pop();
               }
             },

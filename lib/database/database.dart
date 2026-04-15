@@ -13,6 +13,8 @@ import 'package:werewolf_narrator/database/player_names.dart'
 import 'package:werewolf_narrator/database/settings.dart';
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/win_condition.dart';
+import 'package:werewolf_narrator/util/logging.dart'
+    show TalkerQueryInterceptor, logger;
 
 part 'database.g.dart';
 
@@ -23,6 +25,18 @@ const DriftNativeOptions nativeOptions = DriftNativeOptions(
 final DriftWebOptions webOptions = DriftWebOptions(
   sqlite3Wasm: Uri.parse('sqlite3.wasm'),
   driftWorker: Uri.parse('drift_worker.js'),
+  onResult: (result) {
+    if (result.chosenImplementation.storageApi == null) {
+      logger.warning(
+        'No persistent storage API is available, data will not be persisted across sessions.',
+      );
+    } else if (result.missingFeatures.isNotEmpty) {
+      logger.info(
+        'Using ${result.chosenImplementation} due to missing browser '
+        'features: ${result.missingFeatures}',
+      );
+    }
+  },
 );
 
 QueryExecutor _connectWithDriftFlutter() =>
@@ -92,8 +106,11 @@ class AppDatabaseHolder extends ChangeNotifier {
     super.dispose();
   }
 
-  AppDatabase _openDatabase() =>
-      AppDatabase.open(executor ?? _connectWithDriftFlutter());
+  AppDatabase _openDatabase() => AppDatabase.open(
+    (executor ?? _connectWithDriftFlutter()).interceptWith(
+      TalkerQueryInterceptor(logger),
+    ),
+  );
 
   /// Recreates the entire database, no undo possible
   Future<void> recreateDatabase() async {

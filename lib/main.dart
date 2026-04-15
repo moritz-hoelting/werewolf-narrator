@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 import 'package:werewolf_narrator/database/database.dart'
     show AppDatabase, AppDatabaseHolder;
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
@@ -11,6 +13,8 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/fast_immutable_collections.dart';
+import 'package:werewolf_narrator/util/flavors.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/error_loading_db.dart';
 import 'package:werewolf_narrator/views/game.dart';
@@ -24,6 +28,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   GameRegistry.ensureInitialized();
 
+  FlutterError.onError = (FlutterErrorDetails details) {
+    logger.handle(
+      details.exception,
+      details.stack,
+      'Flutter error in library ${details.library}',
+    );
+    if (kDebugMode || !appFlavor.isProd) {
+      FlutterError.presentError(details);
+    }
+  };
+
   // Preload settings
   final dbHolder = AppDatabaseHolder();
 
@@ -31,10 +46,9 @@ void main() async {
   try {
     await AppSettings.init(dbHolder);
     unawaited(DeveloperSettings.init(dbHolder));
-  } catch (e) {
+  } catch (e, st) {
     errorLoadingDb = true;
-    // ignore: avoid_print
-    print('Error initializing database: $e');
+    logger.handle(e, st, 'Error initializing database');
     runApp(
       MaterialApp(
         home: ErrorLoadingDb(error: e, dbHolder: dbHolder),
@@ -78,7 +92,11 @@ class WerewolfNarratorApp extends StatelessWidget {
         ],
         supportedLocales: AppLocalizations.supportedLocales,
         locale: settings.locale,
-        home: const HomePage(),
+        home: TalkerWrapper(
+          talker: logger,
+          options: const TalkerWrapperOptions(enableErrorAlerts: true),
+          child: const HomePage(),
+        ),
       ),
     ),
   );

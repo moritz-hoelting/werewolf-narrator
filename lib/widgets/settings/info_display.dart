@@ -5,7 +5,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/pubspec_info.g.dart';
 import 'package:werewolf_narrator/util/flavors.dart' show appFlavor;
+import 'package:werewolf_narrator/util/logging.dart'
+    show LoggerExtensions, logger;
 import 'package:werewolf_narrator/widgets/settings/funding_button.dart';
+import 'package:werewolf_narrator/widgets/settings/talker_screen.dart'
+    show AppTalkerScreen;
 import 'package:werewolf_narrator/widgets/settings/version_display.dart';
 
 class AppInfoDisplay extends StatelessWidget {
@@ -63,6 +67,25 @@ class AppInfoDisplay extends StatelessWidget {
             ),
 
             VersionDisplay(packageInfo: packageInfo),
+
+            // Only show logger if there are logs that are warnings or errors, to avoid confusing users with debug logs
+            if (logger.hasLogsRelevantToUser)
+              ListTile(
+                leading: Badge.count(
+                  count: logger.relevantUserLogCount,
+                  child: const Icon(Icons.monitor_heart_outlined),
+                ),
+                title: Text(localizations.screen_settings_showLogs),
+                subtitle: Text(
+                  localizations.screen_settings_showLogs_description,
+                ),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AppTalkerScreen(),
+                  ),
+                ),
+              ),
 
             const SizedBox(height: 24),
 

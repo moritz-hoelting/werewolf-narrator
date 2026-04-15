@@ -100,7 +100,7 @@ class SettingsDisplay extends StatelessWidget {
         ),
 
         // Dynamic Game Theme
-        CheckboxListTile(
+        SwitchListTile(
           title: Text(localizations.screen_settings_dynamicGameTheme),
           secondary: const Icon(Icons.brightness_auto),
           subtitle: Text(
@@ -108,9 +108,7 @@ class SettingsDisplay extends StatelessWidget {
           ),
           value: settings.dynamicGameTheme,
           onChanged: (value) {
-            if (value != null) {
-              settings.dynamicGameTheme = value;
-            }
+            settings.dynamicGameTheme = value;
           },
         ),
 

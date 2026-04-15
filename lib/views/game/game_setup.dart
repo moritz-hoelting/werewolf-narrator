@@ -6,6 +6,7 @@ import 'package:werewolf_narrator/game/model/configuration_options.dart'
     show GameConfiguration, RoleConfiguration;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
+import 'package:werewolf_narrator/util/logging.dart';
 import 'package:werewolf_narrator/util/settings.dart' show AppSettings;
 import 'package:werewolf_narrator/views/game/choose_roles_screen.dart';
 import 'package:werewolf_narrator/views/game/configure_game_screen.dart'
@@ -96,6 +97,7 @@ class _GameSetupViewState extends State<GameSetupView> {
   };
 
   void submitCreatePlayers(IList<String> createdPlayers) {
+    logger.info('Submitting created players: $createdPlayers');
     setState(() {
       step = GameSetupStep.configureGame;
       players = createdPlayers;
@@ -103,6 +105,7 @@ class _GameSetupViewState extends State<GameSetupView> {
   }
 
   void submitCreateGameConfiguration(GameConfiguration config) {
+    logger.info('Submitting game configuration: $config');
     setState(() {
       step = GameSetupStep.chooseRoles;
       gameConfiguration = config;
@@ -112,6 +115,7 @@ class _GameSetupViewState extends State<GameSetupView> {
   Future<void> submitChooseRoles(
     IMap<RoleType, ({Map<String, dynamic> config, int count})> selectedRoles,
   ) async {
+    logger.info('Submitting chosen roles: $selectedRoles for game.');
     final gameId = await Provider.of<AppDatabase>(context, listen: false)
         .gamesDao
         .createGame(

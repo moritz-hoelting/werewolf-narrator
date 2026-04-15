@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/game_data.dart'
     show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/themes.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/views/game/deaths_screen.dart';
 import 'package:werewolf_narrator/views/game/game_setup.dart';
 import 'package:werewolf_narrator/views/game/phase_manager_screen.dart';
@@ -105,6 +106,7 @@ class _RunningGameView extends StatelessWidget {
                   );
 
                   if (answer == true && context.mounted) {
+                    logger.info('Leaving game ${gameState.id}');
                     Navigator.of(context).pop();
                   }
                 },

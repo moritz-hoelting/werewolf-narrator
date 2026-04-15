@@ -244,9 +244,13 @@
             }
         }
     },
-    "screen_settings_about": "About",
-    "@screen_settings_about": {
-        "description": "Label for the button to show the about dialog"
+    "screen_settings_showLogs": "Show Logs",
+    "@screen_settings_showLogs": {
+        "description": "Label for the button to show the application logs"
+    },
+    "screen_settings_showLogs_description": "View application logs",
+    "@screen_settings_showLogs_description": {
+        "description": "Description for the show logs setting"
     },
     "screen_gameSetup_createPlayers_title": "Create Players",
     "@screen_gameSetup_createPlayers_title": {

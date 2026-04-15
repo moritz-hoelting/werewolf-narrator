@@ -134,15 +134,13 @@ class _BoolOptionWidgetState extends State<BoolOptionWidget> {
       widget.data[widget.option.id] ?? widget.option.defaultValue;
 
   @override
-  Widget build(BuildContext context) => CheckboxListTile(
+  Widget build(BuildContext context) => SwitchListTile(
     title: Text(widget.option.label(context)),
     subtitle: Text(widget.option.description(context)),
     value: checked,
     onChanged: (value) {
-      if (value != null) {
-        widget.data[widget.option.id] = value;
-        setState(() => checked = value);
-      }
+      widget.data[widget.option.id] = value;
+      setState(() => checked = value);
     },
   );
 }

@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   restart_app
+  share_plus
   url_launcher_windows
 )
 

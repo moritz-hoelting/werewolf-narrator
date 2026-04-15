@@ -12,6 +12,10 @@ import 'package:werewolf_narrator/util/consts.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/localization.dart';
 import 'package:werewolf_narrator/util/settings.dart';
+import 'package:werewolf_narrator/views/settings/developer_settings/logging_settings.dart'
+    show LogSettingsDialog;
+import 'package:werewolf_narrator/widgets/settings/talker_screen.dart'
+    show AppTalkerScreen;
 
 // At this point of time there is no incentive to add localization to developer
 // settings, as they are not intended to be used by regular users.
@@ -26,16 +30,14 @@ class DeveloperSettingsScreen extends StatelessWidget {
       child: Consumer<DeveloperSettings>(
         builder: (context, developerSettings, child) => ListView(
           children: [
-            CheckboxListTile(
+            SwitchListTile(
               title: const Text('Enabled'),
               subtitle: const Text(
                 'Uncheck to disable (and hide) developer settings',
               ),
               value: developerSettings.enabled,
               onChanged: (value) {
-                if (value != null) {
-                  developerSettings.enabled = value;
-                }
+                developerSettings.enabled = value;
               },
             ),
 
@@ -52,30 +54,45 @@ class DeveloperSettingsScreen extends StatelessWidget {
               ),
             ),
 
-            CheckboxListTile(
+            SwitchListTile(
               title: const Text('Autofill default player names'),
               subtitle: const Text(
                 'Players are named sequentially instead of being left blank',
               ),
               value: developerSettings.fillPlayerNames,
               onChanged: (value) {
-                if (value != null) {
-                  developerSettings.fillPlayerNames = value;
-                }
+                developerSettings.fillPlayerNames = value;
               },
             ),
 
-            CheckboxListTile(
+            SwitchListTile(
               title: const Text('Autofill villager roles'),
               subtitle: const Text(
                 'Remaining unassigned roles in the role distribution are filled with villager roles',
               ),
               value: developerSettings.fillVillagerRoles,
               onChanged: (value) {
-                if (value != null) {
-                  developerSettings.fillVillagerRoles = value;
-                }
+                developerSettings.fillVillagerRoles = value;
               },
+            ),
+
+            ListTile(
+              title: const Text('Logging'),
+              subtitle: const Text('View application logs'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AppTalkerScreen(),
+                ),
+              ),
+              trailing: IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const LogSettingsDialog(),
+                  );
+                },
+                icon: const Icon(Icons.settings),
+              ),
             ),
 
             ListTile(
@@ -196,7 +213,7 @@ class SettingsDisplay extends StatelessWidget {
             },
           ),
         ),
-        CheckboxListTile(
+        SwitchListTile(
           title: Text(localizations.screen_settings_dynamicGameTheme),
           secondary: const Icon(Icons.brightness_auto),
           subtitle: Text(
@@ -204,9 +221,7 @@ class SettingsDisplay extends StatelessWidget {
           ),
           value: settings.dynamicGameTheme,
           onChanged: (value) {
-            if (value != null) {
-              settings.dynamicGameTheme = value;
-            }
+            settings.dynamicGameTheme = value;
           },
         ),
         ListTile(

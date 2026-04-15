@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/developer_settings.dart';
+import 'package:werewolf_narrator/util/logging.dart' show logger;
 
 class VersionDisplay extends StatefulWidget {
   const VersionDisplay({required this.packageInfo, super.key});
@@ -34,6 +35,7 @@ class _VersionDisplayState extends State<VersionDisplay> {
             (time) => now.difference(time) > const Duration(seconds: 10),
           );
         } else if (_clickTimes.length >= 10) {
+          logger.info('Enabling developer settings');
           Provider.of<DeveloperSettings>(context, listen: false).enabled = true;
           _clickTimes.clear();
         } else if (_clickTimes.length == 5) {
