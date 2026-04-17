@@ -165,7 +165,11 @@ class OnAssignPyjamaPalCommand
     );
   }
 
-  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
+  bool deathHook(
+    GameState gameState,
+    int deadPlayerIndex,
+    DeathInformation information,
+  ) {
     final role = gameState.players[playerIndex].role as PyjamaPalRole;
     if (gameState.isNight) {
       if (role.sleepoverAtPlayer != null && deadPlayerIndex == playerIndex) {
@@ -180,7 +184,12 @@ class OnAssignPyjamaPalCommand
                 playerIndex: playerIndex,
                 sleepoverTargetIndex: null,
               ),
-              MarkDeadCommand.single(player: playerIndex, deathReason: reason),
+              MarkDeadCommand.single(
+                player: playerIndex,
+                deathReason: PyjamaPalSleepoverAtPlayerDeathReason(
+                  ISet(information.reason.responsiblePlayerIndices),
+                ),
+              ),
             ].lock,
           ),
         );
@@ -188,6 +197,22 @@ class OnAssignPyjamaPalCommand
     }
     return false;
   }
+}
+
+@MappableClass(discriminatorValue: 'pyjamaPalSleepoverAtPlayerDeath')
+class PyjamaPalSleepoverAtPlayerDeathReason
+    with PyjamaPalSleepoverAtPlayerDeathReasonMappable
+    implements DeathReason {
+  PyjamaPalSleepoverAtPlayerDeathReason(this.responsiblePlayers);
+
+  final ISet<int> responsiblePlayers;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).role_pyjamaPal_deathReason;
+
+  @override
+  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
 }
 
 @MappableClass(discriminatorValue: 'setPyjamaPalSleepoverTarget')

@@ -7,7 +7,7 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathInformation;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/witch.dart' show WitchRole;
@@ -112,7 +112,11 @@ class OnAssignPriestCommand
     gameData.deathHooks.remove(deathHook);
   }
 
-  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
+  bool deathHook(
+    GameState gameState,
+    int deadPlayerIndex,
+    DeathInformation information,
+  ) {
     final priest = gameState.players[playerIndex].role as PriestRole;
     return gameState.isNight && priest.blessedPlayers.contains(deadPlayerIndex);
   }

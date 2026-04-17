@@ -7,13 +7,13 @@ import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason, DeathReasonMapper;
+    show DeathInformation, DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/win_condition.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'lovers.mapper.dart';
 
-@MappableClass()
+@MappableClass(discriminatorValue: 'lovers')
 class Lovers with LoversMappable implements DeathReason, WinCondition {
   const Lovers(this.lovers);
 
@@ -71,8 +71,12 @@ class InitializeLoversCommand
     gameData.playerWinHooks.remove(playerWinHook);
   }
 
-  bool deathHook(GameState gameState, int playerIndex, DeathReason reason) {
-    if (reason is! Lovers && lovers.lovers.contains(playerIndex)) {
+  bool deathHook(
+    GameState gameState,
+    int playerIndex,
+    DeathInformation information,
+  ) {
+    if (information.reason is! Lovers && lovers.lovers.contains(playerIndex)) {
       final ISet<int> otherLovers = lovers.lovers.difference({playerIndex});
       gameState.apply(
         MarkDeadCommand(players: otherLovers, deathReason: lovers),

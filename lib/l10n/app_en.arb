@@ -786,6 +786,10 @@
     "@role_bodyguard_nightAction_instruction": {
         "description": "Instruction for the Bodyguard night action"
     },
+    "role_bodyguard_deathReason": "Killed while protecting someone",
+    "@role_bodyguard_deathReason": {
+        "description": "Reason for death: killed while protecting someone"
+    },
     "role_pyjamaPal_name": "Pyjama Pal",
     "@role_pyjamaPal_name": {
         "description": "Name of the Pyjama Pal role"
@@ -815,6 +819,10 @@
     "role_pyjamaPal_nightAction_instruction": "Choose a player to have a pyjama party at.",
     "@role_pyjamaPal_nightAction_instruction": {
         "description": "Instruction for the Pyjama Pal night action"
+    },
+    "role_pyjamaPal_deathReason": "Died at a pyjama party",
+    "@role_pyjamaPal_deathReason": {
+        "description": "Reason for death: died at a pyjama party"
     },
     "role_wildChild_name": "Wild Child",
     "@role_wildChild_name": {

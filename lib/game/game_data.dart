@@ -371,28 +371,47 @@ class GameData {
         .lock;
   }
 
-  /// Marks a player as dead with the given death reason.
-  void markPlayerDead(int playerIndex, DeathReason deathReason) {
+  void processPendingDeaths() {
+    for (final entry in _pendingDeaths.entries) {
+      final playerIndex = entry.key;
+      final deathInfos = entry.value;
+      for (final deathInfo in deathInfos) {
+        _markPlayerDead(playerIndex, deathInfo);
+      }
+    }
+    _pendingDeaths.clear();
+  }
+
+  void _markPlayerDead(int playerIndex, DeathInformation deathInformation) {
     if (_markDeadRecursionGuard.contains(playerIndex)) {
       return;
     }
     _markDeadRecursionGuard.add(playerIndex);
     var shouldDie = true;
     for (final hook in deathHooks) {
-      if (hook(state, playerIndex, deathReason)) {
+      if (hook(state, playerIndex, deathInformation)) {
         shouldDie = false;
       }
     }
     if (shouldDie) {
-      players[playerIndex].markDead(
-        DeathInformation(
-          reason: deathReason,
-          day: dayCounter,
-          atNight: isNight,
-        ),
-      );
+      players[playerIndex].markDead(deathInformation);
     }
     _markDeadRecursionGuard.remove(playerIndex);
+  }
+
+  /// Marks a player as dead with the given death reason.
+  void markPlayerDead(int playerIndex, DeathReason deathReason) {
+    final deathInformation = DeathInformation(
+      reason: deathReason,
+      day: dayCounter,
+      atNight: isNight,
+    );
+    if (isNight) {
+      _pendingDeaths[playerIndex] ??= [];
+      _pendingDeaths[playerIndex]!.add(deathInformation);
+    } else {
+      _markPlayerDead(playerIndex, deathInformation);
+    }
   }
 
   /// Marks a player as revived.

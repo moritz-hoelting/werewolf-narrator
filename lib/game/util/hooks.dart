@@ -8,7 +8,11 @@ import 'package:werewolf_narrator/game/model/win_condition.dart'
 typedef DawnHook = void Function(GameState gameState, int dayCount);
 
 typedef DeathHook =
-    bool Function(GameState gameState, int playerIndex, DeathReason reason);
+    bool Function(
+      GameState gameState,
+      int playerIndex,
+      DeathInformation deathInformation,
+    );
 
 typedef ReviveHook = bool Function(GameState gameState, int playerIndex);
 

@@ -126,7 +126,7 @@ class AssignDoctorCommand
   bool deathHook(
     GameState gameState,
     int deadPlayerIndex,
-    DeathReason reason,
+    DeathInformation information,
   ) =>
       gameState.isNight &&
       (gameState.players[playerIndex].role as DoctorRole).protectionTarget ==

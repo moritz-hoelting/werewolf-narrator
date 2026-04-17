@@ -10,7 +10,7 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathInformation, DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/doctor.dart'
@@ -71,12 +71,21 @@ class BodyguardRole extends Role {
     gameState.apply(OnAssignBodyguardCommand(playerIndex));
   }
 
-  bool deathHook(GameState gameState, int deadPlayerIndex, DeathReason reason) {
+  bool deathHook(
+    GameState gameState,
+    int deadPlayerIndex,
+    DeathInformation information,
+  ) {
     if (hasBeenAttacked &&
         deadPlayerIndex != playerIndex &&
         protectionTarget == deadPlayerIndex) {
       gameState.apply(
-        MarkDeadCommand.single(player: playerIndex, deathReason: reason),
+        MarkDeadCommand.single(
+          player: playerIndex,
+          deathReason: BodyguardProtectionDeathReason(
+            responsiblePlayers: ISet({protectionTarget!}),
+          ),
+        ),
       );
     }
     if (gameState.isNight &&
@@ -91,7 +100,12 @@ class BodyguardRole extends Role {
         gameState.apply(RemoveBodyguardDeathHookCommand(playerIndex));
       }
       gameState.apply(
-        MarkDeadCommand.single(player: playerIndex, deathReason: reason),
+        MarkDeadCommand.single(
+          player: playerIndex,
+          deathReason: BodyguardProtectionDeathReason(
+            responsiblePlayers: ISet({protectionTarget!}),
+          ),
+        ),
       );
       return wasProtected;
     } else {
@@ -107,6 +121,22 @@ class BodyguardRole extends Role {
       ),
     );
   }
+}
+
+@MappableClass(discriminatorValue: 'bodyguardProtection')
+class BodyguardProtectionDeathReason
+    with BodyguardProtectionDeathReasonMappable
+    implements DeathReason {
+  const BodyguardProtectionDeathReason({required this.responsiblePlayers});
+
+  final ISet<int> responsiblePlayers;
+
+  @override
+  String deathReasonDescription(BuildContext context) =>
+      AppLocalizations.of(context).role_bodyguard_deathReason;
+
+  @override
+  ISet<int> get responsiblePlayerIndices => responsiblePlayers;
 }
 
 @MappableClass(discriminatorValue: 'onAssignBodyguard')

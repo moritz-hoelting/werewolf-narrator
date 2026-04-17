@@ -10,7 +10,7 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason, DeathReasonMapper;
+    show DeathInformation, DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -63,9 +63,10 @@ class KnightOfTheRustySwordRole extends Role {
   bool deathHook(
     GameState deathGameState,
     int deathPlayerIndex,
-    DeathReason reason,
+    DeathInformation information,
   ) {
-    if (playerIndex == deathPlayerIndex && reason is WerewolvesDeathReason) {
+    if (playerIndex == deathPlayerIndex &&
+        information.reason is WerewolvesDeathReason) {
       final int playerCount = deathGameState.players.length;
 
       final int? clockwiseNearestWerewolfIndex =

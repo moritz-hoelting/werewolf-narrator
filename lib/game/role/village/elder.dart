@@ -6,7 +6,7 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathInformation;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
@@ -77,19 +77,20 @@ class OnAssignElderCommand
   bool deathHook(
     GameState deathGameState,
     int deathPlayerIndex,
-    DeathReason reason,
+    DeathInformation information,
   ) {
     final elderRole = deathGameState.players[playerIndex].role as ElderRole;
 
     if (playerIndex == deathPlayerIndex) {
-      if (reason is WerewolvesDeathReason) {
+      if (information is WerewolvesDeathReason) {
         if (!elderRole.hasBeenAttackedByWerewolves) {
           deathGameState.apply(MarkElderAsAttackedCommand(playerIndex));
           // TODO: still allow witch to heal the elder if attacked by werewolves for the first time
           return true;
         }
       } else {
-        final responsibleDeathPlayers = reason.responsiblePlayerIndices;
+        final responsibleDeathPlayers =
+            information.reason.responsiblePlayerIndices;
         deathGameState.apply(
           ElderDeathPreventAbilitiesCommand(
             playerIndex: playerIndex,

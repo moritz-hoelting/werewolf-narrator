@@ -8,7 +8,7 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
-    show DeathReason;
+    show DeathInformation;
 import 'package:werewolf_narrator/game/model/role.dart';
 import 'package:werewolf_narrator/game/model/team.dart';
 import 'package:werewolf_narrator/game/role/role.dart';
@@ -186,7 +186,7 @@ class WildChildSelectRoleModelCommand
     _previousData = null;
   }
 
-  bool deathHook(GameState gameState, int index, DeathReason reason) {
+  bool deathHook(GameState gameState, int index, DeathInformation information) {
     if (index == roleModelIndex) {
       gameState.apply(TurnWildChildCommand(playerIndex));
     }
