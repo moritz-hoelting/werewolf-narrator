@@ -176,7 +176,7 @@ class RegisterCupidNightActionCommand
       (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       conditioned: (gameState) =>
           gameState.winConditions.whereType<Lovers>().toList().isEmpty &&
-          gameState.playerAliveUntilDawn(playerIndex),
+          gameState.players[playerIndex].isAlive,
       players: {playerIndex},
     );
   }

@@ -211,7 +211,7 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                         (teamConstraints != null
                             ? !teamConstraints.contains(index)
                             : teamAssignedPlayers.contains(index)) ||
-                        gameState.knownDeadPlayerIndices.contains(index),
+                        gameState.deadPlayerIndices.contains(index),
                   )
                   .toISet(),
             ),

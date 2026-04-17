@@ -201,22 +201,6 @@ class GameData {
   IMap<int, IList<DeathReason>> get previousCycleDeaths =>
       deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
-  /// Returns a map of player indices to their unannounced death information.
-  IMap<int, IList<DeathInformation>> get unannouncedDeaths => players
-      .asMap()
-      .entries
-      .fold(<int, List<DeathInformation>>{}, (acc, entry) {
-        final playerIndex = entry.key;
-        final player = entry.value;
-        final deathInfo = player.deathInformation;
-        if (deathInfo.isNotEmpty && !player.deathAnnounced) {
-          acc[playerIndex] = deathInfo;
-        }
-        return acc;
-      })
-      .map((key, value) => MapEntry(key, value.lock))
-      .lock;
-
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
       roleConfigurations.containsKey(role) &&
@@ -229,10 +213,7 @@ class GameData {
   bool hasAliveRole(RoleType role) =>
       hasRole(role) &&
       players.indexed.any(
-        (p) =>
-            p.$2.role != null &&
-            p.$2.role!.roleType == role &&
-            playerAliveUntilDawn(p.$1),
+        (p) => p.$2.role != null && p.$2.role!.roleType == role && p.$2.isAlive,
       );
 
   /// Checks if the game has a specific role with at least one alive player.
@@ -257,7 +238,7 @@ class GameData {
         (entry) =>
             entry.player.role != null &&
             entry.player.role!.roleType == role &&
-            playerAliveUntilDawn(entry.index),
+            entry.player.isAlive,
       );
 
   /// Returns index and the alive player with a specific role, if any.
@@ -285,7 +266,7 @@ class GameData {
             (entry) =>
                 entry.player.role != null &&
                 entry.player.role!.roleType == role &&
-                playerAliveUntilDawn(entry.index),
+                entry.player.isAlive,
           )
           .toIList();
 
@@ -306,7 +287,7 @@ class GameData {
   /// Checks if the game has an alive player of the specific team.
   bool hasAlivePlayerOfTeam(TeamType team) => players.indexed.any(
     (player) =>
-        playerAliveUntilDawn(player.$1) &&
+        player.$2.isAlive &&
         player.$2.role != null &&
         player.$2.role!.team(state) == team,
   );
@@ -336,7 +317,7 @@ class GameData {
             (entry) =>
                 entry.player.role != null &&
                 entry.player.role!.team(state) == team &&
-                playerAliveUntilDawn(entry.index),
+                entry.player.isAlive,
           )
           .toIList();
 
@@ -376,13 +357,16 @@ class GameData {
       final playerIndex = entry.key;
       final deathInfos = entry.value;
       for (final deathInfo in deathInfos) {
-        _markPlayerDead(playerIndex, deathInfo);
+        _markPlayerActuallyDead(playerIndex, deathInfo);
       }
     }
     _pendingDeaths.clear();
   }
 
-  void _markPlayerDead(int playerIndex, DeathInformation deathInformation) {
+  void _markPlayerActuallyDead(
+    int playerIndex,
+    DeathInformation deathInformation,
+  ) {
     if (_markDeadRecursionGuard.contains(playerIndex)) {
       return;
     }
@@ -406,12 +390,8 @@ class GameData {
       day: dayCounter,
       atNight: isNight,
     );
-    if (isNight) {
-      _pendingDeaths[playerIndex] ??= [];
-      _pendingDeaths[playerIndex]!.add(deathInformation);
-    } else {
-      _markPlayerDead(playerIndex, deathInformation);
-    }
+    _pendingDeaths[playerIndex] ??= [];
+    _pendingDeaths[playerIndex]!.add(deathInformation);
   }
 
   /// Marks a player as revived.
@@ -431,28 +411,6 @@ class GameData {
     }
     _markRevivedRecursionGuard.remove(playerIndex);
   }
-
-  /// Checks if a player is alive or killed in the current cycle.
-  bool playerAliveOrKilledThisCycle(int playerIndex) =>
-      players[playerIndex].isAlive ||
-      currentCycleDeaths.containsKey(playerIndex);
-
-  /// Checks if a player is alive or will remain alive until dawn.
-  bool playerAliveUntilDawn(int playerIndex) =>
-      players[playerIndex].isAlive ||
-      (isNight && currentCycleDeaths.containsKey(playerIndex));
-
-  /// Player indices that are known to be dead based on the current game state (until dawn).
-  ISet<int> get knownDeadPlayerIndices => List.generate(
-    players.length,
-    (i) => i,
-  ).where((index) => !playerAliveUntilDawn(index)).toISet();
-
-  /// Player indices that are known to be alive based on the current game state (until dawn).
-  ISet<int> get knownAlivePlayerIndices => List.generate(
-    players.length,
-    (i) => i,
-  ).where((index) => playerAliveUntilDawn(index)).toISet();
 
   /// Player indices that are alive.
   ISet<int> get alivePlayerIndices => players.indexed
@@ -475,24 +433,27 @@ class GameData {
             player.waitForDeathAction(state);
       });
 
+  IMap<int, IList<DeathInformation>> get pendingDeaths =>
+      _pendingDeaths.lock.map((key, value) => MapEntry(key, value.lock));
+
   /// Whether there are pending death announcements to be made.
   bool get pendingDeathAnnouncements =>
-      players.any((player) => !player.isAlive && !player.deathAnnounced);
+      _pendingDeaths.isNotEmpty &&
+      _pendingDeaths.values.any(
+        (deathInformations) => deathInformations.isNotEmpty,
+      );
 
   /// Whether there are pending death announcements to be made for deaths that occurred during the night.
-  bool get pendingDeathAnnouncementsFromNight => players.any(
-    (player) =>
-        !player.isAlive &&
-        !player.deathAnnounced &&
-        player.deathInformation.isNotEmpty &&
-        player.deathInformation.any((info) => info.atNight),
+  bool get pendingDeathAnnouncementsFromNight => _pendingDeaths.values.any(
+    (deathInformations) =>
+        deathInformations.any((deathInfo) => deathInfo.atNight),
   );
 
   (int, int) getAliveNeighbors(int playerIndex) {
     final livingIndices = List.generate(
       players.length,
       (i) => i,
-    ).where((i) => playerAliveUntilDawn(i)).toList();
+    ).where((i) => players[i].isAlive).toList();
     final lb = lowerBound(livingIndices, playerIndex);
 
     final leftNeighborLivingIndex = lb == 0 ? livingIndices.length - 1 : lb - 1;
@@ -715,5 +676,34 @@ class GameOverCommand with GameOverCommandMappable implements GameCommand {
   void undo(GameData gameData) {
     gameData._phase = _previousPhase!;
     _previousPhase = null;
+  }
+}
+
+@MappableClass(discriminatorValue: 'processPendingDeaths')
+class ProcessPendingDeathsCommand
+    with ProcessPendingDeathsCommandMappable
+    implements GameCommand {
+  IMap<int, IList<DeathInformation>>? _previousPendingDeaths;
+
+  @override
+  void apply(GameData gameData) {
+    _previousPendingDeaths = gameData.pendingDeaths;
+    gameData.processPendingDeaths();
+  }
+
+  @override
+  bool get canBeUndone => _previousPendingDeaths != null;
+
+  @override
+  void undo(GameData gameData) {
+    for (final entry in _previousPendingDeaths!.entries) {
+      final playerIndex = entry.key;
+      final deathInfos = entry.value;
+      for (final deathInfo in deathInfos) {
+        gameData._pendingDeaths[playerIndex] ??= [];
+        gameData._pendingDeaths[playerIndex]!.add(deathInfo);
+      }
+    }
+    _previousPendingDeaths = null;
   }
 }

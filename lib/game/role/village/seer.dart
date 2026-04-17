@@ -92,7 +92,7 @@ class _SeerScreenState extends State<SeerScreen> {
               child: PlayerList(
                 phaseIdentifier: SeerScreen,
                 selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
-                disabledPlayers: gameState.knownDeadPlayerIndices.union({
+                disabledPlayers: gameState.deadPlayerIndices.union({
                   widget.playerIndex,
                 }),
                 currentActorIndices: ISet({widget.playerIndex}),
@@ -141,7 +141,7 @@ class RegisterSeerNightActionCommand
       (gameState, onComplete) =>
           (context) =>
               SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       after: IList([CupidRole.type]),
       players: {playerIndex},
     );

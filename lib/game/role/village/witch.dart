@@ -185,11 +185,14 @@ class _WitchScreenState extends State<WitchScreen> {
   bool playerEnabled(GameState gameState, int index) {
     final killedByWerewolves =
         gameState.currentCycleDeaths.containsKey(index) &&
-        gameState.currentCycleDeaths[index] is WerewolvesDeathReason;
-    return gameState.playerAliveOrKilledThisCycle(index) &&
+        (gameState.currentCycleDeaths[index]?.any(
+              (reason) => reason is WerewolvesDeathReason,
+            ) ??
+            false);
+    return gameState.players[index].isAlive &&
         (_killModeActive
             ? (index != widget.playerIndex &&
-                  gameState.playerAliveOrKilledThisCycle(index) &&
+                  gameState.players[index].isAlive &&
                   !killedByWerewolves)
             : killedByWerewolves);
   }
@@ -361,7 +364,7 @@ class RegisterWitchNightActionCommand
           onPhaseComplete: onComplete,
         );
       },
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       after: IList([WerewolvesTeam.type, CupidRole.type]),
       players: {playerIndex},
     );

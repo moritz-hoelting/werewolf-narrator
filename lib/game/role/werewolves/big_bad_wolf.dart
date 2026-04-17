@@ -66,7 +66,7 @@ bool werewolfHasDied(GameState gameState) => gameState.players.indexed
     .where((entry) => entry.$2.role?.team(gameState) == WerewolvesTeam.type)
     .map((entry) => entry.$1)
     .toISet()
-    .intersection(gameState.knownDeadPlayerIndices)
+    .intersection(gameState.deadPlayerIndices)
     .isNotEmpty;
 
 @MappableClass(discriminatorValue: 'registerBigBadWolfNightAction')
@@ -83,8 +83,7 @@ class RegisterBigBadWolfNightActionCommand
       BigBadWolfRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) &&
-          !werewolfHasDied(gameState),
+          gameState.players[playerIndex].isAlive && !werewolfHasDied(gameState),
       after: IList([WerewolvesTeam.type, AncientWerewolfRole.type]),
       before: IList([WitchRole.type]),
       players: {playerIndex},
@@ -106,9 +105,17 @@ class RegisterBigBadWolfNightActionCommand
 
         final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
 
-        final werewolvesOrDead = werewolfIndices.union(
-          gameState.knownDeadPlayerIndices,
-        );
+        final werewolvesOrDead = werewolfIndices
+            .union(gameState.deadPlayerIndices)
+            .union(
+              gameState.pendingDeaths.entries
+                  .where(
+                    (entry) => entry.value.any(
+                      (deathInfo) => deathInfo.reason is WerewolvesDeathReason,
+                    ),
+                  )
+                  .map((entry) => entry.key),
+            );
 
         return ActionScreen(
           appBarTitle: Text(BigBadWolfRole._name(context)),

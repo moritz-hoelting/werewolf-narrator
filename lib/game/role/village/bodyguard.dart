@@ -90,7 +90,7 @@ class BodyguardRole extends Role {
     }
     if (gameState.isNight &&
         protectionTarget == deadPlayerIndex &&
-        gameState.playerAliveUntilDawn(playerIndex)) {
+        gameState.players[playerIndex].isAlive) {
       gameState.apply(MarkBodyguardAttackedCommand(playerIndex));
       return true;
     } else if (deadPlayerIndex == playerIndex) {
@@ -155,7 +155,7 @@ class OnAssignBodyguardCommand
       BodyguardRole.type,
       (gameState, onComplete) => nightActionScreen(onComplete),
       players: {playerIndex},
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
       after: IList([DoctorRole.type]),
     );

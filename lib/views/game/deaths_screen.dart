@@ -1,17 +1,12 @@
-import 'package:dart_mappable/dart_mappable.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart'
-    show GameData, GameOverCommand;
+    show ProcessPendingDeathsCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
 import 'package:werewolf_narrator/views/game/death_actions_screen.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
-
-part 'deaths_screen.mapper.dart';
 
 class DeathsScreen extends StatelessWidget {
   final VoidCallback? onPhaseComplete;
@@ -34,7 +29,7 @@ class DeathsScreen extends StatelessWidget {
       }
 
       final localizations = AppLocalizations.of(context);
-      final unannouncedDeaths = gameState.unannouncedDeaths;
+      final pendingDeaths = gameState.pendingDeaths;
 
       return Scaffold(
         extendBody: true,
@@ -54,7 +49,7 @@ class DeathsScreen extends StatelessWidget {
             ),
           ),
           height: double.infinity,
-          child: unannouncedDeaths.isEmpty
+          child: pendingDeaths.isEmpty
               ? Center(
                   child: Text(
                     localizations.screen_deaths_noDeaths,
@@ -63,9 +58,9 @@ class DeathsScreen extends StatelessWidget {
                 )
               : ListView.builder(
                   itemBuilder: (context, index) {
-                    final playerIndex = unannouncedDeaths.keys.elementAt(index);
+                    final playerIndex = pendingDeaths.keys.elementAt(index);
                     final player = gameState.players[playerIndex];
-                    final deathInformation = unannouncedDeaths[playerIndex]!;
+                    final deathInformation = pendingDeaths[playerIndex]!;
                     return ListTile(
                       title: Text(
                         localizations.screen_deaths_playerHasDied(
@@ -79,7 +74,7 @@ class DeathsScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  itemCount: unannouncedDeaths.length,
+                  itemCount: pendingDeaths.length,
                   shrinkWrap: true,
                 ),
         ),
@@ -91,7 +86,7 @@ class DeathsScreen extends StatelessWidget {
             ),
             onPressed: () {
               final gameState = Provider.of<GameState>(context, listen: false);
-              gameState.apply(MarkDeathsAnnouncedCommand());
+              gameState.apply(ProcessPendingDeathsCommand());
 
               final firstPlayerWithPendingDeathAction =
                   gameState.firstPlayerWithPendingDeathAction;
@@ -110,33 +105,4 @@ class DeathsScreen extends StatelessWidget {
       );
     },
   );
-}
-
-@MappableClass(discriminatorValue: 'markDeathsAnnounced')
-class MarkDeathsAnnouncedCommand
-    with MarkDeathsAnnouncedCommandMappable
-    implements GameCommand {
-  ISet<int>? _previouslyUnannouncedDeaths;
-
-  @override
-  void apply(GameData gameData) {
-    _previouslyUnannouncedDeaths = gameData.unannouncedDeaths.keys.toISet();
-    for (final playerIndex in gameData.unannouncedDeaths.keys) {
-      gameData.players[playerIndex].deathAnnounced = true;
-    }
-    if (gameData.checkWinConditions() != null) {
-      gameData.state.apply(GameOverCommand());
-    }
-  }
-
-  @override
-  bool get canBeUndone => _previouslyUnannouncedDeaths != null;
-
-  @override
-  void undo(GameData gameData) {
-    for (final playerIndex in _previouslyUnannouncedDeaths!) {
-      gameData.players[playerIndex].deathAnnounced = false;
-    }
-    _previouslyUnannouncedDeaths = null;
-  }
 }

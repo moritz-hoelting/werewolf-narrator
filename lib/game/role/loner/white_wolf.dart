@@ -146,7 +146,7 @@ class OnAssignWhiteWolfCommand
       WhiteWolfRole,
       (gameState, onComplete) => nightActionScreen(onComplete),
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) &&
+          gameState.players[playerIndex].isAlive &&
           gameState.dayCounter % wakeEveryNthNight == 0,
       players: {playerIndex},
       after: IList([WerewolvesTeam.type]),
@@ -184,7 +184,7 @@ class OnAssignWhiteWolfCommand
     final nonWerewolvesOrDead = List.generate(gameState.playerCount, (i) => i)
         .toISet()
         .difference(werewolfIndices)
-        .union(gameState.knownDeadPlayerIndices)
+        .union(gameState.deadPlayerIndices)
         .union({playerIndex});
 
     return ActionScreen(

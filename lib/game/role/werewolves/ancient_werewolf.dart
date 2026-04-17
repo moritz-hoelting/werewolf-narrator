@@ -124,7 +124,7 @@ class AncientWerewolfScreen extends StatelessWidget {
         }
       }
 
-      final int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.$1;
+      final int? lastAttackedPlayer = findLastAttackedPlayer(gameState)?.index;
 
       if (lastAttackedPlayer == null) {
         return Scaffold(
@@ -147,7 +147,7 @@ class AncientWerewolfScreen extends StatelessWidget {
         appBarTitle: Text(localizations.role_ancientWerewolf_name),
         instruction: Text(
           localizations.role_ancientWerewolf_nightAction_instruction(
-            playerName: findLastAttackedPlayer(gameState)?.$2.name ?? '?',
+            playerName: findLastAttackedPlayer(gameState)?.player.name ?? '?',
           ),
           style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
@@ -165,23 +165,32 @@ class AncientWerewolfScreen extends StatelessWidget {
     if (selectedFirst) {
       final lastAttackedPlayer = findLastAttackedPlayer(gameState);
       if (lastAttackedPlayer != null) {
-        useAbilityOn(gameState, lastAttackedPlayer.$1, lastAttackedPlayer.$2);
+        useAbilityOn(
+          gameState,
+          lastAttackedPlayer.index,
+          lastAttackedPlayer.player,
+        );
       }
     } else {
       onPhaseComplete();
     }
   }
 
-  (int, PlayerView)? findLastAttackedPlayer(GameState gameState) {
+  ({int index, PlayerView player})? findLastAttackedPlayer(
+    GameState gameState,
+  ) {
     final lastAttackedPlayerIndex = gameState.currentCycleDeaths.entries
-        .where((entry) => entry.value is WerewolvesDeathReason)
+        .where(
+          (entry) =>
+              entry.value.any((reason) => reason is WerewolvesDeathReason),
+        )
         .map((entry) => entry.key)
         .lastOrNull;
     if (lastAttackedPlayerIndex == null) {
       return null;
     }
     final player = gameState.players[lastAttackedPlayerIndex];
-    return (lastAttackedPlayerIndex, player);
+    return (index: lastAttackedPlayerIndex, player: player);
   }
 
   void useAbilityOn(GameState gameState, int playerIndex, PlayerView player) {
@@ -218,7 +227,7 @@ class RegisterAncientWerewolfNightActionCommand
             playerIndex: playerIndex,
             onPhaseComplete: onComplete,
           ),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       after: IList([WerewolvesTeam.type]),
       before: IList([WitchRole.type]),
       players: {playerIndex},

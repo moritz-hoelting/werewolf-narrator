@@ -61,7 +61,7 @@ class _ActionScreenState extends State<ActionScreen> {
               onPlayerTap: (index) => getOnTapPlayer(index, gameState),
               selectedPlayers: _selectedPlayers.lock,
               disabledPlayers: widget.disabledPlayerIndices.union(
-                gameState.knownDeadPlayerIndices,
+                gameState.deadPlayerIndices,
               ),
               currentActorIndices: widget.currentActorIndices,
               playerDisplayData: widget.playerDisplayData,
@@ -77,7 +77,7 @@ class _ActionScreenState extends State<ActionScreen> {
   );
 
   VoidCallback? getOnTapPlayer(int index, GameState gameState) {
-    if (!gameState.playerAliveUntilDawn(index)) {
+    if (!gameState.players[index].isAlive) {
       return null;
     }
 

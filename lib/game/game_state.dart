@@ -362,9 +362,8 @@ class GameState extends ChangeNotifier {
   IMap<int, IList<DeathReason>> get previousCycleDeaths =>
       _data.previousCycleDeaths;
 
-  /// Returns a map of player indices to their unannounced death information.
-  IMap<int, IList<DeathInformation>> get unannouncedDeaths =>
-      _data.unannouncedDeaths;
+  /// Returns a map of player indices to their pending death information, for players that have been marked dead but not yet had their deaths announced.
+  IMap<int, IList<DeathInformation>> get pendingDeaths => _data.pendingDeaths;
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) => _data.hasRole(role);
@@ -477,20 +476,6 @@ class GameState extends ChangeNotifier {
 
   /// Returns a list of unassigned roles in the game.
   IList<RoleType> get unassignedRoles => _data.unassignedRoles;
-
-  /// Checks if a player is alive or killed in the current cycle.
-  bool playerAliveOrKilledThisCycle(int playerIndex) =>
-      _data.playerAliveOrKilledThisCycle(playerIndex);
-
-  /// Checks if a player is alive or will remain alive until dawn.
-  bool playerAliveUntilDawn(int playerIndex) =>
-      _data.playerAliveUntilDawn(playerIndex);
-
-  /// Player indices that are known to be dead based on the current game state (until dawn).
-  ISet<int> get knownDeadPlayerIndices => _data.knownDeadPlayerIndices;
-
-  /// Player indices that are known to be alive based on the current game state (until dawn).
-  ISet<int> get knownAlivePlayerIndices => _data.knownDeadPlayerIndices;
 
   /// Player indices that are alive.
   ISet<int> get alivePlayerIndices => _data.alivePlayerIndices;

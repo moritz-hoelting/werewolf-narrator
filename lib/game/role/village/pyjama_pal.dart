@@ -95,7 +95,7 @@ class OnAssignPyjamaPalCommand
       PyjamaPalRole.type,
       (gameState, onComplete) => nightActionScreen(onComplete),
       players: {playerIndex},
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
     );
 

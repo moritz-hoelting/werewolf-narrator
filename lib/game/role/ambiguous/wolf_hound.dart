@@ -95,7 +95,7 @@ class RegisterWolfHoundNightActionCommand
       WolfHoundRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) &&
+          gameState.players[playerIndex].isAlive &&
           (gameState.players[playerIndex].role as WolfHoundRole)
                   .selectedWerewolf ==
               null,

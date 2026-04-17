@@ -39,7 +39,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
         appBar: GameAppBar(title: Text(localizations.screen_villageVote_title)),
         body: PlayerList(
           phaseIdentifier: VillageVoteScreen,
-          disabledPlayers: gameState.knownDeadPlayerIndices,
+          disabledPlayers: gameState.deadPlayerIndices,
           selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
           onPlayerTap: (index) => () {
             setState(() {
@@ -84,7 +84,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
                   MarkDeadCommand.single(
                     player: _selectedPlayer!,
                     deathReason: VillageVoteDeathReason(
-                      gameState.knownAlivePlayerIndices,
+                      gameState.alivePlayerIndices,
                     ),
                   ),
                 );

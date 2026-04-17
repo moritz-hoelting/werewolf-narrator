@@ -78,7 +78,7 @@ class KnightOfTheRustySwordRole extends Role {
                 (i) =>
                     deathGameState.players[i].role?.team(deathGameState) ==
                         WerewolvesTeam.type &&
-                    deathGameState.playerAliveUntilDawn(i),
+                    deathGameState.players[i].isAlive,
               )
               .firstOrNull;
       if (clockwiseNearestWerewolfIndex != null) {

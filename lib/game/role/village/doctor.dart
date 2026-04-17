@@ -96,7 +96,7 @@ class AssignDoctorCommand
       DoctorRole.type,
       (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       players: {playerIndex},
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
     );
 

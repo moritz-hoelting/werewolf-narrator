@@ -18,9 +18,6 @@ class Player {
   /// Whether the player has used their death action.
   bool usedDeathAction = false;
 
-  /// Whether the player's death has been announced.
-  bool deathAnnounced = false;
-
   /// Tags associated with the player, used for various game mechanics.
   final Set<Object> tags = {};
 
@@ -57,7 +54,6 @@ class Player {
   void markRevived() {
     _deathInformation.clear();
     usedDeathAction = false;
-    deathAnnounced = false;
   }
 
   @override
@@ -80,9 +76,6 @@ class PlayerView {
 
   /// Whether the player has used their death action.
   bool get usedDeathAction => _player.usedDeathAction;
-
-  /// Whether the player's death has been announced.
-  bool get deathAnnounced => _player.deathAnnounced;
 
   /// Tags associated with the player, used for various game mechanics.
   ISet<Object> get tags => _player.tags.lock;

@@ -173,8 +173,7 @@ class RegisterThiefNightActionCommand
             onPhaseComplete: onComplete,
           ),
       conditioned: (gameState) =>
-          gameState.dayCounter == 0 &&
-          gameState.playerAliveUntilDawn(playerIndex),
+          gameState.dayCounter == 0 && gameState.players[playerIndex].isAlive,
       beforeAll: true,
       players: {playerIndex},
     );

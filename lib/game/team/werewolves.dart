@@ -157,9 +157,7 @@ class RegisterWerewolvesNightActionCommand
 
     final werewolfIndices = WerewolvesTeam.werewolfPlayerIndices(gameState);
 
-    final werewolvesOrDead = werewolfIndices.union(
-      gameState.knownDeadPlayerIndices,
-    );
+    final werewolvesOrDead = werewolfIndices.union(gameState.deadPlayerIndices);
 
     return ActionScreen(
       key: UniqueKey(),
@@ -177,7 +175,7 @@ class RegisterWerewolvesNightActionCommand
             MarkDeadCommand.single(
               player: selectedPlayer,
               deathReason: WerewolvesDeathReason(
-                werewolfIndices.intersection(gameState.knownAlivePlayerIndices),
+                werewolfIndices.intersection(gameState.alivePlayerIndices),
               ),
             ),
           );

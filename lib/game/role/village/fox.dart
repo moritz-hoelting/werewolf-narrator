@@ -189,7 +189,7 @@ class _SelectPlayer extends StatelessWidget {
           child: PlayerList(
             phaseIdentifier: FoxScreen,
             selectedPlayers: const ISet.empty(),
-            disabledPlayers: gameState.knownDeadPlayerIndices,
+            disabledPlayers: gameState.deadPlayerIndices,
             currentActorIndices: ISet({playerIndex}),
             onPlayerTap: (index) =>
                 () => onPlayerSelected(index),
@@ -251,7 +251,7 @@ class RegisterFoxNightActionCommand
           ),
       conditioned: (gameState) =>
           !(gameState.players[playerIndex].role as FoxRole).hasLostPowers &&
-          gameState.playerAliveUntilDawn(playerIndex),
+          gameState.players[playerIndex].isAlive,
       after: IList([CupidRole.type]),
       players: {playerIndex},
     );

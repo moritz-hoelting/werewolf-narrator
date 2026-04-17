@@ -93,7 +93,7 @@ class RegisterWildChildNightActionCommand
       WildChildRole.type,
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
-          gameState.playerAliveUntilDawn(playerIndex) &&
+          gameState.players[playerIndex].isAlive &&
           (gameState.players[playerIndex].role as WildChildRole).roleModel ==
               null,
       players: {playerIndex},

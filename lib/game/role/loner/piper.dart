@@ -143,7 +143,7 @@ class _PiperScreenState extends State<PiperScreen> {
     final localizations = AppLocalizations.of(context);
     final gameState = Provider.of<GameState>(context, listen: false);
 
-    final deadIndices = gameState.knownDeadPlayerIndices;
+    final deadIndices = gameState.deadPlayerIndices;
     final charmedOrDead = ISet(
       widget.charmedPlayers,
     ).union(deadIndices).union(ISet({widget.playerIndex}));
@@ -238,7 +238,7 @@ class RegisterPiperNightActionCommand
             charmedPlayers: charmedPlayers,
             charmAmountPerNight: charmAmountPerNight,
           ),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       players: {playerIndex},
     );
   }

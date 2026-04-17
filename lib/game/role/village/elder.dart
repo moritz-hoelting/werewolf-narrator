@@ -170,7 +170,7 @@ class ElderDeathPreventAbilitiesCommand
       phasePlayers.isNotEmpty &&
       phasePlayers.every(
         (playerIndex) =>
-            !nightActionGameState.playerAliveUntilDawn(playerIndex) ||
+            !nightActionGameState.players[playerIndex].isAlive ||
             nightActionGameState.players[playerIndex].role?.team(
                   nightActionGameState,
                 ) ==
@@ -186,7 +186,7 @@ class ElderDeathPreventAbilitiesCommand
       phasePlayers.isNotEmpty &&
       phasePlayers.every(
         (playerIndex) =>
-            !dayActionGameState.playerAliveUntilDawn(playerIndex) ||
+            !dayActionGameState.players[playerIndex].isAlive ||
             dayActionGameState.players[playerIndex].role?.team(
                   dayActionGameState,
                 ) ==

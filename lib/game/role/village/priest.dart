@@ -94,7 +94,7 @@ class OnAssignPriestCommand
     gameData.nightActionManager.registerAction(
       PriestRole.type,
       (gameState, onComplete) => nightActionScreen(gameState, onComplete),
-      conditioned: (gameState) => gameState.playerAliveUntilDawn(playerIndex),
+      conditioned: (gameState) => gameState.players[playerIndex].isAlive,
       before: IList([WerewolvesTeam.type, WitchRole.type, BigBadWolfRole.type]),
       players: {playerIndex},
     );
