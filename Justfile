@@ -10,10 +10,10 @@ alias a := analyze
 alias r := run
 alias g := generate
 
+# The default recipe run when just is invoked without arguments. It lists all available recipes.
 [private]
 default:
     @just --list
-
 
 # Run code and asset generation
 [group("init")]
@@ -32,6 +32,11 @@ generate-assets:
 generate-code:
     dart run build_runner build --delete-conflicting-outputs
     flutter gen-l10n
+
+# Run code and asset generation and watch for changes
+[group("dev")]
+codegen-watch:
+    dart run build_runner watch --delete-conflicting-outputs
 
 # Run tests
 [group("dev")]
@@ -79,6 +84,7 @@ build-appbundle flavor=default_build_flavor *args: (build "appbundle" f"--flavor
 # Build linux app
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
+[linux]
 build-linux flavor=default_build_flavor *args: (build "linux" f"--dart-define=FLAVOR={{flavor}}" args)
 
 # Build web app with WASM enabled
@@ -89,20 +95,24 @@ build-web flavor=default_build_flavor *args: (build "web" "--wasm" f"--dart-defi
 # Build iOS app as an IPA file
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
+[macos]
 build-ios flavor=default_build_flavor *args: (build "ipa" f"--flavor={{flavor}}" args)
 
 # Build macOS app
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
+[macos]
 build-macos flavor=default_build_flavor *args: (build "macos" f"--flavor={{flavor}}" args)
 
 # Build Windows app
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]
 [group("build")]
+[windows]
 build-windows flavor=default_build_flavor *args: (build "windows" f"--dart-define=FLAVOR={{flavor}}" args)
 
 # Launch the built linux app
 [group("preview")]
+[linux]
 preview-linux:
     ./build/linux/x64/release/bundle/werewolf_narrator
 

@@ -18,13 +18,13 @@ class MarkRevivedCommand
 
   final ISet<int> players;
 
-  final Map<int, DeathInformation> _deathInformations = {};
+  final Map<int, List<DeathInformation>> _deathInformations = {};
 
   @override
   void apply(GameData gameData) {
     for (final playerIndex in players) {
       final deathInformation = gameData.players[playerIndex].deathInformation;
-      if (deathInformation != null) {
+      if (deathInformation.isNotEmpty) {
         _deathInformations[playerIndex] = deathInformation;
       }
       gameData.markPlayerRevived(playerIndex);
@@ -38,7 +38,9 @@ class MarkRevivedCommand
   @override
   void undo(GameData gameData) {
     for (final deathEntry in _deathInformations.entries) {
-      gameData.players[deathEntry.key].markDead(deathEntry.value);
+      for (final deathInfo in deathEntry.value) {
+        gameData.players[deathEntry.key].markDead(deathInfo);
+      }
     }
   }
 }

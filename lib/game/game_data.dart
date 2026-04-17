@@ -33,7 +33,7 @@ class GameData {
     required Iterable<String> playerNames,
     required this.gameConfiguration,
     required this.roleConfigurations,
-  }) : players = playerNames.map((name) => Player(name: name)).toList(),
+  }) : players = playerNames.map((name) => Player(name)).toList(),
        teams = Map.fromEntries(
          roleConfigurations.entries
              .where((entry) => entry.value.count > 0)
@@ -149,6 +149,8 @@ class GameData {
 
   final Map<dynamic, dynamic> customData = {};
 
+  final Map<int, List<DeathInformation>> _pendingDeaths = {};
+
   /// The current day counter.
   int get dayCounter => _dayCounter;
 
@@ -165,37 +167,55 @@ class GameData {
   int get alivePlayerCount => players.where((player) => player.isAlive).length;
 
   /// Returns a map of player indices to their death reasons for the given cycle.
-  IMap<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
-      players.asMap().entries.fold(<int, DeathReason>{}, (acc, entry) {
-        final playerIndex = entry.key;
-        final deathInfo = entry.value.deathInformation;
-        if (deathInfo != null &&
-            deathInfo.atNight == atNight &&
-            deathInfo.day == dayCounter) {
-          acc[playerIndex] = deathInfo.reason;
-        }
-        return acc;
-      }).lock;
+  IMap<int, IList<DeathReason>> deathsInCycle(int dayCounter, bool atNight) =>
+      players
+          .asMap()
+          .entries
+          .map((entry) => MapEntry(entry.key, entry.value.deathInformation))
+          .followedBy(_pendingDeaths.entries)
+          .fold(<int, List<DeathReason>>{}, (acc, entry) {
+            final playerIndex = entry.key;
+            final deathInfos = entry.value;
+            if (deathInfos.isNotEmpty) {
+              acc[playerIndex] ??= [];
+              acc[playerIndex]!.addAll(
+                deathInfos
+                    .where(
+                      (deathInfo) =>
+                          deathInfo.atNight == atNight &&
+                          deathInfo.day == dayCounter,
+                    )
+                    .map((deathInfo) => deathInfo.reason),
+              );
+            }
+            return acc;
+          })
+          .map((key, value) => MapEntry(key, value.lock))
+          .lock;
 
   /// Returns a map of player indices to their death reasons for the current cycle (day/night).
-  IMap<int, DeathReason> get currentCycleDeaths =>
+  IMap<int, IList<DeathReason>> get currentCycleDeaths =>
       deathsInCycle(dayCounter, isNight);
 
   /// Returns a map of player indices to their death reasons for the previous cycle (day/night).
-  IMap<int, DeathReason> get previousCycleDeaths =>
+  IMap<int, IList<DeathReason>> get previousCycleDeaths =>
       deathsInCycle(isNight ? dayCounter : dayCounter - 1, !isNight);
 
   /// Returns a map of player indices to their unannounced death information.
-  IMap<int, DeathInformation> get unannouncedDeaths =>
-      players.asMap().entries.fold(<int, DeathInformation>{}, (acc, entry) {
+  IMap<int, IList<DeathInformation>> get unannouncedDeaths => players
+      .asMap()
+      .entries
+      .fold(<int, List<DeathInformation>>{}, (acc, entry) {
         final playerIndex = entry.key;
         final player = entry.value;
         final deathInfo = player.deathInformation;
-        if (deathInfo != null && !player.deathAnnounced) {
+        if (deathInfo.isNotEmpty && !player.deathAnnounced) {
           acc[playerIndex] = deathInfo;
         }
         return acc;
-      }).lock;
+      })
+      .map((key, value) => MapEntry(key, value.lock))
+      .lock;
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) =>
@@ -445,8 +465,8 @@ class GameData {
     (player) =>
         !player.isAlive &&
         !player.deathAnnounced &&
-        player.deathInformation != null &&
-        player.deathInformation!.atNight,
+        player.deathInformation.isNotEmpty &&
+        player.deathInformation.any((info) => info.atNight),
   );
 
   (int, int) getAliveNeighbors(int playerIndex) {

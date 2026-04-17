@@ -62,8 +62,10 @@ class AngelWinCondition with AngelWinConditionMappable implements WinCondition {
   final int playerIndex;
 
   @override
-  bool hasWon(GameState gameState) =>
-      gameState.players[playerIndex].deathInformation?.day == 0;
+  bool hasWon(GameState gameState) => gameState
+      .players[playerIndex]
+      .deathInformation
+      .any((info) => info.day == 0);
 
   @override
   String winningHeadline(BuildContext context) =>

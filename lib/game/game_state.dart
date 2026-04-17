@@ -351,17 +351,20 @@ class GameState extends ChangeNotifier {
   IList<PlayerWinHook> get playerWinHooks => _data.playerWinHooks.lock;
 
   /// Returns a map of player indices to their death reasons for the given cycle.
-  IMap<int, DeathReason> deathsInCycle(int dayCounter, bool atNight) =>
+  IMap<int, IList<DeathReason>> deathsInCycle(int dayCounter, bool atNight) =>
       _data.deathsInCycle(dayCounter, atNight);
 
   /// Returns a map of player indices to their death reasons for the current cycle (day/night).
-  IMap<int, DeathReason> get currentCycleDeaths => _data.currentCycleDeaths;
+  IMap<int, IList<DeathReason>> get currentCycleDeaths =>
+      _data.currentCycleDeaths;
 
   /// Returns a map of player indices to their death reasons for the previous cycle (day/night).
-  IMap<int, DeathReason> get previousCycleDeaths => _data.previousCycleDeaths;
+  IMap<int, IList<DeathReason>> get previousCycleDeaths =>
+      _data.previousCycleDeaths;
 
   /// Returns a map of player indices to their unannounced death information.
-  IMap<int, DeathInformation> get unannouncedDeaths => _data.unannouncedDeaths;
+  IMap<int, IList<DeathInformation>> get unannouncedDeaths =>
+      _data.unannouncedDeaths;
 
   /// Checks if the game has a specific role.
   bool hasRole(RoleType role) => _data.hasRole(role);

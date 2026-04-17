@@ -12,8 +12,8 @@ class Player {
   /// The role assigned to the player.
   Role? role;
 
-  /// Information about the player's death, if dead.
-  DeathInformation? _deathInformation;
+  /// Information about the player's death, if dead.  The first entry corresponds to the death that will be shown.
+  final List<DeathInformation> _deathInformation = [];
 
   /// Whether the player has used their death action.
   bool usedDeathAction = false;
@@ -24,14 +24,13 @@ class Player {
   /// Tags associated with the player, used for various game mechanics.
   final Set<Object> tags = {};
 
-  Player({required this.name, this.role, DeathInformation? deathInformation})
-    : _deathInformation = deathInformation;
+  Player(this.name);
 
-  /// Information about the player's death, if dead.
-  DeathInformation? get deathInformation => _deathInformation;
+  /// Information about the player's death, if dead. The first entry corresponds to the death that will be shown.
+  List<DeathInformation> get deathInformation => _deathInformation;
 
   /// Whether the player is currently alive.
-  bool get isAlive => _deathInformation == null;
+  bool get isAlive => _deathInformation.isEmpty;
 
   /// Whether the player is waiting to perform a death action.
   bool waitForDeathAction(GameState gameState) {
@@ -43,7 +42,7 @@ class Player {
         (element) => element.ofPlayer(this),
       );
       return gameState.deathActionHooks.none(
-        (hook) => hook(gameState, (this, deathInformation!), playerIndex),
+        (hook) => hook(gameState, (this, deathInformation), playerIndex),
       );
     }
     return false;
@@ -51,12 +50,14 @@ class Player {
 
   /// Marks the player as dead with the given death information.
   void markDead(DeathInformation deathInfo) {
-    _deathInformation = deathInfo;
+    _deathInformation.add(deathInfo);
   }
 
   /// Marks the player as revived.
   void markRevived() {
-    _deathInformation = null;
+    _deathInformation.clear();
+    usedDeathAction = false;
+    deathAnnounced = false;
   }
 
   @override
@@ -75,7 +76,7 @@ class PlayerView {
   Role? get role => _player.role;
 
   /// Information about the player's death, if dead.
-  DeathInformation? get deathInformation => _player.deathInformation;
+  IList<DeathInformation> get deathInformation => _player.deathInformation.lock;
 
   /// Whether the player has used their death action.
   bool get usedDeathAction => _player.usedDeathAction;
