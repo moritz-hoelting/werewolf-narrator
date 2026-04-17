@@ -1,4 +1,5 @@
 git_hash := `git rev-parse --short HEAD`
+git_branch := `git branch --show-current`
 date := `date -u +"%Y-%m-%dT%H:%M:%SZ"`
 
 default_device := `flutter devices --machine | jq -r '(map(select(.id == "chrome")) | .[0].id) // .[0].id'`
@@ -54,7 +55,7 @@ analyze:
 [group("dev")]
 run device=default_device flavor=default_dev_flavor *args:
     flutter run --device-id={{device}} \
-        --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} \
+        --dart-define=GIT_HASH={{git_hash}} --dart-define=GIT_BRANCH={{git_branch}} --dart-define=BUILD_DATE={{date}} \
         {{if flavor == "" { "" } else { "--flavor=" + flavor + " --dart-define=FLAVOR=" + flavor }}} \
         {{if device == "chrome" { "--web-header=Cross-Origin-Opener-Policy=same-origin --web-header=Cross-Origin-Embedder-Policy=require-corp" } else { "" }}} \
         {{args}}
@@ -64,7 +65,7 @@ run device=default_device flavor=default_dev_flavor *args:
 [arg("executable", help="The executable to build.")]
 [group("build")]
 build executable *args:
-    flutter build {{executable}} --dart-define=GIT_HASH={{git_hash}} --dart-define=BUILD_DATE={{date}} {{args}}
+    flutter build {{executable}} --dart-define=GIT_HASH={{git_hash}} --dart-define=GIT_BRANCH={{git_branch}} --dart-define=BUILD_DATE={{date}} {{args}}
 
 # Build single apk for android
 [arg("flavor", help="The flavor to build.", long, pattern="|prod|dev|staging")]

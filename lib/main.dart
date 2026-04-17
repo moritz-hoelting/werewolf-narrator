@@ -11,9 +11,11 @@ import 'package:werewolf_narrator/database/database.dart'
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/themes.dart';
+import 'package:werewolf_narrator/util/consts.dart'
+    show buildDate, gitBranch, gitHash;
 import 'package:werewolf_narrator/util/developer_settings.dart';
 import 'package:werewolf_narrator/util/fast_immutable_collections.dart';
-import 'package:werewolf_narrator/util/flavors.dart';
+import 'package:werewolf_narrator/util/flavors.dart' show appFlavor;
 import 'package:werewolf_narrator/util/logging.dart' show logger;
 import 'package:werewolf_narrator/util/settings.dart';
 import 'package:werewolf_narrator/views/error_loading_db.dart';
@@ -23,6 +25,10 @@ import 'package:werewolf_narrator/views/roles_overview.dart';
 import 'package:werewolf_narrator/views/settings.dart' show SettingsScreen;
 
 void main() async {
+  logger.info(
+    'Starting up Werewolf Narrator (flavor: $appFlavor, git hash: $gitHash, git branch: $gitBranch, build date: $buildDate)',
+  );
+
   registerFastImmutableCollectionsMappers();
 
   WidgetsFlutterBinding.ensureInitialized();

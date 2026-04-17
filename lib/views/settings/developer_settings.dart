@@ -42,7 +42,7 @@ class DeveloperSettingsScreen extends StatelessWidget {
             ),
 
             const ListTile(
-              title: Text('Git Hash: $gitHash'),
+              title: Text('Git Hash: $gitHash ($gitBranch)'),
               subtitle: Text('Build Date: $buildDate'),
               trailing: IconButton(
                 icon: Icon(Icons.open_in_new),
