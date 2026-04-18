@@ -1,5 +1,6 @@
 import 'dart:async' show unawaited;
 
+import 'package:collection/collection.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
@@ -121,7 +122,7 @@ class GameState extends ChangeNotifier {
 
   void undoBatch() {
     logger.info(
-      'Undoing batch, commands to undo: ${[..._batchedCommandStack.reversed, ...(_batchedCommandStack.lastOrNull?.reversed.unlockView ?? [])]}',
+      'Undoing batch, commands to undo: ${[..._currentCommandStack.reversed, ...(_batchedCommandStack.lastOrNull?.reversed.unlockView ?? [])]}',
     );
     final batchStackLength = _batchedCommandStack.length;
     for (final entry in _currentCommandStack.reversed) {
@@ -362,6 +363,9 @@ class GameState extends ChangeNotifier {
   IMap<int, IList<DeathReason>> get previousCycleDeaths =>
       _data.previousCycleDeaths;
 
+  /// Deaths that have occurred but have not yet been announced to the players, mapped by player index.
+  ISet<int> get unannouncedDeaths => _data.unannouncedDeaths;
+
   /// Returns a map of player indices to their pending death information, for players that have been marked dead but not yet had their deaths announced.
   IMap<int, IList<DeathInformation>> get pendingDeaths => _data.pendingDeaths;
 
@@ -488,11 +492,11 @@ class GameState extends ChangeNotifier {
       _data.firstPlayerWithPendingDeathAction;
 
   /// Whether there are pending death announcements to be made.
-  bool get pendingDeathAnnouncements => _data.pendingDeathAnnouncements;
+  bool get hasPendingDeathAnnouncements => _data.hasPendingDeathAnnouncements;
 
   /// Whether there are pending death announcements to be made for deaths that occurred during the night.
-  bool get pendingDeathAnnouncementsFromNight =>
-      _data.pendingDeathAnnouncementsFromNight;
+  bool get hasPendingDeathAnnouncementsFromNight =>
+      _data.hasPendingDeathAnnouncementsFromNight;
 
   (int, int) getAliveNeighbors(int playerIndex) =>
       _data.getAliveNeighbors(playerIndex);
@@ -565,6 +569,12 @@ class _AppliedCommandFrame {
           .getOrElse(() => false),
     );
   }
+
+  IList<GameCommand> get allCommands => entries
+      .expand(
+        (entry) => entry.match((cmd) => [cmd], (frame) => frame.allCommands),
+      )
+      .toIList();
 
   bool get canUndoAll => entries.every(
     (entry) =>

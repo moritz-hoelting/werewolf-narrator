@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/database/database.dart' show AppDatabase;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
+import 'package:werewolf_narrator/util/developer_settings.dart'
+    show DeveloperSettings;
 import 'package:werewolf_narrator/util/settings.dart' show AppSettings;
 
 class CreatePlayersScreen extends StatefulWidget {
@@ -79,8 +81,15 @@ class _CreatePlayersScreenState extends State<CreatePlayersScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: () {
+                        final name =
+                            Provider.of<DeveloperSettings>(
+                              context,
+                              listen: false,
+                            ).fillPlayerNamesEnabled
+                            ? 'Player ${playerNames.length + 1}'
+                            : '';
                         setState(() {
-                          playerNames.add((name: '', key: UniqueKey()));
+                          playerNames.add((name: name, key: UniqueKey()));
                         });
                       },
                       label: Text(localizations.screen_createPlayers_addPlayer),

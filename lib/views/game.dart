@@ -85,9 +85,10 @@ class _RunningGameView extends StatelessWidget {
       child: Consumer<GameState>(
         builder: (context, gameState, child) {
           final showDeathsScreen =
-              gameState.pendingDeathAnnouncements &&
+              (gameState.hasPendingDeathAnnouncements ||
+                  gameState.firstPlayerWithPendingDeathAction != null) &&
               (!gameState.isNight || gameState.phase == GamePhase.dusk) &&
-              !gameState.pendingDeathAnnouncementsFromNight;
+              !gameState.hasPendingDeathAnnouncementsFromNight;
 
           return Theme(
             data: gameState.isNight && !showDeathsScreen

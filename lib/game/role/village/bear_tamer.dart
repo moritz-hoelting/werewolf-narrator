@@ -119,7 +119,7 @@ class RegisterBearTamerDawnMessageCommand
           .isNotEmpty,
       players: {playerIndex},
       beforeAll: true,
-      before: IList([VillageVoteScreen]),
+      before: ISet({VillageVoteScreen}),
     );
   }
 

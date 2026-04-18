@@ -142,7 +142,7 @@ class RegisterSeerNightActionCommand
           (context) =>
               SeerScreen(playerIndex: playerIndex, onPhaseComplete: onComplete),
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      after: IList([CupidRole.type]),
+      after: ISet({CupidRole.type}),
       players: {playerIndex},
     );
   }

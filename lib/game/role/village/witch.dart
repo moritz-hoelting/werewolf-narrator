@@ -26,6 +26,7 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 part 'witch.mapper.dart';
 
+// TODO: remove from pending deaths instead of reviving
 @RegisterRole()
 class WitchRole extends Role {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
@@ -183,6 +184,7 @@ class _WitchScreenState extends State<WitchScreen> {
   }
 
   bool playerEnabled(GameState gameState, int index) {
+    // TODO: add option whether only the target of the werewolves can be healed
     final killedByWerewolves =
         gameState.currentCycleDeaths.containsKey(index) &&
         (gameState.currentCycleDeaths[index]?.any(
@@ -365,7 +367,7 @@ class RegisterWitchNightActionCommand
         );
       },
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      after: IList([WerewolvesTeam.type, CupidRole.type]),
+      after: ISet({WerewolvesTeam.type, CupidRole.type}),
       players: {playerIndex},
     );
   }

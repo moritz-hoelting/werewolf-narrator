@@ -97,7 +97,7 @@ class AssignDoctorCommand
       (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       players: {playerIndex},
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
+      before: ISet({WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type}),
     );
 
     gameData.dawnHooks.add(dawnHook);

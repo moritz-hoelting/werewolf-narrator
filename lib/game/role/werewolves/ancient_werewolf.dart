@@ -24,6 +24,7 @@ import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 part 'ancient_werewolf.mapper.dart';
 
+// TODO: remove from pending deaths instead of reviving
 @RegisterRole()
 class AncientWerewolfRole extends Role {
   AncientWerewolfRole._({
@@ -228,8 +229,8 @@ class RegisterAncientWerewolfNightActionCommand
             onPhaseComplete: onComplete,
           ),
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      after: IList([WerewolvesTeam.type]),
-      before: IList([WitchRole.type]),
+      after: ISet({WerewolvesTeam.type}),
+      before: ISet({WitchRole.type}),
       players: {playerIndex},
     );
   }

@@ -21,8 +21,8 @@ class DynamicActionManager {
     DynamicActionBuilder builder, {
     required Set<int> players,
     bool Function(GameState gameState)? conditioned,
-    IList<Object> before = const IList.empty(),
-    IList<Object> after = const IList.empty(),
+    ISet<Object> before = const ISet.empty(),
+    ISet<Object> after = const ISet.empty(),
     bool beforeAll = false,
     bool afterAll = false,
   }) {
@@ -71,10 +71,10 @@ class DynamicActionManager {
     try {
       order = topologicalSort(
         unorderedRegistrations,
-        (from) => [
+        (from) => {
           ..._registrations.where((to) => to.after.contains(from.identifier)),
           ..._registrations.where((to) => from.before.contains(to.identifier)),
-        ],
+        },
         equals: (a, b) => a.identifier == b.identifier,
       );
     } on CycleException catch (e) {
@@ -103,10 +103,10 @@ class DynamicActionRegistration {
   final DynamicActionEntry entry;
 
   /// The list of identifiers that this action must come before.
-  final IList<Object> before;
+  final ISet<Object> before;
 
   /// The list of identifiers that this action must come after.
-  final IList<Object> after;
+  final ISet<Object> after;
 
   /// Whether this action should come before all others.
   final bool beforeAll;

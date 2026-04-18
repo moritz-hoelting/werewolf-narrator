@@ -156,8 +156,8 @@ class OnAssignBodyguardCommand
       (gameState, onComplete) => nightActionScreen(onComplete),
       players: {playerIndex},
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      before: IList([WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type]),
-      after: IList([DoctorRole.type]),
+      before: ISet({WitchRole.type, BigBadWolfRole.type, WerewolvesTeam.type}),
+      after: ISet({DoctorRole.type}),
     );
 
     gameData.dawnHooks.add(bodyguardRole.dawnHook);

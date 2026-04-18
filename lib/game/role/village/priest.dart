@@ -95,7 +95,7 @@ class OnAssignPriestCommand
       PriestRole.type,
       (gameState, onComplete) => nightActionScreen(gameState, onComplete),
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      before: IList([WerewolvesTeam.type, WitchRole.type, BigBadWolfRole.type]),
+      before: ISet({WerewolvesTeam.type, WitchRole.type, BigBadWolfRole.type}),
       players: {playerIndex},
     );
 

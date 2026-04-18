@@ -100,7 +100,7 @@ class RegisterWolfHoundNightActionCommand
                   .selectedWerewolf ==
               null,
       players: {playerIndex},
-      before: IList([WerewolvesTeam.type]),
+      before: ISet({WerewolvesTeam.type}),
     );
   }
 

@@ -35,7 +35,7 @@ class MarkDeadCommand with MarkDeadCommandMappable implements GameCommand {
   @override
   void undo(GameData gameData) {
     for (final int playerIndex in _playersMarkedDead!) {
-      gameData.markPlayerRevived(playerIndex);
+      gameData.removeFromPendingDeaths(playerIndex, deathReason);
     }
   }
 }

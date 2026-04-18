@@ -46,6 +46,7 @@ class Lovers with LoversMappable implements DeathReason, WinCondition {
   ISet<int> winningPlayers(GameState gameState) => lovers;
 }
 
+// TODO: remove from pending deaths instead of reviving
 @MappableClass(discriminatorValue: 'initializeLovers')
 class InitializeLoversCommand
     with InitializeLoversCommandMappable

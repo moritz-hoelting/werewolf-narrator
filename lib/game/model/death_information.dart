@@ -20,6 +20,11 @@ class DeathInformation {
     required this.day,
     required this.atNight,
   });
+
+  @override
+  String toString() {
+    return 'DeathInformation(reason: $reason, day: $day, atNight: $atNight)';
+  }
 }
 
 @MappableClass(discriminatorKey: 'type')

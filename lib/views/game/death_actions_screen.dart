@@ -2,7 +2,8 @@ import 'package:dart_mappable/dart_mappable.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
-import 'package:werewolf_narrator/game/game_data.dart' show GameData;
+import 'package:werewolf_narrator/game/game_data.dart'
+    show GameData, ProcessPendingDeathsCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
 
 part 'death_actions_screen.mapper.dart';
@@ -25,6 +26,9 @@ class DeathActionsScreen extends StatelessWidget {
     final deathAction = gameState.players[playerIndex!].role!.deathActionScreen(
       () {
         gameState.apply(MarkPlayerUsedDeathActionCommand(playerIndex));
+        if (gameState.pendingDeaths.isNotEmpty) {
+          gameState.apply(ProcessPendingDeathsCommand());
+        }
 
         if (gameState.firstPlayerWithPendingDeathAction == null) {
           onPhaseComplete();

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:werewolf_narrator/game/game_data.dart'
-    show ProcessPendingDeathsCommand;
+import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/util/gradient.dart';
@@ -23,13 +22,21 @@ class DeathsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<GameState>(
     builder: (context, gameState, child) {
-      if (!gameState.pendingDeathAnnouncements &&
+      if (!gameState.hasPendingDeathAnnouncements &&
           gameState.firstPlayerWithPendingDeathAction != null) {
-        return DeathActionsScreen(onPhaseComplete: onPhaseComplete ?? () {});
+        return DeathActionsScreen(
+          onPhaseComplete:
+              onPhaseComplete ??
+              () {
+                if (!gameState.hasPendingDeathAnnouncements) {
+                  gameState.finishBatch(TransitionToNextPhaseCommand());
+                }
+              },
+        );
       }
 
       final localizations = AppLocalizations.of(context);
-      final pendingDeaths = gameState.pendingDeaths;
+      final unannouncedDeaths = gameState.unannouncedDeaths.toIList();
 
       return Scaffold(
         extendBody: true,
@@ -49,7 +56,7 @@ class DeathsScreen extends StatelessWidget {
             ),
           ),
           height: double.infinity,
-          child: pendingDeaths.isEmpty
+          child: unannouncedDeaths.isEmpty
               ? Center(
                   child: Text(
                     localizations.screen_deaths_noDeaths,
@@ -57,10 +64,12 @@ class DeathsScreen extends StatelessWidget {
                   ),
                 )
               : ListView.builder(
+                  itemCount: unannouncedDeaths.length,
                   itemBuilder: (context, index) {
-                    final playerIndex = pendingDeaths.keys.elementAt(index);
+                    final playerIndex = unannouncedDeaths.elementAt(index);
                     final player = gameState.players[playerIndex];
-                    final deathInformation = pendingDeaths[playerIndex]!;
+                    final deathInformation =
+                        player.deathInformation.firstOrNull;
                     return ListTile(
                       title: Text(
                         localizations.screen_deaths_playerHasDied(
@@ -69,12 +78,11 @@ class DeathsScreen extends StatelessWidget {
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       subtitle: Text(
-                        '${player.role?.name(context) ?? localizations.role_unknown_name} - ${deathInformation.firstOrNull?.reason.deathReasonDescription(context)}',
+                        '${player.role?.name(context) ?? localizations.role_unknown_name} - ${deathInformation?.reason.deathReasonDescription(context)}',
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     );
                   },
-                  itemCount: pendingDeaths.length,
                   shrinkWrap: true,
                 ),
         ),
@@ -86,7 +94,7 @@ class DeathsScreen extends StatelessWidget {
             ),
             onPressed: () {
               final gameState = Provider.of<GameState>(context, listen: false);
-              gameState.apply(ProcessPendingDeathsCommand());
+              gameState.apply(MarkDeathsAnnouncedCommand());
 
               final firstPlayerWithPendingDeathAction =
                   gameState.firstPlayerWithPendingDeathAction;
@@ -95,6 +103,9 @@ class DeathsScreen extends StatelessWidget {
                   onPhaseComplete != null) {
                 onPhaseComplete!();
               } else {
+                if (firstPlayerWithPendingDeathAction == null) {
+                  gameState.apply(TransitionToNextPhaseCommand());
+                }
                 gameState.finishBatch();
               }
             },

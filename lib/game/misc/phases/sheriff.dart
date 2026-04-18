@@ -73,7 +73,7 @@ class RegisterSheriffElectionScreenCommand
               !gameState
                   .players[gameData.customData[SheriffElectionScreen] as int]
                   .isAlive),
-      before: IList([VillageVoteScreen]),
+      before: ISet({VillageVoteScreen}),
       players: const {},
     );
 

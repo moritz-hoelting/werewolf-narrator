@@ -84,8 +84,8 @@ class RegisterBigBadWolfNightActionCommand
       (gameState, onComplete) => nightActionScreen(playerIndex, onComplete),
       conditioned: (gameState) =>
           gameState.players[playerIndex].isAlive && !werewolfHasDied(gameState),
-      after: IList([WerewolvesTeam.type, AncientWerewolfRole.type]),
-      before: IList([WitchRole.type]),
+      after: ISet({WerewolvesTeam.type, AncientWerewolfRole.type}),
+      before: ISet({WitchRole.type}),
       players: {playerIndex},
     );
   }

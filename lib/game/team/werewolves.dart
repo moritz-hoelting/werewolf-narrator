@@ -138,7 +138,7 @@ class RegisterWerewolvesNightActionCommand
           ..addAll(WerewolvesTeam.werewolfPlayerIndices(gameState));
         return gameState.hasAlivePlayerOfTeamType<WerewolvesTeam>();
       },
-      after: IList([CupidRole.type, SeerRole.type]),
+      after: ISet({CupidRole.type, SeerRole.type}),
       players: _nightActionPlayerIndices,
     );
   }

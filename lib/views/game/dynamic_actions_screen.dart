@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show FpdartOnOption, Option;
 import 'package:provider/provider.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
-import 'package:werewolf_narrator/game/game_data.dart' show GameData;
+import 'package:werewolf_narrator/game/game_data.dart'
+    show GameData, ProcessPendingDeathsCommand;
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/util/dynamic_actions.dart';
 import 'package:werewolf_narrator/game/util/hooks.dart' show ActionHook;
@@ -61,6 +62,9 @@ class DynamicActionsScreen extends StatelessWidget {
     );
 
     if (nextIndex != null) {
+      if (!night && gameState.pendingDeaths.isNotEmpty) {
+        gameState.apply(ProcessPendingDeathsCommand());
+      }
       _setCurrentActionIndex(context, nextIndex);
     } else {
       onAllActionsComplete();

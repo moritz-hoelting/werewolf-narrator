@@ -147,9 +147,10 @@ class GameData {
   final List<int> _markDeadRecursionGuard = [];
   final List<int> _markRevivedRecursionGuard = [];
 
-  final Map<dynamic, dynamic> customData = {};
-
   final Map<int, List<DeathInformation>> _pendingDeaths = {};
+  final Set<int> _unannouncedDeaths = {};
+
+  final Map<dynamic, dynamic> customData = {};
 
   /// The current day counter.
   int get dayCounter => _dayCounter;
@@ -352,17 +353,6 @@ class GameData {
         .lock;
   }
 
-  void processPendingDeaths() {
-    for (final entry in _pendingDeaths.entries) {
-      final playerIndex = entry.key;
-      final deathInfos = entry.value;
-      for (final deathInfo in deathInfos) {
-        _markPlayerActuallyDead(playerIndex, deathInfo);
-      }
-    }
-    _pendingDeaths.clear();
-  }
-
   void _markPlayerActuallyDead(
     int playerIndex,
     DeathInformation deathInformation,
@@ -412,6 +402,16 @@ class GameData {
     _markRevivedRecursionGuard.remove(playerIndex);
   }
 
+  /// Removes a pending death for a player with the given reason.
+  void removeFromPendingDeaths(int playerIndex, DeathReason reason) {
+    _pendingDeaths[playerIndex]?.removeWhere(
+      (deathInfo) => deathInfo.reason == reason,
+    );
+    if (_pendingDeaths[playerIndex]?.isEmpty == true) {
+      _pendingDeaths.remove(playerIndex);
+    }
+  }
+
   /// Player indices that are alive.
   ISet<int> get alivePlayerIndices => players.indexed
       .where((player) => player.$2.isAlive)
@@ -436,17 +436,17 @@ class GameData {
   IMap<int, IList<DeathInformation>> get pendingDeaths =>
       _pendingDeaths.lock.map((key, value) => MapEntry(key, value.lock));
 
+  /// Deaths that have occurred but have not yet been announced to the players, mapped by player index.
+  ISet<int> get unannouncedDeaths => _unannouncedDeaths.lock;
+
   /// Whether there are pending death announcements to be made.
-  bool get pendingDeathAnnouncements =>
-      _pendingDeaths.isNotEmpty &&
-      _pendingDeaths.values.any(
-        (deathInformations) => deathInformations.isNotEmpty,
-      );
+  bool get hasPendingDeathAnnouncements => _unannouncedDeaths.isNotEmpty;
 
   /// Whether there are pending death announcements to be made for deaths that occurred during the night.
-  bool get pendingDeathAnnouncementsFromNight => _pendingDeaths.values.any(
-    (deathInformations) =>
-        deathInformations.any((deathInfo) => deathInfo.atNight),
+  bool get hasPendingDeathAnnouncementsFromNight => _unannouncedDeaths.any(
+    (playerIndex) => players[playerIndex].deathInformation.any(
+      (info) => info.atNight == true,
+    ),
   );
 
   (int, int) getAliveNeighbors(int playerIndex) {
@@ -522,21 +522,28 @@ class GameData {
           next.index >= GamePhase.nightActions.index) {
         state.apply(FillVillagerRolesCommand());
       }
-      _phase = next;
-      if (next == GamePhase.dawn) {
-        if (!(startGameWithDay && previous == GamePhase.checkRoles)) {
-          _dayCounter += 1;
+      if (!_phase.isNight && _pendingDeaths.isNotEmpty) {
+        state.apply(ProcessPendingDeathsCommand());
+      } else {
+        if (next == GamePhase.dawn && _pendingDeaths.isNotEmpty) {
+          state.apply(ProcessPendingDeathsCommand());
         }
-        for (final hook in dawnHooks) {
-          hook(state, dayCounter);
+        _phase = next;
+        if (next == GamePhase.dawn) {
+          if (!(startGameWithDay && previous == GamePhase.checkRoles)) {
+            _dayCounter += 1;
+          }
+          for (final hook in dawnHooks) {
+            hook(state, dayCounter);
+          }
+        } else if (next == GamePhase.dayActions ||
+            next == GamePhase.nightActions) {
+          state.apply(
+            DetermineFirstDynamicActionIndexCommand(
+              night: next == GamePhase.nightActions,
+            ),
+          );
         }
-      } else if (next == GamePhase.dayActions ||
-          next == GamePhase.nightActions) {
-        state.apply(
-          DetermineFirstDynamicActionIndexCommand(
-            night: next == GamePhase.nightActions,
-          ),
-        );
       }
       return;
     }
@@ -688,7 +695,15 @@ class ProcessPendingDeathsCommand
   @override
   void apply(GameData gameData) {
     _previousPendingDeaths = gameData.pendingDeaths;
-    gameData.processPendingDeaths();
+    for (final entry in gameData._pendingDeaths.entries) {
+      final playerIndex = entry.key;
+      final deathInfos = entry.value;
+      for (final deathInfo in deathInfos) {
+        gameData._markPlayerActuallyDead(playerIndex, deathInfo);
+      }
+    }
+    gameData._unannouncedDeaths.addAll(gameData._pendingDeaths.keys);
+    gameData._pendingDeaths.clear();
   }
 
   @override
@@ -703,7 +718,37 @@ class ProcessPendingDeathsCommand
         gameData._pendingDeaths[playerIndex] ??= [];
         gameData._pendingDeaths[playerIndex]!.add(deathInfo);
       }
+      gameData.players[playerIndex].deathInformation.removeWhere(
+        (info) => entry.value.contains(info),
+      );
     }
+    gameData._unannouncedDeaths.removeAll(_previousPendingDeaths!.keys);
     _previousPendingDeaths = null;
+  }
+}
+
+@MappableClass(discriminatorValue: 'markDeathsAnnounced')
+class MarkDeathsAnnouncedCommand
+    with MarkDeathsAnnouncedCommandMappable
+    implements GameCommand {
+  ISet<int>? _previouslyUnannouncedDeaths;
+
+  @override
+  void apply(GameData gameData) {
+    _previouslyUnannouncedDeaths = gameData.unannouncedDeaths;
+    gameData._unannouncedDeaths.clear();
+    if (gameData.firstPlayerWithPendingDeathAction == null &&
+        gameData.checkWinConditions() != null) {
+      gameData.state.apply(GameOverCommand());
+    }
+  }
+
+  @override
+  bool get canBeUndone => _previouslyUnannouncedDeaths != null;
+
+  @override
+  void undo(GameData gameData) {
+    gameData._unannouncedDeaths.addAll(_previouslyUnannouncedDeaths!);
+    _previouslyUnannouncedDeaths = null;
   }
 }

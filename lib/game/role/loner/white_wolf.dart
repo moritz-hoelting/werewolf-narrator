@@ -149,7 +149,7 @@ class OnAssignWhiteWolfCommand
           gameState.players[playerIndex].isAlive &&
           gameState.dayCounter % wakeEveryNthNight == 0,
       players: {playerIndex},
-      after: IList([WerewolvesTeam.type]),
+      after: ISet({WerewolvesTeam.type}),
     );
   }
 

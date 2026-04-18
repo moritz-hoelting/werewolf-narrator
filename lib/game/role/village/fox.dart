@@ -252,7 +252,7 @@ class RegisterFoxNightActionCommand
       conditioned: (gameState) =>
           !(gameState.players[playerIndex].role as FoxRole).hasLostPowers &&
           gameState.players[playerIndex].isAlive,
-      after: IList([CupidRole.type]),
+      after: ISet({CupidRole.type}),
       players: {playerIndex},
     );
   }
