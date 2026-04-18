@@ -101,11 +101,6 @@ class GameData {
   /// Can prevent death by returning true.
   final List<DeathHook> deathHooks = [];
 
-  /// Hooks when a player is marked revived.
-  ///
-  /// Can prevent revival by returning true.
-  final List<ReviveHook> reviveHooks = [];
-
   /// Hooks when a player is displayed.
   final List<PlayerDisplayHook> playerDisplayHooks = [];
 
@@ -143,9 +138,8 @@ class GameData {
   int _dayCounter = 0;
   GamePhase _phase = GamePhase.dusk;
 
-  // Guards against recursive calls in markPlayerDead and markPlayerRevived.
+  // Guard against recursive calls in markPlayerDead.
   final List<int> _markDeadRecursionGuard = [];
-  final List<int> _markRevivedRecursionGuard = [];
 
   final Map<int, List<DeathInformation>> _pendingDeaths = {};
   final Set<int> _unannouncedDeaths = {};
@@ -382,24 +376,6 @@ class GameData {
     );
     _pendingDeaths[playerIndex] ??= [];
     _pendingDeaths[playerIndex]!.add(deathInformation);
-  }
-
-  /// Marks a player as revived.
-  void markPlayerRevived(int playerIndex) {
-    if (_markRevivedRecursionGuard.contains(playerIndex)) {
-      return;
-    }
-    _markRevivedRecursionGuard.add(playerIndex);
-    var shouldRevive = true;
-    for (final hook in reviveHooks) {
-      if (hook(state, playerIndex)) {
-        shouldRevive = false;
-      }
-    }
-    if (shouldRevive) {
-      players[playerIndex].markRevived();
-    }
-    _markRevivedRecursionGuard.remove(playerIndex);
   }
 
   /// Removes a pending death for a player with the given reason.
@@ -695,15 +671,26 @@ class ProcessPendingDeathsCommand
   @override
   void apply(GameData gameData) {
     _previousPendingDeaths = gameData.pendingDeaths;
-    for (final entry in gameData._pendingDeaths.entries) {
+    final pendingDeaths = gameData.pendingDeaths;
+    for (final entry in pendingDeaths.entries) {
       final playerIndex = entry.key;
       final deathInfos = entry.value;
       for (final deathInfo in deathInfos) {
         gameData._markPlayerActuallyDead(playerIndex, deathInfo);
       }
     }
-    gameData._unannouncedDeaths.addAll(gameData._pendingDeaths.keys);
-    gameData._pendingDeaths.clear();
+    gameData._unannouncedDeaths.addAll(pendingDeaths.keys);
+    for (final entry in pendingDeaths.entries) {
+      gameData._pendingDeaths[entry.key]?.removeWhere(
+        (deathInfo) => entry.value.contains(deathInfo),
+      );
+      if (gameData._pendingDeaths[entry.key]?.isEmpty == true) {
+        gameData._pendingDeaths.remove(entry.key);
+      }
+    }
+    if (gameData._pendingDeaths.isNotEmpty) {
+      gameData.state.apply(ProcessPendingDeathsCommand());
+    }
   }
 
   @override

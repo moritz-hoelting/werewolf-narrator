@@ -2,7 +2,6 @@ import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
-import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -13,6 +12,7 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'lovers.mapper.dart';
 
+// TODO: add option for setting lovers count to something other than 2
 @MappableClass(discriminatorValue: 'lovers')
 class Lovers with LoversMappable implements DeathReason, WinCondition {
   const Lovers(this.lovers);
@@ -46,7 +46,6 @@ class Lovers with LoversMappable implements DeathReason, WinCondition {
   ISet<int> winningPlayers(GameState gameState) => lovers;
 }
 
-// TODO: remove from pending deaths instead of reviving
 @MappableClass(discriminatorValue: 'initializeLovers')
 class InitializeLoversCommand
     with InitializeLoversCommandMappable
@@ -58,7 +57,6 @@ class InitializeLoversCommand
   @override
   void apply(GameData gameData) {
     gameData.deathHooks.add(deathHook);
-    gameData.reviveHooks.add(reviveHook);
     gameData.playerWinHooks.add(playerWinHook);
   }
 
@@ -68,7 +66,6 @@ class InitializeLoversCommand
   @override
   void undo(GameData gameData) {
     gameData.deathHooks.remove(deathHook);
-    gameData.reviveHooks.remove(reviveHook);
     gameData.playerWinHooks.remove(playerWinHook);
   }
 
@@ -82,15 +79,6 @@ class InitializeLoversCommand
       gameState.apply(
         MarkDeadCommand(players: otherLovers, deathReason: lovers),
       );
-    }
-
-    return false;
-  }
-
-  bool reviveHook(GameState gameState, int playerIndex) {
-    if (lovers.lovers.contains(playerIndex)) {
-      final ISet<int> otherLovers = lovers.lovers.difference({playerIndex});
-      gameState.apply(MarkRevivedCommand(otherLovers));
     }
 
     return false;

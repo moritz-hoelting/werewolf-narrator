@@ -5,7 +5,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:werewolf_narrator/database/database.dart'
-    show AppDatabase, AppDatabaseHolder;
+    show AppDatabaseHolder;
 import 'package:werewolf_narrator/game/game_command.dart' show GameCommand;
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/misc/phases/sheriff.dart'
@@ -110,12 +110,9 @@ class GameState extends ChangeNotifier {
 
     final db = AppDatabaseHolder().database;
     unawaited(
-      db.computeWithDatabase(
-        computation: (db) => db.gamesDao.insertCommandBatch(
-          id,
-          commandsInBatch.map((entry) => entry.command),
-        ),
-        connect: AppDatabase.open,
+      db.gamesDao.insertCommandBatch(
+        id,
+        commandsInBatch.map((entry) => entry.command),
       ),
     );
   }
@@ -150,13 +147,7 @@ class GameState extends ChangeNotifier {
 
     if (batchStackLength > 0) {
       final db = AppDatabaseHolder().database;
-      unawaited(
-        db.computeWithDatabase(
-          computation: (db) =>
-              db.gamesDao.setBatchUndoStatus(id, batchStackLength - 1, true),
-          connect: AppDatabase.open,
-        ),
-      );
+      unawaited(db.gamesDao.setBatchUndoStatus(id, batchStackLength - 1, true));
     }
   }
 
@@ -172,13 +163,7 @@ class GameState extends ChangeNotifier {
     notifyListeners();
 
     final db = AppDatabaseHolder().database;
-    unawaited(
-      db.computeWithDatabase(
-        computation: (db) =>
-            db.gamesDao.setBatchUndoStatus(id, batchStackLength, false),
-        connect: AppDatabase.open,
-      ),
-    );
+    unawaited(db.gamesDao.setBatchUndoStatus(id, batchStackLength, false));
   }
 
   bool get canUndoBatch =>
@@ -313,11 +298,6 @@ class GameState extends ChangeNotifier {
   ///
   /// Can prevent death by returning true.
   IList<DeathHook> get deathHooks => _data.deathHooks.lock;
-
-  /// Hooks when a player is marked revived.
-  ///
-  /// Can prevent revival by returning true.
-  IList<ReviveHook> get reviveHooks => _data.reviveHooks.lock;
 
   /// Hooks when a player is displayed.
   IList<PlayerDisplayHook> get playerDisplayHooks =>

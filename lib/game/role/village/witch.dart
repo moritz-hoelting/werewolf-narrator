@@ -5,7 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
 import 'package:werewolf_narrator/game/commands/mark_dead.dart';
-import 'package:werewolf_narrator/game/commands/mark_revived.dart';
+import 'package:werewolf_narrator/game/commands/remove_pending_death.dart'
+    show RemovePendingDeathCommand;
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -26,7 +27,6 @@ import 'package:werewolf_narrator/widgets/game/player_list.dart';
 
 part 'witch.mapper.dart';
 
-// TODO: remove from pending deaths instead of reviving
 @RegisterRole()
 class WitchRole extends Role {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
@@ -173,7 +173,19 @@ class _WitchScreenState extends State<WitchScreen> {
           gameState.apply(
             WitchUsePotionsCommand(
               playerIndex: widget.playerIndex,
-              healPlayers: _selectedHealPlayers.lock,
+              healPlayers: IMap.fromEntries(
+                _selectedHealPlayers.map(
+                  (healPlayerIndex) => MapEntry(
+                    healPlayerIndex,
+                    gameState.pendingDeaths[healPlayerIndex]!
+                        .firstWhere(
+                          (deathInfo) =>
+                              deathInfo.reason is WerewolvesDeathReason,
+                        )
+                        .reason,
+                  ),
+                ),
+              ),
               killPlayers: _selectedKillPlayers.lock,
             ),
           );
@@ -186,9 +198,9 @@ class _WitchScreenState extends State<WitchScreen> {
   bool playerEnabled(GameState gameState, int index) {
     // TODO: add option whether only the target of the werewolves can be healed
     final killedByWerewolves =
-        gameState.currentCycleDeaths.containsKey(index) &&
-        (gameState.currentCycleDeaths[index]?.any(
-              (reason) => reason is WerewolvesDeathReason,
+        gameState.pendingDeaths.containsKey(index) &&
+        (gameState.pendingDeaths[index]?.any(
+              (information) => information.reason is WerewolvesDeathReason,
             ) ??
             false);
     return gameState.players[index].isAlive &&
@@ -392,7 +404,7 @@ class WitchUsePotionsCommand
   });
 
   final int playerIndex;
-  final ISet<int> healPlayers;
+  final IMap<int, DeathReason> healPlayers;
   final ISet<int> killPlayers;
 
   @override
@@ -403,7 +415,7 @@ class WitchUsePotionsCommand
       gameData.state.apply(
         CompositeGameCommand(
           <GameCommand>[
-            if (healPlayers.isNotEmpty) MarkRevivedCommand(healPlayers),
+            if (healPlayers.isNotEmpty) RemovePendingDeathCommand(healPlayers),
             if (killPlayers.isNotEmpty)
               MarkDeadCommand(
                 players: killPlayers,

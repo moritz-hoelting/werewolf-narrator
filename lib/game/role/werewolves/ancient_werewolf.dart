@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +6,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:provider/provider.dart';
 import 'package:werewolf_annotations/register_role.dart' show RegisterRole;
 import 'package:werewolf_narrator/game/commands/composite.dart';
-import 'package:werewolf_narrator/game/commands/mark_revived.dart';
 import 'package:werewolf_narrator/game/commands/override_team.dart';
+import 'package:werewolf_narrator/game/commands/remove_pending_death.dart';
 import 'package:werewolf_narrator/game/game_command.dart';
 import 'package:werewolf_narrator/game/game_data.dart' show GameData;
 import 'package:werewolf_narrator/game/game_state.dart';
@@ -24,7 +25,6 @@ import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 
 part 'ancient_werewolf.mapper.dart';
 
-// TODO: remove from pending deaths instead of reviving
 @RegisterRole()
 class AncientWerewolfRole extends Role {
   AncientWerewolfRole._({
@@ -195,10 +195,16 @@ class AncientWerewolfScreen extends StatelessWidget {
   }
 
   void useAbilityOn(GameState gameState, int playerIndex, PlayerView player) {
+    final deathReason = gameState.pendingDeaths[playerIndex]!
+        .firstWhere(
+          (information) => information.reason is WerewolvesDeathReason,
+        )
+        .reason;
+
     gameState.finishBatch(
       CompositeGameCommand(
         [
-          MarkRevivedCommand.single(playerIndex),
+          RemovePendingDeathCommand.single(playerIndex, deathReason),
           OverrideTeamCommand(playerIndex, WerewolvesTeam.type),
           AncientWerewolfSaveConvertPlayerIndexCommand(
             playerIndex: this.playerIndex,
