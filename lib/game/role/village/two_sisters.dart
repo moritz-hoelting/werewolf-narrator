@@ -5,6 +5,7 @@ import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
+// TODO: add option for waking every nth night
 @RegisterRole()
 class TwoSistersRole extends Role {
   TwoSistersRole._({

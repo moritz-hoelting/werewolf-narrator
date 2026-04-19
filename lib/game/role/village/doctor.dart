@@ -25,12 +25,22 @@ part 'doctor.mapper.dart';
 @RegisterRole()
 class DoctorRole extends Role {
   DoctorRole._({required RoleConfiguration config, required super.playerIndex})
-    : protectPlayerCooldown = config[protectPlayerCooldownOptionKey];
+    : protectPlayerCooldown = protectPlayerCooldownOption.read(config);
   static final RoleType type = RoleType.of<DoctorRole>();
   @override
   RoleType get roleType => type;
 
-  static const String protectPlayerCooldownOptionKey = 'protectPlayerCooldown';
+  static final protectPlayerCooldownOption = IntOption(
+    id: 'protectPlayerCooldown',
+    label: (context) => AppLocalizations.of(
+      context,
+    ).role_doctor_option_protectPlayerCooldown_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_doctor_option_protectPlayerCooldown_description,
+    defaultValue: 0,
+    min: 0,
+  );
 
   final int protectPlayerCooldown;
 
@@ -50,19 +60,7 @@ class DoctorRole extends Role {
           context,
         ).role_doctor_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([
-          IntOption(
-            id: protectPlayerCooldownOptionKey,
-            label: (context) => AppLocalizations.of(
-              context,
-            ).role_doctor_option_protectPlayerCooldown_label,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_doctor_option_protectPlayerCooldown_description,
-            defaultValue: 0,
-            min: 0,
-          ),
-        ]),
+        options: IList([protectPlayerCooldownOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 5,

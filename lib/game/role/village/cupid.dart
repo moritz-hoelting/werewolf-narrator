@@ -22,11 +22,24 @@ part 'cupid.mapper.dart';
 
 @RegisterRole()
 class CupidRole extends Role {
-  CupidRole._({required RoleConfiguration config, required super.playerIndex});
+  CupidRole._({required RoleConfiguration config, required super.playerIndex})
+    : loverCount = loverCountOption.read(config);
 
   static final RoleType type = RoleType.of<CupidRole>();
   @override
   RoleType get roleType => type;
+
+  static final loverCountOption = IntOption(
+    id: 'loverCount',
+    label: (context) =>
+        AppLocalizations.of(context).role_cupid_option_loverCount_label,
+    description: (context) =>
+        AppLocalizations.of(context).role_cupid_option_loverCount_description,
+    defaultValue: 2,
+    min: 2,
+  );
+
+  final int loverCount;
 
   Lovers? lovers;
 
@@ -43,6 +56,7 @@ class CupidRole extends Role {
           context,
         ).role_cupid_checkInstruction(count: count),
         validRoleCounts: const [1],
+        options: IList([loverCountOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 50,
@@ -79,12 +93,14 @@ class CupidScreen extends StatelessWidget {
       return ActionScreen(
         appBarTitle: Text(CupidRole._name(context)),
         instruction: Text(
-          AppLocalizations.of(context).role_cupid_nightAction_instruction,
+          AppLocalizations.of(
+            context,
+          ).role_cupid_nightAction_instruction(count: cupidRole.loverCount),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         actionIdentifier: CupidRole.type,
         currentActorIndices: ISet({cupidIndex}),
-        selectionCount: 2,
+        selectionCount: cupidRole.loverCount,
         onConfirm: onAssignLovers,
       );
     } else {
@@ -97,8 +113,8 @@ class CupidScreen extends StatelessWidget {
 
   void onAssignLovers(ISet<int> selectedIndices, GameState gameState) {
     assert(
-      selectedIndices.length == 2,
-      'Cupid must select exactly two players as lovers.',
+      selectedIndices.length == cupidRole.loverCount,
+      'Cupid must select exactly ${cupidRole.loverCount} players as lovers.',
     );
     gameState.finishBatch(
       CupidAssignLoversCommand(cupidIndex: cupidIndex, lovers: selectedIndices),

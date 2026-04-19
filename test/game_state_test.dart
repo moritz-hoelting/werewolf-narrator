@@ -8,8 +8,6 @@ import 'package:werewolf_narrator/game/game_data.dart'
     show GamePhase, TransitionToNextPhaseCommand;
 import 'package:werewolf_narrator/game/game_registry.g.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
-import 'package:werewolf_narrator/game/model/configuration_options.dart'
-    show fillDefaultGameConfiguration;
 import 'package:werewolf_narrator/game/role/loner/angel.dart' show AngelRole;
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
 import 'package:werewolf_narrator/game/role/village/hunter.dart'
@@ -32,7 +30,7 @@ void main() {
     final state = GameState(
       id: 0,
       playerNames: List.generate(4, (index) => 'Player $index'),
-      gameConfiguration: fillDefaultGameConfiguration({}),
+      gameConfiguration: const IMap.empty(),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: emptyConfig),
         HunterRole.type: (count: 1, config: emptyConfig),
@@ -85,7 +83,7 @@ void main() {
     final state = GameState(
       id: 1,
       playerNames: List.generate(4, (index) => 'Player $index'),
-      gameConfiguration: fillDefaultGameConfiguration({}),
+      gameConfiguration: const IMap.empty(),
       roleConfigurations: {
         SeerRole.type: (count: 1, config: emptyConfig),
         AngelRole.type: (count: 1, config: emptyConfig),

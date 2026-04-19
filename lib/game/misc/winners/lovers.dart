@@ -12,7 +12,6 @@ import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'lovers.mapper.dart';
 
-// TODO: add option for setting lovers count to something other than 2
 @MappableClass(discriminatorValue: 'lovers')
 class Lovers with LoversMappable implements DeathReason, WinCondition {
   const Lovers(this.lovers);

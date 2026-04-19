@@ -37,8 +37,7 @@ class _ConfigureGameScreenState extends State<ConfigureGameScreen> {
     _gameConfiguration = widget.initialConfiguration?.unlockLazy ?? {};
   }
 
-  void _submit() =>
-      widget.onSubmit(fillDefaultGameConfiguration(_gameConfiguration));
+  void _submit() => widget.onSubmit(_gameConfiguration.lock);
 
   @override
   Widget build(BuildContext context) {

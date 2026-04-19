@@ -82,10 +82,9 @@ class OnAssignElderCommand
     final elderRole = deathGameState.players[playerIndex].role as ElderRole;
 
     if (playerIndex == deathPlayerIndex) {
-      if (information is WerewolvesDeathReason) {
+      if (information.reason is WerewolvesDeathReason) {
         if (!elderRole.hasBeenAttackedByWerewolves) {
           deathGameState.apply(MarkElderAsAttackedCommand(playerIndex));
-          // TODO: still allow witch to heal the elder if attacked by werewolves for the first time
           return true;
         }
       } else {

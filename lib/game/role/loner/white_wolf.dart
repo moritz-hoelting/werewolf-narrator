@@ -27,12 +27,22 @@ class WhiteWolfRole extends Role {
   WhiteWolfRole._({
     required RoleConfiguration config,
     required super.playerIndex,
-  }) : wakeEveryNthNight = config[wakeEveryNthNightOptionKey];
+  }) : wakeEveryNthNight = wakeEveryNthNightOption.read(config);
   static final RoleType type = RoleType.of<WhiteWolfRole>();
   @override
   RoleType get roleType => type;
 
-  static const String wakeEveryNthNightOptionKey = 'wakeEveryNthNight';
+  static final wakeEveryNthNightOption = IntOption(
+    id: 'wakeEveryNthNight',
+    label: (context) => AppLocalizations.of(
+      context,
+    ).role_whiteWolf_option_wakeEveryNthNight_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_whiteWolf_option_wakeEveryNthNight_description,
+    defaultValue: 2,
+    min: 1,
+  );
 
   final int wakeEveryNthNight;
 
@@ -49,19 +59,7 @@ class WhiteWolfRole extends Role {
           context,
         ).role_whiteWolf_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([
-          IntOption(
-            id: wakeEveryNthNightOptionKey,
-            label: (context) => AppLocalizations.of(
-              context,
-            ).role_whiteWolf_option_wakeEveryNthNight_label,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_whiteWolf_option_wakeEveryNthNight_description,
-            defaultValue: 2,
-            min: 1,
-          ),
-        ]),
+        options: IList([wakeEveryNthNightOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 3,

@@ -88,14 +88,8 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
     _roles.value = current;
   }
 
-  RoleConfiguration _roleConfigurationOrDefault(RoleType role) {
-    final defaults = role.information.options.fold<RoleConfiguration>(
-      {},
-      (config, option) => {...config, option.id: option.defaultValue},
-    );
-
-    return {...defaults, ...?_roleConfigurations[role]};
-  }
+  RoleConfiguration _roleConfiguration(RoleType role) =>
+      _roleConfigurations[role] ?? {};
 
   IMap<RoleType, ({Map<String, dynamic> config, int count})> _getFinalRoles(
     Map<RoleType, ({int index, int count})> roles,
@@ -105,7 +99,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
           roles.map(
             (role, value) => MapEntry(role, (
               count: value.count,
-              config: _roleConfigurationOrDefault(role),
+              config: _roleConfiguration(role),
             )),
           ),
         );
@@ -224,9 +218,7 @@ class _ChooseRolesScreenState extends State<ChooseRolesScreen> {
                                   count: count,
                                   countIndex: idx,
                                   maxCountIndex: maxCountIndex,
-                                  configuration: _roleConfigurationOrDefault(
-                                    role,
-                                  ),
+                                  configuration: _roleConfiguration(role),
                                   setCount: (i, c) => _setCount(role, i, c),
                                   setConfiguration: (config) {
                                     _roleConfigurations[role] = config;

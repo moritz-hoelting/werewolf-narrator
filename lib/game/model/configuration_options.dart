@@ -49,7 +49,3 @@ class IntOption extends ConfigurationOption<int> {
     this.max,
   });
 }
-
-GameConfiguration fillDefaultGameConfiguration(Map<String, dynamic> config) {
-  return config.lock;
-}

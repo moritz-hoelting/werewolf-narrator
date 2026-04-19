@@ -28,12 +28,19 @@ class PyjamaPalRole extends Role {
   PyjamaPalRole._({
     required RoleConfiguration config,
     required super.playerIndex,
-  }) : dieIfAtHostile = config[dieIfAtHostileOptionKey];
+  }) : dieIfAtHostile = dieIfAtHostileOption.read(config);
   static final RoleType type = RoleType.of<PyjamaPalRole>();
   @override
   RoleType get roleType => type;
 
-  static const String dieIfAtHostileOptionKey = 'dieIfAtHostile';
+  static final dieIfAtHostileOption = BoolOption(
+    id: 'dieIfAtHostile',
+    label: (context) =>
+        AppLocalizations.of(context).role_pyjamaPal_option_dieIfAtHostile_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_pyjamaPal_option_dieIfAtHostile_description,
+  );
 
   final bool dieIfAtHostile;
 
@@ -52,17 +59,7 @@ class PyjamaPalRole extends Role {
           context,
         ).role_pyjamaPal_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([
-          BoolOption(
-            id: dieIfAtHostileOptionKey,
-            label: (context) => AppLocalizations.of(
-              context,
-            ).role_pyjamaPal_option_dieIfAtHostile_label,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_pyjamaPal_option_dieIfAtHostile_description,
-          ),
-        ]),
+        options: IList([dieIfAtHostileOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
         ),

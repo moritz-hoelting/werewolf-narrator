@@ -30,14 +30,32 @@ part 'witch.mapper.dart';
 @RegisterRole()
 class WitchRole extends Role {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
-    : healPotions = config[healPotionOptionId],
-      killPotions = config[killPotionOptionId];
+    : healPotions = healPotionCountOption.read(config),
+      killPotions = killPotionCountOption.read(config);
   static final RoleType type = RoleType.of<WitchRole>();
   @override
   RoleType get roleType => type;
 
-  static const String healPotionOptionId = 'heal';
-  static const String killPotionOptionId = 'kill';
+  static final healPotionCountOption = IntOption(
+    id: 'healPotionCount',
+    label: (context) =>
+        AppLocalizations.of(context).role_witch_option_healPotionCount_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_witch_option_healPotionCount_description,
+    min: 0,
+    defaultValue: 1,
+  );
+  static final killPotionCountOption = IntOption(
+    id: 'killPotionCount',
+    label: (context) =>
+        AppLocalizations.of(context).role_witch_option_killPotionCount_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_witch_option_killPotionCount_description,
+    min: 0,
+    defaultValue: 1,
+  );
 
   int healPotions;
   int killPotions;
@@ -55,7 +73,7 @@ class WitchRole extends Role {
           context,
         ).role_witch_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: options,
+        options: IList([healPotionCountOption, killPotionCountOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 15,
@@ -63,29 +81,6 @@ class WitchRole extends Role {
       ),
     );
   }
-
-  static final IList<ConfigurationOption> options = IList([
-    IntOption(
-      id: healPotionOptionId,
-      label: (context) =>
-          AppLocalizations.of(context).role_witch_option_healPotionCount_label,
-      description: (context) => AppLocalizations.of(
-        context,
-      ).role_witch_option_healPotionCount_description,
-      min: 0,
-      defaultValue: 1,
-    ),
-    IntOption(
-      id: killPotionOptionId,
-      label: (context) =>
-          AppLocalizations.of(context).role_witch_option_killPotionCount_label,
-      description: (context) => AppLocalizations.of(
-        context,
-      ).role_witch_option_killPotionCount_description,
-      min: 0,
-      defaultValue: 1,
-    ),
-  ]);
 
   @override
   void onAssign(GameState gameState) {
@@ -216,6 +211,7 @@ class _WitchScreenState extends State<WitchScreen> {
 
   VoidCallback? onTapHeal(GameState gameState, int index) =>
       handleOnTap(gameState, index, _selectedHealPlayers, widget.healPotions);
+
   VoidCallback? handleOnTap(
     GameState gameState,
     int index,

@@ -27,11 +27,22 @@ part 'piper.mapper.dart';
 @RegisterRole()
 class PiperRole extends Role {
   PiperRole._({required RoleConfiguration config, required super.playerIndex})
-    : charmAmountPerNight = config[charmAmountPerNightOptionId];
+    : charmAmountPerNight = charmAmountPerNightOption.read(config);
   static final RoleType type = RoleType.of<PiperRole>();
   @override
   RoleType get roleType => type;
-  static const String charmAmountPerNightOptionId = 'charmAmountPerNight';
+
+  static final charmAmountPerNightOption = IntOption(
+    id: 'charmAmountPerNight',
+    label: (context) => AppLocalizations.of(
+      context,
+    ).role_piper_option_charmAmountPerNight_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_piper_option_charmAmountPerNight_description,
+    min: 1,
+    defaultValue: 2,
+  );
 
   final int charmAmountPerNight;
 
@@ -50,19 +61,7 @@ class PiperRole extends Role {
           context,
         ).role_piper_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([
-          IntOption(
-            id: charmAmountPerNightOptionId,
-            label: (context) => AppLocalizations.of(
-              context,
-            ).role_piper_option_charmAmountPerNight_label,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_piper_option_charmAmountPerNight_description,
-            min: 1,
-            defaultValue: 2,
-          ),
-        ]),
+        options: IList([charmAmountPerNightOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.loner,
           priority: 2,

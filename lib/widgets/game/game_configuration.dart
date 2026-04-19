@@ -81,8 +81,7 @@ class IntOptionWidget extends StatefulWidget {
 }
 
 class _IntOptionWidgetState extends State<IntOptionWidget> {
-  late int currentValue =
-      widget.data[widget.option.id] ?? widget.option.defaultValue;
+  late int currentValue = widget.option.read(widget.data);
 
   @override
   Widget build(BuildContext context) => ListTile(
@@ -130,8 +129,7 @@ class BoolOptionWidget extends StatefulWidget {
 }
 
 class _BoolOptionWidgetState extends State<BoolOptionWidget> {
-  late bool checked =
-      widget.data[widget.option.id] ?? widget.option.defaultValue;
+  late bool checked = widget.option.read(widget.data);
 
   @override
   Widget build(BuildContext context) => SwitchListTile(

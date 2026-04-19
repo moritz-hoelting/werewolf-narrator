@@ -23,12 +23,21 @@ part 'fox.mapper.dart';
 @RegisterRole()
 class FoxRole extends Role {
   FoxRole._({required RoleConfiguration config, required super.playerIndex})
-    : loosePowersOnWrongGuess = config[losePowersOnWrongGuessOptionId];
+    : loosePowersOnWrongGuess = losePowersOnWrongGuessOption.read(config);
   static final RoleType type = RoleType.of<FoxRole>();
   @override
   RoleType get roleType => type;
 
-  static const String losePowersOnWrongGuessOptionId = 'losePowersOnWrongGuess';
+  static final losePowersOnWrongGuessOption = BoolOption(
+    id: 'losePowersOnWrongGuess',
+    defaultValue: true,
+    label: (context) => AppLocalizations.of(
+      context,
+    ).role_fox_option_losePowersOnWrongGuess_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_fox_option_losePowersOnWrongGuess_description,
+  );
 
   final bool loosePowersOnWrongGuess;
 
@@ -49,18 +58,7 @@ class FoxRole extends Role {
           context,
         ).role_fox_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([
-          BoolOption(
-            id: losePowersOnWrongGuessOptionId,
-            defaultValue: true,
-            label: (context) => AppLocalizations.of(
-              context,
-            ).role_fox_option_losePowersOnWrongGuess_label,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_fox_option_losePowersOnWrongGuess_description,
-          ),
-        ]),
+        options: IList([losePowersOnWrongGuessOption]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 30,

@@ -26,13 +26,21 @@ part 'priest.mapper.dart';
 @RegisterRole()
 class PriestRole extends Role {
   PriestRole._({required RoleConfiguration config, required super.playerIndex})
-    : blessAmountRemaining = config[PriestRole.blessCountOptionId];
+    : blessAmountRemaining = blessCountOption.read(config);
 
   static final RoleType type = RoleType.of<PriestRole>();
   @override
   RoleType get roleType => type;
 
-  static const String blessCountOptionId = 'blessCount';
+  static final blessCountOption = IntOption(
+    id: 'blessCount',
+    label: (context) =>
+        AppLocalizations.of(context).role_priest_option_blessCountLabel,
+    description: (context) =>
+        AppLocalizations.of(context).role_priest_option_blessCountDescription,
+    defaultValue: 1,
+    min: 1,
+  );
 
   int blessAmountRemaining;
 
@@ -54,18 +62,7 @@ class PriestRole extends Role {
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
         ),
-        options: IList([
-          IntOption(
-            id: blessCountOptionId,
-            label: (context) =>
-                AppLocalizations.of(context).role_priest_option_blessCountLabel,
-            description: (context) => AppLocalizations.of(
-              context,
-            ).role_priest_option_blessCountDescription,
-            defaultValue: 1,
-            min: 1,
-          ),
-        ]),
+        options: IList([blessCountOption]),
       ),
     );
   }

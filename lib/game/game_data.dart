@@ -347,26 +347,6 @@ class GameData {
         .lock;
   }
 
-  void _markPlayerActuallyDead(
-    int playerIndex,
-    DeathInformation deathInformation,
-  ) {
-    if (_markDeadRecursionGuard.contains(playerIndex)) {
-      return;
-    }
-    _markDeadRecursionGuard.add(playerIndex);
-    var shouldDie = true;
-    for (final hook in deathHooks) {
-      if (hook(state, playerIndex, deathInformation)) {
-        shouldDie = false;
-      }
-    }
-    if (shouldDie) {
-      players[playerIndex].markDead(deathInformation);
-    }
-    _markDeadRecursionGuard.remove(playerIndex);
-  }
-
   /// Marks a player as dead with the given death reason.
   void markPlayerDead(int playerIndex, DeathReason deathReason) {
     final deathInformation = DeathInformation(
@@ -672,14 +652,31 @@ class ProcessPendingDeathsCommand
   void apply(GameData gameData) {
     _previousPendingDeaths = gameData.pendingDeaths;
     final pendingDeaths = gameData.pendingDeaths;
+    final deathsToAnnounce = <int>{};
     for (final entry in pendingDeaths.entries) {
       final playerIndex = entry.key;
       final deathInfos = entry.value;
       for (final deathInfo in deathInfos) {
-        gameData._markPlayerActuallyDead(playerIndex, deathInfo);
+        if (gameData._markDeadRecursionGuard.contains(playerIndex)) {
+          return;
+        }
+        gameData._markDeadRecursionGuard.add(playerIndex);
+        var shouldDie = true;
+        for (final hook in gameData.deathHooks) {
+          if (hook(gameData.state, playerIndex, deathInfo)) {
+            shouldDie = false;
+          }
+        }
+        if (shouldDie) {
+          gameData.players[playerIndex].markDead(deathInfo);
+          deathsToAnnounce.add(playerIndex);
+        } else {
+          gameData.removeFromPendingDeaths(playerIndex, deathInfo.reason);
+        }
+        gameData._markDeadRecursionGuard.remove(playerIndex);
       }
     }
-    gameData._unannouncedDeaths.addAll(pendingDeaths.keys);
+    gameData._unannouncedDeaths.addAll(deathsToAnnounce);
     for (final entry in pendingDeaths.entries) {
       gameData._pendingDeaths[entry.key]?.removeWhere(
         (deathInfo) => entry.value.contains(deathInfo),
