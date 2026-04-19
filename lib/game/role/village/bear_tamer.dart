@@ -107,7 +107,7 @@ class RegisterBearTamerDawnMessageCommand
   void apply(GameData gameData) {
     // TODO: change to dawn message
     gameData.dayActionManager.registerAction(
-      BearTamerRole,
+      BearTamerRole.type,
       (gameState, onComplete) =>
           (context) =>
               BearGruntScreen(playerIndex: playerIndex, onComplete: onComplete),
@@ -119,7 +119,7 @@ class RegisterBearTamerDawnMessageCommand
           .isNotEmpty,
       players: {playerIndex},
       beforeAll: true,
-      before: ISet({VillageVoteScreen}),
+      before: ISet({VillageVoteScreen.identifier}),
     );
   }
 
@@ -128,6 +128,6 @@ class RegisterBearTamerDawnMessageCommand
 
   @override
   void undo(GameData gameData) {
-    gameData.dayActionManager.unregisterAction(BearTamerRole);
+    gameData.dayActionManager.unregisterAction(BearTamerRole.type);
   }
 }

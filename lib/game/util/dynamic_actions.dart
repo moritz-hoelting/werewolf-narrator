@@ -17,12 +17,12 @@ class DynamicActionManager {
 
   /// Registers an action with the given configuration and constraints.
   void registerAction(
-    Object identifier,
+    DynamicActionIdentifier identifier,
     DynamicActionBuilder builder, {
     required Set<int> players,
     bool Function(GameState gameState)? conditioned,
-    ISet<Object> before = const ISet.empty(),
-    ISet<Object> after = const ISet.empty(),
+    ISet<DynamicActionIdentifier> before = const ISet.empty(),
+    ISet<DynamicActionIdentifier> after = const ISet.empty(),
     bool beforeAll = false,
     bool afterAll = false,
   }) {
@@ -45,7 +45,7 @@ class DynamicActionManager {
   }
 
   /// Unregisters the action with the given identifier.
-  void unregisterAction(Object identifier) {
+  void unregisterAction(DynamicActionIdentifier identifier) {
     _ordered = false;
     _registrations.removeWhere((reg) => reg.identifier == identifier);
   }
@@ -103,10 +103,10 @@ class DynamicActionRegistration {
   final DynamicActionEntry entry;
 
   /// The list of identifiers that this action must come before.
-  final ISet<Object> before;
+  final ISet<DynamicActionIdentifier> before;
 
   /// The list of identifiers that this action must come after.
-  final ISet<Object> after;
+  final ISet<DynamicActionIdentifier> after;
 
   /// Whether this action should come before all others.
   final bool beforeAll;
@@ -114,7 +114,7 @@ class DynamicActionRegistration {
   /// Whether this action should come after all others.
   final bool afterAll;
 
-  Object get identifier => entry.identifier;
+  DynamicActionIdentifier get identifier => entry.identifier;
 
   const DynamicActionRegistration(
     this.entry, {
@@ -131,7 +131,7 @@ class DynamicActionRegistration {
 
 class DynamicActionEntry {
   /// The unique identifier for this dynamic action.
-  final Object identifier;
+  final DynamicActionIdentifier identifier;
 
   /// The builder function for this dynamic action screen.
   final DynamicActionBuilder builder;
@@ -153,3 +153,5 @@ class DynamicActionEntry {
   String toString() =>
       'DynamicActionEntry(identifier: $identifier, players: $players)';
 }
+
+abstract interface class DynamicActionIdentifier {}

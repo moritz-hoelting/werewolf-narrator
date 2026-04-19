@@ -141,7 +141,7 @@ class OnAssignWhiteWolfCommand
     gameData.playerWinHooks.add(playerWinHook);
 
     gameData.nightActionManager.registerAction(
-      WhiteWolfRole,
+      WhiteWolfRole.type,
       (gameState, onComplete) => nightActionScreen(onComplete),
       conditioned: (gameState) =>
           gameState.players[playerIndex].isAlive &&
@@ -157,7 +157,7 @@ class OnAssignWhiteWolfCommand
   @override
   void undo(GameData gameData) {
     gameData.playerWinHooks.remove(playerWinHook);
-    gameData.nightActionManager.unregisterAction(WhiteWolfRole);
+    gameData.nightActionManager.unregisterAction(WhiteWolfRole.type);
   }
 
   bool? playerWinHook(

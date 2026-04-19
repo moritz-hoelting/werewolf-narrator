@@ -5,11 +5,13 @@ import 'package:flutter/widgets.dart';
 import 'package:werewolf_narrator/game/game_registry.g.dart' show GameRegistry;
 import 'package:werewolf_narrator/game/model/role.dart' show RoleType;
 import 'package:werewolf_narrator/game/team/team.dart';
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
+    show DynamicActionIdentifier;
 
 part 'team.mapper.dart';
 
 @MappableClass()
-class TeamType with TeamTypeMappable {
+class TeamType with TeamTypeMappable implements DynamicActionIdentifier {
   const TeamType._(this.id);
 
   @MappableConstructor()

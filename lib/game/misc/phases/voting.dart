@@ -8,6 +8,8 @@ import 'package:werewolf_narrator/game/game_data.dart';
 import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
+    show DynamicActionIdentifier;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/widgets/game/app_bar.dart';
 import 'package:werewolf_narrator/widgets/game/player_list.dart';
@@ -18,6 +20,8 @@ class VillageVoteScreen extends StatefulWidget {
   final VoidCallback onComplete;
 
   const VillageVoteScreen({required this.onComplete, super.key});
+
+  static const identifier = _VillageVoteScreenIdentifier();
 
   @override
   State<VillageVoteScreen> createState() => _VillageVoteScreenState();
@@ -38,7 +42,7 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
       builder: (context, gameState, _) => Scaffold(
         appBar: GameAppBar(title: Text(localizations.screen_villageVote_title)),
         body: PlayerList(
-          phaseIdentifier: VillageVoteScreen,
+          phaseIdentifier: VillageVoteScreen.identifier,
           disabledPlayers: gameState.deadPlayerIndices,
           selectedPlayers: {_selectedPlayer}.nonNulls.toISet(),
           onPlayerTap: (index) => () {
@@ -98,6 +102,10 @@ class _VillageVoteScreenState extends State<VillageVoteScreen> {
   }
 }
 
+class _VillageVoteScreenIdentifier implements DynamicActionIdentifier {
+  const _VillageVoteScreenIdentifier();
+}
+
 @MappableClass(discriminatorValue: 'villageVote')
 class VillageVoteDeathReason
     with VillageVoteDeathReasonMappable
@@ -121,7 +129,7 @@ class RegisterVillageVoteScreenCommand
   @override
   void apply(GameData gameData) {
     gameData.dayActionManager.registerAction(
-      VillageVoteScreen,
+      VillageVoteScreen.identifier,
       (gameState, onComplete) =>
           (context) => VillageVoteScreen(onComplete: onComplete),
       conditioned: (gameState) => gameState.alivePlayerCount > 1,
@@ -134,6 +142,6 @@ class RegisterVillageVoteScreenCommand
 
   @override
   void undo(GameData gameData) {
-    gameData.dayActionManager.unregisterAction(VillageVoteScreen);
+    gameData.dayActionManager.unregisterAction(VillageVoteScreen.identifier);
   }
 }

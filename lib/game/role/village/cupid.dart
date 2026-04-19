@@ -133,15 +133,15 @@ class WakeLoversScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Consumer<GameState>(
-    builder: (context, gameState, _) {
-      final localizations = AppLocalizations.of(context);
-      return Scaffold(
-        appBar: GameAppBar(title: Text(localizations.screen_wakeLovers_title)),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: GameAppBar(title: Text(localizations.screen_wakeLovers_title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Consumer<GameState>(
+            builder: (context, gameState, _) => Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               spacing: 16.0,
@@ -161,20 +161,20 @@ class WakeLoversScreen extends StatelessWidget {
             ),
           ),
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(60),
-            ),
-            onPressed: onPhaseComplete,
-            label: Text(localizations.button_continueLabel),
-            icon: const Icon(Icons.arrow_forward),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(60),
           ),
+          onPressed: onPhaseComplete,
+          label: Text(localizations.button_continueLabel),
+          icon: const Icon(Icons.arrow_forward),
         ),
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
 @MappableClass(discriminatorValue: 'registerCupidNightAction')

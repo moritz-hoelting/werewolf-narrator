@@ -7,6 +7,8 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/misc/phases/voting.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart'
     show BoolOption;
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
+    show DynamicActionIdentifier;
 import 'package:werewolf_narrator/game/util/hooks.dart' show PlayerDisplayData;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 import 'package:werewolf_narrator/views/game/action_screen.dart';
@@ -25,6 +27,8 @@ final sheriffEnabledOption = BoolOption(
 
 class SheriffElectionScreen extends StatelessWidget {
   const SheriffElectionScreen({required this.onComplete, super.key});
+
+  static const identifier = _SheriffElectionScreenIdentifier();
 
   final VoidCallback onComplete;
 
@@ -55,6 +59,10 @@ class SheriffElectionScreen extends StatelessWidget {
   }
 }
 
+class _SheriffElectionScreenIdentifier implements DynamicActionIdentifier {
+  const _SheriffElectionScreenIdentifier();
+}
+
 @MappableClass(discriminatorValue: 'registerSheriffElectionScreen')
 class RegisterSheriffElectionScreenCommand
     with RegisterSheriffElectionScreenCommandMappable
@@ -64,7 +72,7 @@ class RegisterSheriffElectionScreenCommand
   @override
   void apply(GameData gameData) {
     gameData.dayActionManager.registerAction(
-      SheriffElectionScreen,
+      SheriffElectionScreen.identifier,
       (gameState, onComplete) =>
           (context) => SheriffElectionScreen(onComplete: onComplete),
       conditioned: (gameState) =>
@@ -73,7 +81,7 @@ class RegisterSheriffElectionScreenCommand
               !gameState
                   .players[gameData.customData[SheriffElectionScreen] as int]
                   .isAlive),
-      before: ISet({VillageVoteScreen}),
+      before: ISet({VillageVoteScreen.identifier}),
       players: const {},
     );
 
@@ -87,7 +95,9 @@ class RegisterSheriffElectionScreenCommand
 
   @override
   void undo(GameData gameData) {
-    gameData.dayActionManager.unregisterAction(SheriffElectionScreen);
+    gameData.dayActionManager.unregisterAction(
+      SheriffElectionScreen.identifier,
+    );
     gameData.playerDisplayHooks.remove(playerDisplayHook);
   }
 

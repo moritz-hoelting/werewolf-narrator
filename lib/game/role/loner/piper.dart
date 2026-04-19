@@ -229,7 +229,7 @@ class RegisterPiperNightActionCommand
   @override
   void apply(GameData gameData) {
     gameData.nightActionManager.registerAction(
-      PiperRole,
+      PiperRole.type,
       (gameState, onComplete) =>
           (context) => PiperScreen(
             playerIndex: playerIndex,
@@ -247,7 +247,7 @@ class RegisterPiperNightActionCommand
 
   @override
   void undo(GameData gameData) {
-    gameData.nightActionManager.unregisterAction(PiperRole);
+    gameData.nightActionManager.unregisterAction(PiperRole.type);
   }
 }
 

@@ -10,12 +10,14 @@ import 'package:werewolf_narrator/game/game_state.dart';
 import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/team.dart' show TeamType;
 import 'package:werewolf_narrator/game/role/role.dart';
+import 'package:werewolf_narrator/game/util/dynamic_actions.dart'
+    show DynamicActionIdentifier;
 import 'package:werewolf_narrator/l10n/app_localizations.dart';
 
 part 'role.mapper.dart';
 
 @MappableClass()
-class RoleType with RoleTypeMappable {
+class RoleType with RoleTypeMappable implements DynamicActionIdentifier {
   const RoleType._(this.id);
 
   @MappableConstructor()

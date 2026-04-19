@@ -14,8 +14,12 @@ import 'package:werewolf_narrator/game/model/configuration_options.dart';
 import 'package:werewolf_narrator/game/model/death_information.dart'
     show DeathReason, DeathReasonMapper;
 import 'package:werewolf_narrator/game/model/role.dart';
+import 'package:werewolf_narrator/game/role/loner/white_wolf.dart'
+    show WhiteWolfRole;
 import 'package:werewolf_narrator/game/role/role.dart';
 import 'package:werewolf_narrator/game/role/village/cupid.dart' show CupidRole;
+import 'package:werewolf_narrator/game/role/werewolves/big_bad_wolf.dart'
+    show BigBadWolfRole;
 import 'package:werewolf_narrator/game/team/village.dart' show VillageTeam;
 import 'package:werewolf_narrator/game/team/werewolves.dart'
     show WerewolvesDeathReason, WerewolvesTeam;
@@ -31,7 +35,8 @@ part 'witch.mapper.dart';
 class WitchRole extends Role {
   WitchRole._({required RoleConfiguration config, required super.playerIndex})
     : healPotions = healPotionCountOption.read(config),
-      killPotions = killPotionCountOption.read(config);
+      killPotions = killPotionCountOption.read(config),
+      canOnlyHealWerewolfKills = canOnlyHealWerewolfKillsOption.read(config);
   static final RoleType type = RoleType.of<WitchRole>();
   @override
   RoleType get roleType => type;
@@ -56,9 +61,20 @@ class WitchRole extends Role {
     min: 0,
     defaultValue: 1,
   );
+  static final canOnlyHealWerewolfKillsOption = BoolOption(
+    id: 'canOnlyHealWerewolfKills',
+    label: (context) => AppLocalizations.of(
+      context,
+    ).role_witch_option_canOnlyHealWerewolfKills_label,
+    description: (context) => AppLocalizations.of(
+      context,
+    ).role_witch_option_canOnlyHealWerewolfKills_description,
+    defaultValue: true,
+  );
 
   int healPotions;
   int killPotions;
+  bool canOnlyHealWerewolfKills;
 
   static void registerRole() {
     RoleManager.registerRole<WitchRole>(
@@ -73,7 +89,11 @@ class WitchRole extends Role {
           context,
         ).role_witch_checkInstruction(count: count),
         validRoleCounts: const [1],
-        options: IList([healPotionCountOption, killPotionCountOption]),
+        options: IList([
+          healPotionCountOption,
+          killPotionCountOption,
+          canOnlyHealWerewolfKillsOption,
+        ]),
         chooseRolesInformation: const ChooseRolesInformation(
           category: ChooseRolesCategory.village,
           priority: 15,
@@ -107,12 +127,14 @@ class WitchDeathReason with WitchDeathReasonMappable implements DeathReason {
 class WitchScreen extends StatefulWidget {
   final int killPotions;
   final int healPotions;
+  final bool canOnlyHealWerewolfKills;
   final int playerIndex;
   final VoidCallback onPhaseComplete;
 
   const WitchScreen({
     required this.killPotions,
     required this.healPotions,
+    required this.canOnlyHealWerewolfKills,
     required this.playerIndex,
     required this.onPhaseComplete,
     super.key,
@@ -172,11 +194,14 @@ class _WitchScreenState extends State<WitchScreen> {
                 _selectedHealPlayers.map(
                   (healPlayerIndex) => MapEntry(
                     healPlayerIndex,
-                    gameState.pendingDeaths[healPlayerIndex]!
-                        .firstWhere(
-                          (deathInfo) =>
-                              deathInfo.reason is WerewolvesDeathReason,
-                        )
+                    (widget.canOnlyHealWerewolfKills
+                            ? gameState.pendingDeaths[healPlayerIndex]!
+                                  .firstWhere(
+                                    (deathInfo) =>
+                                        deathInfo.reason
+                                            is WerewolvesDeathReason,
+                                  )
+                            : gameState.pendingDeaths[healPlayerIndex]!.first)
                         .reason,
                   ),
                 ),
@@ -191,19 +216,21 @@ class _WitchScreenState extends State<WitchScreen> {
   }
 
   bool playerEnabled(GameState gameState, int index) {
-    // TODO: add option whether only the target of the werewolves can be healed
-    final killedByWerewolves =
+    final healTargetPlayers =
         gameState.pendingDeaths.containsKey(index) &&
-        (gameState.pendingDeaths[index]?.any(
-              (information) => information.reason is WerewolvesDeathReason,
-            ) ??
+        ((widget.canOnlyHealWerewolfKills
+                ? gameState.pendingDeaths[index]?.any(
+                    (information) =>
+                        information.reason is WerewolvesDeathReason,
+                  )
+                : gameState.pendingDeaths[index]?.isNotEmpty) ??
             false);
     return gameState.players[index].isAlive &&
         (_killModeActive
             ? (index != widget.playerIndex &&
                   gameState.players[index].isAlive &&
-                  !killedByWerewolves)
-            : killedByWerewolves);
+                  !healTargetPlayers)
+            : healTargetPlayers);
   }
 
   VoidCallback? onTapKill(GameState gameState, int index) =>
@@ -370,12 +397,18 @@ class RegisterWitchNightActionCommand
         return (context) => WitchScreen(
           healPotions: witch.healPotions,
           killPotions: witch.killPotions,
+          canOnlyHealWerewolfKills: witch.canOnlyHealWerewolfKills,
           playerIndex: playerIndex,
           onPhaseComplete: onComplete,
         );
       },
       conditioned: (gameState) => gameState.players[playerIndex].isAlive,
-      after: ISet({WerewolvesTeam.type, CupidRole.type}),
+      after: ISet({
+        WerewolvesTeam.type,
+        WhiteWolfRole.type,
+        BigBadWolfRole.type,
+        CupidRole.type,
+      }),
       players: {playerIndex},
     );
   }
