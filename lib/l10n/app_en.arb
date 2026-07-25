@@ -308,6 +308,10 @@
     "@screen_chooseRoles_startButton": {
         "description": "Button label to start the game after selecting roles"
     },
+    "screen_checkRoles_title": "Check roles",
+    "@screen_checkRoles_title": {
+        "description": "Title of the check roles screen"
+    },
     "screen_checkRoles_noPlayersInTeam": "No players assigned to team",
     "@screen_checkRoles_noPlayersInTeam": {
         "description": "Error message shown when no players are assigned to a team"

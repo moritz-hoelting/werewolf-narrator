@@ -138,9 +138,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
           context: context,
           gameState: gameState,
           maxSelection: maxSelection,
-          title: checkTogetherInformation.checkInstruction(
-            context,
-            maxSelection,
+          instruction: Text(
+            checkTogetherInformation.checkInstruction(context, maxSelection),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           onCompletePressed: () =>
               onCompleteTeam(gameState, team, maxSelection),
@@ -158,7 +158,10 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
           gameState: gameState,
           maxSelection: maxSelection,
           teamConstraints: teamConstraints,
-          title: role.information.checkRoleInstruction(context, maxSelection),
+          instruction: Text(
+            role.information.checkRoleInstruction(context, maxSelection),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           onCompletePressed: () => onCompleteRole(
             gameState,
             role,
@@ -173,8 +176,8 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
     required BuildContext context,
     required GameState gameState,
     required int maxSelection,
-    required String title,
     required VoidCallback onCompletePressed,
+    required Widget instruction,
     ISet<int>? teamConstraints,
   }) {
     final localizations = AppLocalizations.of(context);
@@ -183,7 +186,9 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
         widget.assignedPlayersByTeam.values.flattenedToList;
 
     return Scaffold(
-      appBar: GameAppBar(title: Text(title)),
+      appBar: GameAppBar(
+        title: Text(AppLocalizations.of(context).screen_checkRoles_title),
+      ),
       body: teamConstraints != null && teamConstraints.isEmpty
           ? Center(
               child: Text(
@@ -191,29 +196,39 @@ class _CheckRoleScreenState extends State<CheckRoleScreen> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             )
-          : PlayerList(
-              phaseIdentifier: (GamePhase.checkRoles, widget.current),
-              onPlayerTap: (index) => getOnTapPlayer(
-                index: index,
-                gameState: gameState,
-                maxSelection: maxSelection,
-                teamAssignedPlayers: teamAssignedPlayers.lock,
-                teamConstraints: teamConstraints,
-              ),
-              selectedPlayers: _selectedPlayers
-                  .mapIndexed((index, isSelected) => isSelected ? index : null)
-                  .nonNulls
-                  .toISet(),
-              disabledPlayers: List.generate(gameState.playerCount, (i) => i)
-                  .where(
-                    (index) =>
-                        gameState.players[index].role != null ||
-                        (teamConstraints != null
-                            ? !teamConstraints.contains(index)
-                            : teamAssignedPlayers.contains(index)) ||
-                        gameState.deadPlayerIndices.contains(index),
-                  )
-                  .toISet(),
+          : Column(
+              children: [
+                Padding(padding: const EdgeInsets.all(8.0), child: instruction),
+                Expanded(
+                  child: PlayerList(
+                    phaseIdentifier: (GamePhase.checkRoles, widget.current),
+                    onPlayerTap: (index) => getOnTapPlayer(
+                      index: index,
+                      gameState: gameState,
+                      maxSelection: maxSelection,
+                      teamAssignedPlayers: teamAssignedPlayers.lock,
+                      teamConstraints: teamConstraints,
+                    ),
+                    selectedPlayers: _selectedPlayers
+                        .mapIndexed(
+                          (index, isSelected) => isSelected ? index : null,
+                        )
+                        .nonNulls
+                        .toISet(),
+                    disabledPlayers:
+                        List.generate(gameState.playerCount, (i) => i)
+                            .where(
+                              (index) =>
+                                  gameState.players[index].role != null ||
+                                  (teamConstraints != null
+                                      ? !teamConstraints.contains(index)
+                                      : teamAssignedPlayers.contains(index)) ||
+                                  gameState.deadPlayerIndices.contains(index),
+                            )
+                            .toISet(),
+                  ),
+                ),
+              ],
             ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
